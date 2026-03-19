@@ -1,0 +1,27 @@
+Akka AI Marketplace
+Copyright 2025 Lightbend Inc.
+
+This product includes software developed at Lightbend Inc.
+(https://www.lightbend.com/).
+
+This product includes adapted material from SpecKit
+(https://github.com/github/spec-kit), licensed under the MIT License.
+The following skills are derived from SpecKit templates, adapted for the
+Akka SDK with MCP tool integration:
+
+  - akka.specify
+  - akka.plan
+  - akka.tasks
+  - akka.clarify
+  - akka.analyze
+  - akka.checklist
+  - akka.issues
+
+The following skills and templates are original to Akka:
+
+  - akka.setup
+  - akka.build
+  - akka.deploy
+  - akka.implement
+  - akka.review
+  - akka.constitution
