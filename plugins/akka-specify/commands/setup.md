@@ -82,8 +82,6 @@ Then check for an existing project by running `ls pom.xml .akka/ .claude/command
 - If `pom.xml` exists → **existing project**, enter repair/upgrade mode (Phase 7B).
 - If no `pom.xml` → **new project**, proceed with full setup.
 
-Check for an enterprise manifest by reading `.akka/enterprise.yaml`, `~/.akka/enterprise.yaml`, or fetching from `$AKKA_ENTERPRISE_CONFIG_URL` if set. If found, inform the user and apply overrides in subsequent phases.
-
 Report: *"Detected: [OS] [ARCH] with [PACKAGE_MANAGER]. [New project / Existing project]."*
 
 ---
@@ -94,8 +92,6 @@ Execute `java -version 2>&1` and parse the major version.
 
 - If Java 21+ is present: report *"Java [version] — already installed"* and skip to Phase 3.
 - If missing or below 21: install it.
-
-**Enterprise override:** If the enterprise manifest has `tooling.java.install-command`, execute that command instead of the defaults below.
 
 Install based on the platform detected in Phase 1:
 - **macOS:** Execute `brew install --cask temurin@21`
@@ -118,8 +114,6 @@ Execute `mvn --version 2>&1`. Also check for a Maven wrapper with `ls ./mvnw 2>/
 - If Maven 3.9+ is present (or `./mvnw` exists): report *"Maven [version] — already installed"* and skip to Phase 4.
 - If missing or below 3.9: install it.
 
-**Enterprise override:** If the enterprise manifest has `tooling.maven.install-command`, execute that instead.
-
 Install based on the platform:
 - **macOS:** Execute `brew install maven`
 - **Linux (preferred):** Execute `sdk install maven` (requires SDKMAN from Phase 2)
@@ -138,8 +132,6 @@ Execute `akka version 2>&1`.
 - If the Akka CLI is present: report *"Akka CLI [version] — already installed"* and skip to Phase 5.
 - If missing: install it.
 
-**Enterprise override:** If the enterprise manifest has `tooling.akka-cli.install-command`, execute that instead.
-
 Install based on the platform:
 - **macOS:** Execute `brew install akka/brew/akka`
 - **Linux/Windows:** Refer the user to https://doc.akka.io/operations/cli/installation.html for download instructions.
@@ -154,8 +146,6 @@ Execute `grep -q "akka-repository" ~/.m2/settings.xml 2>/dev/null && echo "confi
 
 - If both are configured: report *"Akka download token — already configured"* and skip to Phase 6.
 - If missing: provision the token.
-
-**Enterprise override:** If the enterprise manifest has `tooling.maven.settings-overlay`, download that settings file and merge it into `~/.m2/settings.xml` instead.
 
 Tell the user: *"I need to run `akka code token` which will open a browser window for you to log in to your Akka account. This is a free account needed to download Akka SDK dependencies."*
 
@@ -174,7 +164,7 @@ Execute `docker info 2>/dev/null | head -5`.
 
 *"Docker is only needed for running local clusters and building container images for deployment. You can develop and test without it."*
 
-Ask: *"Would you like to install Docker now, or skip it? You can always rerun `/akka.setup` later."*
+Ask: *"Would you like to install Docker now, or skip it? You can always rerun setup later."*
 
 If the user wants to install:
 - **macOS:** Execute `brew install --cask docker`
@@ -184,31 +174,22 @@ If the user wants to install:
 
 If the user defers: record it as skipped and continue.
 
-**Enterprise override:** If `tooling.docker.runtime` is set (e.g., `podman`), check for that runtime instead.
-
 ---
 
 ## Phase 7: Project Scaffolding
 
 ### 7A. New Project (no existing `pom.xml`)
 
-1. **Project identity:** Execute `basename "$(pwd)"` to get the directory name. Derive:
+1. **Project identity:** Execute `basename "$(pwd)"` to get the directory name. Derive defaults silently:
    - **artifactId**: lowercase, hyphens only (e.g., `My Shopping Cart` → `my-shopping-cart`)
    - **groupId**: default `com.example`
 
-   Present to the user for confirmation. Apply changes if requested.
+   Do NOT ask the user to confirm these values. These are Java/Maven concepts that most users
+   won't be familiar with. Use the defaults and move on. The values can be changed later in `pom.xml`.
 
 2. **Scaffold:** Execute `akka specify init . --agent claude-code`. This clones the empty project, customizes pom.xml, downloads akka-context/, CLAUDE.md, AGENTS.md, constitution, installs slash commands, templates, and .mcp.json.
 
 3. **Git init:** If git is not already initialized, execute `git init`, `git add .`, `git commit -m "Initial Akka project setup via /akka.setup"`.
-
-4. **Enterprise post-scaffolding** (if manifest detected in Phase 1):
-   - Download additional context sources from `context.additional-sources`
-   - Apply custom constitutions from `governance.constitutions` (merge or replace)
-   - Apply custom templates from `governance.templates` (replace or add)
-   - Append governance rules from `governance.rules` to the constitution
-   - Install skill overrides from `sdlc.skill-overrides`
-   - Apply Maven mirror settings from `tooling.maven.mirrors`
 
 ### 7B. Existing Project (repair/upgrade mode)
 
@@ -217,8 +198,6 @@ If the user defers: record it as skipped and continue.
 2. **Check for missing artifacts:** Execute `test -f .mcp.json && echo "OK" || echo "MISSING"` for each expected file (.mcp.json, .akka/constitution/, .akka/templates/, .claude/commands/, akka-context/, CLAUDE.md, AGENTS.md). For any missing, execute `akka specify init . --agent claude-code` to regenerate.
 
 3. **Update context:** Execute `akka code context-update . --assistant claude-code --force`.
-
-4. **Enterprise repair:** If manifest detected, apply the same customizations as 7A.4.
 
 ---
 
@@ -285,32 +264,6 @@ available and /akka.specify will work with full functionality.
 Ready to go! After restarting, run /akka.specify to start building your first feature.
 ```
 
-If enterprise customizations were applied, add them to the summary.
-
-**Enterprise post-setup hooks** (`tooling.post-setup-hooks`): For each hook, show the command and description, ask for confirmation, execute, and report success/failure. Substitute `${artifact_id}`, `${group_id}`, `${project_dir}`, `${team}` in command strings.
-
----
-
-## Enterprise Customization Reference
-
-| Manifest Section | Phase | Action |
-|-----------------|-------|--------|
-| `tooling.java.install-command` | 2 | Replace default Java install |
-| `tooling.maven.install-command` | 3 | Replace default Maven install |
-| `tooling.akka-cli.install-command` | 4 | Replace default CLI install |
-| `tooling.maven.settings-overlay` | 5 | Download and merge Maven settings |
-| `tooling.maven.mirrors` | 5 | Add mirror config to Maven settings |
-| `tooling.docker.install-command` | 6 | Replace default Docker install |
-| `tooling.docker.runtime` | 6 | Check for alternative runtime |
-| `context.additional-sources` | 7 | Download additional context |
-| `governance.constitutions` | 7 | Merge or replace constitution |
-| `governance.templates` | 7 | Replace or add templates |
-| `governance.rules` | 7 | Append rules to constitution |
-| `sdlc.skill-overrides` | 7 | Replace default slash commands |
-| `sdlc.gates` | 7 | Document gates in project |
-| `sdlc.environments` | 7 | Document environments in project |
-| `tooling.post-setup-hooks` | 10 | Execute post-setup commands |
-
 ---
 
 ## Error Handling
@@ -328,4 +281,3 @@ If enterprise customizations were applied, add them to the summary.
 - ASK BEFORE SUDO — show the exact command and get permission first
 - USER CHOOSES — optional phases (Docker, AI keys) are offered, never forced
 - DELEGATE TO CLI — after Phase 4, use `akka` CLI commands
-- ENTERPRISE EXTENSIBLE — check the manifest and apply overrides at each phase
