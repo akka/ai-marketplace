@@ -1,0 +1,116 @@
+---
+description: Build a container image, push it, and deploy the service to the Akka platform. This is the transition from local development to production.
+handoffs:
+  - label: Back to Local
+    agent: akka.build
+    prompt: Go back to the local development loop
+    send: true
+  - label: Review Issues
+    agent: akka.issues
+    prompt: Review any deployment issues
+    send: true
+---
+
+## User Input
+
+```text
+$ARGUMENTS
+```
+
+You **MUST** consider the user input before proceeding (if not empty).
+
+## Purpose
+
+This command transitions the service from **local development** to the
+**Akka platform**. It builds a container image, pushes it to a registry,
+deploys it, and configures routing. Only run this when the service works
+locally (via `/akka.build`) and you're ready to ship.
+
+## Outline
+
+1. **Pre-flight checks**:
+   - Run `mvn compile` and `mvn test` — do not deploy if tests fail
+   - **Ensure platform context**:
+     1. Read `akka://context` resource to check current org/project
+     2. If organization is empty:
+        a. Call `akka_organizations_list` to get available orgs
+        b. Present the list to the user and ask which to use
+        c. Remember the chosen org for subsequent tool calls
+     3. If project is empty:
+        a. Call `akka_projects_list` (pass `organization` parameter if known)
+        b. If projects exist: present list and ask user to pick
+        c. If none: ask if they want to create one via `akka_projects_create`
+        d. Remember the chosen project for subsequent tool calls
+     4. Read `akka://regions` to confirm target region
+     5. **IMPORTANT**: Pass the chosen project as the `project` parameter on
+        every platform tool call. Do NOT call `akka config set` — that
+        modifies the user's persistent CLI configuration.
+   - **Check the service name**: Read `pom.xml` and check the `<artifactId>`.
+     If it is a scaffold default (e.g. `empty-service`, `my-service`,
+     `example-service`), ask the user what service name they want to deploy
+     as. Use the user's chosen name as the `service` parameter in
+     `akka_services_deploy` — do NOT rename the artifactId in pom.xml.
+   - Confirm with the user that they want to deploy to the platform
+
+2. **Build container image**: Use `akka_build_image` MCP tool to run
+   `mvn clean install -DskipTests`. This creates a local Docker image.
+   Note the image name and tag from the output.
+
+3. **Deploy to platform**: Choose the appropriate method:
+
+   **Option A — Direct deploy** (quick iteration):
+   - Use `akka_services_deploy` MCP tool with the image:tag and `push=true`
+   - The `--push` flag pushes the image to the Akka container registry
+     and deploys it in one step
+   - Docker registry credentials are configured automatically if the user
+     is logged in via `akka auth login` — no separate credential setup needed
+   - Use `secret_env` to inject secrets (e.g. `{"MY_VAR": "secret-name/key"}`)
+   - Suitable for development and testing
+
+   **Option B — Descriptor-based deploy** (production):
+   - Use `akka_push_image` to build and push the image first
+   - Use `akka_project_export` to capture current state
+   - Modify or create a project descriptor YAML with the new service
+   - Use `akka_project_validate` to check the descriptor
+   - Use `akka_project_apply` with `dry_run=true` first
+   - Use `akka_project_apply` to apply
+
+4. **Verify deployment**:
+   - Use `akka_services_get` to check service status
+   - Use `akka_services_logs` to verify the service started correctly
+   - Check for errors in the logs
+
+5. **Configure routing** (if needed):
+   - Use `akka_routes_list` to check existing routes
+   - If routes already exist for this service, no action needed
+   - If no routes exist and the user wants external access:
+     - Use `akka_hostnames_list` to check if the project has a hostname
+     - If no hostnames exist, use `akka_hostnames_add` (without a hostname
+       parameter) to get an auto-generated hostname — this is the easiest
+       option for development
+     - Once a hostname exists, use `akka_routes_create` with a path
+       mapping (e.g. path `/` → service name)
+   - If the user doesn't need external access yet, skip routing
+
+6. **Report**: Summarize deployment:
+   - Image URI pushed
+   - Service name and version
+   - Region deployed to
+   - Route URL (if configured)
+   - Service status
+
+## Key Rules
+
+- ALWAYS run tests before deploying — do not deploy broken code
+- ALWAYS confirm with the user before deploying to the platform
+- Always validate descriptors before applying
+- Always use dry_run before real apply
+- Check logs after deployment to verify health
+- Prefer descriptor-based deployment for production
+- **NEVER modify pom.xml for image building or deployment** — do not add Jib,
+  docker-maven-plugin, buildx configuration, or any other image-related plugins.
+  The Akka SDK parent POM already configures docker-maven-plugin with the correct
+  platform (`linux/amd64`) and base image. Running `mvn clean install -DskipTests`
+  (via `akka_build_image`) is all that's needed to produce a deployable image.
+  If the build fails with architecture errors, check that Docker/Colima is running
+  and supports buildx — do NOT attempt to fix it by editing pom.xml.

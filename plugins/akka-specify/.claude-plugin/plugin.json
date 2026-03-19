@@ -1,0 +1,8 @@
+{
+  "name": "akka-specify",
+  "description": "Complete Akka SDK development workflow — from environment setup to production deployment",
+  "version": "1.0.1",
+  "author": {
+    "name": "Akka"
+  }
+}
