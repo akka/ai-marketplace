@@ -1,5 +1,5 @@
 ---
-description: Build a container image, push it, and deploy the service to the Akka platform. This is the transition from local development to devlopment on the AAO platform.
+description: Build a container image, push it, and deploy the service to the Akka platform. This is the transition from local development to development on the AAO platform.
 handoffs:
   - label: Back to Local
     agent: akka.build
