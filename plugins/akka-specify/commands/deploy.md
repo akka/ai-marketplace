@@ -1,5 +1,5 @@
 ---
-description: Build a container image, push it, and deploy the service to the Akka platform. This is the transition from local development to production.
+description: Build a container image, push it, and deploy the service to the Akka platform. This is the transition from local development to development on the AAO platform.
 handoffs:
   - label: Back to Local
     agent: akka.build
@@ -50,13 +50,33 @@ locally (via `/akka.build`) and you're ready to ship.
      `example-service`), ask the user what service name they want to deploy
      as. Use the user's chosen name as the `service` parameter in
      `akka_services_deploy` — do NOT rename the artifactId in pom.xml.
+   - **Check Docker image store**: Docker Desktop may have the containerd
+     image store enabled, which is incompatible with the Akka container
+     registry push flow. Check `docker info` output for `containerd` as the
+     storage driver or image store. If detected, warn the user:
+     _"Docker Desktop appears to be using the containerd image store, which
+     is incompatible with the Akka container registry push flow. Please:_
+     1. _Open Docker Desktop → Settings → General_
+     2. _Uncheck 'Use containerd for pulling and storing images'_
+     3. _Apply & Restart Docker Desktop_
+
+     _Then let me know and I'll continue the deploy."_
+     Do NOT proceed with the build until the user confirms this is resolved.
+
    - Confirm with the user that they want to deploy to the platform
 
-2. **Build container image**: Use `akka_build_image` MCP tool to run
+2. **Stop local services**: Before building the container image, call
+   `akka_local_stop_service` to stop any locally running instance of the
+   service. Running services hold file locks on build artifacts that prevent
+   `mvn clean install` from packaging the image. Then call `akka_local_stop`
+   to shut down the local runtime environment. If nothing is running, these
+   calls are safe no-ops — proceed to the next step.
+
+3. **Build container image**: Use `akka_build_image` MCP tool to run
    `mvn clean install -DskipTests`. This creates a local Docker image.
    Note the image name and tag from the output.
 
-3. **Deploy to platform**: Choose the appropriate method:
+4. **Deploy to platform**: Choose the appropriate method:
 
    **Option A — Direct deploy** (quick iteration):
    - Use `akka_services_deploy` MCP tool with the image:tag and `push=true`
@@ -75,12 +95,12 @@ locally (via `/akka.build`) and you're ready to ship.
    - Use `akka_project_apply` with `dry_run=true` first
    - Use `akka_project_apply` to apply
 
-4. **Verify deployment**:
+5. **Verify deployment**:
    - Use `akka_services_get` to check service status
    - Use `akka_services_logs` to verify the service started correctly
    - Check for errors in the logs
 
-5. **Configure routing** (if needed):
+6. **Configure routing** (if needed):
    - Use `akka_routes_list` to check existing routes
    - If routes already exist for this service, no action needed
    - If no routes exist and the user wants external access:
@@ -92,7 +112,7 @@ locally (via `/akka.build`) and you're ready to ship.
        mapping (e.g. path `/` → service name)
    - If the user doesn't need external access yet, skip routing
 
-6. **Report**: Summarize deployment:
+7. **Report**: Summarize deployment:
    - Image URI pushed
    - Service name and version
    - Region deployed to

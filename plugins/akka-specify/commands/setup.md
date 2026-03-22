@@ -240,6 +240,32 @@ Execute all checks and build the summary:
 4. Execute `grep -q "akka-repository" ~/.m2/settings.xml 2>/dev/null && echo "configured" || echo "not configured"`
 5. Execute `docker info 2>/dev/null | head -1 || echo "not available"`
 6. If `pom.xml` exists, execute `mvn compile -q 2>&1` to verify the build. Report errors but do not block.
+7. **MCP tool compatibility**: Check that the following MCP tools are available
+   in your current session. These are the tools used across all `/akka.*` commands:
+
+   **SDD workflow:** `akka_sdd_init`, `akka_sdd_constitution`, `akka_sdd_list_specs`,
+   `akka_sdd_create_spec`, `akka_sdd_get_template`
+
+   **Build & test:** `akka_maven_compile`, `akka_maven_test`, `akka_maven_verify`,
+   `akka_build_image`
+
+   **Local development:** `akka_local_start`, `akka_local_stop`, `akka_local_run_service`,
+   `akka_local_stop_service`, `akka_local_status`, `akka_local_logs`, `akka_local_request`
+
+   **Platform deployment:** `akka_services_deploy`, `akka_services_get`, `akka_services_logs`,
+   `akka_push_image`, `akka_organizations_list`, `akka_projects_list`, `akka_projects_create`,
+   `akka_hostnames_list`, `akka_hostnames_add`, `akka_routes_list`, `akka_routes_create`
+
+   **Git:** `akka_git_status`, `akka_git_create_branch`, `akka_git_add`, `akka_git_commit`,
+   `akka_git_checkout`, `akka_git_merge`
+
+   If any tools are missing, report which ones and tell the user:
+   *"Some MCP tools expected by the akka-specify plugin are not available from
+   your Akka CLI. Please upgrade the CLI (`brew upgrade akka/brew/akka` on macOS,
+   or download from https://doc.akka.io/operations/cli/installation.html) and
+   restart your AI session to pick up the updated MCP server."*
+
+   Mark the MCP tools line as ⚠ in the summary if any are missing, ✓ if all present.
 
 Output a summary:
 
@@ -251,6 +277,7 @@ Output a summary:
   Akka CLI 3.x.x         ✓ installed
   Akka download token    ✓ configured
   Docker                 ✓ installed        (or: ⏭ deferred)
+  MCP tools              ✓ all available    (or: ⚠ missing: tool1, tool2)
   SDK version            ✓ latest
   Project scaffolded     ✓ com.example:my-cart
   Akka context docs      ✓ 161 files
