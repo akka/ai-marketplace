@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # MCP Capability Requirements
 
 The akka-specify plugin commands depend on MCP tools served by the Akka CLI.
@@ -15,6 +16,19 @@ Each group is verified by testing one representative tool from the group.
 
 ### SDD workflow
 **Representative tool**: `akka_sdd_list_specs`
+=======
+# MCP Tool Compatibility
+
+The akka-specify plugin commands depend on MCP tools served by the Akka CLI.
+The set of available tools depends on the installed CLI version.
+
+Compatibility is checked once during `/akka.setup` (Phase 10). If tools are
+missing, the user is told to upgrade the CLI and restart their AI session.
+
+## Required tools
+
+### SDD workflow
+>>>>>>> b8abb31 (Initial release: akka-specify plugin for AI-assisted Akka SDK development)
 - `akka_sdd_init`
 - `akka_sdd_constitution`
 - `akka_sdd_list_specs`
@@ -22,14 +36,20 @@ Each group is verified by testing one representative tool from the group.
 - `akka_sdd_get_template`
 
 ### Build & test
+<<<<<<< HEAD
 **Representative tool**: `akka_maven_compile`
+=======
+>>>>>>> b8abb31 (Initial release: akka-specify plugin for AI-assisted Akka SDK development)
 - `akka_maven_compile`
 - `akka_maven_test`
 - `akka_maven_verify`
 - `akka_build_image`
 
 ### Local development
+<<<<<<< HEAD
 **Representative tool**: `akka_local_start`
+=======
+>>>>>>> b8abb31 (Initial release: akka-specify plugin for AI-assisted Akka SDK development)
 - `akka_local_start`
 - `akka_local_stop`
 - `akka_local_run_service`
