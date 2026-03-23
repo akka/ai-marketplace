@@ -1,6 +1,6 @@
 # Enterprise Manifest Schema
 
-Maintenance reference for `/akka.setup` enterprise customization. Documents the `.akka/enterprise.yaml` manifest format.
+Maintenance reference for `/akka-specify:setup` enterprise customization. Documents the `.akka/enterprise.yaml` manifest format.
 
 ## Manifest Locations (Precedence Order)
 
@@ -13,7 +13,7 @@ Project-level overrides user-level, which overrides URL-fetched.
 ## Full Schema
 
 ```yaml
-# Enterprise customization manifest for /akka.setup
+# Enterprise customization manifest for /akka-specify:setup
 # Version 1.0
 
 version: "1"
@@ -75,7 +75,7 @@ tooling:
   docker:
     install-command: "corp-sdk install podman"
     verify-command: "podman info"
-    # Signals to /akka.build and /akka.deploy to use this runtime
+    # Signals to /akka-specify:build and /akka-specify:deploy to use this runtime
     runtime: "podman"
   akka-cli:
     install-command: "curl -s https://internal.acme.com/akka/install.sh | bash"
@@ -147,7 +147,7 @@ The following variables are available in `command` strings and `source` URLs:
 | `${team}` | Value of `AKKA_TEAM` env var | `payments` |
 | `${environment}` | Target deployment environment | `staging` |
 
-## Section Processing in /akka.setup
+## Section Processing in /akka-specify:setup
 
 | Manifest Section | Applied During |
 |-----------------|----------------|

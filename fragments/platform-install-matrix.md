@@ -1,6 +1,6 @@
 # Platform Install Matrix
 
-Maintenance reference for `/akka.setup` skill. Documents OS/arch detection logic and install commands for each dependency.
+Maintenance reference for `/akka-specify:setup` skill. Documents OS/arch detection logic and install commands for each dependency.
 
 ## OS Detection
 

@@ -1,14 +1,20 @@
-# MCP Tool Compatibility
+# MCP Capability Requirements
 
 The akka-specify plugin commands depend on MCP tools served by the Akka CLI.
-The set of available tools depends on the installed CLI version.
+The plugin checks for capabilities (not CLI versions) to avoid binding to a
+specific release. As the CLI evolves, new tools may be added — the plugin
+gracefully degrades when optional tools are absent.
 
-Compatibility is checked once during `/akka.setup` (Phase 10). If tools are
-missing, the user is told to upgrade the CLI and restart their AI session.
+Capability is checked once during `/akka-specify:setup` (Phase 10). If a
+capability group is missing, the user is told to ensure the CLI is installed
+and the MCP server is configured.
 
-## Required tools
+## Capability groups
+
+Each group is verified by testing one representative tool from the group.
 
 ### SDD workflow
+**Representative tool**: `akka_sdd_list_specs`
 - `akka_sdd_init`
 - `akka_sdd_constitution`
 - `akka_sdd_list_specs`
@@ -16,12 +22,14 @@ missing, the user is told to upgrade the CLI and restart their AI session.
 - `akka_sdd_get_template`
 
 ### Build & test
+**Representative tool**: `akka_maven_compile`
 - `akka_maven_compile`
 - `akka_maven_test`
 - `akka_maven_verify`
 - `akka_build_image`
 
 ### Local development
+**Representative tool**: `akka_local_start`
 - `akka_local_start`
 - `akka_local_stop`
 - `akka_local_run_service`
@@ -31,8 +39,10 @@ missing, the user is told to upgrade the CLI and restart their AI session.
 - `akka_local_request`
 
 ### Platform deployment
+**Representative tool**: `akka_services_list`
 - `akka_services_deploy`
 - `akka_services_get`
+- `akka_services_list`
 - `akka_services_logs`
 - `akka_push_image`
 - `akka_organizations_list`
@@ -44,6 +54,7 @@ missing, the user is told to upgrade the CLI and restart their AI session.
 - `akka_routes_create`
 
 ### Git
+**Representative tool**: `akka_git_status`
 - `akka_git_status`
 - `akka_git_create_branch`
 - `akka_git_add`

@@ -5,7 +5,7 @@ Complete Akka SDK development workflow — from environment setup to production 
 ## Quick Start
 
 ```
-/akka.setup
+/akka-specify:setup
 ```
 
 This single command handles everything: dependency installation, project scaffolding, and configuration.
@@ -13,15 +13,15 @@ This single command handles everything: dependency installation, project scaffol
 ## Workflow
 
 ```
-/akka.setup     → Environment + project setup (one-time, re-runnable)
-/akka.specify   → Design your feature (spec)
-/akka.clarify   → Resolve open questions
-/akka.plan      → Create implementation plan
-/akka.tasks     → Break plan into tasks
-/akka.implement → Execute tasks
-/akka.build     → Build, test, run locally
-/akka.deploy    → Deploy to Akka platform
-/akka.review    → Review against spec and constitution
+/akka-specify:setup     → Environment + project setup (one-time, re-runnable)
+/akka-specify:specify   → Design your feature (spec)
+/akka-specify:clarify   → Resolve open questions
+/akka-specify:plan      → Create implementation plan
+/akka-specify:tasks     → Break plan into tasks
+/akka-specify:implement → Execute tasks
+/akka-specify:build     → Build, test, run locally
+/akka-specify:deploy    → Deploy to Akka platform
+/akka-specify:review    → Review against spec and constitution
 ```
 
 ## Enterprise Support

@@ -24,7 +24,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 This command transitions the service from **local development** to the
 **Akka platform**. It builds a container image, pushes it to a registry,
 deploys it, and configures routing. Only run this when the service works
-locally (via `/akka.build`) and you're ready to ship.
+locally (via `/akka-specify:build`) and you're ready to ship.
 
 ## Outline
 

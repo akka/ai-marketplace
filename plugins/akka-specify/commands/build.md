@@ -24,7 +24,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 This command is the **local development loop**. It compiles, tests, and runs
 the service locally so you can iterate quickly. No Docker images are built,
 no containers are pushed, no platform deployments happen. When the service
-works locally and you're ready to ship, hand off to `/akka.deploy`.
+works locally and you're ready to ship, hand off to `/akka-specify:deploy`.
 
 ## Outline
 
@@ -36,7 +36,7 @@ works locally and you're ready to ship, hand off to `/akka.deploy`.
    - The tool returns test failure details and `[ERROR]` lines
    - Report which tests failed and why
    - Suggest fixes based on the failure messages
-   - Stop and hand off to `/akka.implement` for fixes
+   - Stop and hand off to `/akka-specify:implement` for fixes
 
 3. **Start local environment**: Use the `akka_local_start` MCP tool to start
    the local development environment in the background. **Tell the user** that
@@ -62,7 +62,7 @@ works locally and you're ready to ship, hand off to `/akka.deploy`.
    - Compilation: pass/fail
    - Tests: N passed, M failed
    - Local service: running/failed (with endpoint URLs via local proxy)
-   - Next step: iterate with `/akka.implement` or ship with `/akka.deploy`
+   - Next step: iterate with `/akka-specify:implement` or ship with `/akka-specify:deploy`
 
 ## Error Handling
 
@@ -89,4 +89,4 @@ If `akka_local_start` reports a port conflict, ask the user whether to:
 - Always test before running locally
 - The local environment (akka_local_start) provides gRPC proxying and service discovery
 - Report failures clearly with actionable fixes
-- If the user explicitly asks to deploy, hand off to `/akka.deploy`
+- If the user explicitly asks to deploy, hand off to `/akka-specify:deploy`

@@ -21,7 +21,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Purpose
 
-`/akka.setup` detects the user's environment, installs all missing dependencies,
+`/akka-specify:setup` detects the user's environment, installs all missing dependencies,
 scaffolds an Akka project, and leaves the user ready to develop — with **zero
 prerequisites** beyond having an AI coding agent installed.
 
@@ -40,21 +40,8 @@ command and ask permission first) and `akka code token` (which opens a browser).
 a plugin, which currently does not grant shell access. Tell the user:
 
 *"The setup skill needs shell access to install dependencies and scaffold your project.
-Due to a Claude Code plugin limitation, I can't run commands directly from a plugin-installed skill.
-
-To get the full automated setup, run this in your terminal:*
-
-```
-akka specify init . --agent claude-code
-```
-
-*If you don't have the Akka CLI yet, install it first:*
-- *macOS:* `brew install akka/brew/akka`
-- *Other platforms:* https://doc.akka.io/operations/cli/installation.html
-
-*After running `akka specify init .`, restart Claude Code. The setup skill will be
-installed natively at `.claude/commands/akka.setup.md` with full shell access.
-Then run `/akka.setup` to complete the environment setup.*"
+Please allow Bash access for this skill and try again. You can do this by approving
+the permission prompt when it appears, or by updating your Claude Code settings."*
 
 **STOP HERE if Bash is not available.** Do not proceed with the phases below.
 
@@ -187,15 +174,23 @@ If the user defers: record it as skipped and continue.
    Do NOT ask the user to confirm these values. These are Java/Maven concepts that most users
    won't be familiar with. Use the defaults and move on. The values can be changed later in `pom.xml`.
 
-2. **Scaffold:** Execute `akka specify init . --agent claude-code`. This clones the empty project, customizes pom.xml, downloads akka-context/, CLAUDE.md, AGENTS.md, constitution, installs slash commands, templates, and .mcp.json.
+2. **Scaffold:** Execute `akka specify init . --agent claude-code --skip-commands`. This
+   clones the empty project, customizes pom.xml, downloads akka-context/, CLAUDE.md,
+   AGENTS.md, constitution, templates, and .mcp.json — without installing slash commands
+   (the plugin already provides them under the `/akka-specify:*` prefix).
 
-3. **Git init:** If git is not already initialized, execute `git init`, `git add .`, `git commit -m "Initial Akka project setup via /akka.setup"`.
+   If the command fails with an unrecognized flag error, the CLI is too old. Tell the user:
+   *"Your Akka CLI does not support the `--skip-commands` flag. Please upgrade:
+   `brew upgrade akka/brew/akka` (macOS) or download from
+   https://doc.akka.io/operations/cli/installation.html"*
+
+3. **Git init:** If git is not already initialized, execute `git init`, `git add .`, `git commit -m "Initial Akka project setup via /akka-specify:setup"`.
 
 ### 7B. Existing Project (repair/upgrade mode)
 
 1. **Check SDK version:** Execute `curl -s https://doc.akka.io/sdk/_attachments/latest-version.txt` to get the latest version. Execute `grep -A1 '<parent>' pom.xml | grep '<version>' | sed 's/.*<version>\(.*\)<\/version>.*/\1/'` to get the current version. If behind, ask if the user wants to upgrade.
 
-2. **Check for missing artifacts:** Execute `test -f .mcp.json && echo "OK" || echo "MISSING"` for each expected file (.mcp.json, .akka/constitution/, .akka/templates/, .claude/commands/, akka-context/, CLAUDE.md, AGENTS.md). For any missing, execute `akka specify init . --agent claude-code` to regenerate.
+2. **Check for missing artifacts:** Execute `test -f .mcp.json && echo "OK" || echo "MISSING"` for each expected file (.mcp.json, .akka/constitution/, .akka/templates/, akka-context/, CLAUDE.md, AGENTS.md). For any missing, execute `akka specify init . --agent claude-code --skip-commands` to regenerate.
 
 3. **Update context:** Execute `akka code context-update . --assistant claude-code --force`.
 
@@ -240,44 +235,37 @@ Execute all checks and build the summary:
 4. Execute `grep -q "akka-repository" ~/.m2/settings.xml 2>/dev/null && echo "configured" || echo "not configured"`
 5. Execute `docker info 2>/dev/null | head -1 || echo "not available"`
 6. If `pom.xml` exists, execute `mvn compile -q 2>&1` to verify the build. Report errors but do not block.
-7. **MCP tool compatibility**: Check that the following MCP tools are available
-   in your current session. These are the tools used across all `/akka.*` commands:
+7. **MCP capability check**: Verify that the Akka MCP server is available and
+   provides the capabilities required by the `/akka-specify:*` commands. Test
+   one representative tool from each capability group:
 
-   **SDD workflow:** `akka_sdd_init`, `akka_sdd_constitution`, `akka_sdd_list_specs`,
-   `akka_sdd_create_spec`, `akka_sdd_get_template`
+   - **SDD workflow**: Call `akka_sdd_list_specs` (should return a result, even if empty)
+   - **Build & test**: Check that `akka_maven_compile` is available as a tool
+   - **Local development**: Check that `akka_local_start` is available as a tool
+   - **Platform deployment**: Check that `akka_services_list` is available as a tool
+   - **Git**: Check that `akka_git_status` is available as a tool
 
-   **Build & test:** `akka_maven_compile`, `akka_maven_test`, `akka_maven_verify`,
-   `akka_build_image`
+   Report each capability group as available or missing.
 
-   **Local development:** `akka_local_start`, `akka_local_stop`, `akka_local_run_service`,
-   `akka_local_stop_service`, `akka_local_status`, `akka_local_logs`, `akka_local_request`
+   If any capability group is missing, tell the user:
+   *"Some capabilities expected by the akka-specify plugin are not available from
+   the Akka MCP server. Please ensure the Akka CLI is installed and the MCP
+   server is configured in `.mcp.json`. If the CLI is already installed, try
+   restarting your AI session to pick up the MCP server."*
 
-   **Platform deployment:** `akka_services_deploy`, `akka_services_get`, `akka_services_logs`,
-   `akka_push_image`, `akka_organizations_list`, `akka_projects_list`, `akka_projects_create`,
-   `akka_hostnames_list`, `akka_hostnames_add`, `akka_routes_list`, `akka_routes_create`
-
-   **Git:** `akka_git_status`, `akka_git_create_branch`, `akka_git_add`, `akka_git_commit`,
-   `akka_git_checkout`, `akka_git_merge`
-
-   If any tools are missing, report which ones and tell the user:
-   *"Some MCP tools expected by the akka-specify plugin are not available from
-   your Akka CLI. Please upgrade the CLI (`brew upgrade akka/brew/akka` on macOS,
-   or download from https://doc.akka.io/operations/cli/installation.html) and
-   restart your AI session to pick up the updated MCP server."*
-
-   Mark the MCP tools line as ⚠ in the summary if any are missing, ✓ if all present.
+   Mark the MCP capabilities line as ⚠ in the summary if any are missing, ✓ if all present.
 
 Output a summary:
 
 ```
-/akka.setup — Complete
+/akka-specify:setup — Complete
 
   Java 21 (Temurin)      ✓ installed
   Maven 3.9.6            ✓ installed
-  Akka CLI 3.x.x         ✓ installed
+  Akka CLI               ✓ installed
   Akka download token    ✓ configured
   Docker                 ✓ installed        (or: ⏭ deferred)
-  MCP tools              ✓ all available    (or: ⚠ missing: tool1, tool2)
+  MCP capabilities       ✓ all available    (or: ⚠ missing: sdd, build, local, ...)
   SDK version            ✓ latest
   Project scaffolded     ✓ com.example:my-cart
   Akka context docs      ✓ 161 files
@@ -286,9 +274,9 @@ Output a summary:
 IMPORTANT: Please restart Claude Code now. The MCP server configuration
 (.mcp.json) was created during setup, but Claude Code only loads MCP
 servers at session start. After restarting, the Akka MCP tools will be
-available and /akka.specify will work with full functionality.
+available and /akka-specify:specify will work with full functionality.
 
-Ready to go! After restarting, run /akka.specify to start building your first feature.
+Ready to go! After restarting, run /akka-specify:specify to start building your first feature.
 ```
 
 ---
