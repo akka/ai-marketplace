@@ -3,7 +3,7 @@
 **Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
 **Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
 
-**Note**: This template is filled in by the `/akka.plan` command. See `.akka/templates/plan-template.md` for the execution workflow.
+**Note**: This template is filled in by the `/akka-specify:plan` command. See `.akka/templates/plan-template.md` for the execution workflow.
 
 ## Summary
 
@@ -39,12 +39,12 @@
 
 ```text
 specs/[###-feature]/
-├── plan.md              # This file (/akka.plan command output)
-├── research.md          # Phase 0 output (/akka.plan command)
-├── data-model.md        # Phase 1 output (/akka.plan command)
-├── quickstart.md        # Phase 1 output (/akka.plan command)
-├── contracts/           # Phase 1 output (/akka.plan command)
-└── tasks.md             # Phase 2 output (/akka.tasks command - NOT created by /akka.plan)
+├── plan.md              # This file (/akka-specify:plan command output)
+├── research.md          # Phase 0 output (/akka-specify:plan command)
+├── data-model.md        # Phase 1 output (/akka-specify:plan command)
+├── quickstart.md        # Phase 1 output (/akka-specify:plan command)
+├── contracts/           # Phase 1 output (/akka-specify:plan command)
+└── tasks.md             # Phase 2 output (/akka-specify:tasks command - NOT created by /akka-specify:plan)
 ```
 
 ### Source Code (repository root)
