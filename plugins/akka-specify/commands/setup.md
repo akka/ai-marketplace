@@ -251,7 +251,7 @@ Execute all checks and build the summary:
    *"Some capabilities expected by the akka-specify plugin are not available from
    the Akka MCP server. Please ensure the Akka CLI is installed and the MCP
    server is configured in `.mcp.json`. If the CLI is already installed, try
-   restarting your AI session to pick up the MCP server."*
+   restarting Claude Code (use `claude --resume` to keep context)."*
 
    Mark the MCP capabilities line as ⚠ in the summary if any are missing, ✓ if all present.
 
@@ -271,10 +271,10 @@ Output a summary:
   Akka context docs      ✓ 161 files
   AI keys                ⏭ deferred         (or: ✓ configured)
 
-IMPORTANT: Please restart Claude Code now. The MCP server configuration
-(.mcp.json) was created during setup, but Claude Code only loads MCP
-servers at session start. After restarting, the Akka MCP tools will be
-available and /akka-specify:specify will work with full functionality.
+IMPORTANT: The MCP server configuration (.mcp.json) was created during
+setup. Claude Code only loads MCP servers at session start, so you need
+to restart. Use `claude --resume` to restart without losing your session
+context. After restarting, the Akka MCP tools will be available.
 
 Ready to go! After restarting, run /akka-specify:specify to start building your first feature.
 ```
