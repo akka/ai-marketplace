@@ -6,9 +6,15 @@
   },
   "plugins": [
     {
+      "name": "akka",
+      "source": "./plugins/akka",
+      "description": "Akka SDK development tools — setup, spec-driven development, build, deploy",
+      "version": "2.0.0"
+    },
+    {
       "name": "akka-specify",
       "source": "./plugins/akka-specify",
-      "description": "Akka SDK development tools — setup, spec-driven development, build, deploy",
+      "description": "[Deprecated — use 'akka' plugin instead] Will be removed in a future release",
       "version": "1.5.0"
     }
   ]
