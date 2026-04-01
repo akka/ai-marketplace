@@ -45,9 +45,24 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Error handling uses `effects().error()`, not exceptions
    - No fat events (events contain only changed data)
 
-6. **Checklist verification**: Walk through the checklist and mark items as passed or failed.
+6. **Runtime verification** (optional): If the service is running locally
+   (via `/akka:build`), use backoffice tools with `local=true` to verify that
+   the implementation behaves correctly at runtime — not just in code:
+   - `akka_backoffice_list_components` with `local=true` to confirm all
+     expected components are registered
+   - `akka_backoffice_list_events` to verify entities emit the expected events
+     after commands (compare against spec's event definitions)
+   - `akka_backoffice_get_workflow` to verify workflow steps execute in the
+     expected order with correct state transitions
+   - `akka_backoffice_query_view` to confirm views produce correct query results
+   - `akka_backoffice_list_agent_interactions` to review agent tool calls,
+     guardrails, and response quality
+   - If the service serves a web UI, use `akka_browser_navigate` and
+     `akka_browser_screenshot` to capture UI state for visual review
 
-7. **Report**:
+7. **Checklist verification**: Walk through the checklist and mark items as passed or failed.
+
+8. **Report**:
    - Overall assessment: approved / approved with issues / needs rework
    - Issues found (categorized by severity)
    - Checklist completion percentage

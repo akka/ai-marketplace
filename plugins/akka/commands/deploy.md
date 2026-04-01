@@ -100,7 +100,18 @@ locally (via `/akka:build`) and you're ready to ship.
    - Use `akka_services_logs` to verify the service started correctly
    - Check for errors in the logs
 
-6. **Configure routing** (if needed):
+6. **Inspect deployed service** (optional): Use backoffice tools to inspect the
+   deployed service's runtime state. These are read-only and safe for production.
+   - `akka_backoffice_list_components` to verify all expected components
+     (entities, views, workflows, agents) are registered and active
+   - `akka_backoffice_get_entity_state` or `akka_backoffice_list_events` to
+     spot-check entity state if test traffic has been sent
+   - `akka_backoffice_get_workflow` to verify workflow execution
+   - `akka_backoffice_query_view` to confirm view projections are working
+   - `akka_backoffice_list_timers` to check timer registrations
+   - Do NOT pass `local=true` — these calls target the deployed service
+
+7. **Configure routing** (if needed):
    - Use `akka_routes_list` to check existing routes
    - If routes already exist for this service, no action needed
    - If no routes exist and the user wants external access:
@@ -112,12 +123,13 @@ locally (via `/akka:build`) and you're ready to ship.
        mapping (e.g. path `/` → service name)
    - If the user doesn't need external access yet, skip routing
 
-7. **Report**: Summarize deployment:
+8. **Report**: Summarize deployment:
    - Image URI pushed
    - Service name and version
    - Region deployed to
    - Route URL (if configured)
    - Service status
+   - Component health (if backoffice inspection was performed)
 
 ## Key Rules
 

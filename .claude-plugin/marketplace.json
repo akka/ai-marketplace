@@ -15,7 +15,7 @@
       "name": "akka-specify",
       "source": "./plugins/akka-specify",
       "description": "[Deprecated — use 'akka' plugin instead] Will be removed in a future release",
-      "version": "1.5.0"
+      "version": "2.1.0"
     }
   ]
 }
