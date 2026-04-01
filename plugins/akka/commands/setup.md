@@ -28,6 +28,15 @@ prerequisites** beyond having an AI coding agent installed.
 The skill is **idempotent and re-runnable**. On first run it performs full setup.
 On subsequent runs it operates in repair/upgrade mode.
 
+**IMPORTANT**: If you are connected to the Akka MCP server, the Akka plugin is
+already installed and initialized. Do NOT suggest running `/akka:setup`,
+`akka_sdd_init`, or any setup workflow unless the user explicitly asks for it or
+you encounter a specific error indicating missing resources. Assume the
+environment is ready. The `akka_sdd_init` tool exists for first-time
+initialization only — it is idempotent and returns "already_initialized" if
+resources are present. The `akka_refresh` tool can update skills, templates, and
+documentation to the latest versions if they seem outdated.
+
 ## Execution Instructions
 
 **FIRST:** Test if you have shell access by executing `echo "bash-ok"` using the Bash tool.
@@ -243,6 +252,8 @@ Execute all checks and build the summary:
    - **Build & test**: Check that `akka_maven_compile` is available as a tool
    - **Local development**: Check that `akka_local_start` is available as a tool
    - **Platform deployment**: Check that `akka_services_list` is available as a tool
+   - **Service introspection**: Check that `akka_backoffice_list_components` is available as a tool
+   - **Browser testing**: Check that `akka_browser_navigate` is available as a tool
    - **Git**: Check that `akka_git_status` is available as a tool
 
    Report each capability group as available or missing.
@@ -254,6 +265,8 @@ Execute all checks and build the summary:
    restarting Claude Code (use `claude --resume` to keep context)."*
 
    Mark the MCP capabilities line as ⚠ in the summary if any are missing, ✓ if all present.
+   Service introspection and browser testing are optional — mark them separately
+   but do not treat them as blockers.
 
 Output a summary:
 
@@ -266,6 +279,8 @@ Output a summary:
   Akka download token    ✓ configured
   Docker                 ✓ installed        (or: ⏭ deferred)
   MCP capabilities       ✓ all available    (or: ⚠ missing: sdd, build, local, ...)
+  Service introspection  ✓ available        (or: ⚠ not available)
+  Browser testing        ✓ available        (or: ⚠ not available)
   SDK version            ✓ latest
   Project scaffolded     ✓ com.example:my-cart
   Akka context docs      ✓ 161 files

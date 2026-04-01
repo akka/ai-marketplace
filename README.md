@@ -20,7 +20,7 @@ prefer to set up manually — use the
 [Akka CLI](https://doc.akka.io/operations/cli/installation.html):
 
 ```bash
-# Install the Akka CLI (see link above for all platforms)
+# Install the Akka CLI (see link above for all platform)
 brew install akka/brew/akka      # macOS
 
 # Initialize your project — use the --agent flag for your editor
@@ -31,11 +31,11 @@ akka specify init . --agent claude-code
 
 The `--agent` flag controls where commands are installed:
 
-| Agent | Flag | Commands installed to |
-|-------|------|---------------------|
-| Claude Code | `--agent claude-code` | `.claude/commands/` |
-| Cursor | `--agent cursor` | `.cursor/rules/` |
-| VS Code Copilot | `--agent vscode-copilot` | `.github/prompts/` |
+| Agent           | Flag                     | Commands installed to |
+| --------------- | ------------------------ | --------------------- |
+| Claude Code     | `--agent claude-code`    | `.claude/commands/`   |
+| Cursor          | `--agent cursor`         | `.cursor/rules/`      |
+| VS Code Copilot | `--agent vscode-copilot` | `.github/prompts/`    |
 
 This produces the same result as the Claude Code plugin: skills, templates,
 documentation, and MCP server configuration installed in your project directory.
@@ -43,6 +43,7 @@ documentation, and MCP server configuration installed in your project directory.
 ## Getting Started
 
 After installing via either path, run the setup command in your project directory:
+
 - **Plugin:** `/akka:setup`
 - **CLI-installed:** `/akka.setup`
 
@@ -58,21 +59,22 @@ Zero prerequisites beyond having Claude Code installed.
 
 ## Commands
 
-| Plugin (Claude Code) | CLI-installed | Description |
-|---------------------|---------------|-------------|
-| `/akka:setup` | `/akka.setup` | Set up a complete Akka development environment |
-| `/akka:specify` | `/akka.specify` | Create or update a feature specification |
-| `/akka:plan` | `/akka.plan` | Generate an implementation plan from a spec |
-| `/akka:tasks` | `/akka.tasks` | Break a plan into ordered, testable tasks |
-| `/akka:implement` | `/akka.implement` | Execute tasks from the task list |
-| `/akka:build` | `/akka.build` | Build, test, and run the service locally |
-| `/akka:deploy` | `/akka.deploy` | Deploy to the Akka platform |
-| `/akka:review` | `/akka.review` | Review code against spec and constitution |
-| `/akka:clarify` | `/akka.clarify` | Resolve open questions in specs or plans |
-| `/akka:analyze` | `/akka.analyze` | Analyze codebase for patterns and issues |
-| `/akka:checklist` | `/akka.checklist` | Generate implementation or review checklists |
-| `/akka:issues` | `/akka.issues` | Track and manage issues |
-| `/akka:constitution` | — | Edit the project constitution |
+| Plugin (Claude Code) | CLI-installed     | Description                                    |
+| -------------------- | ----------------- | ---------------------------------------------- |
+| `/akka:setup`        | `/akka.setup`     | Set up a complete Akka development environment |
+| `/akka:specify`      | `/akka.specify`   | Create or update a feature specification       |
+| `/akka:plan`         | `/akka.plan`      | Generate an implementation plan from a spec    |
+| `/akka:tasks`        | `/akka.tasks`     | Break a plan into ordered, testable tasks      |
+| `/akka:implement`    | `/akka.implement` | Execute tasks from the task list               |
+| `/akka:inspect`      | `/akka.inspect`   | Inspect a deployed service                     |
+| `/akka:build`        | `/akka.build`     | Build, test, and run the service locally       |
+| `/akka:deploy`       | `/akka.deploy`    | Deploy to the Akka platform                    |
+| `/akka:review`       | `/akka.review`    | Review code against spec and constitution      |
+| `/akka:clarify`      | `/akka.clarify`   | Resolve open questions in specs or plans       |
+| `/akka:analyze`      | `/akka.analyze`   | Analyze codebase for patterns and issues       |
+| `/akka:checklist`    | `/akka.checklist` | Generate implementation or review checklists   |
+| `/akka:issues`       | `/akka.issues`    | Track and manage issues                        |
+| `/akka:constitution` | —                 | Edit the project constitution                  |
 
 > **Migrating from `akka-specify`?** The `akka-specify` plugin is still available but deprecated. Uninstall it and install `akka` instead.
 

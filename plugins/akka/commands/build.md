@@ -1,6 +1,10 @@
 ---
 description: Build, test, and run the service locally. This is the local development loop — no platform deployment happens here.
 handoffs:
+  - label: Inspect Running Service
+    agent: akka.inspect
+    prompt: Inspect the running service's state and endpoints
+    send: true
   - label: Deploy to Platform
     agent: akka.deploy
     prompt: Deploy the service to the Akka platform
@@ -62,7 +66,8 @@ works locally and you're ready to ship, hand off to `/akka:deploy`.
    - Compilation: pass/fail
    - Tests: N passed, M failed
    - Local service: running/failed (with endpoint URLs via local proxy)
-   - Next step: iterate with `/akka:implement` or ship with `/akka:deploy`
+   - Next step: inspect with `/akka:inspect`, iterate with `/akka:implement`,
+     or ship with `/akka:deploy`
 
 ## Error Handling
 
