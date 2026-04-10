@@ -63,6 +63,16 @@ locally (via `/akka:build`) and you're ready to ship.
      _Then let me know and I'll continue the deploy."_
      Do NOT proceed with the build until the user confirms this is resolved.
 
+   - **Check for reliability testing artifacts**: Look for
+     `.akka/reliability.manifest` or an `AdminEndpoint.java` file in the
+     project's api package. If found, warn the user:
+     _"Reliability testing admin endpoint detected. This endpoint provides
+     full cluster control and proxied access to business endpoints — it
+     must not be deployed to production. Run `/akka:reliability remove`
+     to clean up before deploying."_
+     Ask the user whether to proceed anyway (for development/staging
+     deployments) or stop and run the remove command first.
+
    - Confirm with the user that they want to deploy to the platform
 
 2. **Stop local services**: Before building the container image, call
