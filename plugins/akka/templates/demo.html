@@ -1,0 +1,346 @@
+<div id="demo-wrapper" style="height:200vh; position:relative;">
+<div id="demo-section" style="position:sticky; top:0; height:100vh; overflow:hidden;">
+<div class="showcase" style="display:flex; height:100%;">
+
+  <nav class="nav">
+    <div class="nav-header">
+      <svg class="nav-logo" width="109" height="25" viewBox="0 0 109 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g clip-path="url(#n)">
+          <path d="M72.158 0 63.105 10.133V0h-6.199v24.98h6.199V14.847l9.053 10.133h8.277L69.277 12.49 80.435 0h-8.277Z" fill="#fff"/>
+          <path d="m13.78 8.287 3.485 8.123h-6.968l3.485-8.123h-.002ZM11.336.062 0 25h6.552l1.561-3.436h11.336L21.113 25h6.45L16.275.062h-4.94Z" fill="#fff"/>
+          <path d="m95.22 8.287 3.484 8.123h-6.968l3.485-8.123h-.001ZM92.775.062 81.44 25h6.551l1.561-3.436h11.336L102.552 25H109L97.715.062h-4.94Z" fill="#fff"/>
+          <path d="M45.283.062 36.246 10.179V.062H30.057V25h6.189V14.883l9.037 10.117h8.264L42.408 12.53 53.547.062h-8.264Z" fill="#fff"/>
+        </g>
+        <defs><clipPath id="n"><rect width="109" height="25" fill="#fff"/></clipPath></defs>
+      </svg>
+      <div class="nav-title">Demo Showcase</div>
+    </div>
+
+    <div class="nav-tab active" data-tab="0">
+      <div class="nav-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+      <div class="nav-tab-label">The Brief</div>
+      <div class="nav-tab-num">01</div>
+    </div>
+
+    <div class="nav-tab" data-tab="1">
+      <div class="nav-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+      <div class="nav-tab-label">The App</div>
+      <div class="nav-tab-num">02</div>
+    </div>
+
+    <div class="nav-tab" data-tab="2">
+      <div class="nav-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+      <div class="nav-tab-label">The Architecture</div>
+      <div class="nav-tab-num">03</div>
+    </div>
+
+    <div class="nav-tab" data-tab="3">
+      <div class="nav-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="14" y="14" width="8" height="8" rx="1"/></svg></div>
+      <div class="nav-tab-label">The Platform</div>
+      <div class="nav-tab-num">04</div>
+    </div>
+
+    <div class="nav-tab" data-tab="4">
+      <div class="nav-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div>
+      <div class="nav-tab-label">Ship It</div>
+      <div class="nav-tab-num">05</div>
+    </div>
+
+<!-- TAB6-NAV-START -->
+    <div class="nav-tab" data-tab="5">
+      <div class="nav-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+      <div class="nav-tab-label">Try It Yourself</div>
+      <div class="nav-tab-num">06</div>
+    </div>
+<!-- TAB6-NAV-END -->
+
+    <div class="nav-footer">
+      <div class="nav-footer-text">Built with Akka Specify<br>Keys 1-6 to navigate</div>
+    </div>
+  </nav>
+
+  <!-- ── Content Area ── -->
+  <div class="content">
+
+    <!-- TAB 1: THE BRIEF -->
+    <div class="tab-panel active" data-panel="0">
+      <div class="tab-eyebrow reveal">The Brief</div>
+      <div class="tab-headline reveal">{{DEMO_TITLE}}</div>
+      <div class="tab-desc reveal">{{DEMO_DESCRIPTION}}</div>
+
+      <div class="reveal">
+        <ul class="brief-reqs">
+          {{REQUIREMENTS_HTML}}
+        </ul>
+      </div>
+
+      <div class="brief-bar reveal">
+        <div class="brief-bar-item">
+          <div class="brief-bar-num">{{BUILD_TIME}}</div>
+          <div class="brief-bar-text">Spec to<br>system</div>
+        </div>
+        <div class="brief-bar-item">
+          <div class="brief-bar-num">1</div>
+          <div class="brief-bar-text">Engineer</div>
+        </div>
+        <div class="brief-bar-item">
+          <div class="brief-bar-num">{{LOC}}</div>
+          <div class="brief-bar-text">LOC</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: THE APP -->
+    <div class="tab-panel" data-panel="1">
+      <div class="tab-eyebrow reveal">The App</div>
+      <div class="tab-headline reveal">{{APP_HEADLINE}}</div>
+      <div class="tab-desc reveal">{{APP_DESCRIPTION}}</div>
+
+      <div class="reveal">
+        {{APP_CONTENT_HTML}}
+      </div>
+
+      <div class="app-stats reveal">
+        {{APP_STATS_HTML}}
+      </div>
+    </div>
+
+    <!-- TAB 3: THE ARCHITECTURE -->
+    <div class="tab-panel" data-panel="2">
+      <div class="tab-eyebrow reveal">The Architecture</div>
+      <div class="tab-headline reveal">What Specify <span class="accent">actually built</span></div>
+
+      <div class="arch-layout reveal">
+        <div class="arch-summary" id="archSummary">
+          <div class="arch-summary-grid">
+            {{ARCH_SUMMARY_HTML}}
+          </div>
+          <div class="arch-summary-hint">Click any component row to view its source code</div>
+        </div>
+
+        <div class="comp-table">
+          {{COMPONENTS_TABLE_HTML}}
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: THE PLATFORM (static — same for all projects) -->
+    <div class="tab-panel" data-panel="3">
+      <div class="tab-eyebrow reveal">The Platform</div>
+      <div class="tab-headline reveal">One demo becomes your team's <span class="accent">new velocity</span></div>
+      <div class="tab-desc reveal">This isn't a one-off. Every service your team builds runs on the same platform — shared compute, shared operations, shared best practices. The marginal cost of the next service approaches zero.</div>
+
+      <div class="platform-grid reveal">
+        <div class="platform-card">
+          <div class="platform-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="14" y="14" width="8" height="8" rx="1"/></svg></div>
+          <div class="platform-card-stat">1 platform, N services</div>
+          <div class="platform-card-title">Multi-Tenant by Default</div>
+          <div class="platform-card-desc">Ship service #2, #3, #4 onto the same shared compute. Full isolation — no noisy neighbor. No new infrastructure provisioning. Marginal cost of each new service approaches zero.</div>
+        </div>
+
+        <div class="platform-card">
+          <div class="platform-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+          <div class="platform-card-stat">100% API-driven</div>
+          <div class="platform-card-title">API-First Control Plane</div>
+          <div class="platform-card-desc">Every operation is an API call. Wire into your internal developer portal — Backstage, Cortex, whatever you run.</div>
+          <div class="mini-term">
+            <div><span class="prompt">$ </span><span class="cmd">akka service list</span></div>
+            <div><span class="prompt">$ </span><span class="cmd">akka service deploy my-service --region us-east-1</span></div>
+            <div><span class="prompt">$ </span><span class="cmd">akka metrics get my-service --window 1h</span></div>
+          </div>
+        </div>
+
+        <div class="platform-card">
+          <div class="platform-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+          <div class="platform-card-stat">Plugs into your flow</div>
+          <div class="platform-card-title">Extensible SDLC Integration</div>
+          <div class="platform-card-desc">Specify doesn't replace your process — it plugs into it. Custom templates, custom checks, your team's conventions baked in.</div>
+          <div class="flow-steps">
+            <div class="flow-step">Specify</div><div class="flow-arrow">&rarr;</div>
+            <div class="flow-step">Generate</div><div class="flow-arrow">&rarr;</div>
+            <div class="flow-step">Review</div><div class="flow-arrow">&rarr;</div>
+            <div class="flow-step">Test</div><div class="flow-arrow">&rarr;</div>
+            <div class="flow-step">Gate</div><div class="flow-arrow">&rarr;</div>
+            <div class="flow-step">Deploy</div>
+          </div>
+        </div>
+
+        <div class="platform-card">
+          <div class="platform-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+          <div class="platform-card-stat">Weekly platform updates</div>
+          <div class="platform-card-title">Living Best Practices</div>
+          <div class="platform-card-desc">Every app gets smarter over time. Akka ships best practices weekly — they flow into existing services, not just new ones.</div>
+          <div class="changelog">
+            <div class="changelog-item"><div class="changelog-week">Wk 16</div><div class="changelog-text">Optimized sharding for high-cardinality entities</div></div>
+            <div class="changelog-item"><div class="changelog-week">Wk 15</div><div class="changelog-text">New workflow compensation patterns</div></div>
+            <div class="changelog-item"><div class="changelog-week">Wk 14</div><div class="changelog-text">EU AI Act governance templates added</div></div>
+            <div class="changelog-item"><div class="changelog-week">Wk 13</div><div class="changelog-text">Event serialization perf improvements</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: SHIP IT (static — same for all projects) -->
+    <div class="tab-panel" data-panel="4">
+      <div class="tab-eyebrow reveal">Ship It</div>
+      <div class="tab-headline reveal">Production-ready. <span class="accent">Right now.</span></div>
+      <div class="tab-desc reveal">Everything generated by Specify is ship-ready — push it into your company's GitOps flow or deploy directly to Akka Cloud with full HA/DR. No hardening sprint. No architecture review. It's already done.</div>
+
+      <div class="ship-options reveal">
+        <div class="ship-option">
+          <div class="ship-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div>
+          <div class="ship-option-title">Akka Cloud</div>
+          <div class="ship-option-desc">One-click deploy with managed infrastructure, auto-scaling, and built-in observability.</div>
+        </div>
+        <div class="ship-option">
+          <div class="ship-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3l-4 4-4-4"/></svg></div>
+          <div class="ship-option-title">Container Export</div>
+          <div class="ship-option-desc">OCI-compliant container image. Runs on any Kubernetes — EKS, GKE, AKS, on-prem.</div>
+        </div>
+        <div class="ship-option">
+          <div class="ship-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><path d="M6 9v12"/></svg></div>
+          <div class="ship-option-title">GitOps Pipeline</div>
+          <div class="ship-option-desc">Generated CI/CD config. Push to main, pipeline handles build, test, gate, and deploy.</div>
+        </div>
+      </div>
+
+      <div class="ship-bottom reveal">
+        <div class="ship-bottom-left">
+          <div class="card">
+            <div class="card-label">Compliance &amp; Certifications</div>
+            <div class="card-text" style="margin-bottom:12px;">19 certifications covered out of the box. Your security team will thank you.</div>
+            <div class="ship-certs">
+              <div class="ship-cert">SOC 2</div>
+              <div class="ship-cert">ISO 27001</div>
+              <div class="ship-cert">GDPR</div>
+              <div class="ship-cert">HIPAA</div>
+              <div class="ship-cert">PCI DSS</div>
+              <div class="ship-cert">FedRAMP</div>
+              <div class="ship-cert">EU AI Act</div>
+              <div class="ship-cert">+12 more</div>
+            </div>
+          </div>
+        </div>
+        <div class="ship-bottom-right">
+          <div class="card">
+            <div class="card-label">Cost Comparison</div>
+            <table class="ship-cost-table">
+              <thead>
+                <tr><th>Dimension</th><th>Build It Yourself</th><th>Akka Specify</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Team size</td><td>5 engineers</td><td>1 engineer</td></tr>
+                <tr><td>Time to production</td><td>6-8 weeks</td><td>&lt; 1 hour</td></tr>
+                <tr><td>Monthly infra</td><td>$2,000</td><td>$800</td></tr>
+                <tr><td>Maintenance</td><td>2 FTEs ongoing</td><td>Platform-managed</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 6: TRY IT YOURSELF -->
+<!-- TAB6-PANEL-START -->
+    <div class="tab-panel" data-panel="5">
+      <div class="tab-eyebrow reveal">Try It Yourself</div>
+      <div class="tab-headline reveal">Run this on <span class="accent">your machine</span> in 10 minutes</div>
+      <div class="tab-desc reveal">Everything you just saw is yours to explore. Clone the repo, start the runtime, and interact with a production-grade distributed system running locally. No cloud account needed.</div>
+
+      <div class="try-steps reveal">
+
+        <div class="try-step">
+          <div class="try-step-num">01</div>
+          <div class="try-step-content">
+            <div class="try-step-title">Install an AI coding assistant</div>
+            <div class="try-step-desc">Pick your tool. Akka Specify works with any AI assistant that supports plugins or MCP.</div>
+            <div class="try-os-tabs" id="toolTabs">
+              <button class="try-os-tab active" data-tool="claude">Claude Code</button>
+              <button class="try-os-tab" data-tool="copilot">GitHub Copilot</button>
+              <button class="try-os-tab" data-tool="gemini">Gemini CLI</button>
+              <button class="try-os-tab" data-tool="windsurf">Windsurf</button>
+            </div>
+            <div class="try-tool-content active" data-tool-panel="claude">
+              <div class="mini-term"><div><span class="prompt">$ </span><span class="cmd">npm install -g @anthropic-ai/claude-code</span></div></div>
+            </div>
+            <div class="try-tool-content" data-tool-panel="copilot">
+              <div class="mini-term"><div><span class="cmd">VS Code &gt; Extensions &gt; search "GitHub Copilot" &gt; Install</span></div></div>
+            </div>
+            <div class="try-tool-content" data-tool-panel="gemini">
+              <div class="mini-term"><div><span class="prompt">$ </span><span class="cmd">npm install -g @google/gemini-cli</span></div></div>
+            </div>
+            <div class="try-tool-content" data-tool-panel="windsurf">
+              <div class="mini-term"><div><span class="cmd">Download from windsurf.com &gt; Install &gt; Launch</span></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="try-step">
+          <div class="try-step-num">02</div>
+          <div class="try-step-content">
+            <div class="try-step-title">Install Akka Specify</div>
+            <div class="try-step-desc">Get the Akka Specify plugin into your AI tool. Choose your method:</div>
+            <div class="try-os-tabs">
+              <button class="try-os-tab active" data-os="plugin">Plugin Install</button>
+              <button class="try-os-tab" data-os="manual">Manual / No Plugin</button>
+            </div>
+            <div class="try-os-content active" data-os-panel="plugin">
+              <div class="try-step-desc" style="margin-bottom:10px;font-size:12px;color:#888;">For Claude Code and any AI tool with plugin marketplace support.</div>
+              <div class="mini-term">
+                <div><span class="prompt">&gt; </span><span class="cmd">/plugin marketplace add akka/ai-marketplace</span></div>
+                <div><span class="prompt">&gt; </span><span class="cmd">/plugin install akka@ai-marketplace</span></div>
+                <div><span class="prompt">&gt; </span><span class="cmd">/reload-plugins</span></div>
+                <div style="color:#28C840">  Akka Specify skills installed</div>
+              </div>
+            </div>
+            <div class="try-os-content" data-os-panel="manual">
+              <div class="try-step-desc" style="margin-bottom:10px;font-size:12px;color:#888;">For any MCP-compatible AI tool.</div>
+              <div class="mini-term">
+                <div><span class="prompt">$ </span><span class="cmd">akka specify init my-project</span></div>
+                <div><span class="prompt">$ </span><span class="cmd">cd my-project</span></div>
+                <div><span class="cm"># Open your AI assistant from this directory</span></div>
+              </div>
+            </div>
+            <div class="try-step-alt"><a href="https://doc.akka.io/sdk/spec-driven-development.html" style="color:var(--yellow);">doc.akka.io/sdk/spec-driven-development.html</a></div>
+          </div>
+        </div>
+
+        <div class="try-step">
+          <div class="try-step-num">03</div>
+          <div class="try-step-content">
+            <div class="try-step-title">Run the demo</div>
+            <div class="try-step-desc">One command does everything — installs Java/Maven if needed, clones the demo repo, compiles, starts the runtime, and generates your personalized presentation.</div>
+            <div class="mini-term">
+              <div><span class="prompt">&gt; </span><span class="cmd">/akka:demo {{REPO_URL}}</span></div>
+              <div>&nbsp;</div>
+              <div style="color:#888">  Checking environment...</div>
+              <div style="color:#28C840">  Java 21 &amp; Maven verified</div>
+              <div style="color:#888">  Cloning repo...</div>
+              <div style="color:#28C840">  Components discovered</div>
+              <div style="color:#888">  Building &amp; starting service...</div>
+              <div style="color:#28C840">  Service running on localhost:9000</div>
+              <div style="color:#888">  Generating presentation...</div>
+              <div style="color:#28C840">  Done.</div>
+              <div>&nbsp;</div>
+              <div style="color:var(--yellow);font-weight:600">  What's next:</div>
+              <div>&nbsp;</div>
+              <div style="color:#B8B8B8">  <span style="color:var(--yellow)">Presentation</span>   open demo-presentation.html</div>
+              <div style="color:#B8B8B8">  <span style="color:var(--yellow)">Live App</span>        http://localhost:9000</div>
+              <div style="color:#B8B8B8">  <span style="color:var(--yellow)">Console</span>         http://localhost:9889</div>
+              <div style="color:#B8B8B8">  <span style="color:var(--yellow)">Resilience</span>      /akka:reliability</div>
+              <div style="color:#B8B8B8">  <span style="color:var(--yellow)">Deploy</span>          /akka:deploy</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+<!-- TAB6-PANEL-END -->
+
+  </div><!-- /content -->
+</div><!-- /showcase -->
+</div><!-- /demo-section -->
+</div><!-- /demo-wrapper -->
+
+<!-- Sequence diagram data — injected by /akka:demo skill -->
+<script>window.DEMO_SEQUENCE_DATA = {{SEQUENCE_DATA_JSON}};</script>

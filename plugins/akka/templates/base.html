@@ -1,0 +1,3218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akka — The Agentic Systems Platform</title>
+<link rel="icon" href="https://akka.io/favicon.ico" type="image/x-icon">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════════════
+   SHARED — variables, resets, fonts, keyframes
+═══════════════════════════════════════════════ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --yellow: #F5C518;
+  --black:  #000;
+  --dark:   #07070C;
+  --white:  #fff;
+  --gray:   #555;
+}
+html { scroll-behavior: auto; background: var(--black); }
+body {
+  font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--black);
+  color: var(--white);
+  overflow-x: hidden;
+  max-width: 1920px;
+  margin: 0 auto;
+}
+
+@keyframes fadeUp  { to { opacity:1; transform:translateY(0); } }
+@keyframes slideUp { to { opacity:1; transform:translateY(0); } }
+@keyframes bounceDown {
+  0%,100% { transform:rotate(45deg) translate(0,0); }
+  50%     { transform:rotate(45deg) translate(4px,4px); }
+}
+@keyframes bgSlide {
+  from { background-position:0 0; }
+  to   { background-position:36px 36px; }
+}
+
+
+/* ── section-0-title ── */
+#title {
+  height: 100vh; min-height: 680px;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  padding: 0 8vw; position: relative; background: var(--black); overflow: hidden;
+  text-align: center;
+}
+#title::before {
+  content:''; position:absolute; inset:0;
+  background-image: radial-gradient(circle, rgba(245,197,24,0.07) 1px, transparent 1px);
+  background-size: 48px 48px; pointer-events: none; z-index: 0;
+}
+#title::after {
+  content:''; position:absolute; inset:0;
+  background: radial-gradient(ellipse at 50% 50%, transparent 25%, rgba(0,0,0,0.85) 75%);
+  pointer-events:none; z-index:0;
+}
+
+.title-logo {
+  margin-bottom: 40px;
+  position: relative; z-index: 2;
+  opacity:0; transform:translateY(16px);
+  animation: fadeUp .6s ease forwards .3s;
+}
+.title-logo svg { height: 48px; width: auto; }
+
+.title-headline {
+  font-size: clamp(44px, 6.5vw, 96px); font-weight: 700;
+  line-height: 1.02; letter-spacing: -0.03em; color: var(--white);
+  max-width: 1000px; margin-bottom: 24px;
+  position: relative; z-index: 2;
+  opacity:0; transform:translateY(16px);
+  animation: fadeUp .6s ease forwards .6s;
+}
+.title-headline .accent { color: var(--yellow); }
+
+.title-sub {
+  font-size: clamp(12px, 1.2vw, 16px);
+  color: var(--gray); font-weight: 600;
+  letter-spacing: 4px; line-height: 1.5;
+  max-width: 600px; margin-bottom: 48px;
+  position: relative; z-index: 2;
+  opacity:0; transform:translateY(16px);
+  animation: fadeUp .5s ease forwards .9s;
+}
+
+.title-divider {
+  width: 56px; height: 3px; background: var(--yellow); margin-bottom: 40px;
+  position: relative; z-index: 2;
+  opacity:0;
+  animation: fadeUp .5s ease forwards 1.1s;
+}
+
+.title-presenter {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  position: relative; z-index: 2;
+  opacity:0; transform:translateY(16px);
+  animation: fadeUp .5s ease forwards 1.2s;
+}
+.title-presenter a {
+  color: var(--white); text-decoration: none;
+  font-size: 18px; font-weight: 700; letter-spacing: -0.02em;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: color .2s ease;
+}
+.title-presenter a:hover { color: var(--yellow); }
+.title-presenter a svg { width: 13px; height: 13px; fill: currentColor; flex-shrink: 0; }
+.title-presenter-title {
+  font-size: 12px; color: var(--gray); text-transform: uppercase;
+  letter-spacing: 2px; font-weight: 600;
+}
+
+.title-scroll-hint {
+  position:absolute; bottom:36px; left:0; right:0;
+  display:flex; flex-direction:column; align-items:center; gap:10px; z-index:2;
+  opacity:0; animation:fadeUp .5s ease forwards 1.8s;
+}
+.title-scroll-hint span { font-size:9px; text-transform:uppercase; letter-spacing:3px; color:var(--gray); }
+.title-scroll-arrow {
+  width:18px; height:18px;
+  border-right:1.5px solid var(--yellow); border-bottom:1.5px solid var(--yellow);
+  transform:rotate(45deg); animation:bounceDown 1.6s ease infinite;
+}
+/* ── section-1-hero ── */
+#hero-wrapper {
+  height: 140vh;
+  position: relative;
+}
+#hero {
+  height: 100vh; min-height: 680px;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 0 8vw; position: sticky; top: 0; background: var(--black); overflow: hidden;
+}
+#hero::before {
+  content:''; position:absolute; inset:0;
+  background-image: radial-gradient(circle, rgba(245,197,24,0.07) 1px, transparent 1px);
+  background-size: 48px 48px; pointer-events: none; z-index: 0;
+}
+#hero::after {
+  content:''; position:absolute; inset:0;
+  background: radial-gradient(ellipse at 60% 50%, transparent 30%, rgba(0,0,0,0.85) 80%);
+  pointer-events:none; z-index:0;
+}
+.hero-nav {
+  position:absolute; top:0; left:0; right:0;
+  padding:32px 8vw; display:flex; justify-content:space-between; align-items:center; z-index:2;
+}
+.hero-logo svg { height:30px; width:auto; }
+.hero-tagline { font-size:10px; text-transform:uppercase; letter-spacing:2.5px; color:var(--gray); font-weight:500; }
+
+.hero-body { position:relative; z-index:2; max-width:1000px; }
+
+.hero-eyebrow {
+  display:inline-flex; align-items:center; gap:10px;
+  font-size:11px; text-transform:uppercase; letter-spacing:3px;
+  color:var(--yellow); font-weight:600; margin-bottom:28px;
+  opacity:0; transform:translateY(16px);
+  animation: fadeUp .5s ease forwards .4s;
+}
+.hero-eyebrow::before { content:''; display:block; width:28px; height:2px; background:var(--yellow); }
+
+.hero-headline {
+  font-size: clamp(44px, 6.5vw, 96px); font-weight:700;
+  line-height:1.02; letter-spacing:-0.03em; color:var(--white);
+}
+.hero-headline .line { display:block; overflow:hidden; padding-bottom:4px; }
+.hero-headline .line-inner {
+  display:block; opacity:0; transform:translateY(110%);
+  animation: slideUp .75s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+.hero-headline .line:nth-child(1) .line-inner { animation-delay:.55s; }
+.hero-headline .line:nth-child(2) .line-inner { animation-delay:.68s; }
+.hero-headline .line:nth-child(3) .line-inner { animation-delay:.81s; }
+.hero-headline .accent { color:var(--yellow); }
+
+.hero-divider { width:56px; height:3px; background:var(--yellow); margin:32px 0; opacity:0; animation:fadeUp .5s ease forwards 1.1s; }
+
+.hero-stats { display:flex; gap:52px; flex-wrap:wrap; opacity:0; animation:fadeUp .6s ease forwards 1.25s; }
+.hero-stat-number { font-size:38px; font-weight:700; color:var(--white); letter-spacing:-0.03em; line-height:1; display:flex; align-items:baseline; }
+.hero-stat-number .suffix { color:var(--yellow); font-size:28px; }
+.hero-stat-label { font-size:11px; color:var(--gray); text-transform:uppercase; letter-spacing:1.5px; margin-top:6px; font-weight:500; }
+
+.hero-scroll-hint {
+  position:absolute; bottom:36px; left:50%; transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center; gap:10px; z-index:2;
+  opacity:0; animation:fadeUp .5s ease forwards 2s;
+}
+.hero-scroll-hint span { font-size:9px; text-transform:uppercase; letter-spacing:3px; color:var(--gray); }
+.scroll-arrow {
+  width:18px; height:18px;
+  border-right:1.5px solid var(--yellow); border-bottom:1.5px solid var(--yellow);
+  transform:rotate(45deg); animation:bounceDown 1.6s ease infinite;
+}
+/* ── section-2-types ── */
+#st-wrapper {
+  height: calc(100vh * 1.6);
+  position: relative;
+}
+
+#st-sticky {
+  position: sticky; top: 0;
+  height: 100vh; min-height: 700px;
+  background: var(--dark);
+  padding: 28px 24px 24px;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+#st-sticky::before {
+  content:''; position:absolute; inset:0;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size:36px 36px;
+  animation: bgSlide 28s linear infinite;
+  pointer-events:none; z-index:0;
+}
+
+/* Header */
+.st-header {
+  display:flex; align-items:center; gap:14px;
+  flex-shrink:0; position:relative; z-index:2;
+  margin-bottom:14px; padding-bottom:14px;
+  border-bottom: 1px solid #1C1C1C;
+}
+.st-eyebrow {
+  font-size:10px; text-transform:uppercase; letter-spacing:3.5px;
+  color:var(--yellow); font-weight:600; flex-shrink:0;
+  white-space:nowrap;
+}
+.st-title {
+  font-size:clamp(18px,2vw,30px); font-weight:700;
+  color:#FFFFFF; letter-spacing:-0.02em; line-height:1.2;
+}
+.st-dots { margin-left:auto; display:flex; gap:6px; align-items:center; flex-shrink:0; }
+.st-dot {
+  width:6px; height:6px; border-radius:3px;
+  background:#1C1C1C; border:1px solid #2A2A2A;
+  transition: all .35s cubic-bezier(.34,1.56,.64,1);
+}
+.st-dot.lit { width:20px; background:var(--yellow); border-color:var(--yellow); }
+
+/* 4x2 grid — fills remaining height */
+.st-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  position: relative; z-index: 2;
+}
+
+/* Card — hidden until column threshold is crossed */
+.st-card {
+  background: #0A0A0A;
+  border: 1px solid #1C1C1C;
+  border-radius: 10px;
+  padding: 18px 18px 16px;
+  display: flex; flex-direction: column;
+  position: relative; overflow: hidden;
+  min-height: 0;
+  opacity: 0; transform: translateY(20px);
+  transition: opacity .4s ease, transform .4s cubic-bezier(0.16,1,0.3,1),
+              border-color .3s ease, background .3s ease;
+}
+.st-card[data-row="1"] { transition-delay: 0.08s; }
+.st-card::before {
+  content:''; position:absolute; top:0; left:0; right:0;
+  height:3px; background:var(--yellow);
+  transform: scaleX(0); transform-origin:left;
+  transition: transform .5s cubic-bezier(0.16,1,0.3,1) .2s;
+}
+.st-card.visible {
+  opacity: 1; transform: none;
+  background: #141414;
+  border-color: #2E2E2E;
+}
+.st-card.visible::before { transform: scaleX(1); }
+.st-card.visible:hover { border-color: #3C3C3C; }
+
+/* Card content */
+.st-card-content { display:flex; flex-direction:column; flex:1; min-height:0; }
+
+.st-num {
+  font-size:11px; font-weight:700; color:var(--yellow);
+  letter-spacing:2px; margin-bottom:6px;
+}
+.st-name {
+  font-size:clamp(15px,1.4vw,22px); font-weight:700;
+  color:#FFFFFF; letter-spacing:-0.02em; line-height:1.15; margin-bottom:5px;
+}
+.st-desc {
+  font-size:10px; text-transform:uppercase; letter-spacing:1.5px;
+  color:#666; font-weight:600; margin-bottom:10px;
+}
+.st-context {
+  font-size:13px; color:#B8B8B8; line-height:1.65;
+  margin-bottom:14px; flex-shrink:0;
+}
+.st-divider { height:1px; background:#222; margin-bottom:12px; flex-shrink:0; }
+
+/* Logo photo tiles from JPG */
+.st-logos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  overflow: hidden;
+  flex: 1; min-height: 0;
+  align-content: start;
+}
+.logo-tile-img {
+  width: 100%; aspect-ratio: 268 / 168;
+  object-fit: cover; border-radius: 5px;
+  display: block;
+}
+/* ── section-3-complexity ── */
+#s2-wrapper {
+  height: 200vh;          /* longer dead scroll so view anchors for more clicks */
+  position: relative;
+}
+#s2-sticky {
+  position: sticky; top: 0;
+  height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+  align-items: center;
+  padding: 0 8vw;
+  background: var(--black);
+  overflow: hidden;
+}
+#s2-sticky::before {
+  content:''; position:absolute; inset:0;
+  background-image: radial-gradient(circle, rgba(245,60,60,0.04) 1px, transparent 1px);
+  background-size: 48px 48px; pointer-events:none; z-index:0;
+}
+.s2-eyebrow {
+  font-size:11px; text-transform:uppercase; letter-spacing:3px;
+  color:var(--yellow); font-weight:600; margin-bottom:28px;
+  position:relative; z-index:1;
+  width: 100%; max-width: 1400px;
+  opacity:0; transform: translateY(16px);
+  transition: opacity .5s ease, transform .5s cubic-bezier(0.16,1,0.3,1);
+}
+.s2-eyebrow.visible { opacity:1; transform: none; }
+.s2-eyebrow::before { content:''; display:inline-block; width:28px; height:2px; background:var(--yellow); margin-right:10px; vertical-align:middle; }
+
+.s2-headline {
+  font-size: clamp(30px, 4vw, 56px); font-weight:700;
+  line-height:1.08; letter-spacing:-0.03em; color:var(--white);
+  width: 100%; max-width: 1400px; margin-bottom: 32px;
+  position:relative; z-index:1;
+  opacity:0; transform:translateY(24px);
+  transition: opacity .6s ease, transform .6s cubic-bezier(0.16,1,0.3,1);
+}
+.s2-headline.visible { opacity:1; transform:none; }
+.s2-headline .accent { color:var(--yellow); }
+
+.s2-content {
+  display: flex; gap: 72px; align-items: flex-start; justify-content: center;
+  max-width: 1400px; width: 100%;
+  position:relative; z-index:1;
+  margin-top: 50px;
+}
+.s2-blocks {
+  display: flex; flex-direction: column; gap: 0;
+  width: 280px; flex-shrink: 0;
+  border-left: 2px solid var(--yellow);
+  padding-left: 20px;
+  opacity: 0; transform: translateY(16px);
+  transition: opacity .5s ease, transform .5s cubic-bezier(0.16,1,0.3,1);
+}
+.s2-blocks.visible {
+  opacity: 1; transform: none;
+}
+
+/* Animated SVG architecture diagram */
+.s2-diagram {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center;
+  opacity: 0; transform: scale(0.95);
+  transition: opacity .7s ease .2s, transform .7s cubic-bezier(0.16,1,0.3,1) .2s;
+}
+.s2-diagram.visible { opacity: 1; transform: none; }
+.s2-diagram-label {
+  font-size: 12px; text-transform: uppercase; letter-spacing: 2.5px;
+  color: var(--yellow); font-weight: 600; margin-bottom: 12px; text-align: center;
+}
+.s2-diagram svg { width: 100%; max-height: 58vh; }
+
+/* SVG draw animation */
+.s2-diagram .draw-line {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+}
+.s2-diagram.visible .draw-line {
+  animation: drawLine 0.75s ease forwards;
+}
+.s2-diagram .draw-box {
+  opacity: 0; transform-origin: center;
+}
+.s2-diagram.visible .draw-box {
+  animation: boxIn .2s ease forwards;
+}
+.s2-diagram .draw-label {
+  opacity: 0;
+}
+.s2-diagram.visible .draw-label {
+  animation: labelIn .15s ease forwards;
+}
+
+@keyframes drawLine {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes boxIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes labelIn {
+  to { opacity: 1; }
+}
+.s2-block {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 10px 0;
+  border-top: 1px solid #1A1A1A;
+}
+.s2-block-icon {
+  width: 22px; height: 22px; flex-shrink: 0; margin-top: 1px;
+  color: var(--yellow);
+}
+.s2-block-icon svg { width:100%; height:100%; }
+.s2-block-body { flex: 1; }
+.s2-block-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 2px;
+  color: var(--yellow); font-weight: 600; margin-bottom: 14px;
+}
+.s2-block-title {
+  font-size: 17px; font-weight: 700; color: var(--white);
+  margin-bottom: 5px;
+}
+.s2-block-desc {
+  font-size: 13px; color: #999; line-height: 1.4;
+}
+
+/* TCO implications panel */
+.s2-tco {
+  width: 250px; flex-shrink: 0;
+  display: flex; flex-direction: column; gap: 0;
+  border-right: 2px solid var(--yellow);
+  padding-right: 20px;
+  opacity: 0; transform: translateX(20px);
+  transition: opacity .6s ease .3s, transform .6s cubic-bezier(0.16,1,0.3,1) .3s;
+}
+.s2-tco.visible { opacity: 1; transform: none; }
+.s2-tco-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 2px;
+  color: var(--yellow); font-weight: 600; margin-bottom: 14px;
+}
+.s2-tco-item {
+  padding: 8px 0;
+  border-top: 1px solid #1A1A1A;
+}
+.s2-tco-item:first-of-type { border-top: none; }
+.s2-tco-title {
+  font-size: 17px; font-weight: 700; color: var(--white);
+  margin-bottom: 5px;
+}
+.s2-tco-quip {
+  font-size: 13px; color: #999; line-height: 1.4;
+}
+/* ── section-4-platform ── */
+#s4-wrapper {
+  height: 140vh;
+  position: relative;
+}
+#s4 {
+  background: var(--black);
+  padding: 80px 6vw 60px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+#s4::before {
+  content:''; position:absolute; inset:0;
+  background-image: radial-gradient(circle, rgba(245,197,24,0.03) 1px, transparent 1px);
+  background-size: 48px 48px; pointer-events:none; z-index:0;
+}
+
+.s4-reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity .6s ease, transform .6s cubic-bezier(0.16,1,0.3,1);
+  position: relative; z-index: 1;
+}
+.s4-reveal.visible { opacity: 1; transform: none; }
+
+.s4-eyebrow {
+  font-size:11px; text-transform:uppercase; letter-spacing:3px;
+  color:var(--yellow); font-weight:600; margin-bottom:14px;
+}
+.s4-eyebrow::before { content:''; display:inline-block; width:28px; height:2px; background:var(--yellow); margin-right:10px; vertical-align:middle; }
+
+.s4-headline {
+  font-size: clamp(30px, 4vw, 58px); font-weight:700;
+  line-height:1.08; letter-spacing:-0.03em; color:var(--white);
+  max-width: 900px; margin-bottom: 48px;
+}
+.s4-headline .accent { color:var(--yellow); }
+
+/* Two-column layout: header+image left, value props right */
+.s4-layout {
+  display: flex; gap: 0; align-items: flex-start;
+}
+
+.s4-left {
+  flex: 1.4; min-width: 0;
+}
+
+.s4-image {
+  margin-left: calc(-3vw - 40px);
+  margin-top: 50px;
+}
+.s4-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.s4-props {
+  flex: 0.6; min-width: 0;
+  display: flex; flex-direction: column;
+  gap: 0;
+  padding-left: 32px;
+  margin-top: 210px;
+}
+
+.s4-prop {
+  display: flex; align-items: baseline; gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid #1A1A1A;
+}
+.s4-prop:last-child { border-bottom: none; }
+
+.s4-prop-num {
+  font-size: clamp(24px, 2.2vw, 34px); font-weight: 700;
+  color: #28C840; letter-spacing: -0.04em; line-height: 1;
+  flex-shrink: 0; width: 160px;
+}
+.s4-prop-text { flex: 1; min-width: 0; }
+.s4-prop-title {
+  font-size: clamp(14px, 1.2vw, 17px); font-weight: 700; color: var(--white);
+  letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 3px;
+}
+.s4-prop-desc {
+  font-size: 12px; color: #888; line-height: 1.45;
+}
+/* ── section-5-devzero ── */
+#s5-wrapper {
+  height: 140vh;
+  position: relative;
+}
+#s5 {
+  background: var(--black);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 40px 0 24px;
+  overflow: hidden;
+}
+#s5::before {
+  content:''; position:absolute; inset:0;
+  background-image: radial-gradient(circle, rgba(245,197,24,0.03) 1px, transparent 1px);
+  background-size: 48px 48px; pointer-events:none; z-index:0;
+}
+
+.s5-reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity .6s ease, transform .6s cubic-bezier(0.16,1,0.3,1);
+  position: relative; z-index: 1;
+}
+.s5-reveal.visible { opacity: 1; transform: none; }
+
+.s5-top {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  padding: 0 6vw; margin-bottom: 24px;
+  gap: 40px; flex-shrink: 0;
+}
+.s5-top-left { flex: 1; }
+
+.s5-eyebrow {
+  font-size:11px; text-transform:uppercase; letter-spacing:3px;
+  color:var(--yellow); font-weight:600; margin-bottom:10px;
+}
+.s5-eyebrow::before { content:''; display:inline-block; width:28px; height:2px; background:var(--yellow); margin-right:10px; vertical-align:middle; }
+
+.s5-headline {
+  font-size: clamp(26px, 3.5vw, 50px); font-weight:700;
+  line-height:1.08; letter-spacing:-0.03em; color:var(--white);
+  max-width: 700px;
+}
+.s5-headline .accent { color:var(--yellow); }
+
+.s5-props {
+  display: flex; gap: 36px; flex-shrink: 0;
+}
+.s5-prop { border-left: 3px solid #222; padding-left: 18px; max-width: 220px; }
+.s5-prop-title {
+  font-size: 18px; font-weight: 700; color: var(--white);
+  letter-spacing: -0.02em; margin-bottom: 4px; line-height: 1.2;
+}
+.s5-prop-desc { font-size: 14px; color: #888; line-height: 1.45; }
+.s5-prop.active { border-left-color: var(--yellow); }
+.s5-prop.active .s5-prop-title { color: var(--yellow); }
+
+/* ── Main area: terminal left, artifacts right ── */
+.s5-main {
+  flex: 1; min-height: 0;
+  display: flex; gap: 28px;
+  padding-left: 0;
+  padding-right: 6vw;
+}
+
+/* Terminal — left-aligned to screen edge */
+.s5-term-col {
+  width: 52%; flex-shrink: 0;
+  display: flex; flex-direction: column;
+  min-height: 0;
+}
+.s5-terminal {
+  background: #0A0A0A;
+  border: 1px solid #1C1C1C;
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 120px rgba(245,197,24,0.05);
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+}
+.s5-term-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 20px;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid #1C1C1C;
+  flex-shrink: 0;
+}
+.s5-term-dot { width: 10px; height: 10px; border-radius: 50%; }
+.s5-term-dot.r { background: #FF5F57; }
+.s5-term-dot.y { background: #FEBC2E; }
+.s5-term-dot.g { background: #28C840; }
+.s5-term-title {
+  font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+  font-size: 11px; color: #555; margin-left: 8px;
+}
+.s5-term-body {
+  padding: 16px 24px;
+  font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+  font-size: 12px;
+  line-height: 1.8;
+  flex: 1; min-height: 0;
+  overflow-y: auto;
+}
+.s5-term-body::-webkit-scrollbar { width: 4px; }
+.s5-term-body::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+.s5-tline { white-space: pre-wrap; }
+.s5-tline .prompt { color: var(--yellow); user-select: none; }
+.s5-tline .cmd { color: var(--white); }
+.s5-tline .ai { color: #999; font-style: italic; }
+.s5-tline .success { color: #28C840; }
+.s5-tline .warn { color: var(--yellow); font-weight: 600; }
+
+.s5-cursor {
+  display: inline-block; width: 7px; height: 13px;
+  background: var(--yellow); vertical-align: middle;
+  animation: s5blink 1s step-end infinite;
+}
+
+@keyframes s5blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ── Artifacts panel (right) ── */
+.s5-artifacts {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; gap: 20px;
+  min-height: 0;
+}
+
+/* Shared artifact card style */
+.s5-artifact {
+  background: #0D0D0D;
+  border: 1px solid #1C1C1C;
+  border-radius: 10px;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(16px) scale(0.97);
+  transition: opacity .8s ease, transform .8s cubic-bezier(0.16,1,0.3,1);
+}
+.s5-artifact.show {
+  opacity: 1;
+  transform: none;
+}
+
+.s5-artifact-header {
+  padding: 10px 16px;
+  border-bottom: 1px solid #1C1C1C;
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.02);
+}
+.s5-artifact-icon {
+  width: 16px; height: 16px; fill: var(--yellow); flex-shrink: 0;
+}
+.s5-artifact-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 2px;
+  color: var(--yellow); font-weight: 600;
+}
+.s5-artifact-file {
+  font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+  font-size: 11px; color: #555; margin-left: auto;
+}
+
+/* Spec document */
+.s5-spec-body {
+  padding: 16px 20px;
+  font-size: 12px; line-height: 1.7; color: #999;
+}
+.s5-spec-body h3 {
+  font-size: 14px; color: var(--white); font-weight: 700;
+  margin-bottom: 8px; letter-spacing: -0.02em;
+}
+.s5-spec-body h4 {
+  font-size: 11px; color: var(--yellow); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  margin: 12px 0 6px;
+}
+.s5-spec-body p { margin-bottom: 6px; }
+.s5-spec-body ul {
+  list-style: none; padding: 0;
+}
+.s5-spec-body li {
+  padding-left: 14px; position: relative; margin-bottom: 3px;
+}
+.s5-spec-body li::before {
+  content: '\2022'; position: absolute; left: 0; color: #444;
+}
+.s5-spec-fade {
+  position: relative;
+}
+.s5-spec-fade::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 48px;
+  background: linear-gradient(transparent, #0D0D0D);
+  pointer-events: none;
+}
+
+/* Architecture diagram */
+.s5-arch-body {
+  padding: 16px 20px 20px;
+}
+.s5-arch-body svg {
+  width: 100%; height: auto; display: block;
+}
+
+@media (max-width: 1000px) {
+  .s5-main { flex-direction: column; padding-left: 6vw; }
+  .s5-term-col { width: 100%; }
+  .s5-terminal { border-radius: 12px; }
+  .s5-top { flex-direction: column; align-items: flex-start; }
+  .s5-props { flex-direction: column; gap: 12px; }
+}
+/* ── section-6-resilience ── */
+#s6-wrapper {
+  height: 140vh;
+  position: relative;
+}
+#s6 {
+  background: var(--black);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 36px 6vw 24px;
+  overflow: hidden;
+}
+#s6::before {
+  content:''; position:absolute; inset:0;
+  background-image: radial-gradient(circle, rgba(245,197,24,0.03) 1px, transparent 1px);
+  background-size: 48px 48px; pointer-events:none; z-index:0;
+}
+
+.s6-reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity .6s ease, transform .6s cubic-bezier(0.16,1,0.3,1);
+  position: relative; z-index: 1;
+}
+.s6-reveal.visible { opacity: 1; transform: none; }
+
+.s6-top {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-bottom: 20px; gap: 40px; flex-shrink: 0;
+}
+.s6-top-left { flex: 1; }
+
+.s6-eyebrow {
+  font-size:11px; text-transform:uppercase; letter-spacing:3px;
+  color:var(--yellow); font-weight:600; margin-bottom:10px;
+}
+.s6-eyebrow::before { content:''; display:inline-block; width:28px; height:2px; background:var(--yellow); margin-right:10px; vertical-align:middle; }
+
+.s6-headline {
+  font-size: clamp(26px, 3.5vw, 50px); font-weight:700;
+  line-height:1.08; letter-spacing:-0.03em; color:var(--white);
+  max-width: 800px;
+}
+.s6-headline .accent { color:var(--yellow); }
+
+/* Stats row */
+.s6-stats {
+  display: flex; gap: 36px; flex-shrink: 0;
+}
+.s6-stat { text-align: center; }
+.s6-stat-num {
+  font-size: clamp(22px, 2.5vw, 36px); font-weight: 700; color: var(--yellow);
+  letter-spacing: -0.03em; line-height: 1;
+}
+.s6-stat-label {
+  font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1.5px;
+  margin-top: 4px; font-weight: 500;
+}
+
+/* Iframe container — fills remaining space */
+.s6-frame-wrap {
+  flex: 1; min-height: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #1C1C1C;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+}
+.s6-frame-wrap iframe {
+  width: 119%;     /* 1 / 0.84 */
+  height: 119%;
+  border: none;
+  display: block;
+  transform: scale(0.84);
+  transform-origin: top left;
+}
+
+@media (max-width: 900px) {
+  .s6-top { flex-direction: column; align-items: flex-start; }
+  .s6-stats { gap: 20px; }
+}
+/* ── section-7-governance ── */
+/* ── Phase 1: The Problem ── */
+#s7-problem {
+  height: 140vh;
+  position: relative;
+}
+#s7-problem-sticky {
+  position: sticky; top: 0;
+  height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 0 8vw;
+  background: var(--black);
+  overflow: hidden;
+}
+#s7-problem-sticky::before {
+  content:''; position:absolute; inset:0;
+  background-image: radial-gradient(circle, rgba(245,60,60,0.04) 1px, transparent 1px);
+  background-size: 48px 48px; pointer-events:none; z-index:0;
+}
+
+.s7-eyebrow {
+  font-size:11px; text-transform:uppercase; letter-spacing:3px;
+  color:var(--yellow); font-weight:600; margin-bottom:14px;
+  position:relative; z-index:1;
+  opacity:0; transition: opacity .5s ease;
+}
+.s7-eyebrow.visible { opacity:1; }
+.s7-eyebrow::before { content:''; display:inline-block; width:28px; height:2px; background:var(--yellow); margin-right:10px; vertical-align:middle; }
+
+.s7-problem-headline {
+  font-size: clamp(30px, 4vw, 58px); font-weight:700;
+  line-height:1.08; letter-spacing:-0.03em; color:var(--white);
+  max-width: 800px; margin-bottom: 40px;
+  position:relative; z-index:1;
+  opacity:0; transform:translateY(24px);
+  transition: opacity .6s ease, transform .6s cubic-bezier(0.16,1,0.3,1);
+}
+.s7-problem-headline.visible { opacity:1; transform:none; }
+.s7-problem-headline .accent { color: #E74C3C; }
+
+.s7-problems {
+  display: flex; gap: 32px;
+  max-width: 1100px;
+  position: relative; z-index: 1;
+  margin-bottom: 40px;
+}
+.s7-prob {
+  flex: 1;
+  padding: 20px 0;
+  border-top: 2px solid #E74C3C;
+  opacity: 0; transform: translateY(20px);
+  transition: opacity .5s ease, transform .5s cubic-bezier(0.16,1,0.3,1);
+}
+.s7-prob.visible { opacity: 1; transform: none; }
+.s7-prob-stat {
+  font-size: clamp(28px, 3vw, 42px); font-weight: 700;
+  color: #E74C3C; letter-spacing: -0.03em; line-height: 1;
+  margin-bottom: 8px;
+}
+.s7-prob-text {
+  font-size: 14px; color: #999; line-height: 1.5;
+}
+
+.s7-thesis {
+  font-size: clamp(18px, 2vw, 26px); font-weight: 700;
+  color: var(--yellow); letter-spacing: -0.02em; line-height: 1.3;
+  max-width: 700px;
+  position: relative; z-index: 1;
+  opacity: 0; transform: translateY(20px);
+  transition: opacity .6s ease .1s, transform .6s cubic-bezier(0.16,1,0.3,1) .1s;
+}
+.s7-thesis.visible { opacity: 1; transform: none; }
+
+/* ── Phase 2: The Answer ── */
+#s7-answer-wrapper {
+  height: 140vh;
+  position: relative;
+}
+#s7-answer {
+  background: var(--dark);
+  padding: 80px 8vw 80px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+#s7-answer::before {
+  content:''; position:absolute; inset:0;
+  background-image: radial-gradient(circle, rgba(245,197,24,0.03) 1px, transparent 1px);
+  background-size: 48px 48px; pointer-events:none; z-index:0;
+}
+
+.s7-reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity .6s ease, transform .6s cubic-bezier(0.16,1,0.3,1);
+  position: relative; z-index: 1;
+}
+.s7-reveal.visible { opacity: 1; transform: none; }
+
+.s7-answer-headline {
+  font-size: clamp(28px, 3.5vw, 52px); font-weight:700;
+  line-height:1.08; letter-spacing:-0.03em; color:var(--white);
+  max-width: 900px; margin-bottom: 48px;
+}
+.s7-answer-headline .accent { color:var(--yellow); }
+
+/* ── Answer layout: carousel left, features right ── */
+.s7-answer-layout {
+  display: flex; gap: 40px; align-items: flex-start;
+  position: relative; z-index: 1;
+}
+
+/* ── Carousel ── */
+.s7-carousel-section {
+  flex: 1; min-width: 0;
+  margin-right: 40px;
+}
+.s7-carousel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #0A0A0A;
+  border: 1px solid #1A1A1A;
+}
+.s7-carousel-track {
+  display: flex;
+  transition: transform .5s cubic-bezier(0.16,1,0.3,1);
+}
+.s7-carousel-slide {
+  min-width: 100%;
+  display: flex;
+  height: 480px;
+}
+.s7-slide-img {
+  flex: 1; min-width: 0;
+  overflow: hidden;
+  padding: 16px 0 16px 16px;
+  position: relative;
+}
+.s7-slide-img::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 48px;
+  background: linear-gradient(to right, transparent, rgba(10,10,10,0.85));
+  pointer-events: none;
+}
+.s7-slide-img img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 6px 0 0 6px;
+  object-fit: cover;
+  object-position: top left;
+}
+.s7-slide-text {
+  width: 280px; flex-shrink: 0;
+  padding: 32px 28px;
+  display: flex; flex-direction: column; justify-content: center;
+  background: #0A0A0A;
+}
+.s7-slide-num {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 3px;
+  color: var(--yellow); font-weight: 600; margin-bottom: 16px;
+}
+.s7-slide-title {
+  font-size: clamp(18px, 1.8vw, 24px); font-weight: 700; color: var(--white);
+  letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 12px;
+}
+.s7-slide-desc {
+  font-size: 13px; color: #999; line-height: 1.6;
+}
+
+/* Navigation */
+.s7-carousel-nav {
+  display: flex; justify-content: center; gap: 8px;
+  margin-top: 20px;
+}
+.s7-carousel-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #333; border: none; cursor: pointer;
+  transition: background .3s ease, width .3s ease;
+}
+.s7-carousel-dot.active { background: var(--yellow); width: 24px; border-radius: 4px; }
+.s7-carousel-arrows {
+  position: absolute; top: 50%; left: 0; right: 0;
+  display: flex; justify-content: space-between;
+  padding: 0 12px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 2;
+}
+.s7-carousel-arrow {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(0,0,0,0.8); border: 1px solid #333;
+  color: var(--white); font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; pointer-events: all;
+  transition: border-color .2s ease;
+}
+.s7-carousel-arrow:hover { border-color: var(--yellow); }
+
+/* ── Feature columns ── */
+.s7-features {
+  width: 380px; flex-shrink: 0;
+  display: flex; gap: 28px;
+  margin-left: 40px;
+}
+.s7-feat-col {
+  flex: 1; min-width: 0;
+}
+.s7-feat-col-title {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 2.5px;
+  color: var(--yellow); font-weight: 600; margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #222;
+}
+.s7-feat-item {
+  font-size: 13px; color: #999; line-height: 1.35;
+  padding: 4px 0;
+  display: flex; align-items: baseline; gap: 7px;
+}
+.s7-feat-item::before {
+  content: '';
+  width: 4px; height: 4px;
+  background: var(--yellow);
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+/* ── section-customers ── */
+#cust-wrapper {
+  height: 200vh; /* 5 customers, ~4 clicks each */
+  position: relative;
+}
+#cust-sticky {
+  position: sticky; top: 0;
+  height: 100vh;
+  background: var(--black);
+  overflow: hidden;
+}
+
+/* Each slide */
+.cust-slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 0 10vw;
+  opacity: 0;
+  transition: opacity .8s ease;
+  pointer-events: none;
+}
+.cust-slide.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Slide counter */
+.cust-counter {
+  position: absolute; top: 40px; right: 10vw;
+  font-size: 12px; letter-spacing: 2px; color: #444;
+  font-weight: 600;
+  z-index: 10;
+}
+.cust-counter .cust-counter-current { color: var(--yellow); }
+
+/* Progress dots */
+.cust-dots {
+  position: absolute; right: 10vw; top: 50%; transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 10px;
+  z-index: 10;
+}
+.cust-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #222; border: 1px solid #333;
+  transition: all .4s ease;
+}
+.cust-dot.active {
+  background: var(--yellow); border-color: var(--yellow);
+  height: 20px; border-radius: 3px;
+}
+
+/* Eyebrow */
+.cust-eyebrow {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 3px;
+  color: var(--yellow); font-weight: 600; margin-bottom: 24px;
+}
+.cust-eyebrow::before {
+  content:''; display:inline-block; width:28px; height:2px;
+  background:var(--yellow); margin-right:10px; vertical-align:middle;
+}
+
+/* Customer name */
+.cust-name {
+  font-size: clamp(48px, 7vw, 100px); font-weight: 700;
+  line-height: 1.0; letter-spacing: -0.03em;
+  color: var(--white); margin-bottom: 16px;
+}
+
+/* Headline */
+.cust-headline {
+  font-size: clamp(20px, 2.5vw, 36px); font-weight: 600;
+  color: var(--yellow); line-height: 1.2;
+  margin-bottom: 24px; max-width: 700px;
+}
+
+/* Description */
+.cust-desc {
+  font-size: clamp(15px, 1.3vw, 20px); color: #999;
+  line-height: 1.6; max-width: 650px; margin-bottom: 32px;
+}
+
+/* Quote */
+.cust-quote {
+  font-size: clamp(14px, 1.1vw, 17px); color: #777;
+  font-style: italic; line-height: 1.5; max-width: 600px;
+  padding-left: 20px;
+  border-left: 2px solid var(--yellow);
+}
+.cust-quote-attr {
+  font-size: 12px; color: #555; font-style: normal;
+  margin-top: 8px; font-weight: 600;
+}
+
+/* Stat callout */
+.cust-stat {
+  display: inline-flex; align-items: baseline; gap: 8px;
+  margin-bottom: 20px;
+}
+.cust-stat-num {
+  font-size: clamp(36px, 4vw, 64px); font-weight: 700;
+  color: var(--yellow); letter-spacing: -0.03em; line-height: 1;
+}
+.cust-stat-label {
+  font-size: clamp(14px, 1.2vw, 18px); color: #888; font-weight: 500;
+}
+
+/* Hero background image per slide */
+.cust-slide::before {
+  content: ''; position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  pointer-events: none;
+  opacity: 0.75;
+}
+.cust-slide::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 45%, rgba(0,0,0,0.05) 100%);
+  pointer-events: none;
+}
+.cust-slide > * { position: relative; z-index: 1; }
+.cust-slide[data-slide="0"]::before { background-image: url('images/customers/manulife.jpg'); }
+.cust-slide[data-slide="1"]::before { background-image: url('images/customers/tubi.jpg'); }
+.cust-slide[data-slide="2"]::before { background-image: url('images/customers/swiggy.png'); }
+.cust-slide[data-slide="3"]::before { background-image: url('images/customers/johndeere.png'); }
+.cust-slide[data-slide="4"]::before { background-image: url('images/customers/dojo.png'); }
+
+/* Divider line between eyebrow area and content */
+.cust-divider {
+  width: 60px; height: 3px; background: var(--yellow);
+  margin-bottom: 28px; opacity: 0.6;
+}
+
+/* Scroll hint at bottom */
+.cust-scroll-hint {
+  position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+  font-size: 9px; text-transform: uppercase; letter-spacing: 3px;
+  color: #333; z-index: 10;
+}
+/* ── section-packages ── */
+#pkg-wrapper {
+  height: calc(100vh + 300px);
+  position: relative;
+}
+#pkg {
+  min-height: 100vh;
+  padding: 40px 6vw 40px;
+  position: sticky;
+  top: 0;
+  background: var(--black);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.pkg-inner {
+  position: relative; z-index: 1;
+}
+
+#pkg::before {
+  content:''; position:absolute; inset:0;
+  background-image: radial-gradient(circle, rgba(245,197,24,0.03) 1px, transparent 1px);
+  background-size: 48px 48px; pointer-events:none; z-index:0;
+}
+
+/* Header */
+.pkg-eyebrow {
+  font-size:11px; text-transform:uppercase; letter-spacing:3px;
+  color:var(--yellow); font-weight:600; margin-bottom:10px;
+  position:relative; z-index:1;
+}
+.pkg-eyebrow::before { content:''; display:inline-block; width:28px; height:2px; background:var(--yellow); margin-right:10px; vertical-align:middle; }
+
+.pkg-headline {
+  font-size: clamp(30px, 4vw, 56px); font-weight:700;
+  line-height:1.08; letter-spacing:-0.03em; color:var(--white);
+  max-width: 800px; margin-bottom: 12px;
+  position:relative; z-index:1;
+}
+.pkg-headline .accent { color:var(--yellow); }
+
+.pkg-sub {
+  font-size: clamp(14px, 1.2vw, 18px); color: #888;
+  max-width: 700px; line-height: 1.5; margin-bottom: 64px;
+  position:relative; z-index:1;
+}
+
+/* ── Infrastructure bar ── */
+.pkg-infra {
+  display: flex; gap: 32px; align-items: center; justify-content: center;
+  padding: 18px 32px;
+  background: #0A0A0A;
+  border: 1px solid #1C1C1C;
+  border-radius: 10px;
+  margin-bottom: 14px;
+  position: relative; z-index: 1;
+}
+.pkg-infra-item {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: #999; font-weight: 500;
+}
+.pkg-infra-icon {
+  width: 20px; height: 20px; color: var(--yellow); flex-shrink: 0;
+}
+.pkg-infra-icon svg { width: 100%; height: 100%; }
+.pkg-infra-divider {
+  width: 1px; height: 24px; background: #222;
+}
+
+/* ── Sandbox card (full-width horizontal) ── */
+.pkg-sandbox {
+  display: flex; align-items: center; gap: 40px;
+  background: #0A0A0A;
+  border: 1px dashed #333;
+  border-radius: 12px;
+  padding: 14px 28px;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  position: relative; z-index: 1;
+}
+.pkg-sandbox-left {
+  display: flex; align-items: center; gap: 16px;
+  flex-shrink: 0;
+}
+.pkg-sandbox-badge {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 2px;
+  color: var(--white); font-weight: 600;
+}
+.pkg-sandbox-name {
+  font-size: 26px; font-weight: 700; color: var(--yellow);
+}
+.pkg-sandbox-desc {
+  font-size: 15px; color: #bbb; line-height: 1.5; flex: 1; min-width: 0;
+}
+.pkg-sandbox-specs {
+  list-style: none; padding: 0;
+  display: flex; gap: 28px; flex-shrink: 0;
+}
+.pkg-sandbox-specs li {
+  font-size: 14px; color: #888;
+}
+.pkg-sandbox-specs li span { color: var(--yellow); font-weight: 600; }
+.pkg-sandbox-convert {
+  font-size: 13px; color: #999; flex-shrink: 0; max-width: 220px; line-height: 1.45;
+  border-left: 2px solid var(--yellow); padding-left: 14px;
+}
+
+/* ── Production SRE banner ── */
+.pkg-sre-banner {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  padding: 8px 24px;
+  background: linear-gradient(90deg, transparent, rgba(40,200,64,0.08), transparent);
+  border-top: 1px solid #28C840;
+  border-bottom: 1px solid rgba(40,200,64,0.2);
+  margin-bottom: 14px;
+  position: relative; z-index: 1;
+}
+.pkg-sre-banner-text {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 3px;
+  color: #28C840; font-weight: 700;
+}
+.pkg-sre-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: #28C840;
+  animation: pulse 2s ease infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ── Production tier cards ── */
+.pkg-tiers {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  position: relative; z-index: 1;
+  margin-bottom: 20px;
+}
+.pkg-tier {
+  background: #0A0A0A;
+  border: 1px solid #1C1C1C;
+  border-radius: 10px;
+  padding: 20px 18px;
+  display: flex; flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+.pkg-tier::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; background: var(--yellow);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .6s cubic-bezier(0.16,1,0.3,1);
+}
+.pkg-tier.visible::before { transform: scaleX(1); }
+
+/* Tier progression — wider yellow bar for higher tiers */
+.pkg-tier[data-tier="1"]::before { height: 3px; }
+.pkg-tier[data-tier="2"]::before { height: 4px; }
+.pkg-tier[data-tier="3"]::before { height: 5px; }
+.pkg-tier[data-tier="4"]::before { height: 6px; }
+
+.pkg-tier-name {
+  font-size: 22px; font-weight: 700; color: var(--yellow); margin-bottom: 4px;
+}
+.pkg-tier-price {
+  font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 4px;
+}
+.pkg-tier-price-note {
+  font-size: 11px; color: #555; margin-bottom: 10px;
+}
+.pkg-tier-position {
+  font-size: 12px; color: #ccc; line-height: 1.4; margin-bottom: 12px;
+  min-height: 48px;
+}
+.pkg-tier-specs {
+  list-style: none; padding: 0; margin: 0;
+  border-top: 1px solid #1A1A1A;
+}
+.pkg-tier-specs li {
+  font-size: 11px; color: #888; padding: 5px 0;
+  border-bottom: 1px solid #111;
+  display: flex; justify-content: space-between;
+  white-space: nowrap;
+}
+.pkg-tier-specs li:last-child { border-bottom: none; }
+.pkg-tier-specs .spec-val { color: var(--white); font-weight: 600; text-align: right; }
+
+/* Highlight the unique differentiators */
+.pkg-tier-diff {
+  margin-top: 14px; padding-top: 12px;
+  border-top: 1px solid var(--yellow);
+}
+.pkg-tier-diff-text {
+  font-size: 12px; color: var(--yellow); font-weight: 600; line-height: 1.4;
+}
+
+/* ── Upgrade path ── */
+.pkg-upgrade {
+  display: flex; align-items: center; justify-content: center; gap: 0;
+  position: relative; z-index: 1;
+  padding: 0 40px;
+}
+.pkg-upgrade-node {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+  color: #555; font-weight: 600; white-space: nowrap;
+  padding: 6px 14px;
+  border: 1px solid #222; border-radius: 20px;
+  background: #0A0A0A;
+}
+.pkg-upgrade-line {
+  flex: 1; height: 1px; background: #333; min-width: 20px;
+}
+.pkg-upgrade-line.rebuild {
+  background: none;
+  border-top: 1px dashed #444;
+}
+.pkg-upgrade-label {
+  font-size: 8px; color: #444; text-transform: uppercase; letter-spacing: 1.5px;
+  padding: 0 8px; white-space: nowrap;
+}
+
+/* ── Reveal animation ── */
+.pkg-reveal {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity .6s ease, transform .6s cubic-bezier(0.16,1,0.3,1);
+}
+.pkg-reveal.visible { opacity: 1; transform: none; }
+.pkg-reveal-d1 { transition-delay: .1s; }
+.pkg-reveal-d2 { transition-delay: .2s; }
+.pkg-reveal-d3 { transition-delay: .3s; }
+.pkg-reveal-d4 { transition-delay: .4s; }
+.pkg-reveal-d5 { transition-delay: .5s; }
+.pkg-reveal-d6 { transition-delay: .6s; }
+.pkg-reveal-d7 { transition-delay: .7s; }
+.pkg-reveal-d8 { transition-delay: .8s; }
+/* ── section-y-partners ── */
+#s9-wrapper {
+  height: 140vh;
+  position: relative;
+}
+#s9 {
+  background: var(--black);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px 8vw;
+  overflow: hidden;
+}
+#s9::before {
+  content:''; position:absolute; inset:0;
+  background-image: radial-gradient(circle, rgba(245,197,24,0.03) 1px, transparent 1px);
+  background-size: 48px 48px; pointer-events:none; z-index:0;
+}
+
+.s9-reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity .6s ease, transform .6s cubic-bezier(0.16,1,0.3,1);
+  position: relative; z-index: 1;
+}
+.s9-reveal.visible { opacity: 1; transform: none; }
+
+/* ── Top: The Promise ── */
+.s9-promise {
+  max-width: 1000px;
+  margin-bottom: 56px;
+}
+.s9-eyebrow {
+  font-size:11px; text-transform:uppercase; letter-spacing:3px;
+  color:var(--yellow); font-weight:600; margin-bottom:16px;
+}
+.s9-eyebrow::before { content:''; display:inline-block; width:28px; height:2px; background:var(--yellow); margin-right:10px; vertical-align:middle; }
+
+.s9-headline {
+  font-size: clamp(32px, 4.5vw, 68px); font-weight:700;
+  line-height:1.05; letter-spacing:-0.035em; color:var(--white);
+  margin-bottom: 28px;
+}
+.s9-headline .accent { color:var(--yellow); }
+
+.s9-sub {
+  font-size: clamp(16px, 1.5vw, 21px); color: #999; line-height: 1.5;
+  max-width: 700px;
+}
+
+/* ── Bottom: Partner cards + quote ── */
+.s9-bottom {
+  display: flex; gap: 28px; align-items: flex-start;
+  max-width: 1200px;
+}
+
+/* Partner cards */
+.s9-partners {
+  display: flex; gap: 16px;
+  flex: 1;
+}
+.s9-partner {
+  flex: 1;
+  border-radius: 12px;
+  padding: 24px 20px;
+  display: flex; flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+.s9-partner::before {
+  content:''; position:absolute; inset:0;
+  opacity: 0.1; pointer-events:none;
+  background-size: 28px 28px;
+  background-image: radial-gradient(circle, currentColor 1px, transparent 1px);
+}
+.s9-partner.deloitte {
+  background: linear-gradient(135deg, #0a1a05 0%, #132b0a 50%, #0a0a0a 100%);
+  border: 1px solid rgba(134,188,37,0.2);
+  color: #86BC25;
+}
+.s9-partner.ntt {
+  background: linear-gradient(135deg, #051525 0%, #0a2040 50%, #0a0a0a 100%);
+  border: 1px solid rgba(30,144,255,0.2);
+  color: #1E90FF;
+}
+.s9-partner.avows {
+  background: linear-gradient(135deg, #1a1500 0%, #2a2005 50%, #0a0a0a 100%);
+  border: 1px solid rgba(245,197,24,0.2);
+  color: #F5C518;
+}
+.s9-partner-name {
+  font-size: clamp(22px, 2.2vw, 34px); font-weight: 700;
+  letter-spacing: -0.03em; line-height: 1;
+  margin-bottom: 6px;
+}
+.s9-partner-type {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 2px;
+  color: #777; font-weight: 600; margin-bottom: 10px;
+}
+.s9-partner-desc {
+  font-size: 12px; color: #888; line-height: 1.45;
+}
+
+/* Quote panel */
+.s9-quote-panel {
+  width: 380px; flex-shrink: 0;
+  display: flex; flex-direction: column;
+  justify-content: center;
+  padding-left: 28px;
+  border-left: 3px solid #86BC25;
+}
+.s9-quote-text {
+  font-size: clamp(18px, 1.8vw, 26px); font-weight: 600;
+  color: var(--white); line-height: 1.3;
+  font-style: italic; letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+.s9-quote-attr {
+  font-size: 13px; color: #86BC25; font-style: normal; font-weight: 600;
+}
+
+@media (max-width: 1000px) {
+  .s9-bottom { flex-direction: column; }
+  .s9-partners { flex-direction: column; }
+  .s9-quote-panel { width: 100%; border-left: none; border-top: 3px solid #86BC25; padding: 20px 0 0; }
+}
+/* ── section-z-closing ── */
+#closing {
+  height: 100vh; min-height: 680px;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  padding: 0 8vw; position: relative; background: var(--black); overflow: hidden;
+  text-align: center;
+}
+#closing::before {
+  content:''; position:absolute; inset:0;
+  background-image: radial-gradient(circle, rgba(245,197,24,0.07) 1px, transparent 1px);
+  background-size: 48px 48px; pointer-events: none; z-index: 0;
+}
+#closing::after {
+  content:''; position:absolute; inset:0;
+  background: radial-gradient(ellipse at 50% 50%, transparent 25%, rgba(0,0,0,0.85) 75%);
+  pointer-events:none; z-index:0;
+}
+
+.closing-reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity .6s ease, transform .6s cubic-bezier(0.16,1,0.3,1);
+  position: relative; z-index: 2;
+}
+.closing-reveal.visible { opacity: 1; transform: none; }
+
+.closing-logo {
+  margin-bottom: 40px;
+}
+.closing-logo svg { height: 48px; width: auto; }
+
+.closing-headline {
+  font-size: clamp(44px, 6.5vw, 96px); font-weight: 700;
+  line-height: 1.02; letter-spacing: -0.03em; color: var(--white);
+  max-width: 1000px; margin-bottom: 24px;
+}
+.closing-headline .accent { color: var(--yellow); }
+
+.closing-sub {
+  font-size: clamp(12px, 1.2vw, 16px);
+  color: var(--gray); font-weight: 600;
+  letter-spacing: 4px; line-height: 1.5;
+  max-width: 600px; margin-bottom: 48px;
+}
+
+.closing-divider {
+  width: 56px; height: 3px; background: var(--yellow); margin-bottom: 40px;
+}
+
+.closing-stats {
+  display: flex; gap: 52px; flex-wrap: wrap; justify-content: center;
+  margin-bottom: 48px;
+}
+.closing-stat-number {
+  font-size: 38px; font-weight: 700; color: var(--white);
+  letter-spacing: -0.03em; line-height: 1;
+  display: flex; align-items: baseline; justify-content: center;
+}
+.closing-stat-number .suffix { color: var(--yellow); font-size: 28px; }
+.closing-stat-label {
+  font-size: 11px; color: var(--gray); text-transform: uppercase;
+  letter-spacing: 1.5px; margin-top: 6px; font-weight: 500;
+}
+
+.closing-cta {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 32px;
+  background: var(--yellow); color: var(--black);
+  font-size: 14px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 2px; border-radius: 6px;
+  text-decoration: none;
+  transition: background .2s ease;
+  margin-bottom: 32px;
+}
+.closing-cta:hover { background: #e0b416; }
+
+
+<!-- DEMO_CSS_MARKER -->
+</style>
+</head>
+<body>
+
+<section id="title">
+  <div class="title-logo">
+    <svg width="109" height="25" viewBox="0 0 109 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g clip-path="url(#t)">
+        <path d="M72.158 0 63.105 10.133V0h-6.199v24.98h6.199V14.847l9.053 10.133h8.277L69.277 12.49 80.435 0h-8.277Z" fill="#fff"/>
+        <path d="m13.78 8.287 3.485 8.123h-6.968l3.485-8.123h-.002ZM11.336.062 0 25h6.552l1.561-3.436h11.336L21.113 25h6.45L16.275.062h-4.94Z" fill="#fff"/>
+        <path d="m95.22 8.287 3.484 8.123h-6.968l3.485-8.123h-.001ZM92.775.062 81.44 25h6.551l1.561-3.436h11.336L102.552 25H109L97.715.062h-4.94Z" fill="#fff"/>
+        <path d="M45.283.062 36.246 10.179V.062H30.057V25h6.189V14.883l9.037 10.117h8.264L42.408 12.53 53.547.062h-8.264Z" fill="#fff"/>
+      </g>
+      <defs><clipPath id="t"><rect width="109" height="25" fill="#fff"/></clipPath></defs>
+    </svg>
+  </div>
+
+  <h1 class="title-headline"><span class="accent">Reliable AI</span> for every industry.</h1>
+  <div class="title-sub">AGENTIC SYSTEMS PLATFORM</div>
+  <div class="title-divider"></div>
+
+  <div class="title-presenter">
+    <a href="{{PRESENTER_LINKEDIN}}" target="_blank">
+      {{PRESENTER_NAME}}
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+    </a>
+    <div class="title-presenter-title">{{PRESENTER_TITLE}}</div>
+  </div>
+
+  <div class="title-scroll-hint">
+    <span>scroll to explore</span>
+    <div class="title-scroll-arrow"></div>
+  </div>
+</section>
+<div id="hero-wrapper">
+<section id="hero">
+  <div class="hero-body">
+    <div class="hero-eyebrow">Est. 2007 &mdash; 18 years of production reliability</div>
+    <h1 class="hero-headline">
+      <span class="line"><span class="line-inner">The runtime making</span></span>
+      <span class="line"><span class="line-inner">the world&rsquo;s most complex</span></span>
+      <span class="line"><span class="line-inner">systems <span class="accent">reliable.</span></span></span>
+    </h1>
+    <div class="hero-divider"></div>
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-number"><span class="stat-num" data-target="100">0</span><span class="suffix">K+</span></div>
+        <div class="hero-stat-label">Production deployments</div>
+      </div>
+      <div>
+        <div class="hero-stat-number"><span class="stat-num" data-target="2">0</span><span class="suffix">B+</span></div>
+        <div class="hero-stat-label">People rely on Akka daily</div>
+      </div>
+      <div>
+        <div class="hero-stat-number"><span class="stat-num" data-target="52">0</span></div>
+        <div class="hero-stat-label">Banks running in production</div>
+      </div>
+      <div>
+        <div class="hero-stat-number"><span class="stat-num" data-target="19">0</span><span class="suffix">+</span></div>
+        <div class="hero-stat-label">Compliance certifications</div>
+      </div>
+    </div>
+  </div>
+
+</section>
+</div>
+<div id="st-wrapper">
+  <div id="st-sticky">
+    <div class="st-header">
+      <div class="st-eyebrow">The proof</div>
+      <div class="st-title">One runtime. Every system. 18&nbsp;years.</div>
+      <div class="st-dots" id="stDots"></div>
+    </div>
+    <div class="st-grid" id="stGrid"></div>
+  </div>
+</div>
+<div style="height:20vh;background:var(--black)"></div>
+<div id="s2-wrapper">
+  <div id="s2-sticky">
+    <div class="s2-eyebrow" data-s2="0">The challenge</div>
+    <div class="s2-headline" data-s2="0">Along came <span class="accent">agentic&nbsp;AI</span>, and it amplifies complexity.</div>
+    <div class="s2-content">
+      <div class="s2-blocks" data-s2="1">
+        <div class="s2-block-label">Agentic Complexity</div>
+        <div class="s2-block">
+          <div class="s2-block-body">
+            <div class="s2-block-title">Architecture</div>
+            <div class="s2-block-desc">Agents + models + tools + memory + APIs + streaming — too many moving parts to wire together.</div>
+          </div>
+        </div>
+        <div class="s2-block">
+          <div class="s2-block-body">
+            <div class="s2-block-title">Reasoning</div>
+            <div class="s2-block-desc">Ambiguous context, coordination handoff failures, cost::accuracy trade-offs.</div>
+          </div>
+        </div>
+        <div class="s2-block">
+          <div class="s2-block-body">
+            <div class="s2-block-title">Governance</div>
+            <div class="s2-block-desc">29 AI regulations requiring new controls, explainability, and HITL oversight.</div>
+          </div>
+        </div>
+        <div class="s2-block">
+          <div class="s2-block-body">
+            <div class="s2-block-title">Ops</div>
+            <div class="s2-block-desc">HA/DR for long-running agents, petabyte-scale logging, hallucination retries, Python limits.</div>
+          </div>
+        </div>
+        <div class="s2-block">
+          <div class="s2-block-body">
+            <div class="s2-block-title">Organizational</div>
+            <div class="s2-block-desc">Engineers, data scientists, PMs fragmented — domain knowledge lost, no shared velocity.</div>
+          </div>
+        </div>
+      </div>
+      <div class="s2-diagram" data-s2="1">
+        <div class="s2-diagram-label">Multi-agent reference architecture</div>
+        <svg viewBox="0 0 700 480" fill="none" xmlns="http://www.w3.org/2000/svg" style="font-family:'Instrument Sans',sans-serif">
+
+          <!-- ═══ ROW 1: Inputs — centered, 4 boxes ═══ -->
+          <g class="draw-box" style="animation-delay:0.1s">
+            <rect x="70" y="8" width="120" height="38" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
+            <text x="130" y="31" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Sensors</text>
+          </g>
+          <g class="draw-box" style="animation-delay:0.15s">
+            <rect x="220" y="8" width="100" height="38" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
+            <text x="270" y="31" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Agent</text>
+          </g>
+          <g class="draw-box" style="animation-delay:0.2s">
+            <rect x="350" y="8" width="100" height="38" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
+            <text x="400" y="31" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Client</text>
+          </g>
+          <g class="draw-box" style="animation-delay:0.25s">
+            <rect x="480" y="8" width="130" height="38" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
+            <text x="545" y="31" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Human in Loop</text>
+          </g>
+
+          <!-- ═══ ROW 2: Auth bar ═══ -->
+          <g class="draw-box" style="animation-delay:0.4s">
+            <rect x="30" y="75" width="650" height="28" rx="4" fill="#1A1A0A" stroke="#F5C518" stroke-width="1"/>
+            <text x="355" y="93" text-anchor="middle" fill="#F5C518" font-size="10" font-weight="600">Auth &middot; Zero Trust</text>
+          </g>
+
+          <!-- ═══ ROW 3: Core — 5 boxes ═══ -->
+          <g class="draw-box" style="animation-delay:0.6s">
+            <rect x="30" y="135" width="120" height="44" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
+            <text x="90" y="155" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">Stream</text>
+            <text x="90" y="169" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">Processing</text>
+          </g>
+          <g class="draw-box" style="animation-delay:0.7s">
+            <rect x="160" y="135" width="120" height="44" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
+            <text x="220" y="155" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">Guardrails</text>
+            <text x="220" y="169" text-anchor="middle" fill="#999" font-size="8">validation &amp; safety</text>
+          </g>
+          <g class="draw-box" style="animation-delay:0.8s">
+            <rect x="290" y="130" width="130" height="54" rx="5" fill="#1A1A0A" stroke="#F5C518" stroke-width="1.5"/>
+            <text x="355" y="153" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Orchestration</text>
+            <text x="355" y="173" text-anchor="middle" fill="#999" font-size="8">control loop</text>
+          </g>
+          <g class="draw-box" style="animation-delay:0.9s">
+            <rect x="430" y="135" width="120" height="44" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1.5"/>
+            <text x="490" y="155" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">Agent(s)</text>
+            <text x="490" y="169" text-anchor="middle" fill="#999" font-size="8">execution</text>
+          </g>
+          <g class="draw-box" style="animation-delay:1.0s">
+            <rect x="560" y="135" width="120" height="44" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
+            <text x="620" y="155" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">Governance</text>
+            <text x="620" y="169" text-anchor="middle" fill="#999" font-size="8">workflow catalog</text>
+          </g>
+
+          <!-- ═══ ROW 4: Memory + Registry ═══ -->
+          <g class="draw-box" style="animation-delay:1.25s">
+            <rect x="180" y="230" width="150" height="44" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
+            <text x="255" y="250" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">Agent Memory</text>
+            <text x="255" y="264" text-anchor="middle" fill="#999" font-size="8">sessions, context, history</text>
+          </g>
+          <g class="draw-box" style="animation-delay:1.4s">
+            <rect x="370" y="230" width="150" height="44" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
+            <text x="445" y="250" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">AI Asset Registry</text>
+            <text x="445" y="264" text-anchor="middle" fill="#999" font-size="8">prompts, models, tools</text>
+          </g>
+
+          <!-- ═══ ROW 5: Lower auth/guardrails bar ═══ -->
+          <g class="draw-box" style="animation-delay:1.6s">
+            <rect x="180" y="310" width="340" height="28" rx="4" fill="#1A1A0A" stroke="#F5C518" stroke-width="1"/>
+            <text x="350" y="328" text-anchor="middle" fill="#F5C518" font-size="10" font-weight="600">Auth &middot; Guardrails</text>
+          </g>
+
+          <!-- ═══ ROW 6: Trace ═══ -->
+          <g class="draw-box" style="animation-delay:1.8s">
+            <rect x="290" y="368" width="120" height="34" rx="4" fill="#141414" stroke="#F5C518" stroke-width="1"/>
+            <text x="350" y="389" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">Trace</text>
+          </g>
+
+          <!-- ═══ ROW 7: 3rd party zones ═══ -->
+          <g class="draw-box" style="animation-delay:2.0s">
+            <rect x="20" y="430" width="320" height="40" rx="5" fill="#0A0A0A" stroke="#555" stroke-width="1" stroke-dasharray="4 3"/>
+            <text x="180" y="454" text-anchor="middle" fill="#888" font-size="9">3rd party tools, models, agents</text>
+          </g>
+          <g class="draw-box" style="animation-delay:2.1s">
+            <rect x="360" y="430" width="320" height="40" rx="5" fill="#0A0A0A" stroke="#555" stroke-width="1" stroke-dasharray="4 3"/>
+            <text x="520" y="454" text-anchor="middle" fill="#888" font-size="9">3rd party evaluation &amp; observability</text>
+          </g>
+
+          <!-- ═══ CONNECTION LINES ═══ -->
+          <!-- Row 1 → Row 2 -->
+          <line class="draw-line" x1="130" y1="46" x2="130" y2="75" stroke="#F5C518" stroke-width="1" style="animation-delay:0.3s"/>
+          <line class="draw-line" x1="270" y1="46" x2="270" y2="75" stroke="#F5C518" stroke-width="1" style="animation-delay:0.32s"/>
+          <line class="draw-line" x1="400" y1="46" x2="400" y2="75" stroke="#F5C518" stroke-width="1" style="animation-delay:0.35s"/>
+          <line class="draw-line" x1="545" y1="46" x2="545" y2="75" stroke="#F5C518" stroke-width="1" style="animation-delay:0.37s"/>
+
+          <!-- Row 2 → Row 3 -->
+          <line class="draw-line" x1="90" y1="103" x2="90" y2="135" stroke="#F5C518" stroke-width="1" style="animation-delay:0.5s"/>
+          <line class="draw-line" x1="220" y1="103" x2="220" y2="135" stroke="#F5C518" stroke-width="1" style="animation-delay:0.52s"/>
+          <line class="draw-line" x1="355" y1="103" x2="355" y2="130" stroke="#F5C518" stroke-width="1" style="animation-delay:0.55s"/>
+          <line class="draw-line" x1="490" y1="103" x2="490" y2="135" stroke="#F5C518" stroke-width="1" style="animation-delay:0.57s"/>
+          <line class="draw-line" x1="620" y1="103" x2="620" y2="135" stroke="#F5C518" stroke-width="1" style="animation-delay:0.6s"/>
+
+          <!-- Row 3 horizontal -->
+          <line class="draw-line" x1="150" y1="157" x2="160" y2="157" stroke="#F5C518" stroke-width="1" style="animation-delay:0.75s"/>
+          <line class="draw-line" x1="280" y1="157" x2="290" y2="157" stroke="#F5C518" stroke-width="1" style="animation-delay:0.85s"/>
+          <line class="draw-line" x1="420" y1="157" x2="430" y2="157" stroke="#F5C518" stroke-width="1" style="animation-delay:0.95s"/>
+          <line class="draw-line" x1="550" y1="157" x2="560" y2="157" stroke="#F5C518" stroke-width="1" style="animation-delay:1.05s"/>
+
+          <!-- Row 3 → Row 4 -->
+          <polyline class="draw-line" points="330,184 330,210 255,210 255,230" stroke="#F5C518" stroke-width="1" style="animation-delay:1.15s"/>
+          <polyline class="draw-line" points="380,184 380,210 445,210 445,230" stroke="#F5C518" stroke-width="1" style="animation-delay:1.25s"/>
+
+          <!-- Row 4 → Row 5 -->
+          <line class="draw-line" x1="255" y1="274" x2="255" y2="310" stroke="#F5C518" stroke-width="1" style="animation-delay:1.5s"/>
+          <line class="draw-line" x1="445" y1="274" x2="445" y2="310" stroke="#F5C518" stroke-width="1" style="animation-delay:1.55s"/>
+
+          <!-- Row 5 → Row 6 -->
+          <line class="draw-line" x1="350" y1="338" x2="350" y2="368" stroke="#F5C518" stroke-width="1" style="animation-delay:1.7s"/>
+
+          <!-- Row 6 → Row 7 -->
+          <line class="draw-line" x1="320" y1="402" x2="320" y2="430" stroke="#F5C518" stroke-width="1" stroke-dasharray="4 3" style="animation-delay:1.9s"/>
+          <line class="draw-line" x1="380" y1="402" x2="380" y2="430" stroke="#F5C518" stroke-width="1" stroke-dasharray="4 3" style="animation-delay:1.95s"/>
+        </svg>
+      </div>
+      <div class="s2-tco" data-s2="2">
+        <div class="s2-tco-label">The cost of complexity</div>
+        <div class="s2-tco-item">
+          <div class="s2-tco-title">Longer Dev Cycles</div>
+          <div class="s2-tco-quip">Every integration is a new team, a new API, a new failure mode. Velocity collapses.</div>
+        </div>
+        <div class="s2-tco-item">
+          <div class="s2-tco-title">Expensive Eval Licensing</div>
+          <div class="s2-tco-quip">Paying per-seat for every observability, testing, and compliance tool in the stack.</div>
+        </div>
+        <div class="s2-tco-item">
+          <div class="s2-tco-title">More Downtime</div>
+          <div class="s2-tco-quip">Long-running agents with no HA/DR means one failure cascades across the entire workflow.</div>
+        </div>
+        <div class="s2-tco-item">
+          <div class="s2-tco-title">More Risk Mgmt HC</div>
+          <div class="s2-tco-quip">29 regulations don't enforce themselves — you're hiring compliance teams, not shipping features.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="s4-wrapper">
+<section id="s4">
+  <div class="s4-layout s4-reveal">
+    <div class="s4-left">
+      <div class="s4-eyebrow">The answer</div>
+      <div class="s4-headline">Akka is an <span class="accent">Agentic AI Platform</span> that tames AI complexity.</div>
+      <div class="s4-image">
+        <img src="images/akka-platform.png" alt="Akka Agentic AI Platform">
+      </div>
+    </div>
+    <div class="s4-props">
+      <div class="s4-prop">
+        <div class="s4-prop-num">$-</div>
+        <div class="s4-prop-text">
+          <div class="s4-prop-title">Virtually Free Dev</div>
+          <div class="s4-prop-desc">Spec-driven development — describe what you want, the platform builds it.</div>
+        </div>
+      </div>
+      <div class="s4-prop">
+        <div class="s4-prop-num">99.9999%</div>
+        <div class="s4-prop-text">
+          <div class="s4-prop-title">Agents With No Downtime</div>
+          <div class="s4-prop-desc">Active-active HA/DR — six nines of availability for long-running agents.</div>
+        </div>
+      </div>
+      <div class="s4-prop">
+        <div class="s4-prop-num">100%</div>
+        <div class="s4-prop-text">
+          <div class="s4-prop-title">Self-Governing Agents</div>
+          <div class="s4-prop-desc">Embedded eval, policies, and governance — compliance built in, not bolted on.</div>
+        </div>
+      </div>
+      <div class="s4-prop">
+        <div class="s4-prop-num">90%</div>
+        <div class="s4-prop-text">
+          <div class="s4-prop-title">Less Infra Cost</div>
+          <div class="s4-prop-desc">Fewer CPUs from actor-based concurrency &amp; shared compute. Fewer tokens from durable execution &amp; intelligent context.</div>
+        </div>
+      </div>
+      <div class="s4-prop">
+        <div class="s4-prop-num">10&times;</div>
+        <div class="s4-prop-text">
+          <div class="s4-prop-title">Higher Change Velocity</div>
+          <div class="s4-prop-desc">Internal dev portal, multi-tenant ops, and golden path SDLC best practices.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+<div id="s5-wrapper">
+<section id="s5">
+  <div class="s5-top">
+    <div class="s5-top-left">
+      <div class="s5-eyebrow s5-reveal">Dev cost &rarr; zero</div>
+      <div class="s5-headline s5-reveal">Describe what you want.<br><span class="accent">Ship it in hours.</span></div>
+    </div>
+    <div class="s5-props s5-reveal">
+      <div class="s5-prop" data-phase="specify">
+        <div class="s5-prop-title">No code required</div>
+        <div class="s5-prop-desc">Plain language in, production system out.</div>
+      </div>
+      <div class="s5-prop" data-phase="implement">
+        <div class="s5-prop-title">Hours, not weeks</div>
+        <div class="s5-prop-desc">Spec to deployed service with HA and governance.</div>
+      </div>
+      <div class="s5-prop" data-phase="deploy">
+        <div class="s5-prop-title">No lost knowledge</div>
+        <div class="s5-prop-desc">The spec is the source of truth. Always.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="s5-main s5-reveal">
+    <!-- Terminal (left, screen-edge aligned) -->
+    <div class="s5-term-col">
+      <div class="s5-terminal">
+        <div class="s5-term-header">
+          <div class="s5-term-dot r"></div>
+          <div class="s5-term-dot y"></div>
+          <div class="s5-term-dot g"></div>
+          <span class="s5-term-title">claude-code ~ loyalty-service</span>
+        </div>
+        <div class="s5-term-body" id="s5TermBody"></div>
+      </div>
+    </div>
+
+    <!-- Artifacts (right) -->
+    <div class="s5-artifacts">
+      <!-- Spec document -->
+      <div class="s5-artifact" id="s5Spec">
+        <div class="s5-artifact-header">
+          <svg class="s5-artifact-icon" viewBox="0 0 16 16"><path d="M2 1.5A1.5 1.5 0 013.5 0h6.586a1.5 1.5 0 011.06.44l2.415 2.414A1.5 1.5 0 0114 3.914V14.5a1.5 1.5 0 01-1.5 1.5h-9A1.5 1.5 0 012 14.5zm1.5-.5a.5.5 0 00-.5.5v13a.5.5 0 00.5.5h9a.5.5 0 00.5-.5V4H10.5A1.5 1.5 0 019 2.5V1zM10 1v1.5a.5.5 0 00.5.5H12z"/></svg>
+          <span class="s5-artifact-label">Your Specification</span>
+          <span class="s5-artifact-file">spec.md</span>
+        </div>
+        <div class="s5-spec-fade">
+          <div class="s5-spec-body">
+            <h3>Customer Loyalty Service</h3>
+            <p>A points-based loyalty program with tiered membership, reward redemption, and real-time balance tracking.</p>
+            <h4>Entities</h4>
+            <ul>
+              <li><strong style="color:#ccc">LoyaltyAccount</strong> &mdash; earn, redeem, tier evaluation</li>
+              <li><strong style="color:#ccc">RewardsProgram</strong> &mdash; catalog rules, partner integrations</li>
+            </ul>
+            <h4>Business Rules</h4>
+            <ul>
+              <li>Rolling 12-month expiry from last earn activity</li>
+              <li>Grace period before tier downgrade</li>
+              <li>Reward catalog synced daily from external API</li>
+            </ul>
+            <h4>Views</h4>
+            <ul>
+              <li>CustomerDashboard &mdash; balance, history, current tier</li>
+              <li>AdminOverview &mdash; program metrics, tier distribution</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Architecture diagram -->
+      <div class="s5-artifact" id="s5Arch">
+        <div class="s5-artifact-header">
+          <svg class="s5-artifact-icon" viewBox="0 0 16 16"><path d="M6 3.5A1.5 1.5 0 017.5 2h1A1.5 1.5 0 0110 3.5v1A1.5 1.5 0 018.5 6h-1A1.5 1.5 0 016 4.5zM0 9.5A1.5 1.5 0 011.5 8h1A1.5 1.5 0 014 9.5v1A1.5 1.5 0 012.5 12h-1A1.5 1.5 0 010 10.5zm12 0A1.5 1.5 0 0113.5 8h1A1.5 1.5 0 0116 9.5v1a1.5 1.5 0 01-1.5 1.5h-1a1.5 1.5 0 01-1.5-1.5zM8 6v2m-6 4v-1.5A1.5 1.5 0 013.5 9H5m6 0h1.5A1.5 1.5 0 0114 10.5V12" fill="none" stroke="#F5C518" stroke-width="1.2"/></svg>
+          <span class="s5-artifact-label">Architecture</span>
+          <span class="s5-artifact-file">generated by /akka:design</span>
+        </div>
+        <div class="s5-arch-body">
+          <svg viewBox="0 0 440 155" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <style>
+              .nd { fill:#141414; stroke:#F5C518; stroke-width:0.5; rx:5; }
+              .nd-y { fill:#1a1700; stroke:#F5C518; stroke-width:0.5; rx:5; }
+              .nl { font-family:'Instrument Sans',sans-serif; font-size:11px; fill:#ccc; font-weight:600; }
+              .nl-s { font-family:'SF Mono','Consolas',monospace; font-size:9px; fill:#777; }
+              .el { stroke:#F5C518; stroke-width:1; }
+              .el-y { stroke:#F5C518; stroke-width:1; stroke-dasharray:4,3; }
+            </style>
+
+            <!-- REST Endpoints -->
+            <rect x="150" y="4" width="140" height="28" class="nd-y"/>
+            <text x="220" y="22" text-anchor="middle" class="nl" fill="#F5C518">REST Endpoints</text>
+
+            <!-- Arrows down from endpoints -->
+            <line x1="185" y1="32" x2="80" y2="52" class="el"/>
+            <line x1="220" y1="32" x2="220" y2="52" class="el"/>
+            <line x1="255" y1="32" x2="360" y2="52" class="el"/>
+
+            <!-- LoyaltyAccount Entity -->
+            <rect x="20" y="52" width="120" height="34" class="nd"/>
+            <text x="80" y="66" text-anchor="middle" class="nl">LoyaltyAccount</text>
+            <text x="80" y="78" text-anchor="middle" class="nl-s">Event Sourced</text>
+
+            <!-- RewardsProgram Entity -->
+            <rect x="160" y="52" width="120" height="34" class="nd"/>
+            <text x="220" y="66" text-anchor="middle" class="nl">RewardsProgram</text>
+            <text x="220" y="78" text-anchor="middle" class="nl-s">Key Value</text>
+
+            <!-- RedemptionWorkflow -->
+            <rect x="300" y="52" width="120" height="34" class="nd"/>
+            <text x="360" y="66" text-anchor="middle" class="nl">Redemption</text>
+            <text x="360" y="78" text-anchor="middle" class="nl-s">Workflow</text>
+
+            <!-- Arrows: entities to views -->
+            <line x1="80" y1="86" x2="80" y2="106" class="el-y"/>
+            <line x1="220" y1="86" x2="220" y2="106" class="el-y"/>
+            <line x1="360" y1="86" x2="360" y2="106" class="el-y"/>
+
+            <!-- Views -->
+            <rect x="20" y="106" width="120" height="28" class="nd"/>
+            <text x="80" y="124" text-anchor="middle" class="nl">CustomerDashboard</text>
+
+            <rect x="160" y="106" width="120" height="28" class="nd"/>
+            <text x="220" y="124" text-anchor="middle" class="nl">AdminOverview</text>
+
+            <!-- Timer -->
+            <rect x="300" y="106" width="120" height="28" class="nd"/>
+            <text x="360" y="118" text-anchor="middle" class="nl">ExpiryTimer</text>
+            <text x="360" y="129" text-anchor="middle" class="nl-s">Cron: daily</text>
+
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+<div style="height:30vh;background:var(--black)"></div>
+<div id="s6-wrapper">
+<section id="s6">
+  <div class="s6-top">
+    <div class="s6-top-left">
+      <div class="s6-eyebrow s6-reveal">Resilience built in</div>
+      <div class="s6-headline s6-reveal">Agentic AI that <span class="accent">never goes down.</span></div>
+    </div>
+    <div class="s6-stats s6-reveal">
+      <div class="s6-stat">
+        <div class="s6-stat-num">6&times;9s</div>
+        <div class="s6-stat-label">Availability</div>
+      </div>
+      <div class="s6-stat">
+        <div class="s6-stat-num">&lt;10ms</div>
+        <div class="s6-stat-label">Memory access</div>
+      </div>
+      <div class="s6-stat">
+        <div class="s6-stat-num">Millions</div>
+        <div class="s6-stat-label">Concurrent txns</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="s6-frame-wrap s6-reveal">
+    <iframe src="resilience/resilience.html" loading="lazy"></iframe>
+  </div>
+</section>
+</div>
+<!-- Phase 1: The Problem -->
+<div id="s7-problem">
+  <div id="s7-problem-sticky">
+    <div class="s7-eyebrow" data-s7="0">Self-governing AI</div>
+    <div class="s7-problem-headline" data-s7="0">Bolt-on governance is the <span class="accent">illusion of control.</span></div>
+    <div class="s7-problems">
+      <div class="s7-prob" data-s7="1">
+        <div class="s7-prob-stat">29</div>
+        <div class="s7-prob-text">AI regulations coming online. The EU AI Act alone imposes penalties up to &euro;35M. Every deployment must be explainable and controlled.</div>
+      </div>
+      <div class="s7-prob" data-s7="2">
+        <div class="s7-prob-stat">$$$</div>
+        <div class="s7-prob-text">Runaway mega-bills from eval and observability vendors. You're paying per-seat for tools that produce copies of copies &mdash; not truth.</div>
+      </div>
+      <div class="s7-prob" data-s7="3">
+        <div class="s7-prob-stat">PB+</div>
+        <div class="s7-prob-text">Petabyte-scale storage for regulatory holds. Copied logs aren't tamper-proof. When auditors come, you need hashchains &mdash; not hope.</div>
+      </div>
+    </div>
+    <div class="s7-thesis" data-s7="4">When the runtime governs itself &mdash; AI answers to you, not the other way around.</div>
+  </div>
+</div>
+
+<!-- Phase 2: The Answer -->
+<div id="s7-answer-wrapper">
+<div id="s7-answer">
+  <div class="s7-answer-headline s7-reveal"><span class="accent">AI that is regulation-ready</span> on every deployment.</div>
+
+  <div class="s7-answer-layout s7-reveal">
+  <div class="s7-carousel-section">
+    <div class="s7-carousel" id="s7Carousel">
+      <div class="s7-carousel-track" id="s7Track">
+
+        <!-- Slide 1: Compliance Overview -->
+        <div class="s7-carousel-slide">
+          <div class="s7-slide-img"><img src="images/governance-posture.png" alt="Compliance Overview"></div>
+          <div class="s7-slide-text">
+            <div class="s7-slide-num">01 / 05</div>
+            <div class="s7-slide-title">Compliance Overview</div>
+            <div class="s7-slide-desc">Article-by-article EU AI Act posture mapped to your live systems. Violations, halted executions, rubber-stamped HITL, and scope violations &mdash; tracked in real time, not reconstructed from logs after the fact.</div>
+          </div>
+        </div>
+
+        <!-- Slide 2: Interaction Log -->
+        <div class="s7-carousel-slide">
+          <div class="s7-slide-img"><img src="images/interaction-log.png" alt="Interaction Log"></div>
+          <div class="s7-slide-text">
+            <div class="s7-slide-num">02 / 05</div>
+            <div class="s7-slide-title">Immutable Interaction Log</div>
+            <div class="s7-slide-desc">Every agent coordination event captured automatically by the runtime &mdash; zero developer instrumentation. Hashchained for tamper-proof evidence. No copies of copies. When auditors arrive, this is the source of truth.</div>
+          </div>
+        </div>
+
+        <!-- Slide 3: Control Agent -->
+        <div class="s7-carousel-slide">
+          <div class="s7-slide-img"><img src="images/control-agent.png" alt="Control Agent"></div>
+          <div class="s7-slide-text">
+            <div class="s7-slide-num">03 / 05</div>
+            <div class="s7-slide-title">Control Agent</div>
+            <div class="s7-slide-desc">AI-powered governance assistant that can investigate violations, quarantine misbehaving agents, trigger circuit breakers, draft policy proposals, and generate compliance reports &mdash; all from a single interface.</div>
+          </div>
+        </div>
+
+        <!-- Slide 4: Policy Sandbox -->
+        <div class="s7-carousel-slide">
+          <div class="s7-slide-img"><img src="images/policy-sandbox.png" alt="Policy Sandbox"></div>
+          <div class="s7-slide-text">
+            <div class="s7-slide-num">04 / 05</div>
+            <div class="s7-slide-title">Policy Sandbox</div>
+            <div class="s7-slide-desc">Test policy changes against every scenario before they go live. See exactly which agents break, which pass, and what regresses. Catch the blast radius of a policy change before it hits production.</div>
+          </div>
+        </div>
+
+        <!-- Slide 5: Audit Trail -->
+        <div class="s7-carousel-slide">
+          <div class="s7-slide-img"><img src="images/audit.png" alt="Audit Trail"></div>
+          <div class="s7-slide-text">
+            <div class="s7-slide-num">05 / 05</div>
+            <div class="s7-slide-title">Audit Trail &amp; Evidence Export</div>
+            <div class="s7-slide-desc">Complete human stewardship record: every proposal, approval, rejection, incident, and legal hold. SOX-exportable. Continuous evidence push to Vanta, Drata, and Sprinto. The compliance team's single pane of glass.</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="s7-carousel-arrows">
+        <button class="s7-carousel-arrow" onclick="s7Prev()">&#8249;</button>
+        <button class="s7-carousel-arrow" onclick="s7Next()">&#8250;</button>
+      </div>
+    </div>
+    <div class="s7-carousel-nav" id="s7Dots"></div>
+  </div>
+
+  <div class="s7-features">
+    <div class="s7-feat-col">
+      <div class="s7-feat-col-title">Capabilities</div>
+      <div class="s7-feat-item">Inline guardrails</div>
+      <div class="s7-feat-item">LLMs-as-judges</div>
+      <div class="s7-feat-item">PII Sanitization</div>
+      <div class="s7-feat-item">Verifiable Identity</div>
+      <div class="s7-feat-item">Transaction tracing</div>
+      <div class="s7-feat-item">Agent engagement loop logging</div>
+      <div class="s7-feat-item">Zero trust networking</div>
+      <div class="s7-feat-item">OTEL metrics</div>
+      <div class="s7-feat-item">HITL interference</div>
+      <div class="s7-feat-item">Eval: toxicity, summarization, hallucination</div>
+      <div class="s7-feat-item">Embedded OPA execution engine</div>
+      <div class="s7-feat-item">Jurisdictional policy generator</div>
+      <div class="s7-feat-item">Policy mapping to enforcement points</div>
+      <div class="s7-feat-item">Policy execution monitoring</div>
+      <div class="s7-feat-item">Policy testing sandbox</div>
+      <div class="s7-feat-item">Policies for non-Akka agents via AI gateways</div>
+    </div>
+    <div class="s7-feat-col">
+      <div class="s7-feat-col-title">Regulations</div>
+      <div class="s7-feat-item">EU AI Act</div>
+      <div class="s7-feat-item">Colorado AI Act</div>
+      <div class="s7-feat-item">NYC Local Law 144</div>
+      <div class="s7-feat-item">Illinois HB 3773</div>
+      <div class="s7-feat-item">Utah AI Policy Act</div>
+      <div class="s7-feat-item">California AB 2013</div>
+      <div class="s7-feat-item">California SB 942</div>
+      <div class="s7-feat-item">China GenAI Measures</div>
+      <div class="s7-feat-item">South Korea AI Act</div>
+      <div class="s7-feat-item">Brazil PL 2338</div>
+      <div class="s7-feat-item">UK AI Regulation Bill</div>
+      <div class="s7-feat-item">Council of Europe AI</div>
+      <div class="s7-feat-item">NIST AI RMF</div>
+      <div class="s7-feat-item">ISO/IEC 42001</div>
+      <div class="s7-feat-item">Singapore AI Framework</div>
+      <div class="s7-feat-item">OECD AI Principles</div>
+      <div class="s7-feat-item">SOC 2</div>
+      <div class="s7-feat-item">GDPR</div>
+      <div class="s7-feat-item">HIPAA</div>
+      <div class="s7-feat-item">DORA</div>
+    </div>
+  </div>
+
+  </div>
+</div>
+</div>
+<div id="cust-wrapper">
+  <div id="cust-sticky">
+
+    <!-- Progress dots -->
+    <div class="cust-dots" id="custDots"></div>
+
+    <!-- Counter -->
+    <div class="cust-counter">
+      <span class="cust-counter-current" id="custCurrent">01</span>
+      <span> / 05</span>
+    </div>
+
+    <!-- Scroll hint -->
+    <div class="cust-scroll-hint">scroll to explore</div>
+
+    <!-- ═══ SLIDE 1: Manulife ═══ -->
+    <div class="cust-slide" data-slide="0">
+      <div class="cust-eyebrow">Customer spotlight</div>
+      <div class="cust-name">Manulife</div>
+      <div class="cust-headline">Scales Agentic AI Globally</div>
+      <div class="cust-divider"></div>
+      <div class="cust-desc">Akka provides a secure and scalable foundation to build hundreds of trusted AI-powered business applications across Manulife's global operations.</div>
+    </div>
+
+    <!-- ═══ SLIDE 2: Tubi ═══ -->
+    <div class="cust-slide" data-slide="1">
+      <div class="cust-eyebrow">Customer spotlight</div>
+      <div class="cust-name">Tubi</div>
+      <div class="cust-headline">Hyper-Personalized Experiences Increase Ad Revenue</div>
+      <div class="cust-divider"></div>
+      <div class="cust-desc">Akka powers Tubi's real-time personalization engine, delivering unique experiences to every viewer at streaming scale.</div>
+      <div class="cust-quote">
+        "Akka has enabled Tubi to provide customer experiences unlike any other in the video-on-demand space."
+        <div class="cust-quote-attr">— Tubi CTO</div>
+      </div>
+    </div>
+
+    <!-- ═══ SLIDE 3: Swiggy ═══ -->
+    <div class="cust-slide" data-slide="2">
+      <div class="cust-eyebrow">Customer spotlight</div>
+      <div class="cust-name">Swiggy</div>
+      <div class="cust-headline">Cuts Prediction Latency by 50%</div>
+      <div class="cust-divider"></div>
+      <div class="cust-stat">
+        <div class="cust-stat-num">71ms</div>
+        <div class="cust-stat-label">AI response time</div>
+      </div>
+      <div class="cust-desc">Akka-powered micro-batching reduced order-assignment AI response times, enabling Swiggy to match riders to orders faster than ever.</div>
+    </div>
+
+    <!-- ═══ SLIDE 4: John Deere ═══ -->
+    <div class="cust-slide" data-slide="3">
+      <div class="cust-eyebrow">Customer spotlight</div>
+      <div class="cust-name">John Deere</div>
+      <div class="cust-headline">Creates Smarter Farms</div>
+      <div class="cust-divider"></div>
+      <div class="cust-stat">
+        <div class="cust-stat-num">1,000+</div>
+        <div class="cust-stat-label">tractor sensors converted to real-time insights</div>
+      </div>
+      <div class="cust-desc">Akka powers John Deere's Precision Ag platform, turning sensor data into actionable intelligence that enhances crop yields and reduces operational costs.</div>
+    </div>
+
+    <!-- ═══ SLIDE 5: Dojo ═══ -->
+    <div class="cust-slide" data-slide="4">
+      <div class="cust-eyebrow">Customer spotlight</div>
+      <div class="cust-name">Dojo</div>
+      <div class="cust-headline">Agentic AI Accelerates European Expansion</div>
+      <div class="cust-divider"></div>
+      <div class="cust-desc">Dojo onboards thousands of merchants monthly by shifting business workflows to agentic architecture using AI-assisted Akka development.</div>
+    </div>
+
+  </div>
+</div>
+<div style="height:200px;background:var(--black)"></div>
+<div id="pkg-wrapper">
+<section id="pkg">
+<div class="pkg-inner">
+  <div class="pkg-eyebrow pkg-reveal">The packages</div>
+  <div class="pkg-headline pkg-reveal pkg-reveal-d1">One platform. <span class="accent">Five ways in.</span></div>
+  <div class="pkg-sub pkg-reveal pkg-reveal-d2">Every configuration runs the full Akka platform — the same runtime, the same APIs, the same developer experience. You choose where it runs and how much you need.</div>
+
+  <!-- Infrastructure bar -->
+  <div class="pkg-infra pkg-reveal pkg-reveal-d3">
+    <div class="pkg-infra-item">
+      <div class="pkg-infra-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="3"/><line x1="2" y1="9" x2="22" y2="9"/><circle cx="7" cy="6" r="1"/><circle cx="11" cy="6" r="1"/></svg></div>
+      <span><strong style="color:#fff">Any cloud.</strong> AWS, Azure, GCP, private.</span>
+    </div>
+    <div class="pkg-infra-divider"></div>
+    <div class="pkg-infra-item">
+      <div class="pkg-infra-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16"/><path d="M10 4v16"/></svg></div>
+      <span><strong style="color:#fff">Any data center.</strong> You retain total control.</span>
+    </div>
+    <div class="pkg-infra-divider"></div>
+    <div class="pkg-infra-item">
+      <div class="pkg-infra-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="18" r="2.5"/><line x1="12" y1="11" x2="6" y2="15.5"/><line x1="12" y1="11" x2="18" y2="15.5"/></svg></div>
+      <span><strong style="color:#fff">Multi-tenant.</strong> 1,000s of projects &amp; devs.</span>
+    </div>
+  </div>
+
+  <!-- ════ SANDBOX (full-width horizontal) ════ -->
+  <div class="pkg-sandbox pkg-reveal pkg-reveal-d4">
+    <div class="pkg-sandbox-left">
+      <div>
+        <div class="pkg-sandbox-badge">Evaluation</div>
+        <div class="pkg-sandbox-name">Sandbox</div>
+      </div>
+    </div>
+    <div class="pkg-sandbox-desc">Great developer experience at the lowest cost. Build, experiment, validate — no production overhead.</div>
+    <ul class="pkg-sandbox-specs">
+      <li><span>Region:</span> 1 Akka VPC</li>
+      <li><span>Cores:</span> 5 / 5</li>
+      <li><span>Support:</span> 9&times;5</li>
+      <li><span>SLA:</span> Degraded</li>
+    </ul>
+    <div class="pkg-sandbox-convert">Convertible to full Akka VPC Region with 24/7 SRE SLA.</div>
+  </div>
+
+  <!-- ════ 24/7 SRE BANNER ════ -->
+  <div class="pkg-sre-banner pkg-reveal pkg-reveal-d5">
+    <div class="pkg-sre-dot"></div>
+    <div class="pkg-sre-banner-text">24/7 SRE Management &amp; Monitoring &mdash; All production tiers</div>
+    <div class="pkg-sre-dot"></div>
+  </div>
+
+  <!-- ════ PRODUCTION TIERS (4 cards) ════ -->
+  <div class="pkg-tiers">
+    <div class="pkg-tier pkg-reveal pkg-reveal-d5" data-tier="1">
+      <div class="pkg-tier-name">Starter</div>
+      <div class="pkg-tier-price">Akka-hosted</div>
+      <div class="pkg-tier-price-note">consumption-based</div>
+      <div class="pkg-tier-position">Ship to production today. Akka-hosted, fully resilient, no procurement cycles. Monthly billing.</div>
+      <ul class="pkg-tier-specs">
+        <li>Regions <span class="spec-val">1 Akka Cloud</span></li>
+        <li>Cores <span class="spec-val">5 service</span></li>
+        <li>HA/DR <span class="spec-val">—</span></li>
+        <li>SLA <span class="spec-val">99.99%</span></li>
+        <li>TAM <span class="spec-val">—</span></li>
+      </ul>
+    </div>
+
+    <div class="pkg-tier pkg-reveal pkg-reveal-d6" data-tier="2">
+      <div class="pkg-tier-name">Day 2 Ops</div>
+      <div class="pkg-tier-price">Your VPC</div>
+      <div class="pkg-tier-price-note">annual bundle</div>
+      <div class="pkg-tier-position">First production deployment in your VPC. Replaces 6-8 separately billed services with one platform.</div>
+      <ul class="pkg-tier-specs">
+        <li>Regions <span class="spec-val">2 Akka VPC</span></li>
+        <li>Cores <span class="spec-val">25 service</span></li>
+        <li>HA/DR <span class="spec-val">—</span></li>
+        <li>SLA <span class="spec-val">99.99%</span></li>
+        <li>TAM <span class="spec-val">1/4 time</span></li>
+      </ul>
+    </div>
+
+    <div class="pkg-tier pkg-reveal pkg-reveal-d7" data-tier="3">
+      <div class="pkg-tier-name">Business Continuity</div>
+      <div class="pkg-tier-price">Your VPC</div>
+      <div class="pkg-tier-price-note">annual bundle</div>
+      <div class="pkg-tier-position">Revenue-bearing systems that cannot tolerate outages. Managed active-active HA/DR.</div>
+      <ul class="pkg-tier-specs">
+        <li>Regions <span class="spec-val">3 Akka VPC</span></li>
+        <li>Cores <span class="spec-val">100 service</span></li>
+        <li>HA/DR <span class="spec-val">Active-active</span></li>
+        <li>SLA <span class="spec-val">99.9999%</span></li>
+        <li>TAM <span class="spec-val">1/2 time</span></li>
+      </ul>
+    </div>
+
+    <div class="pkg-tier pkg-reveal pkg-reveal-d8" data-tier="4">
+      <div class="pkg-tier-name">Sovereign Cloud</div>
+      <div class="pkg-tier-price">Your VPC</div>
+      <div class="pkg-tier-price-note">annual bundle</div>
+      <div class="pkg-tier-position">Country-isolated, fully regulated. Inherit 19+ compliance certifications instead of building them.</div>
+      <ul class="pkg-tier-specs">
+        <li>Regions <span class="spec-val">3 Akka VPC</span></li>
+        <li>Cores <span class="spec-val">100 service</span></li>
+        <li>HA/DR <span class="spec-val">Sovereign active</span></li>
+        <li>SLA <span class="spec-val">99.9999%</span></li>
+        <li>TAM <span class="spec-val">2 dedicated</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ════ UPGRADE PATH ════ -->
+  <div class="pkg-upgrade pkg-reveal pkg-reveal-d8">
+    <div class="pkg-upgrade-node">Sandbox</div>
+    <div class="pkg-upgrade-line rebuild"></div>
+    <div class="pkg-upgrade-label">rebuild</div>
+    <div class="pkg-upgrade-line rebuild"></div>
+    <div class="pkg-upgrade-node">Starter</div>
+    <div class="pkg-upgrade-line"></div>
+    <div class="pkg-upgrade-node">Day 2 Ops</div>
+    <div class="pkg-upgrade-line"></div>
+    <div class="pkg-upgrade-label">in-place</div>
+    <div class="pkg-upgrade-line"></div>
+    <div class="pkg-upgrade-node">Business Continuity</div>
+    <div class="pkg-upgrade-line"></div>
+    <div class="pkg-upgrade-label">in-place</div>
+    <div class="pkg-upgrade-line"></div>
+    <div class="pkg-upgrade-node">Sovereign</div>
+  </div>
+
+</div>
+</section>
+</div>
+<div style="height:12vh;background:var(--black)"></div>
+<div id="s9-wrapper">
+<section id="s9">
+  <div class="s9-promise s9-reveal">
+    <div class="s9-eyebrow">How we deliver</div>
+    <div class="s9-headline">First conversation to <span class="accent">production AI in weeks.</span><br>We're with you the whole way.</div>
+    <div class="s9-sub">The Akka team embeds with yours from pre-sales through ongoing operations. We don't hand off and walk away. We get you live, and we guarantee your SLA.</div>
+  </div>
+
+  <div class="s9-bottom s9-reveal">
+    <div class="s9-partners">
+      <div class="s9-partner deloitte">
+        <div class="s9-partner-name">Deloitte</div>
+        <div class="s9-partner-type">Global Systems Integrator</div>
+        <div class="s9-partner-desc">Enterprise AI transformation at scale across financial services, manufacturing, and government.</div>
+      </div>
+      <div class="s9-partner ntt">
+        <div class="s9-partner-name">NTT DATA</div>
+        <div class="s9-partner-type">Global Technology Partner</div>
+        <div class="s9-partner-desc">Production-proven delivery for mission-critical agentic systems across APAC and EMEA.</div>
+      </div>
+      <div class="s9-partner avows">
+        <div class="s9-partner-name">AVOWS</div>
+        <div class="s9-partner-type">Specialist Delivery Partner</div>
+        <div class="s9-partner-desc">Akka-native engineering. Hands-on implementation, migration, and production ops.</div>
+      </div>
+    </div>
+
+    <div class="s9-quote-panel">
+      <div class="s9-quote-text">&ldquo;Akka is hands-down the best AI platform available.&rdquo;</div>
+      <div class="s9-quote-attr">&mdash; Deloitte</div>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- DEMO_HTML_MARKER -->
+
+<section id="closing">
+  <div class="closing-logo closing-reveal">
+    <svg width="109" height="25" viewBox="0 0 109 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g clip-path="url(#c)">
+        <path d="M72.158 0 63.105 10.133V0h-6.199v24.98h6.199V14.847l9.053 10.133h8.277L69.277 12.49 80.435 0h-8.277Z" fill="#fff"/>
+        <path d="m13.78 8.287 3.485 8.123h-6.968l3.485-8.123h-.002ZM11.336.062 0 25h6.552l1.561-3.436h11.336L21.113 25h6.45L16.275.062h-4.94Z" fill="#fff"/>
+        <path d="m95.22 8.287 3.484 8.123h-6.968l3.485-8.123h-.001ZM92.775.062 81.44 25h6.551l1.561-3.436h11.336L102.552 25H109L97.715.062h-4.94Z" fill="#fff"/>
+        <path d="M45.283.062 36.246 10.179V.062H30.057V25h6.189V14.883l9.037 10.117h8.264L42.408 12.53 53.547.062h-8.264Z" fill="#fff"/>
+      </g>
+      <defs><clipPath id="c"><rect width="109" height="25" fill="#fff"/></clipPath></defs>
+    </svg>
+  </div>
+
+  <h1 class="closing-headline closing-reveal"><span class="accent">Reliable AI</span> for every industry.</h1>
+  <div class="closing-sub closing-reveal">AGENTIC SYSTEMS PLATFORM</div>
+  <div class="closing-divider closing-reveal"></div>
+
+  <a href="https://akka.io" class="closing-cta closing-reveal">Get started &rarr;</a>
+</section>
+
+<script>
+/* ── section-0-title ── */
+/* no JS needed — title uses CSS animations on load */
+/* ── section-1-hero ── */
+/* ── Hero counters ─────────────────────────────────── */
+function animateCount(el, target) {
+  const dur = 1600, t0 = performance.now();
+  (function tick(now) {
+    const p = Math.min((now - t0) / dur, 1);
+    el.textContent = Math.floor((1 - Math.pow(1 - p, 3)) * target);
+    if (p < 1) requestAnimationFrame(tick); else el.textContent = target;
+  })(t0);
+}
+new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting)
+    document.querySelectorAll('.stat-num').forEach(el => animateCount(el, +el.dataset.target));
+}, { threshold: 0.6 }).observe(document.querySelector('.hero-stats'));
+/* ── section-2-types ── */
+/* ── Type data ─────────────────────────────────────── */
+/* Ordered: 0-3 = top row (col 0-3), 4-7 = bottom row (col 0-3) */
+// si = simple-icons slug (https://simpleicons.org) — blank = CSS text fallback
+const TYPES = [
+  { n:'01', name:'transact & reason', desc:'Process operational data',
+    context:'Every payment, order, and decision — at sub-millisecond speed with zero data loss.',
+    imgs:['capitalone','ING','westpac','bookingdotcom','gebit'] },
+  { n:'02', name:'analytics', desc:'Analyze real-time data',
+    context:'AI-powered analytics acting on data as it arrives — decisions before the moment passes.',
+    imgs:['verizon','swiggy','dream11','HPE','usaacredit'] },
+  { n:'03', name:'memory', desc:'Track & replay shared state',
+    context:'Durable sub-10ms memory that survives failures and enables time-travel debugging.',
+    imgs:['adobe','verizon','dream11'] },
+  { n:'04', name:'digital twins', desc:'Converge replicated data',
+    context:'Live replicas of physical systems — vehicles, factories, ports — in real time.',
+    imgs:['vw','norwegian','bsh'] },
+  { n:'05', name:'streaming', desc:'Process continuous data',
+    context:'Millions of events per second with exactly-once delivery at global scale.',
+    imgs:['disney','tubi','sky','webex','reflek'] },
+  { n:'06', name:'workflows', desc:'Orchestrate long-term processes',
+    context:'Business processes spanning days, surviving restarts, never losing state.',
+    imgs:['walmart','tesco','workday','bp'] },
+  { n:'07', name:'edge relays', desc:'Daisy chain device-to-cloud',
+    context:'Reliable coordination across thousands of distributed devices — zero message loss.',
+    imgs:['vw','johndeere','gm','tesla','bsh'] },
+  { n:'08', name:'model inference', desc:'Agent & tool execution',
+    context:'Autonomous agents making real decisions in production — not demos, not prototypes.',
+    imgs:['ciena','amprion','lloyds','RBC','tubi'] },
+];
+
+/* ── Build grid ────────────────────────────────────── */
+const stGrid   = document.getElementById('stGrid');
+const stDotsEl = document.getElementById('stDots');
+
+
+TYPES.forEach((t, i) => {
+  const col = i % 4;
+  const row = i < 4 ? 0 : 1;
+
+  const card = document.createElement('div');
+  card.className = 'st-card';
+  card.dataset.col = col;
+  card.dataset.row = row;
+
+  const pills = t.imgs.map(name =>
+    `<img class="logo-tile-img" src="logos/${name}.png" alt="${name}" loading="lazy">`
+  ).join('');
+
+  card.innerHTML = `
+    <div class="st-card-content">
+      <div class="st-num">${t.n}</div>
+      <div class="st-name">${t.name}</div>
+      <div class="st-desc">${t.desc}</div>
+      <div class="st-context">${t.context}</div>
+      <div class="st-divider"></div>
+      <div class="st-logos">${pills}</div>
+    </div>
+  `;
+  stGrid.appendChild(card);
+});
+
+/* 4 progress dots */
+for (let i = 0; i < 4; i++) {
+  const d = document.createElement('div');
+  d.className = 'st-dot';
+  stDotsEl.appendChild(d);
+}
+
+/* ── Scroll driver — scroll-linked, no thresholds ──── */
+const stWrapper = document.getElementById('st-wrapper');
+const cards   = document.querySelectorAll('.st-card');
+const stDots  = document.querySelectorAll('.st-dot');
+
+function updateCols() {
+  const y       = window.scrollY;
+  const wTop    = stWrapper.offsetTop;
+  const wScroll = stWrapper.offsetHeight - window.innerHeight;
+  const scrolled = y - wTop;
+
+  // p is NOT clamped on the low end so negative = before section (all hidden)
+  const p = wScroll > 0 ? Math.min(scrolled / wScroll, 1) : 0;
+
+  // Each column activates at p = col/4 (0, 0.25, 0.5, 0.75)
+  // The whole card — text, logos, everything — enters as one CSS-animated unit
+  cards.forEach(card => {
+    card.classList.toggle('visible', p >= +card.dataset.col / 4);
+  });
+
+  stDots.forEach((dot, i) => {
+    dot.classList.toggle('lit', p >= i / 4);
+  });
+}
+
+window.addEventListener('scroll', updateCols, { passive: true });
+updateCols();
+/* ── section-3-complexity ── */
+/* ── Section 3 ──────────────────────── */
+const s2wrapper = document.getElementById('s2-wrapper');
+const tcoEl = document.querySelector('.s2-tco');
+const s2diagram = document.querySelector('.s2-diagram');
+let diagramDrawing = false;
+
+/* Eyebrow, headline, and blocks fade in via IntersectionObserver as section scrolls up */
+const s2RevealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible');
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('[data-s2="0"], [data-s2="1"]:not(.s2-diagram), .s2-tco').forEach(el => s2RevealObs.observe(el));
+
+/* Diagram starts drawing only when sticky section is anchored (fully in view) */
+const s2DiagramObs = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) {
+    s2diagram.classList.add('visible');
+    diagramDrawing = true;
+  }
+}, { threshold: 0.8 });
+s2DiagramObs.observe(document.getElementById('s2-sticky'));
+/* ── section-4-platform ── */
+const s4observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible');
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('#s4 .s4-reveal').forEach(el => s4observer.observe(el));
+/* ── section-5-devzero ── */
+(function() {
+  var script = [
+    { type:'cmd', text:'/akka:specify "Customer loyalty program with points, tiers, and rewards"', phase:'specify' },
+    { type:'ai',  text:'How should points expire? Fixed calendar window, rolling from last activity, or never?' },
+    { type:'ok',  text:'[specify] spec.md written \u2714  Branch: 001-loyalty-service' },
+    { type:'blank' },
+
+    { type:'cmd', text:'/akka:clarify "Rolling 12-month expiry. Grace period before tier downgrade."', phase:'specify' },
+    { type:'ok',  text:'[clarify] spec.md updated \u2714  2 decisions captured', trigger:'spec' },
+    { type:'blank' },
+
+    { type:'cmd', text:'/akka:plan "High-perf APIs, read data in views. Host client app in backend."', phase:'specify' },
+    { type:'ok',  text:'[plan] plan.md written \u2714  Event Sourced Entities, Views, Endpoints + SPA' },
+    { type:'blank' },
+
+    { type:'cmd', text:'/akka:tasks && /akka:implement && /akka:build', phase:'implement' },
+    { type:'lines', items: [
+      { text:'[tasks] 6 tasks generated, dependency-ordered \u2714', cls:'ok' },
+      { text:'[implement] Writing LoyaltyAccount entity...', cls:'ai' },
+      { text:'[implement] Writing RewardsProgram entity...', cls:'ai' },
+      { text:'[implement] Writing REST endpoints + views...', cls:'ai' },
+      { text:'[implement] Writing RedemptionWorkflow...', cls:'ai' },
+      { text:'[implement] Generating 50 unit tests...', cls:'ai' },
+      { text:'[implement] 989 lines across 12 files \u2714  50/50 tests passing', cls:'ok' },
+      { text:'[build] mvn compile \u2714  mvn test \u2714  service running on :8080', cls:'ok' },
+    ], trigger:'arch'},
+    { type:'blank' },
+
+    { type:'cmd', text:'/akka:review && /akka:analyze && /akka:deploy', phase:'deploy' },
+    { type:'lines', items: [
+      { text:'[review] Spec compliance 100% \u2714  Coverage 94%', cls:'ok' },
+      { text:'[analyze] Full cross-artifact traceability \u2714', cls:'ok' },
+      { text:'[deploy] git commit \u2714  git push \u2714', cls:'ai' },
+      { text:'[deploy] Container image built \u2714  Pushed to registry', cls:'ai' },
+      { text:'[deploy] Routes configured \u2714  loyalty.acme.akka.app', cls:'ai' },
+      { text:'[deploy] Deploying to your private Akka cloud \u2714  Active-active HA, 3 replicas', cls:'ok' },
+    ]},
+    { type:'blank' },
+    { type:'warn', text:'\u2728 loyalty-service is live. Spec to production in 2 hours, 14 minutes.' },
+  ];
+
+  var body = document.getElementById('s5TermBody');
+  var specCard = document.getElementById('s5Spec');
+  var archCard = document.getElementById('s5Arch');
+  var props = document.querySelectorAll('.s5-prop');
+  var currentPhase = null;
+  var cursorEl = null;
+
+  var CMD_CHAR_MS  = 24;
+  var AI_CHAR_MS   = 20;
+  var OK_CHAR_MS   = 18;
+  var LINE_DELAY   = 280;
+  var PAUSE_AFTER_CMD = 500;
+  var PAUSE_AFTER_STEP = 400;
+
+  function scroll() { body.scrollTop = body.scrollHeight; }
+
+  function removeCursor() {
+    if (cursorEl) { cursorEl.remove(); cursorEl = null; }
+  }
+
+  function addCursor(parent) {
+    removeCursor();
+    cursorEl = document.createElement('span');
+    cursorEl.className = 's5-cursor';
+    parent.appendChild(cursorEl);
+  }
+
+  function highlightProp(phase) {
+    if (phase && phase !== currentPhase) {
+      currentPhase = phase;
+      props.forEach(function(p) {
+        p.classList.toggle('active', p.getAttribute('data-phase') === phase);
+      });
+    }
+  }
+
+  /* Artifact reveal + terminal reset logic */
+  var revealQueue = [specCard, archCard];
+  var revealIdx = 0;
+  var s5Anchored = false;
+  var s5Running = false;
+  var s5DownCount = 0;
+  var s5WrapperEl = document.getElementById('s5-wrapper');
+
+  var s5UpCount = 0;
+  var s5State = 'idle'; /* idle | forward | reverse | done */
+
+  function fillTerminalFull() {
+    body.innerHTML = '';
+    removeCursor();
+    for (var i = 0; i < script.length; i++) {
+      var step = script[i];
+      if (step.type === 'cmd') {
+        var d = document.createElement('div');
+        d.className = 's5-tline';
+        d.innerHTML = '<span class="prompt">$ </span><span class="cmd">' + step.text + '</span>';
+        body.appendChild(d);
+      } else if (step.type === 'blank') {
+        var d = document.createElement('div');
+        d.className = 's5-tline';
+        d.innerHTML = '&nbsp;';
+        body.appendChild(d);
+      } else if (step.type === 'lines') {
+        for (var j = 0; j < step.items.length; j++) {
+          var item = step.items[j];
+          var ld = document.createElement('div');
+          ld.className = 's5-tline';
+          var c = item.cls === 'ok' ? 'success' : 'ai';
+          ld.innerHTML = '<span class="' + c + '">' + item.text + '</span>';
+          body.appendChild(ld);
+        }
+      } else {
+        var cls = step.type === 'ok' ? 'success' : (step.type === 'warn' ? 'warn' : step.type);
+        var d = document.createElement('div');
+        d.className = 's5-tline';
+        d.innerHTML = '<span class="' + cls + '">' + step.text + '</span>';
+        body.appendChild(d);
+      }
+    }
+    var end = document.createElement('div');
+    end.className = 's5-tline';
+    end.innerHTML = '<span class="prompt">$ </span>';
+    body.appendChild(end);
+    addCursor(end);
+  }
+
+  function resetS5() {
+    body.innerHTML = '';
+    removeCursor();
+    specCard.classList.remove('show');
+    archCard.classList.remove('show');
+    revealIdx = 0;
+    s5DownCount = 0;
+    s5UpCount = 0;
+    currentPhase = null;
+    props.forEach(function(p) { p.classList.remove('active'); });
+    s5Running = false;
+    s5Anchored = false;
+    s5State = 'idle';
+  }
+
+  function checkS5() {
+    var wTop = s5WrapperEl.offsetTop;
+    var wHeight = s5WrapperEl.offsetHeight;
+    var wBottom = wTop + wHeight;
+    var scrollY = window.scrollY;
+    var viewBottom = scrollY + window.innerHeight;
+
+    var progress = (scrollY - wTop) / (wHeight - window.innerHeight);
+
+    var pastBelow = scrollY > wBottom;
+    var pastAbove = viewBottom < wTop;
+    var inView = !pastAbove && !pastBelow;
+    var anchored = progress >= 0 && progress <= 1;
+
+    if (pastAbove || pastBelow) {
+      if (s5State !== 'idle') resetS5();
+      return;
+    }
+
+    if (s5State === 'idle' && inView) {
+      /* Wrapper just entered viewport — determine direction */
+      if (viewBottom > wBottom - 10) {
+        /* Bottom of wrapper is near bottom of viewport = scrolling up from below */
+        s5State = 'reverse';
+        s5Running = true;
+        s5Anchored = true;
+        fillTerminalFull();
+        specCard.classList.add('show');
+        archCard.classList.add('show');
+        revealIdx = 2;
+        s5UpCount = 0;
+      } else if (anchored) {
+        /* Top of wrapper is above viewport = forward entry, already anchored */
+        s5State = 'forward';
+        s5Anchored = true;
+        s5Running = true;
+        setTimeout(function() { run(0); }, 600);
+      }
+    }
+
+    /* Forward: detect when we first anchor */
+    if (s5State === 'forward' && anchored && !s5Anchored) {
+      s5Anchored = true;
+      if (!s5Running) {
+        s5Running = true;
+        setTimeout(function() { run(0); }, 600);
+      }
+    }
+
+    /* Forward: also reveal cards by scroll progress so fast scrollers see them */
+    if (s5State === 'forward' && anchored) {
+      if (progress >= 0.35 && !specCard.classList.contains('show')) {
+        specCard.classList.add('show');
+        if (revealIdx < 1) revealIdx = 1;
+      }
+      if (progress >= 0.65 && !archCard.classList.contains('show')) {
+        archCard.classList.add('show');
+        if (revealIdx < 2) revealIdx = 2;
+      }
+    }
+
+    /* Reverse: peel off artifacts based on scroll progress toward top */
+    if (s5State === 'reverse' && anchored) {
+      /* progress 1 = bottom of wrapper, 0 = top. As we scroll up, progress decreases */
+      if (progress < 0.55 && archCard.classList.contains('show')) {
+        archCard.classList.remove('show');
+      }
+      if (progress < 0.25 && specCard.classList.contains('show')) {
+        specCard.classList.remove('show');
+      }
+    }
+  }
+  window.addEventListener('scroll', checkS5, { passive: true });
+
+  document.addEventListener('keydown', function(e) {
+    if (!s5Anchored) return;
+
+    if (e.key === 'ArrowDown') {
+      s5DownCount++;
+      if (s5DownCount % 3 === 0 && revealIdx < revealQueue.length) {
+        revealQueue[revealIdx].classList.add('show');
+        revealIdx++;
+      }
+    }
+
+  });
+
+  function fireTrigger(t) {
+    if (t === 'spec' && !specCard.classList.contains('show')) {
+      specCard.classList.add('show');
+      if (revealIdx < 1) revealIdx = 1;
+    }
+    if (t === 'arch' && !archCard.classList.contains('show')) {
+      archCard.classList.add('show');
+      if (revealIdx < 2) revealIdx = 2;
+    }
+  }
+
+  function typeText(span, text, charMs, cb) {
+    var i = 0;
+    function tick() {
+      if (i < text.length) {
+        span.textContent += text[i]; i++;
+        scroll();
+        setTimeout(tick, charMs);
+      } else { if (cb) cb(); }
+    }
+    tick();
+  }
+
+  function makeLine(cls) {
+    var div = document.createElement('div');
+    div.className = 's5-tline';
+    var span = document.createElement('span');
+    span.className = cls;
+    div.appendChild(span);
+    body.appendChild(div);
+    return span;
+  }
+
+  function playLines(items, idx, cb) {
+    if (idx >= items.length) { if (cb) cb(); return; }
+    var item = items[idx];
+    var clsMap = { ok:'success', ai:'ai' };
+    var span = makeLine(clsMap[item.cls] || 'success');
+    addCursor(span.parentNode);
+    typeText(span, item.text, OK_CHAR_MS, function() {
+      setTimeout(function() { playLines(items, idx + 1, cb); }, LINE_DELAY);
+    });
+  }
+
+  function run(idx) {
+    if (idx >= script.length) {
+      removeCursor();
+      var end = document.createElement('div');
+      end.className = 's5-tline';
+      end.innerHTML = '<span class="prompt">$ </span>';
+      body.appendChild(end);
+      addCursor(end);
+      scroll();
+      props.forEach(function(p) { p.classList.remove('active'); });
+      return;
+    }
+
+    var step = script[idx];
+    if (step.phase) highlightProp(step.phase);
+
+    if (step.type === 'blank') {
+      var bl = document.createElement('div');
+      bl.className = 's5-tline';
+      bl.innerHTML = '&nbsp;';
+      body.appendChild(bl);
+      scroll();
+      setTimeout(function() { run(idx + 1); }, 120);
+
+    } else if (step.type === 'cmd') {
+      var line = document.createElement('div');
+      line.className = 's5-tline';
+      line.innerHTML = '<span class="prompt">$ </span>';
+      var cmdSpan = document.createElement('span');
+      cmdSpan.className = 'cmd';
+      line.appendChild(cmdSpan);
+      body.appendChild(line);
+      addCursor(line);
+      scroll();
+      typeText(cmdSpan, step.text, CMD_CHAR_MS, function() {
+        setTimeout(function() { removeCursor(); run(idx + 1); }, PAUSE_AFTER_CMD);
+      });
+
+    } else if (step.type === 'ai') {
+      var span = makeLine('ai');
+      addCursor(span.parentNode);
+      typeText(span, step.text, AI_CHAR_MS, function() {
+
+        setTimeout(function() { run(idx + 1); }, PAUSE_AFTER_STEP);
+      });
+
+    } else if (step.type === 'ok') {
+      var span = makeLine('success');
+      addCursor(span.parentNode);
+      typeText(span, step.text, OK_CHAR_MS, function() {
+        if (step.trigger) fireTrigger(step.trigger);
+        setTimeout(function() { run(idx + 1); }, PAUSE_AFTER_STEP);
+      });
+
+    } else if (step.type === 'warn') {
+      var span = makeLine('warn');
+      addCursor(span.parentNode);
+      typeText(span, step.text, AI_CHAR_MS, function() {
+        removeCursor();
+        if (step.trigger) fireTrigger(step.trigger);
+        setTimeout(function() { run(idx + 1); }, PAUSE_AFTER_STEP);
+      });
+
+    } else if (step.type === 'lines') {
+      playLines(step.items, 0, function() {
+        if (step.trigger) fireTrigger(step.trigger);
+        setTimeout(function() { run(idx + 1); }, PAUSE_AFTER_STEP);
+      });
+    }
+  }
+
+  var revObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('#s5 .s5-reveal').forEach(function(el) { revObs.observe(el); });
+})();
+/* ── section-6-resilience ── */
+(function() {
+  var revObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('#s6 .s6-reveal').forEach(function(el) { revObs.observe(el); });
+})();
+/* ── section-7-governance ── */
+/* ── Phase 1: scroll-driven problem reveals ── */
+const s7wrapper = document.getElementById('s7-problem');
+const s7els     = document.querySelectorAll('[data-s7]');
+
+function updateS7() {
+  const y       = window.scrollY;
+  const wTop    = s7wrapper.offsetTop;
+  const wScroll = s7wrapper.offsetHeight - window.innerHeight;
+  const scrolled = y - wTop;
+  const p = wScroll > 0 ? Math.min(scrolled / wScroll, 1) : 0;
+
+  s7els.forEach(el => {
+    const step = +el.dataset.s7;
+    const threshold = Math.max(0, (step - 1) / 5);
+    el.classList.toggle('visible', p >= threshold);
+  });
+}
+window.addEventListener('scroll', updateS7, { passive: true });
+updateS7();
+
+/* ── Phase 2: IntersectionObserver reveals ── */
+const s7observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible');
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('#s7-answer .s7-reveal').forEach(el => s7observer.observe(el));
+
+/* ── Carousel ── */
+let s7idx = 0;
+const s7track = document.getElementById('s7Track');
+const s7slides = s7track ? s7track.children : [];
+const s7dotsEl = document.getElementById('s7Dots');
+
+function s7BuildDots() {
+  if (!s7dotsEl) return;
+  for (let i = 0; i < s7slides.length; i++) {
+    const d = document.createElement('button');
+    d.className = 's7-carousel-dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => s7GoTo(i);
+    s7dotsEl.appendChild(d);
+  }
+}
+function s7GoTo(i) {
+  s7idx = Math.max(0, Math.min(i, s7slides.length - 1));
+  if (s7track) s7track.style.transform = `translateX(-${s7idx * 100}%)`;
+  s7dotsEl.querySelectorAll('.s7-carousel-dot').forEach((d, j) => d.classList.toggle('active', j === s7idx));
+}
+function s7Next() { s7GoTo(s7idx + 1); }
+function s7Prev() { s7GoTo(s7idx - 1); }
+s7BuildDots();
+/* ── section-customers ── */
+const custWrapper = document.getElementById('cust-wrapper');
+const slides  = document.querySelectorAll('.cust-slide');
+const dotsEl  = document.getElementById('custDots');
+const counter = document.getElementById('custCurrent');
+const N       = slides.length;
+
+// Build dots
+for (let i = 0; i < N; i++) {
+  const d = document.createElement('div');
+  d.className = 'cust-dot';
+  dotsEl.appendChild(d);
+}
+const dots = dotsEl.querySelectorAll('.cust-dot');
+
+function updateSlides() {
+  const y       = window.scrollY;
+  const wTop    = custWrapper.offsetTop;
+  const wScroll = custWrapper.offsetHeight - window.innerHeight;
+  const p       = wScroll > 0 ? Math.max(0, Math.min((y - wTop) / wScroll, 1)) : 0;
+
+  // Map progress 0–1 to slide index 0–(N-1)
+  const idx = Math.min(Math.floor(p * N), N - 1);
+
+  slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+  dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+  counter.textContent = String(idx + 1).padStart(2, '0');
+}
+
+window.addEventListener('scroll', updateSlides, { passive: true });
+updateSlides();
+/* ── section-packages ── */
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible');
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('#pkg .pkg-reveal, #pkg .pkg-tier').forEach(el => observer.observe(el));
+/* ── section-y-partners ── */
+(function() {
+  var revObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('#s9 .s9-reveal').forEach(function(el) { revObs.observe(el); });
+})();
+/* ── section-z-closing ── */
+const closingObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible');
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('#closing .closing-reveal').forEach(el => closingObserver.observe(el));
+
+/* ── view-jump navigation (ArrowRight / ArrowLeft) ── */
+(function() {
+  const views = [
+    document.getElementById('title'),
+    document.getElementById('hero-wrapper'),
+    document.getElementById('st-wrapper'),
+    document.getElementById('s2-wrapper'),
+    document.getElementById('s4-wrapper'),
+    document.getElementById('s5-wrapper'),
+    document.getElementById('s6-wrapper'),
+    document.getElementById('s7-problem'),
+    document.getElementById('s7-answer-wrapper'),
+    document.getElementById('cust-wrapper'),
+    document.getElementById('pkg-wrapper'),
+    document.getElementById('s9-wrapper'),
+    document.getElementById('demo-wrapper'),
+    document.getElementById('closing')
+  ].filter(Boolean);
+
+  function currentViewIndex() {
+    var scrollY = window.scrollY || window.pageYOffset;
+    var best = 0;
+    for (var i = 0; i < views.length; i++) {
+      if (views[i].offsetTop <= scrollY + 10) best = i;
+    }
+    return best;
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      var idx = currentViewIndex();
+      if (idx < views.length - 1) {
+        views[idx + 1].scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      var idx = currentViewIndex();
+      var scrollY = window.scrollY || window.pageYOffset;
+      // If we're partway into the current view, go to its top first
+      if (scrollY > views[idx].offsetTop + 10 && idx >= 0) {
+        views[idx].scrollIntoView({ behavior: 'smooth' });
+      } else if (idx > 0) {
+        views[idx - 1].scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  });
+})();
+
+/* DEMO_JS_MARKER */
+</script>
+</body>
+</html>
