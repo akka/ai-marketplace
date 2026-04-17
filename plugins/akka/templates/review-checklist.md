@@ -151,22 +151,22 @@ intended usage patterns — not just reading code mechanically.
 
 **Event design**
 
-- Q5 [DESIGN]: Events are right-sized — not too chatty (dozens of tiny events per operation, increasing replay overhead) and not too coarse (one event capturing many unrelated changes, preventing consumers from reacting selectively).
+- Q4 [DESIGN]: Events are right-sized — not too chatty (dozens of tiny events per operation, increasing replay overhead) and not too coarse (one event capturing many unrelated changes, preventing consumers from reacting selectively).
 
 **Workflow design**
 
-- Q7 [DESIGN]: Independent workflow steps are executed in parallel where possible — check for sequential steps that have no data dependency on each other (e.g., calling 3 independent validation agents one after another instead of concurrently).
-- Q8 [DESIGN]: Workflows are appropriately scoped — a single workflow should not orchestrate too many unrelated concerns. Large workflows should be decomposed into smaller, composable workflows.
-- Q9 [DESIGN]: Workflows are used where needed — check for workflows that perform no external calls or coordination and could be a simple entity state machine instead. Workflows add overhead that isn't justified for purely local state transitions.
+- Q5 [DESIGN]: Independent workflow steps are executed in parallel where possible — check for sequential steps that have no data dependency on each other (e.g., calling 3 independent validation agents one after another instead of concurrently).
+- Q6 [DESIGN]: Workflows are appropriately scoped — a single workflow should not orchestrate too many unrelated concerns. Large workflows should be decomposed into smaller, composable workflows.
+- Q7 [DESIGN]: Workflows are used where needed — check for workflows that perform no external calls or coordination and could be a simple entity state machine instead. Workflows add overhead that isn't justified for purely local state transitions.
 
 **View & query design**
 
-- Q10 [DESIGN]: Common query patterns have supporting views — if callers are reading entities one by one to assemble a list or search result, a view should provide that query directly.
-- Q11 [DESIGN]: Views are not over-indexed — too many views consuming events from the same entity add processing overhead for every event. Each view should serve a distinct query need.
+- Q8 [DESIGN]: Common query patterns have supporting views — if callers are reading entities one by one to assemble a list or search result, a view should provide that query directly.
+- Q9 [DESIGN]: Views are not over-indexed — too many views consuming events from the same entity add processing overhead for every event. Each view should serve a distinct query need.
 
 **Component interaction design**
 
-- Q12 [DESIGN]: No deep synchronous call chains — check for patterns where an endpoint calls entity A, which triggers entity B, which triggers entity C. Deep chains increase latency and fragility. Prefer async decoupling via topics/consumers for non-essential downstream effects.
-- Q13 [DESIGN]: No circular component dependencies — component A should not call B which calls back to A (directly or transitively). This creates deadlock risk and tight coupling.
-- Q14 [DESIGN]: Consumers delegate complex work to workflows — consumers that make multiple external calls or complex multi-step transformations per event should delegate to a workflow for durability and retry guarantees, rather than doing it all inline.
-- Q15 [DESIGN]: Aggregate boundaries are clear — related state that must be consistent together lives within the same entity. State spread across multiple entities with no clear boundary leads to complex distributed transactions or eventual consistency issues that may not be intentional.
+- Q10 [DESIGN]: No deep synchronous call chains — check for patterns where an endpoint calls entity A, which triggers entity B, which triggers entity C. Deep chains increase latency and fragility. Prefer async decoupling via topics/consumers for non-essential downstream effects.
+- Q11 [DESIGN]: No circular component dependencies — component A should not call B which calls back to A (directly or transitively). This creates deadlock risk and tight coupling.
+- Q12 [DESIGN]: Consumers delegate complex work to workflows — consumers that make multiple external calls or complex multi-step transformations per event should delegate to a workflow for durability and retry guarantees, rather than doing it all inline.
+- Q13 [DESIGN]: Aggregate boundaries are clear — related state that must be consistent together lives within the same entity. State spread across multiple entities with no clear boundary leads to complex distributed transactions or eventual consistency issues that may not be intentional.
