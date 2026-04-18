@@ -19,6 +19,18 @@
   --dark:   #07070C;
   --white:  #fff;
   --gray:   #555;
+  --pad-8:  8vw;
+  --pad-6:  6vw;
+  --pad-10: 10vw;
+  --pad-3:  3vw;
+}
+@media (min-width: 1537px) {
+  :root {
+    --pad-8:  123px;
+    --pad-6:  92px;
+    --pad-10: 154px;
+    --pad-3:  46px;
+  }
 }
 html { scroll-behavior: auto; background: var(--black); }
 body {
@@ -26,7 +38,7 @@ body {
   background: var(--black);
   color: var(--white);
   overflow-x: hidden;
-  max-width: 1920px;
+  max-width: 1536px;
   margin: 0 auto;
 }
 
@@ -46,7 +58,7 @@ body {
 #title {
   height: 100vh; min-height: 680px;
   display: flex; flex-direction: column; justify-content: center; align-items: center;
-  padding: 0 8vw; position: relative; background: var(--black); overflow: hidden;
+  padding: 0 var(--pad-8); position: relative; background: var(--black); overflow: hidden;
   text-align: center;
 }
 #title::before {
@@ -133,7 +145,7 @@ body {
 #hero {
   height: 100vh; min-height: 680px;
   display: flex; flex-direction: column; justify-content: center;
-  padding: 0 8vw; position: sticky; top: 0; background: var(--black); overflow: hidden;
+  padding: 0 var(--pad-8); position: sticky; top: 0; background: var(--black); overflow: hidden;
 }
 #hero::before {
   content:''; position:absolute; inset:0;
@@ -147,7 +159,7 @@ body {
 }
 .hero-nav {
   position:absolute; top:0; left:0; right:0;
-  padding:32px 8vw; display:flex; justify-content:space-between; align-items:center; z-index:2;
+  padding:32px var(--pad-8); display:flex; justify-content:space-between; align-items:center; z-index:2;
 }
 .hero-logo svg { height:30px; width:auto; }
 .hero-tagline { font-size:10px; text-transform:uppercase; letter-spacing:2.5px; color:var(--gray); font-weight:500; }
@@ -317,7 +329,7 @@ body {
 }
 /* ── section-3-complexity ── */
 #s2-wrapper {
-  height: 200vh;          /* longer dead scroll so view anchors for more clicks */
+  height: 300vh;          /* longer dead scroll so view anchors for more clicks */
   position: relative;
 }
 #s2-sticky {
@@ -325,7 +337,7 @@ body {
   height: 100vh;
   display: flex; flex-direction: column; justify-content: center;
   align-items: center;
-  padding: 0 8vw;
+  padding: 0 var(--pad-6);
   background: var(--black);
   overflow: hidden;
 }
@@ -336,7 +348,7 @@ body {
 }
 .s2-eyebrow {
   font-size:11px; text-transform:uppercase; letter-spacing:3px;
-  color:var(--yellow); font-weight:600; margin-bottom:28px;
+  color:var(--yellow); font-weight:600; margin-bottom:16px;
   position:relative; z-index:1;
   width: 100%; max-width: 1400px;
   opacity:0; transform: translateY(16px);
@@ -346,9 +358,9 @@ body {
 .s2-eyebrow::before { content:''; display:inline-block; width:28px; height:2px; background:var(--yellow); margin-right:10px; vertical-align:middle; }
 
 .s2-headline {
-  font-size: clamp(30px, 4vw, 56px); font-weight:700;
+  font-size: clamp(34px, 4.5vw, 64px); font-weight:700;
   line-height:1.08; letter-spacing:-0.03em; color:var(--white);
-  width: 100%; max-width: 1400px; margin-bottom: 32px;
+  width: 100%; max-width: 1400px; margin-bottom: 20px;
   position:relative; z-index:1;
   opacity:0; transform:translateY(24px);
   transition: opacity .6s ease, transform .6s cubic-bezier(0.16,1,0.3,1);
@@ -357,14 +369,14 @@ body {
 .s2-headline .accent { color:var(--yellow); }
 
 .s2-content {
-  display: flex; gap: 72px; align-items: flex-start; justify-content: center;
+  display: flex; gap: 32px; align-items: flex-start; justify-content: center;
   max-width: 1400px; width: 100%;
   position:relative; z-index:1;
-  margin-top: 50px;
+  margin-top: 70px;
 }
 .s2-blocks {
   display: flex; flex-direction: column; gap: 0;
-  width: 280px; flex-shrink: 0;
+  width: 260px; flex-shrink: 0;
   border-left: 2px solid var(--yellow);
   padding-left: 20px;
   opacity: 0; transform: translateY(16px);
@@ -387,7 +399,7 @@ body {
   font-size: 12px; text-transform: uppercase; letter-spacing: 2.5px;
   color: var(--yellow); font-weight: 600; margin-bottom: 12px; text-align: center;
 }
-.s2-diagram svg { width: 100%; max-height: 58vh; }
+.s2-diagram svg { width: 100%; max-height: 72vh; }
 
 /* SVG draw animation */
 .s2-diagram .draw-line {
@@ -433,22 +445,23 @@ body {
 .s2-block-body { flex: 1; }
 .s2-block-label {
   font-size: 11px; text-transform: uppercase; letter-spacing: 2px;
-  color: var(--yellow); font-weight: 600; margin-bottom: 14px;
+  color: var(--yellow); font-weight: 600; margin-bottom: 8px;
 }
 .s2-block-title {
-  font-size: 17px; font-weight: 700; color: var(--white);
+  font-size: 20px; font-weight: 700; color: var(--white);
   margin-bottom: 5px;
 }
 .s2-block-desc {
-  font-size: 13px; color: #999; line-height: 1.4;
+  font-size: 15px; color: #999; line-height: 1.45;
 }
 
 /* TCO implications panel */
 .s2-tco {
-  width: 250px; flex-shrink: 0;
+  width: 240px; flex-shrink: 0;
   display: flex; flex-direction: column; gap: 0;
   border-right: 2px solid var(--yellow);
   padding-right: 20px;
+  text-align: right;
   opacity: 0; transform: translateX(20px);
   transition: opacity .6s ease .3s, transform .6s cubic-bezier(0.16,1,0.3,1) .3s;
 }
@@ -458,25 +471,25 @@ body {
   color: var(--yellow); font-weight: 600; margin-bottom: 14px;
 }
 .s2-tco-item {
-  padding: 8px 0;
+  padding: 10px 0;
   border-top: 1px solid #1A1A1A;
 }
 .s2-tco-item:first-of-type { border-top: none; }
 .s2-tco-title {
-  font-size: 17px; font-weight: 700; color: var(--white);
+  font-size: 20px; font-weight: 700; color: var(--white);
   margin-bottom: 5px;
 }
 .s2-tco-quip {
-  font-size: 13px; color: #999; line-height: 1.4;
+  font-size: 15px; color: #999; line-height: 1.45;
 }
 /* ── section-4-platform ── */
 #s4-wrapper {
-  height: 140vh;
+  height: 180vh;
   position: relative;
 }
 #s4 {
   background: var(--black);
-  padding: 80px 6vw 60px;
+  padding: 80px var(--pad-6) 60px;
   position: sticky;
   top: 0;
   height: 100vh;
@@ -521,7 +534,7 @@ body {
 }
 
 .s4-image {
-  margin-left: calc(-3vw - 40px);
+  margin-left: calc(-1 * var(--pad-3) - 40px);
   margin-top: 50px;
 }
 .s4-image img {
@@ -539,7 +552,7 @@ body {
 }
 
 .s4-prop {
-  display: flex; align-items: baseline; gap: 16px;
+  display: flex; align-items: flex-start; gap: 16px;
   padding: 14px 0;
   border-bottom: 1px solid #1A1A1A;
 }
@@ -548,7 +561,7 @@ body {
 .s4-prop-num {
   font-size: clamp(24px, 2.2vw, 34px); font-weight: 700;
   color: #28C840; letter-spacing: -0.04em; line-height: 1;
-  flex-shrink: 0; width: 160px;
+  flex-shrink: 0; width: 160px; text-align: right;
 }
 .s4-prop-text { flex: 1; min-width: 0; }
 .s4-prop-title {
@@ -588,7 +601,7 @@ body {
 
 .s5-top {
   display: flex; justify-content: space-between; align-items: flex-end;
-  padding: 0 6vw; margin-bottom: 24px;
+  padding: 0 var(--pad-6); margin-bottom: 24px;
   gap: 40px; flex-shrink: 0;
 }
 .s5-top-left { flex: 1; }
@@ -607,9 +620,9 @@ body {
 .s5-headline .accent { color:var(--yellow); }
 
 .s5-props {
-  display: flex; gap: 36px; flex-shrink: 0;
+  display: flex; gap: 20px; flex-shrink: 0; max-width: 49%;
 }
-.s5-prop { border-left: 3px solid #222; padding-left: 18px; max-width: 220px; }
+.s5-prop { border-left: 3px solid #222; padding-left: 18px; flex: 1; min-width: 0; }
 .s5-prop-title {
   font-size: 18px; font-weight: 700; color: var(--white);
   letter-spacing: -0.02em; margin-bottom: 4px; line-height: 1.2;
@@ -623,7 +636,7 @@ body {
   flex: 1; min-height: 0;
   display: flex; gap: 28px;
   padding-left: 0;
-  padding-right: 6vw;
+  padding-right: var(--pad-6);
 }
 
 /* Terminal — left-aligned to screen edge */
@@ -649,14 +662,16 @@ body {
   border-bottom: 1px solid #1C1C1C;
   flex-shrink: 0;
 }
-.s5-term-dot { width: 10px; height: 10px; border-radius: 50%; }
-.s5-term-dot.r { background: #FF5F57; }
-.s5-term-dot.y { background: #FEBC2E; }
-.s5-term-dot.g { background: #28C840; }
-.s5-term-title {
+.s5-term-prompt {
   font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
-  font-size: 11px; color: #555; margin-left: 8px;
+  font-size: 12px;
 }
+.s5-term-prompt .p-bracket { color: #555; }
+.s5-term-prompt .p-user { color: #28C840; font-weight: 600; }
+.s5-term-prompt .p-at { color: #555; }
+.s5-term-prompt .p-host { color: #5BA3F5; font-weight: 600; }
+.s5-term-prompt .p-dir { color: #555; }
+.s5-term-prompt .p-dollar { color: var(--yellow); font-weight: 700; margin-left: 2px; }
 .s5-term-body {
   padding: 16px 24px;
   font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
@@ -769,7 +784,7 @@ body {
 }
 
 @media (max-width: 1000px) {
-  .s5-main { flex-direction: column; padding-left: 6vw; }
+  .s5-main { flex-direction: column; padding-left: var(--pad-6); }
   .s5-term-col { width: 100%; }
   .s5-terminal { border-radius: 12px; }
   .s5-top { flex-direction: column; align-items: flex-start; }
@@ -787,7 +802,7 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 36px 6vw 24px;
+  padding: 36px var(--pad-6) 24px;
   overflow: hidden;
 }
 #s6::before {
@@ -867,7 +882,7 @@ body {
   position: sticky; top: 0;
   height: 100vh;
   display: flex; flex-direction: column; justify-content: center;
-  padding: 0 8vw;
+  padding: 0 var(--pad-8);
   background: var(--black);
   overflow: hidden;
 }
@@ -937,7 +952,7 @@ body {
 }
 #s7-answer {
   background: var(--dark);
-  padding: 80px 8vw 80px;
+  padding: 80px var(--pad-8) 80px;
   position: sticky;
   top: 0;
   height: 100vh;
@@ -1106,7 +1121,7 @@ body {
 .cust-slide {
   position: absolute; inset: 0;
   display: flex; flex-direction: column; justify-content: center;
-  padding: 0 10vw;
+  padding: 0 var(--pad-10);
   opacity: 0;
   transition: opacity .8s ease;
   pointer-events: none;
@@ -1118,7 +1133,7 @@ body {
 
 /* Slide counter */
 .cust-counter {
-  position: absolute; top: 40px; right: 10vw;
+  position: absolute; top: 40px; right: var(--pad-10);
   font-size: 12px; letter-spacing: 2px; color: #444;
   font-weight: 600;
   z-index: 10;
@@ -1127,7 +1142,7 @@ body {
 
 /* Progress dots */
 .cust-dots {
-  position: absolute; right: 10vw; top: 50%; transform: translateY(-50%);
+  position: absolute; right: var(--pad-10); top: 50%; transform: translateY(-50%);
   display: flex; flex-direction: column; gap: 10px;
   z-index: 10;
 }
@@ -1234,7 +1249,7 @@ body {
 }
 #pkg {
   min-height: 100vh;
-  padding: 40px 6vw 40px;
+  padding: 40px var(--pad-6) 40px;
   position: sticky;
   top: 0;
   background: var(--black);
@@ -1271,7 +1286,7 @@ body {
 
 .pkg-sub {
   font-size: clamp(14px, 1.2vw, 18px); color: #888;
-  max-width: 700px; line-height: 1.5; margin-bottom: 64px;
+  max-width: 700px; line-height: 1.5; margin-bottom: 32px;
   position:relative; z-index:1;
 }
 
@@ -1297,53 +1312,70 @@ body {
   width: 1px; height: 24px; background: #222;
 }
 
-/* ── Sandbox card (full-width horizontal) ── */
-.pkg-sandbox {
-  display: flex; align-items: center; gap: 40px;
-  background: #0A0A0A;
-  border: 1px dashed #333;
-  border-radius: 12px;
-  padding: 14px 28px;
-  margin-top: 16px;
-  margin-bottom: 16px;
+/* ── Two-column split: Eval | Production ── */
+.pkg-split {
+  display: flex; gap: 20px; align-items: stretch;
   position: relative; z-index: 1;
-}
-.pkg-sandbox-left {
-  display: flex; align-items: center; gap: 16px;
-  flex-shrink: 0;
-}
-.pkg-sandbox-badge {
-  font-size: 10px; text-transform: uppercase; letter-spacing: 2px;
-  color: var(--white); font-weight: 600;
-}
-.pkg-sandbox-name {
-  font-size: 26px; font-weight: 700; color: var(--yellow);
-}
-.pkg-sandbox-desc {
-  font-size: 15px; color: #bbb; line-height: 1.5; flex: 1; min-width: 0;
-}
-.pkg-sandbox-specs {
-  list-style: none; padding: 0;
-  display: flex; gap: 28px; flex-shrink: 0;
-}
-.pkg-sandbox-specs li {
-  font-size: 14px; color: #888;
-}
-.pkg-sandbox-specs li span { color: var(--yellow); font-weight: 600; }
-.pkg-sandbox-convert {
-  font-size: 13px; color: #999; flex-shrink: 0; max-width: 220px; line-height: 1.45;
-  border-left: 2px solid var(--yellow); padding-left: 14px;
+  margin-bottom: 20px;
 }
 
-/* ── Production SRE banner ── */
+/* Eval column (9×5) */
+.pkg-eval-col {
+  width: 210px; flex-shrink: 0;
+  display: flex; flex-direction: column;
+}
+.pkg-sla-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.pkg-sla-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 2px;
+  color: #666; font-weight: 600;
+}
+.pkg-sla-badge {
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  color: #666; border: 1px solid #333; border-radius: 4px; padding: 2px 6px;
+}
+.pkg-eval-card {
+  background: #0A0A0A; border: 1px dashed #333; border-radius: 10px;
+  padding: 18px; flex: 1; display: flex; flex-direction: column;
+}
+.pkg-eval-name {
+  font-size: 22px; font-weight: 700; color: var(--yellow); margin-bottom: 8px;
+}
+.pkg-eval-desc {
+  font-size: 12px; color: #888; line-height: 1.5; margin-bottom: 14px;
+}
+.pkg-eval-specs {
+  list-style: none; padding: 0; margin: 0 0 14px;
+  border-top: 1px solid #1A1A1A;
+}
+.pkg-eval-specs li {
+  font-size: 11px; color: #888; padding: 5px 0;
+  border-bottom: 1px solid #111;
+  display: flex; justify-content: space-between;
+}
+.pkg-eval-specs li:last-child { border-bottom: none; }
+.pkg-eval-specs .spec-val { color: var(--white); font-weight: 600; }
+.pkg-eval-convert {
+  font-size: 11px; color: #555; line-height: 1.45; margin-top: auto;
+  border-top: 1px solid #1A1A1A; padding-top: 10px;
+}
+
+/* Production column (24/7) */
+.pkg-prod-col {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; gap: 10px;
+}
+
+/* SRE banner (inside prod col) */
 .pkg-sre-banner {
   display: flex; align-items: center; justify-content: center; gap: 12px;
-  padding: 8px 24px;
+  padding: 7px 24px;
   background: linear-gradient(90deg, transparent, rgba(40,200,64,0.08), transparent);
   border-top: 1px solid #28C840;
-  border-bottom: 1px solid rgba(40,200,64,0.2);
-  margin-bottom: 14px;
-  position: relative; z-index: 1;
+  border-bottom: 1px solid #28C840;
+  flex-shrink: 0;
 }
 .pkg-sre-banner-text {
   font-size: 11px; text-transform: uppercase; letter-spacing: 3px;
@@ -1358,13 +1390,50 @@ body {
   50% { opacity: 0.3; }
 }
 
-/* ── Production tier cards ── */
+/* Starter card — emphasized compact banner */
+.pkg-starter {
+  background: #0A0A0A; border: 1px solid #2a2a2a; border-radius: 10px;
+  padding: 12px 20px; position: relative; overflow: hidden;
+  display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;
+}
+.pkg-starter::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; background: var(--yellow);
+}
+.pkg-starter-top {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.pkg-starter-meta {
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+}
+.pkg-akka-badge {
+  display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 1px;
+  color: var(--yellow); border: 1px solid rgba(245,197,24,0.5); border-radius: 4px;
+  padding: 3px 10px; background: rgba(245,197,24,0.07);
+}
+.pkg-starter-billing { font-size: 11px; color: #555; margin-left: 4px; }
+.pkg-starter-regions {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 12px; padding-top: 10px; border-top: 1px solid #1A1A1A;
+}
+.pkg-region-label {
+  font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #555; font-weight: 600; white-space: nowrap;
+}
+.pkg-region-chips { display: flex; gap: 5px; }
+.pkg-chip {
+  font-size: 10px; font-weight: 600; color: #aaa;
+  border: 1px solid #2a2a2a; border-radius: 3px; padding: 2px 6px;
+  background: #111;
+}
+.pkg-region-divider { width: 1px; height: 14px; background: #2a2a2a; }
+
+/* ── Production tier cards (3 columns) ── */
 .pkg-tiers {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
   position: relative; z-index: 1;
-  margin-bottom: 20px;
+  flex: 1;
 }
 .pkg-tier {
   background: #0A0A0A;
@@ -1383,8 +1452,6 @@ body {
 }
 .pkg-tier.visible::before { transform: scaleX(1); }
 
-/* Tier progression — wider yellow bar for higher tiers */
-.pkg-tier[data-tier="1"]::before { height: 3px; }
 .pkg-tier[data-tier="2"]::before { height: 4px; }
 .pkg-tier[data-tier="3"]::before { height: 5px; }
 .pkg-tier[data-tier="4"]::before { height: 6px; }
@@ -1399,8 +1466,7 @@ body {
   font-size: 11px; color: #555; margin-bottom: 10px;
 }
 .pkg-tier-position {
-  font-size: 12px; color: #ccc; line-height: 1.4; margin-bottom: 12px;
-  min-height: 48px;
+  font-size: 12px; color: #ccc; line-height: 1.4; margin-bottom: 0;
 }
 .pkg-tier-specs {
   list-style: none; padding: 0; margin: 0;
@@ -1415,7 +1481,28 @@ body {
 .pkg-tier-specs li:last-child { border-bottom: none; }
 .pkg-tier-specs .spec-val { color: var(--white); font-weight: 600; text-align: right; }
 
-/* Highlight the unique differentiators */
+.pkg-tier-infra {
+  display: flex; flex-direction: column; gap: 6px; margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid #1A1A1A;
+}
+.pkg-infra-row {
+  display: flex; align-items: center; gap: 10px;
+}
+.pkg-infra-spacer {
+  width: 24px; flex-shrink: 0;
+}
+.pkg-infra-plus {
+  font-size: 26px; font-weight: 800; color: var(--yellow);
+  line-height: 1; width: 24px; text-align: center; flex-shrink: 0;
+  text-shadow: 0 0 12px rgba(245,197,24,0.4);
+}
+.pkg-infra-pill {
+  font-size: 14px; font-weight: 600; color: var(--yellow);
+  border: 1px solid rgba(245,197,24,0.25); border-radius: 4px;
+  padding: 5px 12px; background: rgba(245,197,24,0.05);
+  display: inline-block; width: fit-content;
+}
+
 .pkg-tier-diff {
   margin-top: 14px; padding-top: 12px;
   border-top: 1px solid var(--yellow);
@@ -1476,7 +1563,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 48px 8vw;
+  padding: 48px var(--pad-8);
   overflow: hidden;
 }
 #s9::before {
@@ -1570,11 +1657,10 @@ body {
 
 /* Quote panel */
 .s9-quote-panel {
-  width: 380px; flex-shrink: 0;
-  display: flex; flex-direction: column;
-  justify-content: center;
-  padding-left: 28px;
+  display: flex; align-items: center; gap: 24px;
+  padding: 16px 24px;
   border-left: 3px solid #86BC25;
+  margin-top: 16px;
 }
 .s9-quote-text {
   font-size: clamp(18px, 1.8vw, 26px); font-weight: 600;
@@ -1595,7 +1681,7 @@ body {
 #closing {
   height: 100vh; min-height: 680px;
   display: flex; flex-direction: column; justify-content: center; align-items: center;
-  padding: 0 8vw; position: relative; background: var(--black); overflow: hidden;
+  padding: 0 var(--pad-8); position: relative; background: var(--black); overflow: hidden;
   text-align: center;
 }
 #closing::before {
@@ -1748,183 +1834,183 @@ body {
 <div id="s2-wrapper">
   <div id="s2-sticky">
     <div class="s2-eyebrow" data-s2="0">The challenge</div>
-    <div class="s2-headline" data-s2="0">Along came <span class="accent">agentic&nbsp;AI</span>, and it amplifies complexity.</div>
+    <div class="s2-headline" data-s2="0">Along came <span class="accent">agentic&nbsp;AI</span>, amplifying complexity.</div>
     <div class="s2-content">
       <div class="s2-blocks" data-s2="1">
         <div class="s2-block-label">Agentic Complexity</div>
         <div class="s2-block">
           <div class="s2-block-body">
             <div class="s2-block-title">Architecture</div>
-            <div class="s2-block-desc">Agents + models + tools + memory + APIs + streaming — too many moving parts to wire together.</div>
+            <div class="s2-block-desc">Many moving parts to wire together.</div>
           </div>
         </div>
         <div class="s2-block">
           <div class="s2-block-body">
             <div class="s2-block-title">Reasoning</div>
-            <div class="s2-block-desc">Ambiguous context, coordination handoff failures, cost::accuracy trade-offs.</div>
+            <div class="s2-block-desc">Ambiguous context, handoff failures, cost/accuracy trade-offs.</div>
           </div>
         </div>
         <div class="s2-block">
           <div class="s2-block-body">
             <div class="s2-block-title">Governance</div>
-            <div class="s2-block-desc">29 AI regulations requiring new controls, explainability, and HITL oversight.</div>
+            <div class="s2-block-desc">29 AI regulations demand new<br>controls, explainability, and HITL.</div>
           </div>
         </div>
         <div class="s2-block">
           <div class="s2-block-body">
             <div class="s2-block-title">Ops</div>
-            <div class="s2-block-desc">HA/DR for long-running agents, petabyte-scale logging, hallucination retries, Python limits.</div>
+            <div class="s2-block-desc">HA/DR, petabyte-scale logging,<br>hallucination retries, Python limits.</div>
           </div>
         </div>
         <div class="s2-block">
           <div class="s2-block-body">
             <div class="s2-block-title">Organizational</div>
-            <div class="s2-block-desc">Engineers, data scientists, PMs fragmented — domain knowledge lost, no shared velocity.</div>
+            <div class="s2-block-desc">Fragmented teams, lost domain<br>knowledge, no shared velocity.</div>
           </div>
         </div>
       </div>
       <div class="s2-diagram" data-s2="1">
         <div class="s2-diagram-label">Multi-agent reference architecture</div>
-        <svg viewBox="0 0 700 480" fill="none" xmlns="http://www.w3.org/2000/svg" style="font-family:'Instrument Sans',sans-serif">
+        <svg viewBox="0 0 700 495" fill="none" xmlns="http://www.w3.org/2000/svg" style="font-family:'Instrument Sans',sans-serif">
 
-          <!-- ═══ ROW 1: Inputs — centered, 4 boxes ═══ -->
+          <!-- ═══ ROW 1: Inputs ═══ -->
           <g class="draw-box" style="animation-delay:0.1s">
-            <rect x="70" y="8" width="120" height="38" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
-            <text x="130" y="31" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Sensors</text>
+            <rect x="70" y="10" width="120" height="46" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
+            <text x="130" y="38" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Sensors</text>
           </g>
           <g class="draw-box" style="animation-delay:0.15s">
-            <rect x="220" y="8" width="100" height="38" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
-            <text x="270" y="31" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Agent</text>
+            <rect x="220" y="10" width="100" height="46" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
+            <text x="270" y="38" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Agent</text>
           </g>
           <g class="draw-box" style="animation-delay:0.2s">
-            <rect x="350" y="8" width="100" height="38" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
-            <text x="400" y="31" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Client</text>
+            <rect x="350" y="10" width="100" height="46" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
+            <text x="400" y="38" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Client</text>
           </g>
           <g class="draw-box" style="animation-delay:0.25s">
-            <rect x="480" y="8" width="130" height="38" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
-            <text x="545" y="31" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Human in Loop</text>
+            <rect x="480" y="10" width="130" height="46" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
+            <text x="545" y="38" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Human in Loop</text>
           </g>
 
-          <!-- ═══ ROW 2: Auth bar ═══ -->
+          <!-- ═══ ROW 2: Auth bar (gap 21px) ═══ -->
           <g class="draw-box" style="animation-delay:0.4s">
-            <rect x="30" y="75" width="650" height="28" rx="4" fill="#1A1A0A" stroke="#F5C518" stroke-width="1"/>
-            <text x="355" y="93" text-anchor="middle" fill="#F5C518" font-size="10" font-weight="600">Auth &middot; Zero Trust</text>
+            <rect x="30" y="77" width="650" height="34" rx="4" fill="#1A1A0A" stroke="#F5C518" stroke-width="1"/>
+            <text x="355" y="99" text-anchor="middle" fill="#F5C518" font-size="12" font-weight="600">Auth &middot; Zero Trust</text>
           </g>
 
-          <!-- ═══ ROW 3: Core — 5 boxes ═══ -->
+          <!-- ═══ ROW 3: Core — 5 boxes (gap 27px) ═══ -->
           <g class="draw-box" style="animation-delay:0.6s">
-            <rect x="30" y="135" width="120" height="44" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
-            <text x="90" y="155" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">Stream</text>
-            <text x="90" y="169" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">Processing</text>
+            <rect x="30" y="138" width="120" height="52" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
+            <text x="90" y="158" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Stream</text>
+            <text x="90" y="173" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Processing</text>
           </g>
           <g class="draw-box" style="animation-delay:0.7s">
-            <rect x="160" y="135" width="120" height="44" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
-            <text x="220" y="155" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">Guardrails</text>
-            <text x="220" y="169" text-anchor="middle" fill="#999" font-size="8">validation &amp; safety</text>
+            <rect x="160" y="138" width="120" height="52" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
+            <text x="220" y="158" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Guardrails</text>
+            <text x="220" y="174" text-anchor="middle" fill="#999" font-size="10">validation &amp; safety</text>
           </g>
           <g class="draw-box" style="animation-delay:0.8s">
-            <rect x="290" y="130" width="130" height="54" rx="5" fill="#1A1A0A" stroke="#F5C518" stroke-width="1.5"/>
-            <text x="355" y="153" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Orchestration</text>
-            <text x="355" y="173" text-anchor="middle" fill="#999" font-size="8">control loop</text>
+            <rect x="290" y="132" width="130" height="64" rx="5" fill="#1A1A0A" stroke="#F5C518" stroke-width="1.5"/>
+            <text x="355" y="159" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">Orchestration</text>
+            <text x="355" y="178" text-anchor="middle" fill="#999" font-size="10">control loop</text>
           </g>
           <g class="draw-box" style="animation-delay:0.9s">
-            <rect x="430" y="135" width="120" height="44" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1.5"/>
-            <text x="490" y="155" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">Agent(s)</text>
-            <text x="490" y="169" text-anchor="middle" fill="#999" font-size="8">execution</text>
+            <rect x="430" y="138" width="120" height="52" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1.5"/>
+            <text x="490" y="158" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">Agent(s)</text>
+            <text x="490" y="174" text-anchor="middle" fill="#999" font-size="10">execution</text>
           </g>
           <g class="draw-box" style="animation-delay:1.0s">
-            <rect x="560" y="135" width="120" height="44" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
-            <text x="620" y="155" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">Governance</text>
-            <text x="620" y="169" text-anchor="middle" fill="#999" font-size="8">workflow catalog</text>
+            <rect x="560" y="138" width="120" height="52" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
+            <text x="620" y="158" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">Governance</text>
+            <text x="620" y="174" text-anchor="middle" fill="#999" font-size="10">workflow catalog</text>
           </g>
 
-          <!-- ═══ ROW 4: Memory + Registry ═══ -->
+          <!-- ═══ ROW 4: Memory + Registry (gap 39px) ═══ -->
           <g class="draw-box" style="animation-delay:1.25s">
-            <rect x="180" y="230" width="150" height="44" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
-            <text x="255" y="250" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">Agent Memory</text>
-            <text x="255" y="264" text-anchor="middle" fill="#999" font-size="8">sessions, context, history</text>
+            <rect x="180" y="235" width="150" height="52" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
+            <text x="255" y="257" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Agent Memory</text>
+            <text x="255" y="274" text-anchor="middle" fill="#999" font-size="10">sessions, context, history</text>
           </g>
           <g class="draw-box" style="animation-delay:1.4s">
-            <rect x="370" y="230" width="150" height="44" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
-            <text x="445" y="250" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">AI Asset Registry</text>
-            <text x="445" y="264" text-anchor="middle" fill="#999" font-size="8">prompts, models, tools</text>
+            <rect x="370" y="235" width="150" height="52" rx="5" fill="#141414" stroke="#F5C518" stroke-width="1"/>
+            <text x="445" y="257" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">AI Asset Registry</text>
+            <text x="445" y="274" text-anchor="middle" fill="#999" font-size="10">prompts, models, tools</text>
           </g>
 
-          <!-- ═══ ROW 5: Lower auth/guardrails bar ═══ -->
+          <!-- ═══ ROW 5: Lower auth bar (gap 28px) ═══ -->
           <g class="draw-box" style="animation-delay:1.6s">
-            <rect x="180" y="310" width="340" height="28" rx="4" fill="#1A1A0A" stroke="#F5C518" stroke-width="1"/>
-            <text x="350" y="328" text-anchor="middle" fill="#F5C518" font-size="10" font-weight="600">Auth &middot; Guardrails</text>
+            <rect x="180" y="315" width="340" height="34" rx="4" fill="#1A1A0A" stroke="#F5C518" stroke-width="1"/>
+            <text x="350" y="337" text-anchor="middle" fill="#F5C518" font-size="12" font-weight="600">Auth &middot; Guardrails</text>
           </g>
 
-          <!-- ═══ ROW 6: Trace ═══ -->
+          <!-- ═══ ROW 6: Trace (gap 26px) ═══ -->
           <g class="draw-box" style="animation-delay:1.8s">
-            <rect x="290" y="368" width="120" height="34" rx="4" fill="#141414" stroke="#F5C518" stroke-width="1"/>
-            <text x="350" y="389" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">Trace</text>
+            <rect x="290" y="375" width="120" height="42" rx="4" fill="#141414" stroke="#F5C518" stroke-width="1"/>
+            <text x="350" y="400" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">Trace</text>
           </g>
 
-          <!-- ═══ ROW 7: 3rd party zones ═══ -->
+          <!-- ═══ ROW 7: 3rd party zones (gap 26px) ═══ -->
           <g class="draw-box" style="animation-delay:2.0s">
-            <rect x="20" y="430" width="320" height="40" rx="5" fill="#0A0A0A" stroke="#555" stroke-width="1" stroke-dasharray="4 3"/>
-            <text x="180" y="454" text-anchor="middle" fill="#888" font-size="9">3rd party tools, models, agents</text>
+            <rect x="20" y="443" width="320" height="46" rx="5" fill="#0A0A0A" stroke="#555" stroke-width="1" stroke-dasharray="4 3"/>
+            <text x="180" y="470" text-anchor="middle" fill="#888" font-size="11">3rd party tools, models, agents</text>
           </g>
           <g class="draw-box" style="animation-delay:2.1s">
-            <rect x="360" y="430" width="320" height="40" rx="5" fill="#0A0A0A" stroke="#555" stroke-width="1" stroke-dasharray="4 3"/>
-            <text x="520" y="454" text-anchor="middle" fill="#888" font-size="9">3rd party evaluation &amp; observability</text>
+            <rect x="360" y="443" width="320" height="46" rx="5" fill="#0A0A0A" stroke="#555" stroke-width="1" stroke-dasharray="4 3"/>
+            <text x="520" y="470" text-anchor="middle" fill="#888" font-size="11">3rd party evaluation &amp; observability</text>
           </g>
 
           <!-- ═══ CONNECTION LINES ═══ -->
           <!-- Row 1 → Row 2 -->
-          <line class="draw-line" x1="130" y1="46" x2="130" y2="75" stroke="#F5C518" stroke-width="1" style="animation-delay:0.3s"/>
-          <line class="draw-line" x1="270" y1="46" x2="270" y2="75" stroke="#F5C518" stroke-width="1" style="animation-delay:0.32s"/>
-          <line class="draw-line" x1="400" y1="46" x2="400" y2="75" stroke="#F5C518" stroke-width="1" style="animation-delay:0.35s"/>
-          <line class="draw-line" x1="545" y1="46" x2="545" y2="75" stroke="#F5C518" stroke-width="1" style="animation-delay:0.37s"/>
+          <line class="draw-line" x1="130" y1="56" x2="130" y2="77" stroke="#F5C518" stroke-width="1" style="animation-delay:0.3s"/>
+          <line class="draw-line" x1="270" y1="56" x2="270" y2="77" stroke="#F5C518" stroke-width="1" style="animation-delay:0.32s"/>
+          <line class="draw-line" x1="400" y1="56" x2="400" y2="77" stroke="#F5C518" stroke-width="1" style="animation-delay:0.35s"/>
+          <line class="draw-line" x1="545" y1="56" x2="545" y2="77" stroke="#F5C518" stroke-width="1" style="animation-delay:0.37s"/>
 
           <!-- Row 2 → Row 3 -->
-          <line class="draw-line" x1="90" y1="103" x2="90" y2="135" stroke="#F5C518" stroke-width="1" style="animation-delay:0.5s"/>
-          <line class="draw-line" x1="220" y1="103" x2="220" y2="135" stroke="#F5C518" stroke-width="1" style="animation-delay:0.52s"/>
-          <line class="draw-line" x1="355" y1="103" x2="355" y2="130" stroke="#F5C518" stroke-width="1" style="animation-delay:0.55s"/>
-          <line class="draw-line" x1="490" y1="103" x2="490" y2="135" stroke="#F5C518" stroke-width="1" style="animation-delay:0.57s"/>
-          <line class="draw-line" x1="620" y1="103" x2="620" y2="135" stroke="#F5C518" stroke-width="1" style="animation-delay:0.6s"/>
+          <line class="draw-line" x1="90" y1="111" x2="90" y2="138" stroke="#F5C518" stroke-width="1" style="animation-delay:0.5s"/>
+          <line class="draw-line" x1="220" y1="111" x2="220" y2="138" stroke="#F5C518" stroke-width="1" style="animation-delay:0.52s"/>
+          <line class="draw-line" x1="355" y1="111" x2="355" y2="132" stroke="#F5C518" stroke-width="1" style="animation-delay:0.55s"/>
+          <line class="draw-line" x1="490" y1="111" x2="490" y2="138" stroke="#F5C518" stroke-width="1" style="animation-delay:0.57s"/>
+          <line class="draw-line" x1="620" y1="111" x2="620" y2="138" stroke="#F5C518" stroke-width="1" style="animation-delay:0.6s"/>
 
-          <!-- Row 3 horizontal -->
-          <line class="draw-line" x1="150" y1="157" x2="160" y2="157" stroke="#F5C518" stroke-width="1" style="animation-delay:0.75s"/>
-          <line class="draw-line" x1="280" y1="157" x2="290" y2="157" stroke="#F5C518" stroke-width="1" style="animation-delay:0.85s"/>
-          <line class="draw-line" x1="420" y1="157" x2="430" y2="157" stroke="#F5C518" stroke-width="1" style="animation-delay:0.95s"/>
-          <line class="draw-line" x1="550" y1="157" x2="560" y2="157" stroke="#F5C518" stroke-width="1" style="animation-delay:1.05s"/>
+          <!-- Row 3 horizontal — y=164 (center of all Row 3 boxes) -->
+          <line class="draw-line" x1="150" y1="164" x2="160" y2="164" stroke="#F5C518" stroke-width="1" style="animation-delay:0.75s"/>
+          <line class="draw-line" x1="280" y1="164" x2="290" y2="164" stroke="#F5C518" stroke-width="1" style="animation-delay:0.85s"/>
+          <line class="draw-line" x1="420" y1="164" x2="430" y2="164" stroke="#F5C518" stroke-width="1" style="animation-delay:0.95s"/>
+          <line class="draw-line" x1="550" y1="164" x2="560" y2="164" stroke="#F5C518" stroke-width="1" style="animation-delay:1.05s"/>
 
           <!-- Row 3 → Row 4 -->
-          <polyline class="draw-line" points="330,184 330,210 255,210 255,230" stroke="#F5C518" stroke-width="1" style="animation-delay:1.15s"/>
-          <polyline class="draw-line" points="380,184 380,210 445,210 445,230" stroke="#F5C518" stroke-width="1" style="animation-delay:1.25s"/>
+          <polyline class="draw-line" points="330,196 330,215 255,215 255,235" stroke="#F5C518" stroke-width="1" style="animation-delay:1.15s"/>
+          <polyline class="draw-line" points="380,196 380,215 445,215 445,235" stroke="#F5C518" stroke-width="1" style="animation-delay:1.25s"/>
 
           <!-- Row 4 → Row 5 -->
-          <line class="draw-line" x1="255" y1="274" x2="255" y2="310" stroke="#F5C518" stroke-width="1" style="animation-delay:1.5s"/>
-          <line class="draw-line" x1="445" y1="274" x2="445" y2="310" stroke="#F5C518" stroke-width="1" style="animation-delay:1.55s"/>
+          <line class="draw-line" x1="255" y1="287" x2="255" y2="315" stroke="#F5C518" stroke-width="1" style="animation-delay:1.5s"/>
+          <line class="draw-line" x1="445" y1="287" x2="445" y2="315" stroke="#F5C518" stroke-width="1" style="animation-delay:1.55s"/>
 
           <!-- Row 5 → Row 6 -->
-          <line class="draw-line" x1="350" y1="338" x2="350" y2="368" stroke="#F5C518" stroke-width="1" style="animation-delay:1.7s"/>
+          <line class="draw-line" x1="350" y1="349" x2="350" y2="375" stroke="#F5C518" stroke-width="1" style="animation-delay:1.7s"/>
 
           <!-- Row 6 → Row 7 -->
-          <line class="draw-line" x1="320" y1="402" x2="320" y2="430" stroke="#F5C518" stroke-width="1" stroke-dasharray="4 3" style="animation-delay:1.9s"/>
-          <line class="draw-line" x1="380" y1="402" x2="380" y2="430" stroke="#F5C518" stroke-width="1" stroke-dasharray="4 3" style="animation-delay:1.95s"/>
+          <line class="draw-line" x1="320" y1="417" x2="320" y2="443" stroke="#F5C518" stroke-width="1" stroke-dasharray="4 3" style="animation-delay:1.9s"/>
+          <line class="draw-line" x1="380" y1="417" x2="380" y2="443" stroke="#F5C518" stroke-width="1" stroke-dasharray="4 3" style="animation-delay:1.95s"/>
         </svg>
       </div>
       <div class="s2-tco" data-s2="2">
         <div class="s2-tco-label">The cost of complexity</div>
         <div class="s2-tco-item">
-          <div class="s2-tco-title">Longer Dev Cycles</div>
-          <div class="s2-tco-quip">Every integration is a new team, a new API, a new failure mode. Velocity collapses.</div>
+          <div class="s2-tco-title">Development</div>
+          <div class="s2-tco-quip">Every integration is a new team,<br>API, and failure mode.</div>
         </div>
         <div class="s2-tco-item">
-          <div class="s2-tco-title">Expensive Eval Licensing</div>
-          <div class="s2-tco-quip">Paying per-seat for every observability, testing, and compliance tool in the stack.</div>
+          <div class="s2-tco-title">Licenses</div>
+          <div class="s2-tco-quip">Costs spiral for evaluation<br>and observability.</div>
         </div>
         <div class="s2-tco-item">
-          <div class="s2-tco-title">More Downtime</div>
-          <div class="s2-tco-quip">Long-running agents with no HA/DR means one failure cascades across the entire workflow.</div>
+          <div class="s2-tco-title">Downtime</div>
+          <div class="s2-tco-quip">Agent cascading failures<br>bring systems down.</div>
         </div>
         <div class="s2-tco-item">
-          <div class="s2-tco-title">More Risk Mgmt HC</div>
-          <div class="s2-tco-quip">29 regulations don't enforce themselves — you're hiring compliance teams, not shipping features.</div>
+          <div class="s2-tco-title">Risk</div>
+          <div class="s2-tco-quip">29 AI regulations require HC to manage.</div>
         </div>
       </div>
     </div>
@@ -1935,7 +2021,7 @@ body {
   <div class="s4-layout s4-reveal">
     <div class="s4-left">
       <div class="s4-eyebrow">The answer</div>
-      <div class="s4-headline">Akka is an <span class="accent">Agentic AI Platform</span> that tames AI complexity.</div>
+      <div class="s4-headline">Akka is an <span class="accent">Agentic AI Platform</span><br>that tames AI complexity.</div>
       <div class="s4-image">
         <img src="images/akka-platform.png" alt="Akka Agentic AI Platform">
       </div>
@@ -1959,7 +2045,7 @@ body {
         <div class="s4-prop-num">100%</div>
         <div class="s4-prop-text">
           <div class="s4-prop-title">Self-Governing Agents</div>
-          <div class="s4-prop-desc">Embedded eval, policies, and governance — compliance built in, not bolted on.</div>
+          <div class="s4-prop-desc">Embedded governance - compliance built in not bolted on.</div>
         </div>
       </div>
       <div class="s4-prop">
@@ -2008,10 +2094,7 @@ body {
     <div class="s5-term-col">
       <div class="s5-terminal">
         <div class="s5-term-header">
-          <div class="s5-term-dot r"></div>
-          <div class="s5-term-dot y"></div>
-          <div class="s5-term-dot g"></div>
-          <span class="s5-term-title">claude-code ~ loyalty-service</span>
+          <span class="s5-term-prompt"><span class="p-bracket">[</span><span class="p-user">akka</span><span class="p-at">@</span><span class="p-host">my-dev</span> <span class="p-dir">~</span><span class="p-bracket">]</span><span class="p-dollar">$</span></span>
         </div>
         <div class="s5-term-body" id="s5TermBody"></div>
       </div>
@@ -2364,7 +2447,7 @@ body {
 <section id="pkg">
 <div class="pkg-inner">
   <div class="pkg-eyebrow pkg-reveal">The packages</div>
-  <div class="pkg-headline pkg-reveal pkg-reveal-d1">One platform. <span class="accent">Five ways in.</span></div>
+  <div class="pkg-headline pkg-reveal pkg-reveal-d1">One platform. <span class="accent">Start free.</span></div>
   <div class="pkg-sub pkg-reveal pkg-reveal-d2">Every configuration runs the full Akka platform — the same runtime, the same APIs, the same developer experience. You choose where it runs and how much you need.</div>
 
   <!-- Infrastructure bar -->
@@ -2385,89 +2468,94 @@ body {
     </div>
   </div>
 
-  <!-- ════ SANDBOX (full-width horizontal) ════ -->
-  <div class="pkg-sandbox pkg-reveal pkg-reveal-d4">
-    <div class="pkg-sandbox-left">
-      <div>
-        <div class="pkg-sandbox-badge">Evaluation</div>
-        <div class="pkg-sandbox-name">Sandbox</div>
+  <!-- ════ SPLIT: EVAL | PRODUCTION ════ -->
+  <div class="pkg-split pkg-reveal pkg-reveal-d4">
+
+    <!-- Left: Evaluation Sandbox (9×5) -->
+    <div class="pkg-eval-col">
+      <div class="pkg-sla-header">
+        <span class="pkg-sla-label">Evaluation</span>
+        <span class="pkg-sla-badge">9&times;5 Monitoring</span>
+      </div>
+      <div class="pkg-eval-card">
+        <div class="pkg-eval-name">Sandbox</div>
+        <div class="pkg-eval-desc">Build, experiment, validate — no production overhead.</div>
+        <ul class="pkg-eval-specs">
+          <li>Region <span class="spec-val">1 Akka VPC</span></li>
+          <li>Cores <span class="spec-val">5 / 5</span></li>
+          <li>SLA <span class="spec-val">Degraded</span></li>
+        </ul>
+        <div class="pkg-eval-convert">Convertible to any production tier with in-place upgrade.</div>
       </div>
     </div>
-    <div class="pkg-sandbox-desc">Great developer experience at the lowest cost. Build, experiment, validate — no production overhead.</div>
-    <ul class="pkg-sandbox-specs">
-      <li><span>Region:</span> 1 Akka VPC</li>
-      <li><span>Cores:</span> 5 / 5</li>
-      <li><span>Support:</span> 9&times;5</li>
-      <li><span>SLA:</span> Degraded</li>
-    </ul>
-    <div class="pkg-sandbox-convert">Convertible to full Akka VPC Region with 24/7 SRE SLA.</div>
-  </div>
 
-  <!-- ════ 24/7 SRE BANNER ════ -->
-  <div class="pkg-sre-banner pkg-reveal pkg-reveal-d5">
-    <div class="pkg-sre-dot"></div>
-    <div class="pkg-sre-banner-text">24/7 SRE Management &amp; Monitoring &mdash; All production tiers</div>
-    <div class="pkg-sre-dot"></div>
-  </div>
+    <!-- Right: Production (24/7) -->
+    <div class="pkg-prod-col">
 
-  <!-- ════ PRODUCTION TIERS (4 cards) ════ -->
-  <div class="pkg-tiers">
-    <div class="pkg-tier pkg-reveal pkg-reveal-d5" data-tier="1">
-      <div class="pkg-tier-name">Starter</div>
-      <div class="pkg-tier-price">Akka-hosted</div>
-      <div class="pkg-tier-price-note">consumption-based</div>
-      <div class="pkg-tier-position">Ship to production today. Akka-hosted, fully resilient, no procurement cycles. Monthly billing.</div>
-      <ul class="pkg-tier-specs">
-        <li>Regions <span class="spec-val">1 Akka Cloud</span></li>
-        <li>Cores <span class="spec-val">5 service</span></li>
-        <li>HA/DR <span class="spec-val">—</span></li>
-        <li>SLA <span class="spec-val">99.99%</span></li>
-        <li>TAM <span class="spec-val">—</span></li>
-      </ul>
-    </div>
+      <!-- SRE banner -->
+      <div class="pkg-sre-banner">
+        <div class="pkg-sre-dot"></div>
+        <div class="pkg-sre-banner-text">24/7 SRE Management &amp; Monitoring &mdash; All production tiers</div>
+        <div class="pkg-sre-dot"></div>
+      </div>
 
-    <div class="pkg-tier pkg-reveal pkg-reveal-d6" data-tier="2">
-      <div class="pkg-tier-name">Day 2 Ops</div>
-      <div class="pkg-tier-price">Your VPC</div>
-      <div class="pkg-tier-price-note">annual bundle</div>
-      <div class="pkg-tier-position">First production deployment in your VPC. Replaces 6-8 separately billed services with one platform.</div>
-      <ul class="pkg-tier-specs">
-        <li>Regions <span class="spec-val">2 Akka VPC</span></li>
-        <li>Cores <span class="spec-val">25 service</span></li>
-        <li>HA/DR <span class="spec-val">—</span></li>
-        <li>SLA <span class="spec-val">99.99%</span></li>
-        <li>TAM <span class="spec-val">1/4 time</span></li>
-      </ul>
-    </div>
+      <!-- Starter — emphasized, hosted at akka.io -->
+      <div class="pkg-starter">
+        <div class="pkg-starter-top">
+          <div class="pkg-tier-name">Starter</div>
+          <div class="pkg-starter-meta">
+            <span class="pkg-akka-badge">akka.io</span>
+            <span class="pkg-region-divider"></span>
+            <span class="pkg-chip">NA</span>
+            <span class="pkg-chip">EU</span>
+            <span class="pkg-chip">APAC</span>
+            <span class="pkg-region-divider"></span>
+            <span class="pkg-chip">AWS</span>
+            <span class="pkg-chip">GCP</span>
+            <span class="pkg-chip">Azure</span>
+          </div>
+        </div>
+        <div class="pkg-tier-position">Ship to production today. Akka-hosted, fully resilient, no procurement cycles.</div>
+      </div>
 
-    <div class="pkg-tier pkg-reveal pkg-reveal-d7" data-tier="3">
-      <div class="pkg-tier-name">Business Continuity</div>
-      <div class="pkg-tier-price">Your VPC</div>
-      <div class="pkg-tier-price-note">annual bundle</div>
-      <div class="pkg-tier-position">Revenue-bearing systems that cannot tolerate outages. Managed active-active HA/DR.</div>
-      <ul class="pkg-tier-specs">
-        <li>Regions <span class="spec-val">3 Akka VPC</span></li>
-        <li>Cores <span class="spec-val">100 service</span></li>
-        <li>HA/DR <span class="spec-val">Active-active</span></li>
-        <li>SLA <span class="spec-val">99.9999%</span></li>
-        <li>TAM <span class="spec-val">1/2 time</span></li>
-      </ul>
-    </div>
+      <!-- Three production tiers -->
+      <div class="pkg-tiers">
+        <div class="pkg-tier" data-tier="2">
+          <div class="pkg-tier-name">Day 2 Ops</div>
+          <div class="pkg-tier-price">Your VPC</div>
 
-    <div class="pkg-tier pkg-reveal pkg-reveal-d8" data-tier="4">
-      <div class="pkg-tier-name">Sovereign Cloud</div>
-      <div class="pkg-tier-price">Your VPC</div>
-      <div class="pkg-tier-price-note">annual bundle</div>
-      <div class="pkg-tier-position">Country-isolated, fully regulated. Inherit 19+ compliance certifications instead of building them.</div>
-      <ul class="pkg-tier-specs">
-        <li>Regions <span class="spec-val">3 Akka VPC</span></li>
-        <li>Cores <span class="spec-val">100 service</span></li>
-        <li>HA/DR <span class="spec-val">Sovereign active</span></li>
-        <li>SLA <span class="spec-val">99.9999%</span></li>
-        <li>TAM <span class="spec-val">2 dedicated</span></li>
-      </ul>
-    </div>
-  </div>
+          <div class="pkg-tier-position">First production deployment in your VPC.<br>Replaces 6-8 separately billed services.</div>
+          <div class="pkg-tier-infra">
+            <div class="pkg-infra-row"><span class="pkg-infra-pill">2 Akka VPCs</span></div>
+          </div>
+        </div>
+
+        <div class="pkg-tier" data-tier="3">
+          <div class="pkg-tier-name">Business Continuity</div>
+          <div class="pkg-tier-price">Your VPC</div>
+
+          <div class="pkg-tier-position">Mission-critical systems that cannot tolerate outages. Managed active-active HA/DR.</div>
+          <div class="pkg-tier-infra">
+            <div class="pkg-infra-row"><span class="pkg-infra-spacer"></span><span class="pkg-infra-pill">3 Akka VPCs</span></div>
+            <div class="pkg-infra-row"><span class="pkg-infra-plus">+</span><span class="pkg-infra-pill">Active-Active HA/DR</span></div>
+          </div>
+        </div>
+
+        <div class="pkg-tier" data-tier="4">
+          <div class="pkg-tier-name">Sovereign Cloud</div>
+          <div class="pkg-tier-price">Your VPC</div>
+
+          <div class="pkg-tier-position">Country isolated data, networking, and operations.</div>
+          <div class="pkg-tier-infra">
+            <div class="pkg-infra-row"><span class="pkg-infra-spacer"></span><span class="pkg-infra-pill">3 Akka VPCs</span></div>
+            <div class="pkg-infra-row"><span class="pkg-infra-plus">+</span><span class="pkg-infra-pill">Active-Active HA/DR</span></div>
+            <div class="pkg-infra-row"><span class="pkg-infra-plus">+</span><span class="pkg-infra-pill">Sovereign Plane</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /pkg-prod-col -->
+  </div><!-- /pkg-split -->
 
   <!-- ════ UPGRADE PATH ════ -->
   <div class="pkg-upgrade pkg-reveal pkg-reveal-d8">
@@ -2518,11 +2606,11 @@ body {
         <div class="s9-partner-desc">Akka-native engineering. Hands-on implementation, migration, and production ops.</div>
       </div>
     </div>
+  </div>
 
-    <div class="s9-quote-panel">
-      <div class="s9-quote-text">&ldquo;Akka is hands-down the best AI platform available.&rdquo;</div>
-      <div class="s9-quote-attr">&mdash; Deloitte</div>
-    </div>
+  <div class="s9-quote-panel s9-reveal">
+    <div class="s9-quote-text">&ldquo;Akka provides the industry&rsquo;s best way to build agentic AI systems that scale in the enterprise and ensure stability, performance, and outcomes.&rdquo;</div>
+    <div class="s9-quote-attr">&mdash; Anand Nimkar, Partner - AI Practice Lead, Deloitte</div>
   </div>
 </section>
 </div>
@@ -2635,33 +2723,29 @@ for (let i = 0; i < 4; i++) {
   stDotsEl.appendChild(d);
 }
 
-/* ── Scroll driver — scroll-linked, no thresholds ──── */
+/* ── Column reveal — time-based, one-shot ──── */
 const stWrapper = document.getElementById('st-wrapper');
 const cards   = document.querySelectorAll('.st-card');
 const stDots  = document.querySelectorAll('.st-dot');
 
-function updateCols() {
-  const y       = window.scrollY;
-  const wTop    = stWrapper.offsetTop;
-  const wScroll = stWrapper.offsetHeight - window.innerHeight;
-  const scrolled = y - wTop;
+let stTriggered = false;
 
-  // p is NOT clamped on the low end so negative = before section (all hidden)
-  const p = wScroll > 0 ? Math.min(scrolled / wScroll, 1) : 0;
-
-  // Each column activates at p = col/4 (0, 0.25, 0.5, 0.75)
-  // The whole card — text, logos, everything — enters as one CSS-animated unit
-  cards.forEach(card => {
-    card.classList.toggle('visible', p >= +card.dataset.col / 4);
-  });
-
-  stDots.forEach((dot, i) => {
-    dot.classList.toggle('lit', p >= i / 4);
-  });
+function triggerStCols() {
+  if (stTriggered) return;
+  stTriggered = true;
+  for (let col = 0; col < 4; col++) {
+    setTimeout(() => {
+      cards.forEach(card => {
+        if (+card.dataset.col === col) card.classList.add('visible');
+      });
+      if (stDots[col]) stDots[col].classList.add('lit');
+    }, col * 1000);
+  }
 }
 
-window.addEventListener('scroll', updateCols, { passive: true });
-updateCols();
+new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) triggerStCols();
+}, { threshold: 0 }).observe(document.getElementById('st-sticky'));
 /* ── section-3-complexity ── */
 /* ── Section 3 ──────────────────────── */
 const s2wrapper = document.getElementById('s2-wrapper');

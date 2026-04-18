@@ -507,20 +507,21 @@
 #demo-section .tab-panel.active .platform-card:nth-child(3)::before { transition-delay: .4s; }
 #demo-section .tab-panel.active .platform-card:nth-child(4)::before { transition-delay: .5s; }
 
+#demo-section .platform-card-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+}
 #demo-section .platform-card-icon {
-  width: 32px; height: 32px; margin-bottom: 16px;
-  color: var(--yellow);
+  width: 24px; height: 24px; flex-shrink: 0; color: var(--yellow);
 }
 #demo-section .platform-card-icon svg { width: 100%; height: 100%; }
-
+#demo-section .platform-card-header-text { display: flex; flex-direction: column; gap: 2px; }
 #demo-section .platform-card-stat {
-  font-size: 11px; color: var(--green); font-weight: 600;
+  font-size: 10px; color: var(--green); font-weight: 600;
   text-transform: uppercase; letter-spacing: 1.5px;
-  margin-bottom: 10px;
 }
 #demo-section .platform-card-title {
-  font-size: 17px; font-weight: 700; color: var(--white);
-  margin-bottom: 10px; line-height: 1.3;
+  font-size: 15px; font-weight: 700; color: var(--white);
+  line-height: 1.2; margin-bottom: 8px;
 }
 #demo-section .platform-card-desc {
   font-size: 13px; color: #888; line-height: 1.55;

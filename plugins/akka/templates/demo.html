@@ -132,16 +132,24 @@
 
       <div class="platform-grid reveal">
         <div class="platform-card">
-          <div class="platform-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="14" y="14" width="8" height="8" rx="1"/></svg></div>
-          <div class="platform-card-stat">1 platform, N services</div>
-          <div class="platform-card-title">Multi-Tenant by Default</div>
+          <div class="platform-card-header">
+            <div class="platform-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="14" y="14" width="8" height="8" rx="1"/></svg></div>
+            <div class="platform-card-header-text">
+              <div class="platform-card-stat">1 platform, N services</div>
+              <div class="platform-card-title">Multi-Tenant by Default</div>
+            </div>
+          </div>
           <div class="platform-card-desc">Ship service #2, #3, #4 onto the same shared compute. Full isolation — no noisy neighbor. No new infrastructure provisioning. Marginal cost of each new service approaches zero.</div>
         </div>
 
         <div class="platform-card">
-          <div class="platform-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
-          <div class="platform-card-stat">100% API-driven</div>
-          <div class="platform-card-title">API-First Control Plane</div>
+          <div class="platform-card-header">
+            <div class="platform-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+            <div class="platform-card-header-text">
+              <div class="platform-card-stat">100% API-driven</div>
+              <div class="platform-card-title">API-First Control Plane</div>
+            </div>
+          </div>
           <div class="platform-card-desc">Every operation is an API call. Wire into your internal developer portal — Backstage, Cortex, whatever you run.</div>
           <div class="mini-term">
             <div><span class="prompt">$ </span><span class="cmd">akka service list</span></div>
@@ -151,9 +159,13 @@
         </div>
 
         <div class="platform-card">
-          <div class="platform-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
-          <div class="platform-card-stat">Plugs into your flow</div>
-          <div class="platform-card-title">Extensible SDLC Integration</div>
+          <div class="platform-card-header">
+            <div class="platform-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+            <div class="platform-card-header-text">
+              <div class="platform-card-stat">Plugs into your flow</div>
+              <div class="platform-card-title">Extensible SDLC Integration</div>
+            </div>
+          </div>
           <div class="platform-card-desc">Specify doesn't replace your process — it plugs into it. Custom templates, custom checks, your team's conventions baked in.</div>
           <div class="flow-steps">
             <div class="flow-step">Specify</div><div class="flow-arrow">&rarr;</div>
@@ -166,15 +178,18 @@
         </div>
 
         <div class="platform-card">
-          <div class="platform-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
-          <div class="platform-card-stat">Weekly platform updates</div>
-          <div class="platform-card-title">Living Best Practices</div>
+          <div class="platform-card-header">
+            <div class="platform-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+            <div class="platform-card-header-text">
+              <div class="platform-card-stat">Weekly platform updates</div>
+              <div class="platform-card-title">Living Best Practices</div>
+            </div>
+          </div>
           <div class="platform-card-desc">Every app gets smarter over time. Akka ships best practices weekly — they flow into existing services, not just new ones.</div>
           <div class="changelog">
             <div class="changelog-item"><div class="changelog-week">Wk 16</div><div class="changelog-text">Optimized sharding for high-cardinality entities</div></div>
             <div class="changelog-item"><div class="changelog-week">Wk 15</div><div class="changelog-text">New workflow compensation patterns</div></div>
             <div class="changelog-item"><div class="changelog-week">Wk 14</div><div class="changelog-text">EU AI Act governance templates added</div></div>
-            <div class="changelog-item"><div class="changelog-week">Wk 13</div><div class="changelog-text">Event serialization perf improvements</div></div>
           </div>
         </div>
       </div>
