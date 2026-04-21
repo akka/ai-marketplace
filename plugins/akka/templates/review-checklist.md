@@ -88,6 +88,7 @@ Reference: Data sanitization documentation.
 - K5 [RECOMMENDED]: Commands use imperative naming (e.g., `ShoppingCartEntity.Checkout`)
 - K6 [RECOMMENDED]: Events represent facts in past tense (`TransferInitiated`, `ItemAdded`), not commands (`DoTransfer`, `AddItem`)
 - K7 [RECOMMENDED]: View row records are public, named `Entry` or `{Domain}Entry`
+- K8 [RECOMMENDED]: Read-only command handlers (queries that don't change state) use `ReadOnlyEffect` — makes intent explicit and prepares the application for multi-region deployments where read-only effects can be served locally. Ref: guidelines.
 
 ## L. Endpoint Conventions
 
@@ -109,8 +110,7 @@ Reference: Data sanitization documentation.
 - M7 [RECOMMENDED]: Default model defined in config (not hardcoded per-request)
 - M8 [RECOMMENDED]: Structured responses use `responseConformsTo(Class)` (preferred over `responseAs`)
 - M9 [RECOMMENDED]: Agents with JSON parsing or tool calls have `.onFailure(ex -> fallback)` error handling
-- M10 [RECOMMENDED]: Read-only command handlers (queries that don't change state) use `ReadOnlyEffect` — makes intent explicit and prepares the application for multi-region deployments where read-only effects can be served locally. Ref: guidelines.
-- M11 [RECOMMENDED]: Workflow steps that invoke an Agent have a sufficient timeout — either set a per-step `stepTimeout` (>= 60 seconds) or increase the `defaultStepTimeout` in workflow settings. Default 5-second timeout is insufficient for LLM round-trips. Ref: workflows docs, guidelines.
+- M10 [RECOMMENDED]: Workflow steps that invoke an Agent have a sufficient timeout — either set a per-step `stepTimeout` (>= 60 seconds) or increase the `defaultStepTimeout` in workflow settings. Default 5-second timeout is insufficient for LLM round-trips. Ref: workflows docs, guidelines.
 
 ## N. Consumer & Idempotency Conventions
 

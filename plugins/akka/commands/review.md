@@ -121,9 +121,9 @@ G. Payload & State Size            | N/4        | CRITICAL
 H. Code Quality & Safety           | N/3        | CRITICAL
 I. PII & Data Sanitization         | N/4        | CRITICAL
 J. Serialization Conventions       | N/4        | RECOMMENDED
-K. Architecture & Conventions      | N/7        | RECOMMENDED
+K. Architecture & Conventions      | N/8        | RECOMMENDED
 L. Endpoint Conventions            | N/6        | RECOMMENDED
-M. Workflow & Agent Conventions    | N/11       | RECOMMENDED
+M. Workflow & Agent Conventions    | N/10       | RECOMMENDED
 N. Consumer & Idempotency          | N/9        | RECOMMENDED
 O. Testing Conventions             | N/7        | RECOMMENDED
 P. Error Handling Conventions      | N/3        | RECOMMENDED
