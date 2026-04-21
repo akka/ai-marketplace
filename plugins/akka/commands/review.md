@@ -56,10 +56,12 @@ Skip these steps entirely in full review mode.
 
 ### Step 5: Akka SDK best practices checklist (always runs)
 
-Load the review checklist using `akka_sdd_get_template` with template name
-`review-checklist`. Walk through every check. For each check, report PASS,
-WARN (acceptable deviation with reason), or FAIL (must fix). For WARN and
-FAIL items, cite the specific file(s) and line(s).
+Load the review checklist. First check if a project-level checklist exists at
+`.akka/review-checklist.md` — if it does, use that (read the file directly).
+If not, fall back to `akka_sdd_get_template` with template name
+`review-checklist` to use the plugin default. Walk through every check. For
+each check, report PASS, WARN (acceptable deviation with reason), or FAIL
+(must fix). For WARN and FAIL items, cite the specific file(s) and line(s).
 
 ### Step 6: Runtime verification (optional, either mode)
 
@@ -156,3 +158,17 @@ performance or maintainability and suggest alternatives if appropriate.
 List ALL findings, not just a top N. Group by severity: all CRITICAL (FAIL)
 first, then all RECOMMENDED (WARN), then all DESIGN (OBSERVATION). Within
 each severity group, order by impact.
+
+## Customizing the Review Checklist
+
+The review checklist can be customized per project. To create a project-level
+copy that you can modify:
+
+1. Copy the default checklist: `cp` the plugin template to
+   `.akka/review-checklist.md`
+2. Edit `.akka/review-checklist.md` to add, remove, or modify checks as needed
+3. Future reviews will automatically use your project-level checklist instead
+   of the plugin default
+
+If `.akka/review-checklist.md` does not exist, the plugin's built-in checklist
+is used.
