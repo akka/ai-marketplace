@@ -115,7 +115,7 @@ A. Serialization & State           | N/3        | CRITICAL
 B. Endpoints & Security            | N/2        | CRITICAL
 C. Workflows                       | N/3        | CRITICAL
 D. Agents                          | N/1        | CRITICAL
-E. Views                           | N/3        | CRITICAL
+E. Views                           | N/4        | CRITICAL
 F. Error Handling                  | N/2        | CRITICAL
 G. Payload & State Size            | N/4        | CRITICAL
 H. Code Quality & Safety           | N/3        | CRITICAL
@@ -123,13 +123,13 @@ I. PII & Data Sanitization         | N/4        | CRITICAL
 J. Serialization Conventions       | N/4        | RECOMMENDED
 K. Architecture & Conventions      | N/7        | RECOMMENDED
 L. Endpoint Conventions            | N/6        | RECOMMENDED
-M. Workflow & Agent Conventions    | N/9        | RECOMMENDED
+M. Workflow & Agent Conventions    | N/11       | RECOMMENDED
 N. Consumer & Idempotency          | N/9        | RECOMMENDED
 O. Testing Conventions             | N/7        | RECOMMENDED
 P. Error Handling Conventions      | N/3        | RECOMMENDED
 Q. Design Review                   | N/13       | DESIGN
-TOTAL CRITICAL                     | N/25
-TOTAL RECOMMENDED                  | N/44
+TOTAL CRITICAL                     | N/26
+TOTAL RECOMMENDED                  | N/46
 TOTAL DESIGN                       | N/13
 ```
 

@@ -39,6 +39,7 @@ Reference: Akka SDK AI coding assistant guidelines, Developer best practices.
 - E1 [CRITICAL]: `@Consume.*` annotation is on the inner `TableUpdater` subclass, NOT on the outer `View` class — wrong placement causes the view to not function. Ref: SDK samples.
 - E2 [CRITICAL]: ESE views use `onEvent(Event)`, KVE views use `onUpdate(State)` — wrong handler type means the view never populates. Ref: views docs.
 - E3 [CRITICAL]: Multi-row query methods return a wrapper record with `List<Row> items` and use `SELECT * AS items` — returning `QueryEffect<List<Row>>` directly is not supported. Ref: guidelines, views docs.
+- E4 [CRITICAL]: View row fields are never null — views struggle with null values in queries and projections. Use `Optional<T>` for fields that may be absent, or ensure `TableUpdater` handlers set explicit defaults. See also J3. Ref: views docs.
 
 ## F. Error Handling & ComponentClient
 
@@ -58,7 +59,7 @@ Reference: Developer best practices — Payload and state size.
 
 ## H. Code Quality & Safety
 
-- H1 [CRITICAL]: No blocking I/O in command handlers or event handlers — blocks the entity thread, causing timeouts and degraded throughput.
+- H1 [CRITICAL]: No blocking I/O in entity command handlers, entity event handlers, or workflow step handlers — blocks the component thread, causing timeouts and degraded throughput.
 - H2 [CRITICAL]: No shared mutable state in components — causes race conditions and data corruption.
 - H3 [CRITICAL]: No hardcoded secrets, API keys, or endpoints in source files — security vulnerability.
 
@@ -108,6 +109,8 @@ Reference: Data sanitization documentation.
 - M7 [RECOMMENDED]: Default model defined in config (not hardcoded per-request)
 - M8 [RECOMMENDED]: Structured responses use `responseConformsTo(Class)` (preferred over `responseAs`)
 - M9 [RECOMMENDED]: Agents with JSON parsing or tool calls have `.onFailure(ex -> fallback)` error handling
+- M10 [RECOMMENDED]: Read-only command handlers (queries that don't change state) use `ReadOnlyEffect` — makes intent explicit and prepares the application for multi-region deployments where read-only effects can be served locally. Ref: guidelines.
+- M11 [RECOMMENDED]: Workflow steps that invoke an Agent have a sufficient timeout — either set a per-step `stepTimeout` (>= 60 seconds) or increase the `defaultStepTimeout` in workflow settings. Default 5-second timeout is insufficient for LLM round-trips. Ref: workflows docs, guidelines.
 
 ## N. Consumer & Idempotency Conventions
 
