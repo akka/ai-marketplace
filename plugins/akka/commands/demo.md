@@ -45,7 +45,7 @@ OPTIONS:
   --logo PATH           Their logo image
   --project PATH        Path to Akka project (default: current directory)
   --repo URL            Git repo URL (for hands-on mode)
-  --output PATH         Output file (default: ./demo-presentation.html)
+  --output PATH         Output file (live default: {project}/src/main/resources/static-resources/demo.html; other: ./demo-presentation.html)
   --port PORT           Override service port detection
 
 EXAMPLES:
@@ -334,10 +334,14 @@ If no sequence diagram exists in the specs, synthesize one from the component re
 
 Call `akka_local_status`. Record the result.
 
-- If `"status": "started"` — runtime is running; note the service URL and port
-- If not started — note that the presentation will include a "Start App" guide in the App tab
+- If `"status": "started"` — runtime is running; note any already-running services
+- If not started — runtime needs to be started in Step 4
 
 **Do NOT call `akka_local_start`** if status already shows `"started"`. The runtime is shared across all services and restarting it kills other running services.
+
+For live mode, also record:
+- `STATIC_DIR` = `{PROJECT_DIR}/src/main/resources/static-resources/`
+- This is where the finished presentation and all its assets will be written so Akka can serve them.
 
 ---
 
@@ -345,27 +349,59 @@ Call `akka_local_status`. Record the result.
 
 Skip for overview, shareable, and hands-on modes.
 
-If environment is ready and user wants the live app embedded:
-1. Run `akka_maven_compile` — if it fails, continue and show error in App tab
-2. If compile succeeded and runtime is not running: `akka_local_start`
-3. `akka_local_run_service` to start the service
-4. `akka_local_status` to get the service URL and port
-5. Record `SERVICE_URL` (e.g. `http://localhost:9004`)
+Use the **Build & Run App** handoff — do not call `akka_maven_compile`, `akka_local_start`, or `akka_local_run_service` manually. The handoff handles compilation, runtime startup, and service registration in the correct order.
+
+After the handoff completes:
+1. Call `akka_local_status` to confirm the service is running and retrieve the port
+2. Record `SERVICE_URL` (e.g. `http://localhost:9004`) and `PORT`
+3. If the build failed, generate the presentation anyway — the App tab will show the error and suggest `/akka:build`
 
 ---
 
-## Step 5: Load Templates
+## Step 5: Fetch Latest Templates
 
-Read all four template files from the plugin installation directory:
+The presentation templates live in the public sales-presentation repository. Clone or update it before every generation so users always get the latest slides, design, and copy.
 
 ```
-~/.claude/plugins/akka/templates/base.html   — full Akka sales deck with 5 insertion markers
-~/.claude/plugins/akka/templates/demo.css    — all #demo-section scoped CSS (~400 lines)
-~/.claude/plugins/akka/templates/demo.html   — demo section HTML with {{PLACEHOLDER}} markers + TAB6 markers
-~/.claude/plugins/akka/templates/demo.js     — tab switching, SVG diagrams, keyboard nav (~240 lines)
+REPO_URL  = https://github.com/tylerjewell/sales-presentation
+CACHE_DIR = ~/.akka/sales-presentation
 ```
 
-Read all four files in full before beginning assembly.
+### 5a. Clone or pull
+
+1. If `CACHE_DIR` does not exist:
+   ```bash
+   git clone https://github.com/tylerjewell/sales-presentation ~/.akka/sales-presentation
+   ```
+2. If `CACHE_DIR` exists:
+   ```bash
+   git -C ~/.akka/sales-presentation pull --ff-only
+   ```
+3. If the network is unavailable or the pull fails, continue with the cached version and warn: `"Using cached templates from {date of last pull} — run again when online for latest slides."`
+
+### 5b. Assemble the base deck
+
+Run `build.py` from the cloned repo to assemble the full sales deck. This produces the overview presentation with the three demo insertion markers still intact (`<!-- DEMO_CSS_MARKER -->`, `<!-- DEMO_HTML_MARKER -->`, `/* DEMO_JS_MARKER */`) — ready for the demo section to be injected.
+
+```bash
+BASE_HTML=~/.akka/sales-presentation/generated/_plugin/base.html
+python3 ~/.akka/sales-presentation/builder/build.py \
+  --mode overview \
+  --out "$BASE_HTML"
+```
+
+Python 3 must be available. If it is not, stop and tell the user: `"Python 3 is required to generate the presentation. Install it at https://python.org and retry."`
+
+### 5c. Locate the four template files
+
+After assembly, read these files in full before beginning substitution:
+
+```
+~/.akka/sales-presentation/generated/_plugin/base.html   — assembled sales deck with insertion markers
+~/.akka/sales-presentation/slides/12-demo/slide.css      — all #demo-section scoped CSS
+~/.akka/sales-presentation/slides/12-demo/slide.html     — demo section HTML with {{PLACEHOLDER}} markers
+~/.akka/sales-presentation/slides/12-demo/slide.js       — tab switching, SVG diagrams, keyboard nav
+```
 
 ---
 
@@ -377,14 +413,16 @@ Assemble the output by substituting into the templates. **Do not write new CSS, 
 
 #### live mode — APP_CONTENT_HTML
 
+The presentation is served from the same Akka service at `http://localhost:PORT/demo.html`. The app itself is served at `http://localhost:PORT/` from the same static-resources directory. Use the absolute `http://localhost:PORT/` URL in the iframe so it resolves correctly whether the presentation is opened from the server or copied elsewhere.
+
 If service is running:
 ```html
 <div class="app-frame">
   <div class="app-chrome">
-    <div class="app-url">SERVICE_URL</div>
+    <div class="app-url">http://localhost:PORT/</div>
   </div>
   <div class="app-body" style="height:420px;padding:0;">
-    <iframe src="SERVICE_URL" style="width:100%;height:100%;border:none;"
+    <iframe src="http://localhost:PORT/" style="width:100%;height:100%;border:none;"
             title="PROJECT NAME"></iframe>
   </div>
 </div>
@@ -563,28 +601,55 @@ Before writing the output file, verify:
 
 ## Step 7: Write Output and Report
 
-Write the assembled HTML with UTF-8 encoding to the output path.
+### Output path by mode
 
-Then copy the plugin's static assets into the same directory so all relative paths in the presentation resolve correctly:
+**live mode** — write into the project's Akka static resources directory so the presentation is served by the running service:
+```
+OUT_DIR = {PROJECT_DIR}/src/main/resources/static-resources/
+OUTPUT  = OUT_DIR/demo.html
+```
+Create `OUT_DIR` if it doesn't exist.
 
-```bash
-PLUGIN=~/.claude/plugins/akka
-OUT=$(dirname OUTPUT_PATH)
-cp -r "$PLUGIN/images"     "$OUT/"
-cp -r "$PLUGIN/logos"      "$OUT/"
-cp -r "$PLUGIN/resilience" "$OUT/"
+**All other modes** — write to `--output` path (default: `./demo-presentation.html`):
+```
+OUT_DIR = dirname(OUTPUT_PATH)
+OUTPUT  = OUTPUT_PATH
 ```
 
-If any of those directories already exist in `OUT`, skip (do not overwrite).
+### Write the HTML
 
-Report to the user:
+Write the assembled HTML with UTF-8 encoding to `OUTPUT`.
+
+### Copy assets
+
+`build.py` already staged images, logos, and resilience alongside `base.html` in `~/.akka/sales-presentation/generated/_plugin/`. Copy them into `OUT_DIR` so all relative paths in the presentation resolve correctly:
+
+```bash
+STAGED=~/.akka/sales-presentation/generated/_plugin
+cp -r "$STAGED/images"     "$OUT_DIR/"
+cp -r "$STAGED/logos"      "$OUT_DIR/"
+cp -r "$STAGED/resilience" "$OUT_DIR/"
+```
+
+If any of those directories already exist in `OUT_DIR`, skip (do not overwrite).
+
+### Restart service (live mode only)
+
+Akka serves static files from the **compiled classpath** (`target/classes/`), not directly from `src/main/resources/`. The files written above won't be accessible until the service is recompiled and restarted.
+
+Call `akka_local_run_service` with the project directory. This triggers recompilation (picking up the new files from `src/main/resources/static-resources/`) and restarts the service.
+
+After restart, the presentation is live at `http://localhost:PORT/demo.html` and the app is at `http://localhost:PORT/`.
+
+### Report
 
 ```
 Done.
 
-  Presentation    open FILENAME
-  Live App        http://localhost:PORT    (live mode only)
-  Console         http://localhost:9889   (if runtime running)
+  Presentation    http://localhost:PORT/demo.html   (live mode)
+  Presentation    open OUTPUT_PATH                  (other modes)
+  Live App        http://localhost:PORT/             (live mode only)
+  Console         http://localhost:9889             (if runtime running)
   Resilience      /akka:reliability
   Deploy          /akka:deploy
 ```
