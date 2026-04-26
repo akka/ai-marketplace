@@ -139,7 +139,7 @@ The output opens in any browser, presents full-screen, and requires no server. A
 3. **Check environment** — verify runtime status
 4. **Build & start** — compile and run (live mode only)
 5. **Load templates** — read the four template files
-6. **Generate presentation** — substitute project data into templates and assemble
+6. **Generate presentation** — write and run `~/.akka/gen_demo.py` to produce the final HTML; the script also copies assets
 7. **Write & report** — write output file, print next steps
 
 ---
@@ -168,8 +168,20 @@ Call `akka_sdd_list_specs` to find features. If not available, glob for `specs/*
 
 For each feature, read these files if they exist:
 - `spec.md` — extract: title (first `#` heading), description (first paragraph), requirements (bullet list items)
-- `plan-diagrams.md` — extract the sequence diagram mermaid source block
+- `plan-diagrams.md` — extract all five mermaid source blocks (User Journey, Actor-Goal, Entity Map, Component Graph, Sequence)
 - `plan.md` — extract component design notes
+
+**If `plan-diagrams.md` is missing OR fewer than 5 diagram types are present**, automatically invoke `/akka:plan` with this instruction (do not stop or ask the user):
+> "Generate all five mermaid diagram types (User Journey, Actor-Goal, Entity Map, Component Graph, Sequence) and write them to `specs/FEATURE/plan-diagrams.md`."
+
+After `/akka:plan` completes, re-read the file and continue to Step 3. Do not wait for user input between these steps.
+
+The five diagram types are identified by these keywords in the file:
+1. `journey` — User Journey
+2. `flowchart` containing actor/goal nodes — Actor-Goal
+3. `erDiagram` — Entity Map
+4. `flowchart` containing component/annotation nodes — Component Graph
+5. `sequenceDiagram` — Sequence
 
 From `spec.md`, derive:
 - `DEMO_TITLE` — project name formatted as HTML, e.g. `Social Proofing <span class="accent">Agent</span>`
@@ -328,6 +340,79 @@ Rules:
 
 If no sequence diagram exists in the specs, synthesize one from the component relationships discovered in §2b.
 
+### 2h. Apply Akka Design System to the project app HTML
+
+Skip for **overview mode**. For all other modes, locate the project's primary app HTML file and ensure it uses the Akka design system.
+
+**Locate the app HTML**: Glob for `src/main/resources/static-resources/index.html` (or `index.htm`) in the project directory. If not found, skip this section.
+
+**Check for Akka design system compliance** — the file must satisfy ALL of these:
+
+| Check | Expected |
+|-------|----------|
+| Google Fonts link | `Instrument Sans` and `Roboto Mono` loaded via `fonts.googleapis.com` |
+| `--accent` CSS variable | `#F5C518` (Akka yellow) |
+| `body` font-family | starts with `'Instrument Sans'` |
+| `header` background | `#000` or `var(--bg)` — not a blue-tinted value like `#0d1218` |
+| Button text color | `#000` — not navy/dark-blue values like `#001824` |
+| RUNNING status color | uses a blue variable (e.g. `var(--running)` or `#1E90FF`) — not the yellow accent |
+| Monospace font | `'Roboto Mono'` as the first listed monospace font |
+| Hardcoded old-blue rgba values | none of `rgba(78, 195, 255, ...)` remain |
+
+**If any check fails**, apply the following changes to the file:
+
+1. **Add font imports** (inside `<head>`, before any `<style>` tag if not already present):
+   ```html
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+   ```
+
+2. **Set or update the `:root` CSS variable block** — replace the entire `:root { ... }` block with:
+   ```css
+   :root {
+     --bg: #000;
+     --bg-elev: #0D0D0D;
+     --bg-elev-2: #141414;
+     --border: #1C1C1C;
+     --border-light: #222;
+     --text: #fff;
+     --text-dim: #B8B8B8;
+     --text-muted: #555;
+     --accent: #F5C518;
+     --accent-2: #4EC9B0;
+     --warn: #F5C518;
+     --danger: #ff6b6b;
+     --good: #28c840;
+     --running: #1E90FF;
+   }
+   ```
+
+3. **Update `body` font-family** — replace whatever is there with:
+   ```css
+   font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+   ```
+
+4. **Fix header background** — replace any hardcoded blue-tinted header background (e.g. `#0d1218`, `#0a1628`, `#11161d`) with `#000`.
+
+5. **Fix button text color** — replace any navy/dark-blue text color on `.btn` (e.g. `#001824`, `#001f3f`) with `#000`.
+
+6. **Fix RUNNING status pill** — update `.status-pill.RUNNING` to use blue, not yellow:
+   ```css
+   .status-pill.RUNNING { background: rgba(30, 144, 255, 0.15); color: var(--running); }
+   ```
+
+7. **Fix hardcoded old-accent rgba values** — replace any `rgba(78, 195, 255, ...)` with the yellow equivalent by substituting the RGB triple: `78, 195, 255` → `245, 197, 24`.
+
+8. **Fix AWAITING_APPROVAL and policy gate rgba** — replace any `rgba(245, 176, 65, ...)` with `rgba(245, 197, 24, ...)` (exact Akka yellow).
+
+9. **Update monospace font references** — replace `ui-monospace, SFMono-Regular, Menlo, monospace` with `'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, monospace`. Replace bare `ui-monospace, monospace` with `'Roboto Mono', ui-monospace, monospace`.
+
+10. **Fix disclaimer and divider** — if the disclaimer block uses hardcoded blue-gray backgrounds (e.g. `#15202b`, `#1f2933`), replace with `var(--bg-elev)` and `var(--border)`. If the brand divider uses a hardcoded color, replace with `var(--text-muted)`.
+
+Apply all changes as surgical edits — do not rewrite the file structure, logic, or JavaScript. Only touch CSS color/font values.
+
+After editing, note in the Step 7 report: `"App styled with Akka design system"`.
+
 ---
 
 ## Step 3: Check Environment
@@ -406,6 +491,10 @@ After assembly, read these files in full before beginning substitution:
 ---
 
 ## Step 6: Generate the Presentation HTML
+
+**Always implement Step 6 by writing a Python script** at `~/.akka/gen_demo.py` and running it. Do not attempt inline substitution in prose — the HTML is large (200KB+), context window truncation will silently corrupt it. The script handles: syntax-highlighted component table, sequence JSON, all placeholder substitutions, template injection, asset copy, and endpoint routing check. Write the complete script, then execute it with `python3 ~/.akka/gen_demo.py`.
+
+If `~/.akka/gen_demo.py` already exists from a prior run, read it first and update only the sections that differ (presenter, port, project data) rather than rewriting from scratch. This makes reruns fast.
 
 Assemble the output by substituting into the templates. **Do not write new CSS, JS, or structural HTML from scratch.** Everything is already in the templates — just fill in the placeholders.
 
@@ -597,6 +686,65 @@ Before writing the output file, verify:
 5. For live: `src="http://localhost` is present (iframe injected)
 6. For shareable: no `iframe` pointing to localhost
 
+### 6h. Copy assets and check endpoint routing (live mode only)
+
+**Include these steps directly in `gen_demo.py`** — do not rely on manual shell commands after the script runs.
+
+#### Asset copy
+
+Copy **all** asset subdirectories from the staged build into `OUT_DIR`. Use a wildcard loop so any new directory added to the sales presentation is automatically included:
+
+```python
+import shutil, os
+
+staged = os.path.expanduser("~/.akka/sales-presentation/generated/_plugin")
+for name in os.listdir(staged):
+    src = os.path.join(staged, name)
+    dst = os.path.join(out_dir, name)
+    if os.path.isdir(src):
+        if os.path.exists(dst):
+            shutil.rmtree(dst)
+        shutil.copytree(src, dst)
+```
+
+**Never list directories by name** (`images`, `logos`, `resilience`). The wildcard loop ensures newly added asset directories (e.g. `videos/`, `fonts/`) are automatically included without requiring spec updates.
+
+#### Endpoint routing check
+
+After copying, scan the project for the HTTP endpoint that serves static files. It typically has `@HttpEndpoint` and `@Acl` annotations and returns `HttpResponses.staticResource(...)`.
+
+**If it contains `@Get("/**")`**: this conflicts with any `@Get("/api/...")` routes in the same class and causes a startup failure (`Overlapping wildcard paths`). Replace it with per-directory routes — one `@Get("/DIRNAME/**")` for each directory that was just copied into `OUT_DIR`:
+
+```java
+// For each directory in OUT_DIR, add a route like this:
+@Get("/images/**")
+public HttpResponse image(HttpRequest request) {
+  return HttpResponses.staticResource(request, "/");
+}
+
+@Get("/logos/**")
+public HttpResponse logo(HttpRequest request) {
+  return HttpResponses.staticResource(request, "/");
+}
+
+@Get("/resilience/**")
+public HttpResponse resilienceAsset(HttpRequest request) {
+  return HttpResponses.staticResource(request, "/");
+}
+
+// Keep a single-segment fallback for top-level files (demo.html, favicon, etc.):
+@Get("/{asset}")
+public HttpResponse asset(String asset) {
+  return HttpResponses.staticResource(asset);
+}
+```
+
+Also ensure `import akka.http.javadsl.model.HttpRequest;` is present in the endpoint file.
+
+**If it already uses per-directory routes**: check that a route exists for every directory in `OUT_DIR`. If a new directory was added (e.g. `resilience/`), add the corresponding `@Get("/resilience/**")` route.
+
+After any endpoint edit, include a recompile step in gen_demo.py or note it clearly in the report — the service must be restarted to pick up both the new static files and the routing change.
+
 ---
 
 ## Step 7: Write Output and Report
@@ -622,16 +770,17 @@ Write the assembled HTML with UTF-8 encoding to `OUTPUT`.
 
 ### Copy assets
 
-`build.py` already staged images, logos, and resilience alongside `base.html` in `~/.akka/sales-presentation/generated/_plugin/`. Copy them into `OUT_DIR` so all relative paths in the presentation resolve correctly:
+This is handled by `gen_demo.py` (see §6h). If running outside the script context, copy all asset subdirectories from the staged build:
 
 ```bash
 STAGED=~/.akka/sales-presentation/generated/_plugin
-cp -r "$STAGED/images"     "$OUT_DIR/"
-cp -r "$STAGED/logos"      "$OUT_DIR/"
-cp -r "$STAGED/resilience" "$OUT_DIR/"
+for dir in "$STAGED"/*/; do
+  name=$(basename "$dir")
+  cp -r "$dir" "$OUT_DIR/$name"
+done
 ```
 
-If any of those directories already exist in `OUT_DIR`, skip (do not overwrite).
+Do not list directories by name — the loop ensures all of them (images, logos, resilience, and any future additions) are copied.
 
 ### Restart service (live mode only)
 
