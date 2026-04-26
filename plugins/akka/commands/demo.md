@@ -443,49 +443,40 @@ After the handoff completes:
 
 ---
 
-## Step 5: Fetch Latest Templates
+## Step 5: Locate Bundled Templates
 
-The presentation templates live in the public sales-presentation repository. Clone or update it before every generation so users always get the latest slides, design, and copy.
+All templates and assets are shipped inside the plugin itself — no network access or build step is required.
 
-```
-REPO_URL  = https://github.com/tylerjewell/sales-presentation
-CACHE_DIR = ~/.akka/sales-presentation
-```
+### 5a. Find the plugin templates directory
 
-### 5a. Clone or pull
-
-1. If `CACHE_DIR` does not exist:
-   ```bash
-   git clone https://github.com/tylerjewell/sales-presentation ~/.akka/sales-presentation
-   ```
-2. If `CACHE_DIR` exists:
-   ```bash
-   git -C ~/.akka/sales-presentation pull --ff-only
-   ```
-3. If the network is unavailable or the pull fails, continue with the cached version and warn: `"Using cached templates from {date of last pull} — run again when online for latest slides."`
-
-### 5b. Assemble the base deck
-
-Run `build.py` from the cloned repo to assemble the full sales deck. This produces the overview presentation with the three demo insertion markers still intact (`<!-- DEMO_CSS_MARKER -->`, `<!-- DEMO_HTML_MARKER -->`, `/* DEMO_JS_MARKER */`) — ready for the demo section to be injected.
-
-```bash
-BASE_HTML=~/.akka/sales-presentation/generated/_plugin/base.html
-python3 ~/.akka/sales-presentation/builder/build.py \
-  --mode overview \
-  --out "$BASE_HTML"
-```
-
-Python 3 must be available. If it is not, stop and tell the user: `"Python 3 is required to generate the presentation. Install it at https://python.org and retry."`
-
-### 5c. Locate the four template files
-
-After assembly, read these files in full before beginning substitution:
+Search these candidate paths in order, stopping at the first that exists:
 
 ```
-~/.akka/sales-presentation/generated/_plugin/base.html   — assembled sales deck with insertion markers
-~/.akka/sales-presentation/slides/12-demo/slide.css      — all #demo-section scoped CSS
-~/.akka/sales-presentation/slides/12-demo/slide.html     — demo section HTML with {{PLACEHOLDER}} markers
-~/.akka/sales-presentation/slides/12-demo/slide.js       — tab switching, SVG diagrams, keyboard nav
+~/.claude/plugins/cache/akka-ai-marketplace/akka/*/templates/
+~/.claude/plugins/marketplaces/akka-ai-marketplace/plugins/akka/templates/
+```
+
+Use a glob on the version wildcard (`*`) and take the highest version match. Record this as `PLUGIN_DIR` (the `plugins/akka/` root, one level above `templates/`).
+
+If neither path exists, stop and tell the user: `"Plugin templates not found. Re-install the Akka plugin with: akka plugin install akka"`
+
+### 5b. Locate the four template files
+
+Read these files in full before beginning substitution:
+
+```
+PLUGIN_DIR/templates/base.html   — assembled sales deck with insertion markers
+PLUGIN_DIR/templates/demo.css    — all #demo-section scoped CSS
+PLUGIN_DIR/templates/demo.html   — demo section HTML with {{PLACEHOLDER}} markers
+PLUGIN_DIR/templates/demo.js     — tab switching, SVG diagrams, keyboard nav
+```
+
+Also record the asset directories for the copy step in §6h:
+
+```
+PLUGIN_DIR/images/       — presentation slide images
+PLUGIN_DIR/logos/        — customer/partner logos
+PLUGIN_DIR/resilience/   — resilience demo HTML
 ```
 
 ---
@@ -697,7 +688,7 @@ Copy **all** asset subdirectories from the staged build into `OUT_DIR`. Use a wi
 ```python
 import shutil, os
 
-staged = os.path.expanduser("~/.akka/sales-presentation/generated/_plugin")
+staged = plugin_dir  # PLUGIN_DIR resolved in Step 5a
 for name in os.listdir(staged):
     src = os.path.join(staged, name)
     dst = os.path.join(out_dir, name)
@@ -773,9 +764,9 @@ Write the assembled HTML with UTF-8 encoding to `OUTPUT`.
 This is handled by `gen_demo.py` (see §6h). If running outside the script context, copy all asset subdirectories from the staged build:
 
 ```bash
-STAGED=~/.akka/sales-presentation/generated/_plugin
-for dir in "$STAGED"/*/; do
+for dir in "$PLUGIN_DIR"/*/; do
   name=$(basename "$dir")
+  [ "$name" = "commands" ] || [ "$name" = "templates" ] && continue
   cp -r "$dir" "$OUT_DIR/$name"
 done
 ```
