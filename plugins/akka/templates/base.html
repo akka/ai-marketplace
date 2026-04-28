@@ -8,7 +8,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <style>
-
 /* ═══════════════════════════════════════════════
    SHARED — variables, resets, fonts, keyframes
 ═══════════════════════════════════════════════ */
@@ -53,8 +52,7 @@ body {
   to   { background-position:36px 36px; }
 }
 
-
-/* ── section-0-title ── */
+/* ── 00-title ── */
 #title {
   height: 100vh; min-height: 680px;
   display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -137,7 +135,8 @@ body {
   border-right:1.5px solid var(--yellow); border-bottom:1.5px solid var(--yellow);
   transform:rotate(45deg); animation:bounceDown 1.6s ease infinite;
 }
-/* ── section-1-hero ── */
+
+/* ── 01-hero ── */
 #hero-wrapper {
   height: 140vh;
   position: relative;
@@ -207,7 +206,8 @@ body {
   border-right:1.5px solid var(--yellow); border-bottom:1.5px solid var(--yellow);
   transform:rotate(45deg); animation:bounceDown 1.6s ease infinite;
 }
-/* ── section-2-types ── */
+
+/* ── 02-types ── */
 #st-wrapper {
   height: calc(100vh * 1.6);
   position: relative;
@@ -327,7 +327,8 @@ body {
   object-fit: cover; border-radius: 5px;
   display: block;
 }
-/* ── section-3-complexity ── */
+
+/* ── 03-complexity ── */
 #s2-wrapper {
   height: 300vh;          /* longer dead scroll so view anchors for more clicks */
   position: relative;
@@ -482,7 +483,8 @@ body {
 .s2-tco-quip {
   font-size: 15px; color: #999; line-height: 1.45;
 }
-/* ── section-4-platform ── */
+
+/* ── 04-platform ── */
 #s4-wrapper {
   height: 180vh;
   position: relative;
@@ -571,7 +573,216 @@ body {
 .s4-prop-desc {
   font-size: 12px; color: #888; line-height: 1.45;
 }
-/* ── section-5-devzero ── */
+
+/* ── 13-innovations ── */
+#s13-wrapper {
+  height: 180vh;
+  position: relative;
+}
+#s13 {
+  background: var(--black);
+  padding: 80px var(--pad-6) 60px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+#s13::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(245, 197, 24, 0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.s13-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .6s ease, transform .6s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  z-index: 1;
+}
+.s13-reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+
+.s13-eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--yellow);
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.s13-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 28px;
+  height: 2px;
+  background: var(--yellow);
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+.s13-headline {
+  font-size: clamp(36px, 4.5vw, 64px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--white);
+  margin-bottom: 16px;
+}
+.s13-headline .accent { color: var(--yellow); }
+
+.s13-subhead {
+  font-size: clamp(15px, 1.3vw, 19px);
+  color: #888;
+  font-weight: 400;
+  line-height: 1.45;
+  max-width: 880px;
+  margin-bottom: 56px;
+}
+
+/* Three-column grid */
+.s13-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 28px;
+  align-items: stretch;
+}
+.s13-grid.s13-reveal {
+  /* Stagger children so each column reveals in turn */
+}
+
+.s13-col {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid #1A1A1A;
+  border-radius: 12px;
+  padding: 28px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: border-color .25s ease, background .25s ease, transform .25s ease;
+  min-width: 0;
+}
+.s13-col:hover {
+  border-color: rgba(245, 197, 24, 0.30);
+  background: rgba(245, 197, 24, 0.03);
+  transform: translateY(-2px);
+}
+
+.s13-col-head {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.s13-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(245, 197, 24, 0.12);
+  color: var(--yellow);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border: 1px solid rgba(245, 197, 24, 0.40);
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+}
+
+.s13-title {
+  font-size: clamp(18px, 1.55vw, 24px);
+  font-weight: 700;
+  line-height: 1.22;
+  letter-spacing: -0.02em;
+  color: var(--white);
+  min-height: 70px;
+}
+.s13-mem {
+  color: var(--yellow);
+  font-weight: 600;
+  font-style: italic;
+}
+
+.s13-desc {
+  font-size: 13.5px;
+  color: #9A9A9A;
+  line-height: 1.5;
+  font-weight: 400;
+  min-height: 60px;
+}
+
+.s13-caps {
+  margin-top: 6px;
+  border-top: 1px dashed #222;
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.s13-cap {
+  font-size: clamp(15px, 1.25vw, 17px);
+  font-weight: 400;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+.s13-cap::before {
+  content: '›';
+  color: var(--yellow);
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 1;
+  width: 14px;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.s13-stats {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px dashed #222;
+  display: grid;
+  gap: 10px;
+  align-items: end;
+}
+.s13-stats-3 { grid-template-columns: repeat(3, 1fr); }
+.s13-stats-2 { grid-template-columns: repeat(2, 1fr); }
+.s13-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+}
+.s13-stat-num {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  font-size: clamp(20px, 1.8vw, 26px);
+  font-weight: 700;
+  color: var(--yellow);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.s13-stat-lbl {
+  font-size: 11px;
+  color: #888;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+
+/* ── 05-devzero ── */
 #s5-wrapper {
   height: 140vh;
   position: relative;
@@ -790,7 +1001,8 @@ body {
   .s5-top { flex-direction: column; align-items: flex-start; }
   .s5-props { flex-direction: column; gap: 12px; }
 }
-/* ── section-6-resilience ── */
+
+/* ── 06-resilience ── */
 #s6-wrapper {
   height: 140vh;
   position: relative;
@@ -872,7 +1084,8 @@ body {
   .s6-top { flex-direction: column; align-items: flex-start; }
   .s6-stats { gap: 20px; }
 }
-/* ── section-7-governance ── */
+
+/* ── 07-governance ── */
 /* ── Phase 1: The Problem ── */
 #s7-problem {
   height: 140vh;
@@ -882,7 +1095,7 @@ body {
   position: sticky; top: 0;
   height: 100vh;
   display: flex; flex-direction: column; justify-content: center;
-  padding: 0 var(--pad-8);
+  padding: 0 8vw;
   background: var(--black);
   overflow: hidden;
 }
@@ -952,7 +1165,7 @@ body {
 }
 #s7-answer {
   background: var(--dark);
-  padding: 80px var(--pad-8) 80px;
+  padding: 80px 8vw 80px;
   position: sticky;
   top: 0;
   height: 100vh;
@@ -983,14 +1196,15 @@ body {
 
 /* ── Answer layout: carousel left, features right ── */
 .s7-answer-layout {
-  display: flex; gap: 40px; align-items: flex-start;
+  display: flex; gap: 0; align-items: flex-start;
   position: relative; z-index: 1;
+  margin-left: -5vw;
+  margin-right: -5vw;  /* push columns toward right edge */
 }
 
 /* ── Carousel ── */
 .s7-carousel-section {
   flex: 1; min-width: 0;
-  margin-right: 40px;
 }
 .s7-carousel {
   position: relative;
@@ -1079,12 +1293,13 @@ body {
 
 /* ── Feature columns ── */
 .s7-features {
-  width: 380px; flex-shrink: 0;
-  display: flex; gap: 28px;
-  margin-left: 40px;
+  flex-shrink: 0;
+  display: flex; gap: 20px;
+  margin-left: 100px;   /* gap from carousel */
+  margin-right: 0;      /* right edge handled by #s7-answer 8vw padding (~100px+) */
 }
 .s7-feat-col {
-  flex: 1; min-width: 0;
+  width: 190px; flex-shrink: 0;
 }
 .s7-feat-col-title {
   font-size: 10px; text-transform: uppercase; letter-spacing: 2.5px;
@@ -1096,6 +1311,8 @@ body {
   font-size: 13px; color: #999; line-height: 1.35;
   padding: 4px 0;
   display: flex; align-items: baseline; gap: 7px;
+  white-space: nowrap;
+  overflow: hidden;
 }
 .s7-feat-item::before {
   content: '';
@@ -1105,7 +1322,8 @@ body {
   flex-shrink: 0;
   margin-top: 5px;
 }
-/* ── section-customers ── */
+
+/* ── 08-customers ── */
 #cust-wrapper {
   height: 200vh; /* 5 customers, ~4 clicks each */
   position: relative;
@@ -1225,7 +1443,16 @@ body {
 }
 .cust-slide > * { position: relative; z-index: 1; }
 .cust-slide[data-slide="0"]::before { background-image: url('images/customers/manulife.jpg'); }
-.cust-slide[data-slide="1"]::before { background-image: url('images/customers/tubi.jpg'); }
+.cust-slide[data-slide="1"] { background: linear-gradient(135deg, #071420 0%, #0b2538 50%, #0d3040 100%); }
+.cust-slide[data-slide="1"]::before {
+  background-image: url('images/customers/tubi-devices.png');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.82;
+}
+.cust-slide[data-slide="1"]::after {
+  background: linear-gradient(90deg, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.75) 40%, rgba(0,0,0,0.2) 100%);
+}
 .cust-slide[data-slide="2"]::before { background-image: url('images/customers/swiggy.png'); }
 .cust-slide[data-slide="3"]::before { background-image: url('images/customers/johndeere.png'); }
 .cust-slide[data-slide="4"]::before { background-image: url('images/customers/dojo.png'); }
@@ -1242,7 +1469,8 @@ body {
   font-size: 9px; text-transform: uppercase; letter-spacing: 3px;
   color: #333; z-index: 10;
 }
-/* ── section-packages ── */
+
+/* ── 09-packages ── */
 #pkg-wrapper {
   height: calc(100vh + 300px);
   position: relative;
@@ -1550,7 +1778,8 @@ body {
 .pkg-reveal-d6 { transition-delay: .6s; }
 .pkg-reveal-d7 { transition-delay: .7s; }
 .pkg-reveal-d8 { transition-delay: .8s; }
-/* ── section-y-partners ── */
+
+/* ── 10-partners ── */
 #s9-wrapper {
   height: 140vh;
   position: relative;
@@ -1677,7 +1906,8 @@ body {
   .s9-partners { flex-direction: column; }
   .s9-quote-panel { width: 100%; border-left: none; border-top: 3px solid #86BC25; padding: 20px 0 0; }
 }
-/* ── section-z-closing ── */
+
+/* ── 11-closing ── */
 #closing {
   height: 100vh; min-height: 680px;
   display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -1754,10 +1984,10 @@ body {
 
 
 <!-- DEMO_CSS_MARKER -->
+<!-- DEMO_CSS_MARKER -->
 </style>
 </head>
 <body>
-
 <section id="title">
   <div class="title-logo">
     <svg width="109" height="25" viewBox="0 0 109 25" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1789,13 +2019,14 @@ body {
   </div>
 </section>
 <div id="hero-wrapper">
+
 <section id="hero">
   <div class="hero-body">
     <div class="hero-eyebrow">Est. 2007 &mdash; 18 years of production reliability</div>
     <h1 class="hero-headline">
       <span class="line"><span class="line-inner">The runtime making</span></span>
-      <span class="line"><span class="line-inner">the world&rsquo;s most complex</span></span>
-      <span class="line"><span class="line-inner">systems <span class="accent">reliable.</span></span></span>
+      <span class="line"><span class="line-inner">the world&rsquo;s most complex systems</span></span>
+      <span class="line"><span class="line-inner"><span class="accent">reliable.</span></span></span>
     </h1>
     <div class="hero-divider"></div>
     <div class="hero-stats">
@@ -1820,6 +2051,8 @@ body {
 
 </section>
 </div>
+
+<div style="height:20vh;background:var(--black)"></div>
 <div id="st-wrapper">
   <div id="st-sticky">
     <div class="st-header">
@@ -1831,6 +2064,7 @@ body {
   </div>
 </div>
 <div style="height:20vh;background:var(--black)"></div>
+
 <div id="s2-wrapper">
   <div id="s2-sticky">
     <div class="s2-eyebrow" data-s2="0">The challenge</div>
@@ -2016,6 +2250,7 @@ body {
     </div>
   </div>
 </div>
+
 <div id="s4-wrapper">
 <section id="s4">
   <div class="s4-layout s4-reveal">
@@ -2066,6 +2301,75 @@ body {
   </div>
 </section>
 </div>
+
+<div id="s13-wrapper">
+<section id="s13">
+  <div class="s13-eyebrow s13-reveal">The architecture</div>
+  <div class="s13-headline s13-reveal">Three <span class="accent">core innovations</span></div>
+  <div class="s13-subhead s13-reveal">Structural within the Akka runtime — embedded in every agentic microservice.</div>
+
+  <div class="s13-grid s13-reveal">
+
+    <div class="s13-col">
+      <div class="s13-col-head">
+        <div class="s13-num">01</div>
+      </div>
+      <div class="s13-title"><span class="s13-mem">in-memory</span> actor-based concurrency &amp; clustering</div>
+      <div class="s13-desc">Hot processes that run in memory, replicate across the cluster, and survive any node.</div>
+      <div class="s13-caps">
+        <div class="s13-cap">Split-brain operations</div>
+        <div class="s13-cap">Traffic steering</div>
+        <div class="s13-cap">Scale-to-zero</div>
+      </div>
+      <div class="s13-stats s13-stats-3">
+        <div class="s13-stat"><div class="s13-stat-num">4KB</div><div class="s13-stat-lbl">actors</div></div>
+        <div class="s13-stat"><div class="s13-stat-num">200M</div><div class="s13-stat-lbl">actors / core</div></div>
+        <div class="s13-stat"><div class="s13-stat-num">1M</div><div class="s13-stat-lbl">node clusters</div></div>
+      </div>
+    </div>
+
+    <div class="s13-col">
+      <div class="s13-col-head">
+        <div class="s13-num">02</div>
+      </div>
+      <div class="s13-title"><span class="s13-mem">in-memory</span> stateful, durable &amp; sharded data</div>
+      <div class="s13-desc">Durable in-memory state that's sharded across the cluster and replayable from its own event journal.</div>
+      <div class="s13-caps">
+        <div class="s13-cap">Agent memory</div>
+        <div class="s13-cap">Autonomous swarm tasks</div>
+        <div class="s13-cap">Durable execution workflows</div>
+      </div>
+      <div class="s13-stats s13-stats-3">
+        <div class="s13-stat"><div class="s13-stat-num">4ms</div><div class="s13-stat-lbl">reads</div></div>
+        <div class="s13-stat"><div class="s13-stat-num">10ms</div><div class="s13-stat-lbl">writes</div></div>
+        <div class="s13-stat"><div class="s13-stat-num">PB</div><div class="s13-stat-lbl">cache</div></div>
+      </div>
+    </div>
+
+    <div class="s13-col">
+      <div class="s13-col-head">
+        <div class="s13-num">03</div>
+      </div>
+      <div class="s13-title"><span class="s13-mem">in-memory</span> real-time event-driven streaming with backpressure</div>
+      <div class="s13-desc">Continuous, backpressured event flows across components, services, and regions — without an external broker.</div>
+      <div class="s13-caps">
+        <div class="s13-cap">CQRS views</div>
+        <div class="s13-cap">Streaming consumers</div>
+        <div class="s13-cap">Streaming integrations</div>
+        <div class="s13-cap">Reliable gRPC replication</div>
+        <div class="s13-cap">Active-active HA/DR</div>
+      </div>
+      <div class="s13-stats s13-stats-2">
+        <div class="s13-stat"><div class="s13-stat-num">1 min</div><div class="s13-stat-lbl">RTO</div></div>
+        <div class="s13-stat"><div class="s13-stat-num">0b</div><div class="s13-stat-lbl">RPO</div></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+</div>
+
+
 <div id="s5-wrapper">
 <section id="s5">
   <div class="s5-top">
@@ -2200,6 +2504,8 @@ body {
 </section>
 </div>
 <div style="height:30vh;background:var(--black)"></div>
+
+<div style="height:30vh;background:var(--black)"></div>
 <div id="s6-wrapper">
 <section id="s6">
   <div class="s6-top">
@@ -2228,66 +2534,141 @@ body {
   </div>
 </section>
 </div>
-<!-- Phase 1: The Problem -->
+
 <div id="s7-problem">
   <div id="s7-problem-sticky">
-    <div class="s7-eyebrow" data-s7="0">Self-governing AI</div>
-    <div class="s7-problem-headline" data-s7="0">Bolt-on governance is the <span class="accent">illusion of control.</span></div>
+    <div class="s7-eyebrow" data-s7="0">Akka Governance Platform</div>
+    <div class="s7-problem-headline" data-s7="0">Observation is not <span class="accent">control.</span></div>
     <div class="s7-problems">
       <div class="s7-prob" data-s7="1">
-        <div class="s7-prob-stat">29</div>
-        <div class="s7-prob-text">AI regulations coming online. The EU AI Act alone imposes penalties up to &euro;35M. Every deployment must be explainable and controlled.</div>
+        <div class="s7-prob-stat">Moving Target</div>
+        <div class="s7-prob-text">174 regulatory frameworks &mdash; all of them changing. Which ones apply to your agents? How do you re-posture every time they shift? EU AI Act penalties alone reach &euro;35M.</div>
       </div>
       <div class="s7-prob" data-s7="2">
-        <div class="s7-prob-stat">$$$</div>
-        <div class="s7-prob-text">Runaway mega-bills from eval and observability vendors. You're paying per-seat for tools that produce copies of copies &mdash; not truth.</div>
+        <div class="s7-prob-stat">Unenforceable</div>
+        <div class="s7-prob-text">Governance tools observe AI from the outside. They can't enforce at agent boundaries, can't gate a deployment, can't link a policy decision to the human who approved it. They produce reports &mdash; not proof.</div>
       </div>
       <div class="s7-prob" data-s7="3">
         <div class="s7-prob-stat">PB+</div>
-        <div class="s7-prob-text">Petabyte-scale storage for regulatory holds. Copied logs aren't tamper-proof. When auditors come, you need hashchains &mdash; not hope.</div>
+        <div class="s7-prob-text">Petabyte-scale storage for regulatory holds &mdash; 10-year retention for high-risk AI under EU AI Act Art. 72. Copied logs aren't tamper-proof. When auditors come, you need hash-chains &mdash; not hope. Governance isn't cheap; it has to be built in.</div>
       </div>
     </div>
-    <div class="s7-thesis" data-s7="4">When the runtime governs itself &mdash; AI answers to you, not the other way around.</div>
+    <div class="s7-thesis" data-s7="4">One platform governs what you build and what you run &mdash; and stays in sync as regulations change.</div>
   </div>
 </div>
 
-<!-- Phase 2: The Answer -->
 <div id="s7-answer-wrapper">
 <div id="s7-answer">
-  <div class="s7-answer-headline s7-reveal"><span class="accent">AI that is regulation-ready</span> on every deployment.</div>
+  <div class="s7-answer-headline s7-reveal">An AI platform with a <span class="accent">living regulatory corpus</span> &mdash; enforced at runtime.</div>
 
   <div class="s7-answer-layout s7-reveal">
   <div class="s7-carousel-section">
     <div class="s7-carousel" id="s7Carousel">
       <div class="s7-carousel-track" id="s7Track">
 
-        <!-- Slide 1: Compliance Overview -->
+        <!-- Slide 1: Every Agent, Everywhere -->
         <div class="s7-carousel-slide">
-          <div class="s7-slide-img"><img src="images/governance-posture.png" alt="Compliance Overview"></div>
+          <div class="s7-slide-img" style="display:flex; flex-direction:column; justify-content:center; padding:32px 24px; gap:16px; background:#080808;">
+            <div style="display:grid; grid-template-columns:1fr; gap:12px;">
+              <div style="background:#0f1117; border:1px solid #222; border-left:3px solid #3fb950; border-radius:8px; padding:16px 18px;">
+                <div style="font-size:10px; text-transform:uppercase; letter-spacing:2px; color:#3fb950; font-weight:700; margin-bottom:6px;">Akka-Native</div>
+                <div style="font-size:13px; color:#ccc; line-height:1.4;">Full interior enforcement — event journal, tool metadata, session memory, delegation chains. Every decision logged.</div>
+              </div>
+              <div style="background:#0f1117; border:1px solid #222; border-left:3px solid #d29922; border-radius:8px; padding:16px 18px;">
+                <div style="font-size:10px; text-transform:uppercase; letter-spacing:2px; color:#d29922; font-weight:700; margin-bottom:6px;">Hybrid</div>
+                <div style="font-size:13px; color:#ccc; line-height:1.4;">Akka proxy in the call path for external agents — OpenAI, Anthropic, LangChain, CrewAI. Wire-level signals: prompts, responses, tokens, timing.</div>
+              </div>
+              <div style="background:#0f1117; border:1px solid #222; border-left:3px solid #8b949e; border-radius:8px; padding:16px 18px;">
+                <div style="font-size:10px; text-transform:uppercase; letter-spacing:2px; color:#8b949e; font-weight:700; margin-bottom:6px;">Proxy-Only</div>
+                <div style="font-size:13px; color:#ccc; line-height:1.4;">No instrumentation required. Governance via signed attestation documents — Model Cards, DPIAs, Red-Team Reports, SOC 2.</div>
+              </div>
+            </div>
+          </div>
           <div class="s7-slide-text">
-            <div class="s7-slide-num">01 / 05</div>
-            <div class="s7-slide-title">Compliance Overview</div>
-            <div class="s7-slide-desc">Article-by-article EU AI Act posture mapped to your live systems. Violations, halted executions, rubber-stamped HITL, and scope violations &mdash; tracked in real time, not reconstructed from logs after the fact.</div>
+            <div class="s7-slide-num">01 / 08</div>
+            <div class="s7-slide-title">Every Agent, Everywhere</div>
+            <div class="s7-slide-desc">Akka governs every agent in your environment &mdash; not just the ones you built on Akka. Three coverage tiers adapt to how deeply you can observe each system, from full interior enforcement to proxy-level signals to signed attestations from vendors.</div>
           </div>
         </div>
 
-        <!-- Slide 2: Interaction Log -->
+        <!-- Slide 2: Living Regulatory Corpus -->
         <div class="s7-carousel-slide">
-          <div class="s7-slide-img"><img src="images/interaction-log.png" alt="Interaction Log"></div>
+          <div class="s7-slide-img" style="display:flex; flex-direction:column; justify-content:center; padding:32px 28px; background:#080808; gap:20px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <div style="background:#0f1117; border:1px solid #222; border-radius:6px; padding:14px 16px; text-align:center;">
+                <div style="font-size:36px; font-weight:700; color:#F5C518; letter-spacing:-2px; line-height:1;">174</div>
+                <div style="font-size:10px; color:#666; text-transform:uppercase; letter-spacing:1.5px; margin-top:4px;">Frameworks in Corpus</div>
+              </div>
+              <div style="background:#0f1117; border:1px solid #222; border-radius:6px; padding:14px 16px; text-align:center;">
+                <div style="font-size:36px; font-weight:700; color:#F5C518; letter-spacing:-2px; line-height:1;">521</div>
+                <div style="font-size:10px; color:#666; text-transform:uppercase; letter-spacing:1.5px; margin-top:4px;">Mapped Controls</div>
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <div style="font-size:11px; color:#555; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:2px;">Continuously monitored</div>
+              <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                <span style="font-size:11px; background:#111; border:1px solid #222; border-radius:4px; padding:3px 8px; color:#999;">EU AI Act</span>
+                <span style="font-size:11px; background:#111; border:1px solid #222; border-radius:4px; padding:3px 8px; color:#999;">GDPR</span>
+                <span style="font-size:11px; background:#111; border:1px solid #222; border-radius:4px; padding:3px 8px; color:#999;">HIPAA</span>
+                <span style="font-size:11px; background:#111; border:1px solid #222; border-radius:4px; padding:3px 8px; color:#999;">DORA</span>
+                <span style="font-size:11px; background:#111; border:1px solid #222; border-radius:4px; padding:3px 8px; color:#999;">SR 11-7</span>
+                <span style="font-size:11px; background:#111; border:1px solid #222; border-radius:4px; padding:3px 8px; color:#999;">ISO 42001</span>
+                <span style="font-size:11px; background:#111; border:1px solid #222; border-radius:4px; padding:3px 8px; color:#999;">NIST AI RMF</span>
+                <span style="font-size:11px; background:#111; border:1px solid #222; border-radius:4px; padding:3px 8px; color:#999;">Colorado AI Act</span>
+                <span style="font-size:11px; background:#111; border:1px solid #222; border-radius:4px; padding:3px 8px; color:#999;">NYC LL 144</span>
+                <span style="font-size:11px; background:#111; border:1px solid #222; border-radius:4px; padding:3px 8px; color:#999;">South Korea AI Act</span>
+                <span style="font-size:11px; background:#111; border:1px solid #222; border-radius:4px; padding:3px 8px; color:#999;">Brazil PL 2338</span>
+                <span style="font-size:11px; background:#111; border:1px solid #222; border-radius:4px; padding:3px 8px; color:#999;">+ 163 more</span>
+              </div>
+            </div>
+            <div style="background:rgba(245,197,24,0.05); border:1px solid rgba(245,197,24,0.15); border-radius:6px; padding:10px 14px;">
+              <div style="font-size:12px; color:#aaa; line-height:1.4;">Every change mapped to controls, automatically applied to every deployed system. When a regulation updates, affected agents are flagged for re-assessment.</div>
+            </div>
+          </div>
           <div class="s7-slide-text">
-            <div class="s7-slide-num">02 / 05</div>
-            <div class="s7-slide-title">Immutable Interaction Log</div>
-            <div class="s7-slide-desc">Every agent coordination event captured automatically by the runtime &mdash; zero developer instrumentation. Hashchained for tamper-proof evidence. No copies of copies. When auditors arrive, this is the source of truth.</div>
+            <div class="s7-slide-num">02 / 08</div>
+            <div class="s7-slide-title">Living Regulatory Corpus</div>
+            <div class="s7-slide-desc">174 regulatory frameworks, continuously monitored. Each one mapped to controls, controls mapped to enforcement points. When a regulation changes, Akka identifies every affected deployed system and triggers re-assessment &mdash; automatically.</div>
           </div>
         </div>
 
-        <!-- Slide 3: Control Agent -->
+        <!-- Slide 3: Governance Posture Dashboard -->
         <div class="s7-carousel-slide">
-          <div class="s7-slide-img"><img src="images/control-agent.png" alt="Control Agent"></div>
+          <div class="s7-slide-img"><img src="images/governance-posture.png" alt="Governance Posture Dashboard"></div>
           <div class="s7-slide-text">
-            <div class="s7-slide-num">03 / 05</div>
-            <div class="s7-slide-title">Control Agent</div>
-            <div class="s7-slide-desc">AI-powered governance assistant that can investigate violations, quarantine misbehaving agents, trigger circuit breakers, draft policy proposals, and generate compliance reports &mdash; all from a single interface.</div>
+            <div class="s7-slide-num">03 / 08</div>
+            <div class="s7-slide-title">Governance Posture Dashboard</div>
+            <div class="s7-slide-desc">Article-by-article regulatory coverage mapped to every deployed system in real time. 174 frameworks. 521 controls. Violations, halted executions, rubber-stamped HITL, and scope drift &mdash; surfaced the moment they happen, not reconstructed from logs after the fact.</div>
+          </div>
+        </div>
+
+        <!-- Slide 2: Immutable Coordination Log -->
+        <div class="s7-carousel-slide">
+          <div class="s7-slide-img"><img src="images/interaction-log.png" alt="Immutable Coordination Log"></div>
+          <div class="s7-slide-text">
+            <div class="s7-slide-num">04 / 08</div>
+            <div class="s7-slide-title">Immutable Coordination Log</div>
+            <div class="s7-slide-desc">Every agent coordination event &mdash; delegation, tool call, HITL gate, LLM invocation &mdash; captured automatically by the runtime. Zero developer instrumentation. Hash-chained for tamper-proof evidence. EU AI Act Art. 12 retention tiers built in. This is the source of truth.</div>
+          </div>
+        </div>
+
+        <!-- Slide 5: Policy Authoring & Sign-off -->
+        <div class="s7-carousel-slide">
+          <div class="s7-slide-img"><img src="images/control-detail.png" alt="Policy Authoring and Sign-off"></div>
+          <div class="s7-slide-text">
+            <div class="s7-slide-num">05 / 08</div>
+            <div class="s7-slide-title">Policy Authoring &amp; Sign-off</div>
+            <div class="s7-slide-desc">Governance is a deployment pre-condition, not an afterthought. Each control maps to exact regulatory articles, specifies runtime enforcement requirements (guardrails, observability), and requires sign-off from every relevant persona &mdash; Legal, Ethics, Model Risk, Security. No signed bundle, no deployment.</div>
+          </div>
+        </div>
+
+        <!-- Slide 6: Runtime Monitoring -->
+        <div class="s7-carousel-slide">
+          <div class="s7-slide-img"><img src="images/policy-authoring.png" alt="Runtime Monitoring Metrics"></div>
+          <div class="s7-slide-text">
+            <div class="s7-slide-num">06 / 08</div>
+            <div class="s7-slide-title">Bring Your Monitors</div>
+            <div class="s7-slide-desc">34 types of outcome metrics &mdash; PSI, AUC degradation, Gini, bias ratios, and more &mdash; evaluated against live rolling-window feeds. Akka provides baseline probes, but more importantly integrates with your existing monitoring stack and the best-in-class third-party monitors your organization has already chosen. 135 tunable parameters. No lock-in.</div>
           </div>
         </div>
 
@@ -2295,19 +2676,19 @@ body {
         <div class="s7-carousel-slide">
           <div class="s7-slide-img"><img src="images/policy-sandbox.png" alt="Policy Sandbox"></div>
           <div class="s7-slide-text">
-            <div class="s7-slide-num">04 / 05</div>
+            <div class="s7-slide-num">07 / 08</div>
             <div class="s7-slide-title">Policy Sandbox</div>
-            <div class="s7-slide-desc">Test policy changes against every scenario before they go live. See exactly which agents break, which pass, and what regresses. Catch the blast radius of a policy change before it hits production.</div>
+            <div class="s7-slide-desc">Test policy changes against every historical scenario before they go live. See exactly which agents break, which pass, and what regresses &mdash; against your real corpus of controls. Catch the blast radius of a regulatory update before it hits production.</div>
           </div>
         </div>
 
-        <!-- Slide 5: Audit Trail -->
+        <!-- Slide 5: Governance Posture Package -->
         <div class="s7-carousel-slide">
-          <div class="s7-slide-img"><img src="images/audit.png" alt="Audit Trail"></div>
+          <div class="s7-slide-img"><img src="images/audit.png" alt="Governance Posture Package"></div>
           <div class="s7-slide-text">
-            <div class="s7-slide-num">05 / 05</div>
-            <div class="s7-slide-title">Audit Trail &amp; Evidence Export</div>
-            <div class="s7-slide-desc">Complete human stewardship record: every proposal, approval, rejection, incident, and legal hold. SOX-exportable. Continuous evidence push to Vanta, Drata, and Sprinto. The compliance team's single pane of glass.</div>
+            <div class="s7-slide-num">08 / 08</div>
+            <div class="s7-slide-title">Governance Posture Package</div>
+            <div class="s7-slide-desc">A signed, portable compliance artifact that travels with every deployment. Cryptographically links every human approval to the deployed system. Classification, coverage dossier, attestation documents, and version history &mdash; in one artifact your auditors, regulators, and board can verify.</div>
           </div>
         </div>
 
@@ -2322,52 +2703,59 @@ body {
 
   <div class="s7-features">
     <div class="s7-feat-col">
-      <div class="s7-feat-col-title">Capabilities</div>
+      <div class="s7-feat-col-title">Platform</div>
       <div class="s7-feat-item">Inline guardrails</div>
+      <div class="s7-feat-item">HITL gate enforcement</div>
       <div class="s7-feat-item">LLMs-as-judges</div>
-      <div class="s7-feat-item">PII Sanitization</div>
-      <div class="s7-feat-item">Verifiable Identity</div>
-      <div class="s7-feat-item">Transaction tracing</div>
-      <div class="s7-feat-item">Agent engagement loop logging</div>
-      <div class="s7-feat-item">Zero trust networking</div>
-      <div class="s7-feat-item">OTEL metrics</div>
-      <div class="s7-feat-item">HITL interference</div>
-      <div class="s7-feat-item">Eval: toxicity, summarization, hallucination</div>
-      <div class="s7-feat-item">Embedded OPA execution engine</div>
-      <div class="s7-feat-item">Jurisdictional policy generator</div>
-      <div class="s7-feat-item">Policy mapping to enforcement points</div>
-      <div class="s7-feat-item">Policy execution monitoring</div>
-      <div class="s7-feat-item">Policy testing sandbox</div>
-      <div class="s7-feat-item">Policies for non-Akka agents via AI gateways</div>
+      <div class="s7-feat-item">PII sanitization</div>
+      <div class="s7-feat-item">Verifiable agent identity</div>
+      <div class="s7-feat-item">Deployment gate</div>
+      <div class="s7-feat-item">Multi-persona sign-off</div>
+      <div class="s7-feat-item">Policy sandbox</div>
+      <div class="s7-feat-item">Native, hybrid &amp; proxy</div>
+      <div class="s7-feat-item">Posture package</div>
+      <div class="s7-feat-item">Immutable interaction log</div>
+      <div class="s7-feat-item">Hash-chained journal</div>
+      <div class="s7-feat-item">Petabyte-scale retention</div>
+      <div class="s7-feat-item">10-yr retention (Art. 12)</div>
+      <div class="s7-feat-item">Auditor-signed records</div>
+      <div class="s7-feat-item">Zero instrumentation</div>
+      <div class="s7-feat-item">Per-transaction evaluation</div>
+      <div class="s7-feat-item">Parameter sign-off gates</div>
+      <div class="s7-feat-item">Corpus drift auto-flagging</div>
+      <div class="s7-feat-item">Risk classification engine</div>
+      <div class="s7-feat-item">Sign-off recipe engine</div>
+      <div class="s7-feat-item">Change materiality gate</div>
     </div>
     <div class="s7-feat-col">
-      <div class="s7-feat-col-title">Regulations</div>
+      <div class="s7-feat-col-title">174 Frameworks</div>
       <div class="s7-feat-item">EU AI Act</div>
+      <div class="s7-feat-item">GDPR</div>
+      <div class="s7-feat-item">HIPAA</div>
+      <div class="s7-feat-item">DORA</div>
+      <div class="s7-feat-item">NIST AI RMF</div>
+      <div class="s7-feat-item">ISO/IEC 42001</div>
+      <div class="s7-feat-item">SOC 2</div>
       <div class="s7-feat-item">Colorado AI Act</div>
       <div class="s7-feat-item">NYC Local Law 144</div>
       <div class="s7-feat-item">Illinois HB 3773</div>
-      <div class="s7-feat-item">Utah AI Policy Act</div>
       <div class="s7-feat-item">California AB 2013</div>
-      <div class="s7-feat-item">California SB 942</div>
+      <div class="s7-feat-item">Utah AI Policy Act</div>
       <div class="s7-feat-item">China GenAI Measures</div>
       <div class="s7-feat-item">South Korea AI Act</div>
       <div class="s7-feat-item">Brazil PL 2338</div>
       <div class="s7-feat-item">UK AI Regulation Bill</div>
-      <div class="s7-feat-item">Council of Europe AI</div>
-      <div class="s7-feat-item">NIST AI RMF</div>
-      <div class="s7-feat-item">ISO/IEC 42001</div>
       <div class="s7-feat-item">Singapore AI Framework</div>
       <div class="s7-feat-item">OECD AI Principles</div>
-      <div class="s7-feat-item">SOC 2</div>
-      <div class="s7-feat-item">GDPR</div>
-      <div class="s7-feat-item">HIPAA</div>
-      <div class="s7-feat-item">DORA</div>
+      <div class="s7-feat-item">Council of Europe AI</div>
+      <div class="s7-feat-item">SR 11-7</div>
     </div>
   </div>
 
   </div>
 </div>
 </div>
+
 <div id="cust-wrapper">
   <div id="cust-sticky">
 
@@ -2443,6 +2831,7 @@ body {
   </div>
 </div>
 <div style="height:200px;background:var(--black)"></div>
+
 <div id="pkg-wrapper">
 <section id="pkg">
 <div class="pkg-inner">
@@ -2580,6 +2969,8 @@ body {
 </section>
 </div>
 <div style="height:12vh;background:var(--black)"></div>
+
+<div style="height:12vh;background:var(--black)"></div>
 <div id="s9-wrapper">
 <section id="s9">
   <div class="s9-promise s9-reveal">
@@ -2636,11 +3027,12 @@ body {
 
   <a href="https://akka.io" class="closing-cta closing-reveal">Get started &rarr;</a>
 </section>
-
+<!-- DEMO_HTML_MARKER -->
 <script>
-/* ── section-0-title ── */
+/* ── 00-title ── */
 /* no JS needed — title uses CSS animations on load */
-/* ── section-1-hero ── */
+
+/* ── 01-hero ── */
 /* ── Hero counters ─────────────────────────────────── */
 function animateCount(el, target) {
   const dur = 1600, t0 = performance.now();
@@ -2654,7 +3046,8 @@ new IntersectionObserver(entries => {
   if (entries[0].isIntersecting)
     document.querySelectorAll('.stat-num').forEach(el => animateCount(el, +el.dataset.target));
 }, { threshold: 0.6 }).observe(document.querySelector('.hero-stats'));
-/* ── section-2-types ── */
+
+/* ── 02-types ── */
 /* ── Type data ─────────────────────────────────────── */
 /* Ordered: 0-3 = top row (col 0-3), 4-7 = bottom row (col 0-3) */
 // si = simple-icons slug (https://simpleicons.org) — blank = CSS text fallback
@@ -2746,7 +3139,8 @@ function triggerStCols() {
 new IntersectionObserver(entries => {
   if (entries[0].isIntersecting) triggerStCols();
 }, { threshold: 0 }).observe(document.getElementById('st-sticky'));
-/* ── section-3-complexity ── */
+
+/* ── 03-complexity ── */
 /* ── Section 3 ──────────────────────── */
 const s2wrapper = document.getElementById('s2-wrapper');
 const tcoEl = document.querySelector('.s2-tco');
@@ -2769,7 +3163,8 @@ const s2DiagramObs = new IntersectionObserver(entries => {
   }
 }, { threshold: 0.8 });
 s2DiagramObs.observe(document.getElementById('s2-sticky'));
-/* ── section-4-platform ── */
+
+/* ── 04-platform ── */
 const s4observer = new IntersectionObserver(entries => {
   entries.forEach(e => {
     if (e.isIntersecting) e.target.classList.add('visible');
@@ -2777,7 +3172,18 @@ const s4observer = new IntersectionObserver(entries => {
 }, { threshold: 0.15 });
 
 document.querySelectorAll('#s4 .s4-reveal').forEach(el => s4observer.observe(el));
-/* ── section-5-devzero ── */
+
+/* ── 13-innovations ── */
+const s13observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible');
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('#s13 .s13-reveal').forEach(el => s13observer.observe(el));
+
+
+/* ── 05-devzero ── */
 (function() {
   var script = [
     { type:'cmd', text:'/akka:specify "Customer loyalty program with points, tiers, and rewards"', phase:'specify' },
@@ -2951,8 +3357,8 @@ document.querySelectorAll('#s4 .s4-reveal').forEach(el => s4observer.observe(el)
         archCard.classList.add('show');
         revealIdx = 2;
         s5UpCount = 0;
-      } else if (anchored) {
-        /* Top of wrapper is above viewport = forward entry, already anchored */
+      } else {
+        /* Forward entry — section in view (nav jump or scroll-in from above) */
         s5State = 'forward';
         s5Anchored = true;
         s5Running = true;
@@ -3129,7 +3535,8 @@ document.querySelectorAll('#s4 .s4-reveal').forEach(el => s4observer.observe(el)
   }, { threshold: 0.15 });
   document.querySelectorAll('#s5 .s5-reveal').forEach(function(el) { revObs.observe(el); });
 })();
-/* ── section-6-resilience ── */
+
+/* ── 06-resilience ── */
 (function() {
   var revObs = new IntersectionObserver(function(entries) {
     entries.forEach(function(e) {
@@ -3138,7 +3545,8 @@ document.querySelectorAll('#s4 .s4-reveal').forEach(el => s4observer.observe(el)
   }, { threshold: 0.15 });
   document.querySelectorAll('#s6 .s6-reveal').forEach(function(el) { revObs.observe(el); });
 })();
-/* ── section-7-governance ── */
+
+/* ── 07-governance ── */
 /* ── Phase 1: scroll-driven problem reveals ── */
 const s7wrapper = document.getElementById('s7-problem');
 const s7els     = document.querySelectorAll('[data-s7]');
@@ -3190,7 +3598,8 @@ function s7GoTo(i) {
 function s7Next() { s7GoTo(s7idx + 1); }
 function s7Prev() { s7GoTo(s7idx - 1); }
 s7BuildDots();
-/* ── section-customers ── */
+
+/* ── 08-customers ── */
 const custWrapper = document.getElementById('cust-wrapper');
 const slides  = document.querySelectorAll('.cust-slide');
 const dotsEl  = document.getElementById('custDots');
@@ -3221,7 +3630,8 @@ function updateSlides() {
 
 window.addEventListener('scroll', updateSlides, { passive: true });
 updateSlides();
-/* ── section-packages ── */
+
+/* ── 09-packages ── */
 const observer = new IntersectionObserver(entries => {
   entries.forEach(e => {
     if (e.isIntersecting) e.target.classList.add('visible');
@@ -3229,7 +3639,8 @@ const observer = new IntersectionObserver(entries => {
 }, { threshold: 0.15 });
 
 document.querySelectorAll('#pkg .pkg-reveal, #pkg .pkg-tier').forEach(el => observer.observe(el));
-/* ── section-y-partners ── */
+
+/* ── 10-partners ── */
 (function() {
   var revObs = new IntersectionObserver(function(entries) {
     entries.forEach(function(e) {
@@ -3238,7 +3649,8 @@ document.querySelectorAll('#pkg .pkg-reveal, #pkg .pkg-tier').forEach(el => obse
   }, { threshold: 0.15 });
   document.querySelectorAll('#s9 .s9-reveal').forEach(function(el) { revObs.observe(el); });
 })();
-/* ── section-z-closing ── */
+
+/* ── 11-closing ── */
 const closingObserver = new IntersectionObserver(entries => {
   entries.forEach(e => {
     if (e.isIntersecting) e.target.classList.add('visible');
@@ -3248,12 +3660,14 @@ document.querySelectorAll('#closing .closing-reveal').forEach(el => closingObser
 
 /* ── view-jump navigation (ArrowRight / ArrowLeft) ── */
 (function() {
-  const views = [
+
+const views = [
     document.getElementById('title'),
     document.getElementById('hero-wrapper'),
     document.getElementById('st-wrapper'),
     document.getElementById('s2-wrapper'),
     document.getElementById('s4-wrapper'),
+    document.getElementById('s13-wrapper'),
     document.getElementById('s5-wrapper'),
     document.getElementById('s6-wrapper'),
     document.getElementById('s7-problem'),
@@ -3296,6 +3710,117 @@ document.querySelectorAll('#closing .closing-reveal').forEach(el => closingObser
   });
 })();
 
+/* ── KIOSK MODE (?kiosk in URL) ── */
+(function() {
+  if (!new URLSearchParams(location.search).has('kiosk')) return;
+
+  var kioskParam = new URLSearchParams(location.search).get('kiosk');
+  var SLIDE_MS = (kioskParam && !isNaN(kioskParam) ? parseInt(kioskParam) : 30) * 1000;
+  var TAB_MS   = Math.round(SLIDE_MS / 6);
+
+  const SECTION_IDS = [
+    'hero-wrapper','st-wrapper','s2-wrapper','s4-wrapper',
+    's5-wrapper','s6-wrapper','s7-problem','cust-wrapper',
+    'pkg-wrapper','s9-wrapper'
+  ];
+
+  function scrollMid(el) {
+    return el.offsetTop + Math.max(0, (el.offsetHeight - window.innerHeight) * 0.4);
+  }
+
+  window.addEventListener('load', function() {
+    setTimeout(function() {
+
+      /* Build ordered stop list */
+      var stops = [];
+      SECTION_IDS.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) stops.push({ type: 'slide', el: el });
+      });
+      var demoEl    = document.getElementById('demo-section');
+      var closingEl = document.getElementById('closing');
+      if (demoEl)    stops.push({ type: 'demo',  el: demoEl });
+      if (closingEl) stops.push({ type: 'slide', el: closingEl });
+      stops.sort(function(a,b){ return a.el.offsetTop - b.el.offsetTop; });
+
+      /* Progress bar */
+      var bar = document.createElement('div');
+      bar.style.cssText = 'position:fixed;bottom:0;left:0;right:0;height:3px;z-index:99999;background:#111;pointer-events:none';
+      var fill = document.createElement('div');
+      fill.style.cssText = 'height:100%;width:0%;background:#F5C518';
+      bar.appendChild(fill);
+      document.body.appendChild(bar);
+
+      var badge = document.createElement('div');
+      badge.textContent = '⏵ KIOSK';
+      badge.style.cssText = 'position:fixed;bottom:8px;right:14px;z-index:99999;font-family:monospace;font-size:10px;color:#444;letter-spacing:2px;pointer-events:none';
+      document.body.appendChild(badge);
+
+      var idx = 0, timer = null;
+
+      function startFill(ms) {
+        fill.style.transition = 'none';
+        fill.style.width = '0%';
+        requestAnimationFrame(function() {
+          fill.style.transition = 'width ' + ms + 'ms linear';
+          fill.style.width = '100%';
+        });
+      }
+
+      function advance() {
+        idx = (idx + 1) % stops.length;
+        if (idx === 0) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          timer = setTimeout(function(){ show(0); }, 2000);
+        } else {
+          show(idx);
+        }
+      }
+
+      function show(i) {
+        idx = i;
+        var stop = stops[i];
+        var y = stop.type === 'demo' ? stop.el.offsetTop : scrollMid(stop.el);
+        window.scrollTo({ top: y, behavior: 'smooth' });
+
+        if (stop.type === 'demo') {
+          var tabs = document.querySelectorAll('#demo-section .tab-btn');
+          if (!tabs.length) { startFill(SLIDE_MS); timer = setTimeout(advance, SLIDE_MS); return; }
+          var t = 0;
+          tabs[0].click();
+          startFill(TAB_MS * tabs.length);
+          function nextTab() {
+            t++;
+            if (t < tabs.length) { tabs[t].click(); timer = setTimeout(nextTab, TAB_MS); }
+            else { timer = setTimeout(advance, TAB_MS); }
+          }
+          timer = setTimeout(nextTab, TAB_MS);
+        } else {
+          startFill(SLIDE_MS);
+          timer = setTimeout(advance, SLIDE_MS);
+        }
+      }
+
+      /* Pause/resume on click */
+      var paused = false;
+      document.addEventListener('click', function() {
+        if (!paused) {
+          clearTimeout(timer);
+          fill.style.transition = 'none';
+          badge.textContent = '⏸ KIOSK';
+          paused = true;
+        } else {
+          badge.textContent = '⏵ KIOSK';
+          paused = false;
+          advance();
+        }
+      });
+
+      show(0);
+
+    }, 800);
+  });
+})();
 /* DEMO_JS_MARKER */
 </script>
 </body>
