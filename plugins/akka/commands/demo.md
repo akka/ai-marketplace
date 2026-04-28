@@ -495,26 +495,28 @@ Assemble the output by substituting into the templates. **Do not write new CSS, 
 
 The presentation is served from the same Akka service at `http://localhost:PORT/demo.html`. The app itself is served at `http://localhost:PORT/` from the same static-resources directory. Use the absolute `http://localhost:PORT/` URL in the iframe so it resolves correctly whether the presentation is opened from the server or copied elsewhere.
 
-If service is running:
+If service is running, do NOT set an inline `height` on `.app-body` — let the
+stylesheet handle it (it sizes the iframe to fill the available viewport):
 ```html
 <div class="app-frame">
   <div class="app-chrome">
     <div class="app-url">http://localhost:PORT/</div>
   </div>
-  <div class="app-body" style="height:420px;padding:0;">
+  <div class="app-body" style="padding:0;">
     <iframe src="http://localhost:PORT/" style="width:100%;height:100%;border:none;"
             title="PROJECT NAME"></iframe>
   </div>
 </div>
 ```
 
-If service is NOT running, show a boot terminal placeholder:
+If service is NOT running, show a boot terminal placeholder. The stylesheet's
+viewport-relative height applies here too — only override layout properties:
 ```html
 <div class="app-frame">
   <div class="app-chrome">
     <div class="app-url">Service not running</div>
   </div>
-  <div class="app-body" style="height:420px; display:flex; align-items:center;
+  <div class="app-body" style="display:flex; align-items:center;
        justify-content:center; flex-direction:column; gap:16px;">
     <div style="color:#666; font-size:13px;">Run <code style="color:#F5C518">/akka:build</code> to start the service,
     then regenerate.</div>
