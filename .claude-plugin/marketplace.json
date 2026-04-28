@@ -9,7 +9,7 @@
       "name": "akka",
       "source": "./plugins/akka",
       "description": "Akka SDK development tools — setup, spec-driven development, test, build, deploy",
-      "version": "2.3.0"
+      "version": "2.4.0"
     },
     {
       "name": "akka-specify",

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "akka": {
+      "command": "akka",
+      "args": ["mcp", "serve", "--disable-prompt"]
+    }
+  }
+}
