@@ -241,16 +241,20 @@ Preserve original indentation exactly. Use `&lt;` and `&gt;` for angle brackets.
 
 This is `{{COMPONENTS_TABLE_HTML}}` — the inner content of the `.comp-table` div.
 
-Group components by type in this order:
-1. HTTP Endpoints
-2. Event Sourced Entities
-3. Key-Value Entities
-4. Workflows
-5. Consumers
-6. Agents
-7. Views
-8. Timed Actions
-9. Design Views (from spec artifacts — see §2e)
+Group components by type in this order. **Design Views must always come first** —
+the design artifacts (User Journey, Actor-Goal, Entity Map, Component Graph,
+Sequence) tell the architectural story before the implementing components, so
+they belong at the top of the table:
+
+1. **Design Views** (from spec artifacts — see §2e) — *always first when present*
+2. HTTP Endpoints
+3. Event Sourced Entities
+4. Key-Value Entities
+5. Workflows
+6. Consumers
+7. Agents
+8. Views
+9. Timed Actions
 10. Domain Objects
 
 For each group with at least one member, emit:
