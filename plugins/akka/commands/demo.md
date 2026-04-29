@@ -167,9 +167,14 @@ Skip this step for **overview mode**. For all other modes, build a complete comp
 Call `akka_sdd_list_specs` to find features. If not available, glob for `specs/*/spec.md`.
 
 For each feature, read these files if they exist:
-- `spec.md` — extract: title (first `#` heading), description (first paragraph), requirements (bullet list items)
+- `spec.md` — extract: title (first `#` heading); then **synthesize** a Brief description and bullet list (do not copy the raw spec — see below)
 - `plan-diagrams.md` — extract all five mermaid source blocks (User Journey, Actor-Goal, Entity Map, Component Graph, Sequence)
 - `plan.md` — extract component design notes
+
+**The Brief tab is read by a non-technical buyer in 10 seconds.** Do not paste the spec's `**Input**:` paragraph (often a dense run-on) and do not enumerate every functional requirement. Instead:
+
+- **Description** — write **one or two short sentences** in plain English. No jargon. No comma-spliced lists of features. Tell the reader *what the user gets*, not what the system does internally. Example good: *"AI-powered sales workspace. Reps ask plain-English questions and get a ranked list of doctors with reasons. Compliance is enforced live, not after the fact."* Example bad: *"A sales acceleration workspace that demonstrates an agentic stack — natural-language territory queries, explainable next-best-action recommendations, runtime Sunshine Act compliance, and a model-lifecycle drift gate — augmenting the existing recommendation engine without replacing it."*
+- **Bullets** — pick **4–6 bullets total**. Each bullet is **one short layman line** (≤ 12 words). Group similar requirements together rather than listing each FR-### individually. Skip anything that is not differentiating. Drop the words *MUST*, *system*, *user*, and acronyms unless they're already brand-recognizable to the buyer.
 
 **If `plan-diagrams.md` is missing OR fewer than 5 diagram types are present**, automatically invoke `/akka:plan` with this instruction (do not stop or ask the user):
 > "Generate all five mermaid diagram types (User Journey, Actor-Goal, Entity Map, Component Graph, Sequence) and write them to `specs/FEATURE/plan-diagrams.md`."
@@ -185,8 +190,8 @@ The five diagram types are identified by these keywords in the file:
 
 From `spec.md`, derive:
 - `DEMO_TITLE` — project name formatted as HTML, e.g. `Social Proofing <span class="accent">Agent</span>`
-- `DEMO_DESCRIPTION` — first paragraph, HTML-escaped
-- `REQUIREMENTS_HTML` — each bullet point as a `<li>` element
+- `DEMO_DESCRIPTION` — your synthesized 1–2 sentence layman description (see above), HTML-escaped
+- `REQUIREMENTS_HTML` — your 4–6 curated layman bullets, each as a `<li>` element
 
 ### 2b. Scan and classify Java source files
 
@@ -577,28 +582,18 @@ Collect everything from Steps 2 and 4:
 | Placeholder | Value source |
 |-------------|-------------|
 | `{{DEMO_TITLE}}` | Project name as HTML with `<span class="accent">` on a keyword |
-| `{{DEMO_DESCRIPTION}}` | First paragraph from spec.md, HTML-safe |
-| `{{REQUIREMENTS_HTML}}` | Each spec requirement as `<li>TEXT</li>` |
+| `{{DEMO_DESCRIPTION}}` | Curated 1–2 sentence layman description (see §2a) |
+| `{{REQUIREMENTS_HTML}}` | 4–6 curated layman bullets as `<li>TEXT</li>` (see §2a) |
 | `{{BUILD_TIME}}` | Measured or estimated spec-to-running time (e.g. `"35m"`) |
 | `{{LOC}}` | Total Java LOC with comma formatting |
 | `{{APP_HEADLINE}}` | live: `'A complete <span class="accent">PROJECT system</span>'`; shareable: same; hands-on: `'Run it <span class="accent">yourself</span>'` |
-| `{{APP_DESCRIPTION}}` | One sentence for the App tab; mode-specific |
 | `{{APP_CONTENT_HTML}}` | From §6a |
-| `{{APP_STATS_HTML}}` | `.app-stat` divs: endpoints, entities, events, agents, views, LOC |
 | `{{ARCH_SUMMARY_HTML}}` | Six `.arch-summary-stat` divs: components, events, endpoints, design views, agents, LOC |
 | `{{COMPONENTS_TABLE_HTML}}` | From §2d + §2e |
 | `{{REPO_URL}}` | Git repo URL (from `--repo` flag, git remote, or clone URL) |
 | `{{SEQUENCE_DATA_JSON}}` | From §2g |
 
-**APP_STATS_HTML structure:**
-```html
-<div class="app-stat"><div class="app-stat-num">N</div><div class="app-stat-label">API endpoints</div></div>
-<div class="app-stat"><div class="app-stat-num">N</div><div class="app-stat-label">Entities</div></div>
-<div class="app-stat"><div class="app-stat-num">N</div><div class="app-stat-label">Event types</div></div>
-<div class="app-stat"><div class="app-stat-num">N</div><div class="app-stat-label">Agents</div></div>
-<div class="app-stat"><div class="app-stat-num">N</div><div class="app-stat-label">Views</div></div>
-<div class="app-stat"><div class="app-stat-num">N,NNN</div><div class="app-stat-label">LOC</div></div>
-```
+The App tab no longer carries a description sentence or stat pills — the iframe sits directly under the headline so it can grow tall without scrollbars. Do **not** emit `{{APP_DESCRIPTION}}` or `{{APP_STATS_HTML}}`; those placeholders have been removed from the template.
 
 **ARCH_SUMMARY_HTML structure** (always 6 stats in this order):
 ```html
