@@ -105,6 +105,14 @@
   }
   drawDemoConnectors();
 
+  /* Auto-expand sequence diagram row by default */
+  var seqRow    = document.querySelector('#demo-section .comp-row[data-comp="dv-sequence"]');
+  var seqDetail = document.querySelector('#demo-section [data-detail="dv-sequence"]');
+  if (seqRow && seqDetail) {
+    seqRow.classList.add('expanded');
+    seqDetail.classList.add('open');
+  }
+
   /* Re-draw lines when detail panels open */
   var demoCompObserver = new MutationObserver(function() {
     setTimeout(drawDemoConnectors, 50);

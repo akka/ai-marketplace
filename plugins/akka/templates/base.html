@@ -264,7 +264,7 @@ body {
   position: relative; z-index: 2;
 }
 
-/* Card — hidden until column threshold is crossed */
+/* Card — hidden until its reveal step fires */
 .st-card {
   background: #0A0A0A;
   border: 1px solid #1C1C1C;
@@ -277,7 +277,6 @@ body {
   transition: opacity .4s ease, transform .4s cubic-bezier(0.16,1,0.3,1),
               border-color .3s ease, background .3s ease;
 }
-.st-card[data-row="1"] { transition-delay: 0.08s; }
 .st-card::before {
   content:''; position:absolute; top:0; left:0; right:0;
   height:3px; background:var(--yellow);
@@ -327,6 +326,7 @@ body {
   object-fit: cover; border-radius: 5px;
   display: block;
 }
+
 
 /* ── 03-complexity ── */
 #s2-wrapper {
@@ -529,6 +529,7 @@ body {
 /* Two-column layout: header+image left, value props right */
 .s4-layout {
   display: flex; gap: 0; align-items: flex-start;
+  width: 100%;
 }
 
 .s4-left {
@@ -550,7 +551,8 @@ body {
   display: flex; flex-direction: column;
   gap: 0;
   padding-left: 32px;
-  margin-top: 210px;
+  align-self: center;
+  margin-top: -40px;
 }
 
 .s4-prop {
@@ -884,10 +886,10 @@ body {
 .s5-term-prompt .p-dir { color: #555; }
 .s5-term-prompt .p-dollar { color: var(--yellow); font-weight: 700; margin-left: 2px; }
 .s5-term-body {
-  padding: 16px 24px;
+  padding: 14px 24px;
   font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
   font-size: 12px;
-  line-height: 1.8;
+  line-height: 1.55;
   flex: 1; min-height: 0;
   overflow-y: auto;
 }
@@ -900,6 +902,8 @@ body {
 .s5-tline .ai { color: #999; font-style: italic; }
 .s5-tline .success { color: #28C840; }
 .s5-tline .warn { color: var(--yellow); font-weight: 600; }
+.s5-tline .ai-prefix { color: #5BA3F5; font-weight: 700; user-select: none; }
+.s5-tline .ai-indent { color: transparent; user-select: none; white-space: pre; }
 
 .s5-cursor {
   display: inline-block; width: 7px; height: 13px;
@@ -1066,10 +1070,19 @@ body {
 /* Iframe container — fills remaining space */
 .s6-frame-wrap {
   flex: 1; min-height: 0;
+  position: relative;
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid #1C1C1C;
   box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+}
+.s6-frame-wrap.s6-expanded {
+  position: absolute;
+  left: var(--pad-6);
+  right: var(--pad-6);
+  top: 24px;
+  bottom: 24px;
+  z-index: 8;
 }
 .s6-frame-wrap iframe {
   width: 119%;     /* 1 / 0.84 */
@@ -1079,11 +1092,95 @@ body {
   transform: scale(0.84);
   transform-origin: top left;
 }
+.s6-expand-toggle {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 3;
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgba(245,197,24,0.65);
+  border-radius: 4px;
+  background: rgba(0,0,0,0.78);
+  color: var(--yellow);
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+}
+.s6-expand-toggle:hover {
+  background: rgba(20,20,20,0.92);
+  border-color: var(--yellow);
+}
 
 @media (max-width: 900px) {
   .s6-top { flex-direction: column; align-items: flex-start; }
   .s6-stats { gap: 20px; }
 }
+
+
+/* ── external inline: ../../assets/resilience/resilience.html ── */
+
+    #s6-rf *, #s6-rf *::before, #s6-rf *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    #s6-rf {
+      --bg: #1a1a1a; --fg: #f5f5f5; --card: #2f2f2f; --card-fg: #e5e5e5;
+      --muted: #434343; --muted-fg: #c9c9c9; --border: #434343;
+      --primary: #00d8dd; --primary-fg: #1a1a1a;
+      --accent: #ffce4a; --accent-fg: #1a1a1a;
+      --destructive: #ff5400; --destructive-fg: #ffffff;
+      --secondary: #313131; --secondary-fg: #e5e5e5;
+      --radius: 0.625rem;
+      --cyan: #00d8dd; --cyan-dk: #02a4a7;
+      --yellow: #ffce4a; --yellow-dk: #f5b60b;
+    }
+    #s6-rf { font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--fg); line-height: 1.5; }
+    #s6-rf .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); }
+    #s6-rf .badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 12px; font-weight: 500; }
+    #s6-rf .badge-default { background: var(--cyan); color: var(--primary-fg); }
+    #s6-rf .badge-secondary { background: var(--secondary); color: var(--secondary-fg); }
+    #s6-rf .badge-destructive { background: var(--destructive); color: var(--destructive-fg); }
+    #s6-rf .btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 20px; border-radius: var(--radius); font-size: 14px; font-weight: 500; border: none; cursor: pointer; transition: all 0.15s; }
+    .btn:hover { opacity: 0.9; box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
+    #s6-rf .btn-primary { background: var(--yellow); color: var(--accent-fg); }
+    .btn-primary:hover { background: var(--yellow-dk); }
+    #s6-rf .btn-destructive { background: var(--destructive); color: var(--destructive-fg); }
+    #s6-rf .btn-lg { padding: 14px 24px; font-size: 15px; }
+    #s6-rf .text-muted { color: var(--muted-fg); }
+    #s6-rf .text-xs { font-size: 12px; }
+    #s6-rf .text-sm { font-size: 14px; }
+    #s6-rf .text-lg { font-size: 18px; }
+    #s6-rf .text-2xl { font-size: 24px; }
+    #s6-rf .text-3xl { font-size: 30px; }
+    #s6-rf .font-semibold { font-weight: 600; }
+    #s6-rf .font-medium { font-weight: 500; }
+    #s6-rf .font-bold { font-weight: 700; }
+
+    /* Scrollbar styling for dark theme */
+    #s6-rf ::-webkit-scrollbar { width: 6px; }
+    #s6-rf ::-webkit-scrollbar-track { background: #2f2f2f; border-radius: 3px; }
+    #s6-rf ::-webkit-scrollbar-thumb { background: #606060; border-radius: 3px; }
+    #s6-rf ::-webkit-scrollbar-thumb:hover { background: #c9c9c9; }
+
+    /* Animations */
+    @keyframes fadeInLeft { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    #s6-rf .animate-fade-in-left { animation: fadeInLeft 0.3s ease-out; }
+    #s6-rf .animate-scale-in { animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    #s6-rf .animate-pulse-slow { animation: pulse 2s ease-in-out infinite; }
+    #s6-rf .animate-spin { animation: spin 1s linear infinite; }
+
+    /* Tab styles */
+    #s6-rf .tab-bar { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+    #s6-rf .tab-btn { padding: 12px 24px; font-size: 15px; font-weight: 600; font-family: inherit; color: var(--muted-fg); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.15s; letter-spacing: 0.01em; }
+    .tab-btn:hover { color: var(--fg); }
+    #s6-rf .tab-btn.active { color: var(--fg); border-bottom-color: var(--yellow); }
+  
 
 /* ── 07-governance ── */
 /* ── Phase 1: The Problem ── */
@@ -1140,9 +1237,10 @@ body {
 }
 .s7-prob.visible { opacity: 1; transform: none; }
 .s7-prob-stat {
-  font-size: clamp(28px, 3vw, 42px); font-weight: 700;
+  font-size: clamp(24px, 2.45vw, 34px); font-weight: 700;
   color: #E74C3C; letter-spacing: -0.03em; line-height: 1;
   margin-bottom: 8px;
+  white-space: nowrap;
 }
 .s7-prob-text {
   font-size: 14px; color: #999; line-height: 1.5;
@@ -1190,13 +1288,333 @@ body {
 .s7-answer-headline {
   font-size: clamp(28px, 3.5vw, 52px); font-weight:700;
   line-height:1.08; letter-spacing:-0.03em; color:var(--white);
-  max-width: 900px; margin-bottom: 48px;
+  max-width: 1180px; margin-bottom: 56px;
 }
 .s7-answer-headline .accent { color:var(--yellow); }
 
+.s7-control-loop {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 210px 190px;
+  column-gap: 22px;
+  row-gap: 0;
+  align-items: stretch;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1340px;
+}
+.s7-impact-col {
+  margin-left: 36px;
+}
+.s7-loop-main,
+.s7-loop-side,
+.s7-side-col {
+  background: #0A0A0A;
+  border: 1px solid #1E1E1E;
+  border-radius: 12px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.s7-loop-main {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  overflow: visible;
+}
+.s7-side-col {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  overflow: visible;
+}
+.s7-loop-main::before {
+  content: none;
+}
+.s7-loop-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  color: var(--yellow);
+  font-weight: 700;
+  margin-bottom: 10px;
+  position: relative;
+}
+.s7-loop-title {
+  font-size: clamp(30px, 3.4vw, 48px);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 12px;
+  position: relative;
+}
+.s7-loop-desc {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #A8A8A8;
+  max-width: 760px;
+  position: relative;
+}
+.s7-loop-steps {
+  display: grid;
+  grid-template-columns: 1fr 34px 1fr 34px 1fr 34px 1fr;
+  align-items: stretch;
+  gap: 0;
+  margin-top: 0;
+  position: relative;
+}
+.s7-loop-step {
+  min-height: 200px;
+  background: rgba(8,10,14,0.9);
+  border: 1px solid rgba(255,255,255,0.13);
+  border-top: 4px solid var(--yellow);
+  border-radius: 8px;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: blur(2px);
+}
+.s7-step-num {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--yellow);
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+.s7-step-title {
+  font-size: 28px;
+  color: var(--white);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 14px;
+}
+.s7-step-text {
+  font-size: 14px;
+  color: #999;
+  line-height: 1.5;
+}
+.s7-loop-arrow {
+  position: relative;
+  align-self: center;
+  height: 2px;
+  background: #343434;
+}
+.s7-loop-arrow::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid #343434;
+  border-right: 2px solid #343434;
+  transform: translateY(-50%) rotate(45deg);
+}
+.s7-loop-side {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.s7-coverage {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.s7-coverage-row {
+  background: #0F1117;
+  border: 1px solid #242424;
+  border-left: 3px solid #555;
+  border-radius: 8px;
+  padding: 13px 14px;
+}
+.s7-coverage-row.native { border-left-color: #3fb950; }
+.s7-coverage-row.hybrid { border-left-color: #d29922; }
+.s7-coverage-row.proxy { border-left-color: #8b949e; }
+.s7-coverage-tier {
+  font-size: 10px;
+  color: var(--white);
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+.s7-coverage-copy {
+  font-size: 12px;
+  color: #999;
+  line-height: 1.4;
+}
+.s7-why-box {
+  background: rgba(245,197,24,0.06);
+  border: 1px solid rgba(245,197,24,0.18);
+  border-radius: 8px;
+  padding: 18px;
+  margin-top: 24px;
+  position: relative;
+}
+.s7-why-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.s7-why-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 12.5px;
+  line-height: 1.38;
+  color: #BDBDBD;
+  padding: 0;
+  border-top: 0;
+}
+.s7-why-item::before {
+  content: '';
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--yellow);
+  margin-top: 5px;
+}
+.s7-side-col {
+  display: flex;
+  flex-direction: column;
+  min-height: 248px;
+}
+.s7-floating-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  justify-content: flex-start;
+  flex: 1;
+}
+.s7-floating-item {
+  position: relative;
+  padding: 0 0 0 18px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  color: #D2D2D2;
+  font-size: 14px;
+  line-height: 1.35;
+}
+.s7-floating-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--yellow);
+}
+.s7-reg-col {
+  text-align: left;
+}
+.s7-reg-count {
+  font-size: 54px;
+  line-height: 0.92;
+  color: var(--yellow);
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  margin-top: 2px;
+}
+.s7-reg-caption {
+  font-size: 10px;
+  color: var(--yellow);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin: 6px 0 16px;
+}
+.s7-reg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+.s7-reg-item {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 3px 0 3px 14px;
+  color: #D2D2D2;
+  font-size: 14px;
+  line-height: 1.2;
+  position: relative;
+}
+.s7-reg-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 9px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--yellow);
+}
+.s7-proof-strip {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 18px;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1340px;
+  margin-top: 32px;
+}
+.s7-proof-box {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  border: 1px solid #242424;
+  background: #0A0A0A;
+  overflow: hidden;
+  opacity: 0.82;
+}
+.s7-proof-box img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  filter: saturate(0.72) contrast(1.08);
+}
+.proof-posture img {
+  width: 240%;
+  height: 240%;
+  object-position: left 34%;
+}
+.proof-log img {
+  width: 330%;
+  height: 330%;
+  object-position: 4% 76%;
+}
+.proof-control img {
+  width: 315%;
+  height: 315%;
+  object-position: 53% 38%;
+}
+.proof-authoring img {
+  width: 230%;
+  height: 230%;
+  object-position: left 42%;
+}
+.proof-sandbox img {
+  width: 270%;
+  height: 270%;
+  object-position: 18% 18%;
+}
+.proof-audit img {
+  width: 230%;
+  height: 230%;
+  object-position: left 40%;
+}
+
 /* ── Answer layout: carousel left, features right ── */
 .s7-answer-layout {
-  display: flex; gap: 0; align-items: flex-start;
+  display: none; gap: 0; align-items: flex-start;
   position: relative; z-index: 1;
   margin-left: -5vw;
   margin-right: -5vw;  /* push columns toward right edge */
@@ -1322,6 +1740,7 @@ body {
   flex-shrink: 0;
   margin-top: 5px;
 }
+
 
 /* ── 08-customers ── */
 #cust-wrapper {
@@ -1620,13 +2039,9 @@ body {
 
 /* Starter card — emphasized compact banner */
 .pkg-starter {
-  background: #0A0A0A; border: 1px solid #2a2a2a; border-radius: 10px;
+  background: #0A0A0A; border: 1px dashed #333; border-radius: 10px;
   padding: 12px 20px; position: relative; overflow: hidden;
   display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;
-}
-.pkg-starter::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0;
-  height: 3px; background: var(--yellow);
 }
 .pkg-starter-top {
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
@@ -1779,6 +2194,279 @@ body {
 .pkg-reveal-d7 { transition-delay: .7s; }
 .pkg-reveal-d8 { transition-delay: .8s; }
 
+
+/* ── 10-delivery ── */
+#s10-delivery-wrapper {
+  height: 140vh;
+  position: relative;
+}
+#s10-delivery {
+  background: var(--black);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px var(--pad-8);
+  overflow: hidden;
+}
+#s10-delivery::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(245,197,24,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+.s10d-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .6s ease, transform .6s cubic-bezier(0.16,1,0.3,1);
+  position: relative;
+  z-index: 1;
+}
+.s10d-reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+.s10d-reveal-d1 { transition-delay: .1s; }
+.s10d-reveal-d2 { transition-delay: .2s; }
+.s10d-reveal-d3 { transition-delay: .3s; }
+.s10d-reveal-d4 { transition-delay: .4s; }
+
+.s10d-kicker {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--yellow);
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.s10d-kicker::before {
+  content: '';
+  display: inline-block;
+  width: 28px;
+  height: 2px;
+  background: var(--yellow);
+  margin-right: 10px;
+  vertical-align: middle;
+}
+.s10d-headline {
+  font-size: clamp(32px, 4.2vw, 64px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  color: var(--white);
+  max-width: 1120px;
+  margin-bottom: 14px;
+}
+.s10d-headline .accent {
+  color: var(--yellow);
+}
+.s10d-sub {
+  font-size: clamp(15px, 1.35vw, 20px);
+  color: #B8B8B8;
+  line-height: 1.4;
+  max-width: 820px;
+  margin-bottom: 46px;
+}
+
+.s10d-flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 34px minmax(0, 1fr) 34px minmax(0, 1fr) 34px minmax(0, 1fr) 34px minmax(0, 1fr);
+  gap: 0;
+  align-items: stretch;
+  max-width: 1340px;
+  min-height: 252px;
+}
+.s10d-stage-control {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.s10d-stage {
+  background: #0A0A0A;
+  border: 1px solid #1C1C1C;
+  border-radius: 10px;
+  padding: 24px 20px 22px;
+  position: relative;
+  overflow: hidden;
+  text-align: left;
+  cursor: pointer;
+  transition: background .25s ease, border-color .25s ease, transform .25s ease;
+}
+.s10d-stage::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #2A2A2A;
+}
+.s10d-stage:hover {
+  border-color: #333;
+  background: #101010;
+}
+#s10d-frame:checked ~ .s10d-flow .s10d-stage.frame,
+#s10d-govern:checked ~ .s10d-flow .s10d-stage.govern,
+#s10d-specify:checked ~ .s10d-flow .s10d-stage.specify,
+#s10d-ship:checked ~ .s10d-flow .s10d-stage.ship,
+#s10d-improve:checked ~ .s10d-flow .s10d-stage.improve {
+  background: rgba(245,197,24,0.06);
+  border-color: rgba(245,197,24,0.55);
+}
+#s10d-frame:checked ~ .s10d-flow .s10d-stage.frame::before,
+#s10d-govern:checked ~ .s10d-flow .s10d-stage.govern::before,
+#s10d-specify:checked ~ .s10d-flow .s10d-stage.specify::before,
+#s10d-ship:checked ~ .s10d-flow .s10d-stage.ship::before,
+#s10d-improve:checked ~ .s10d-flow .s10d-stage.improve::before {
+  background: var(--yellow);
+}
+#s10d-frame:checked ~ .s10d-flow .s10d-stage.frame .s10d-stage-num,
+#s10d-govern:checked ~ .s10d-flow .s10d-stage.govern .s10d-stage-num,
+#s10d-specify:checked ~ .s10d-flow .s10d-stage.specify .s10d-stage-num,
+#s10d-ship:checked ~ .s10d-flow .s10d-stage.ship .s10d-stage-num,
+#s10d-improve:checked ~ .s10d-flow .s10d-stage.improve .s10d-stage-num {
+  border-color: rgba(245,197,24,0.55);
+  background: rgba(245,197,24,0.12);
+}
+.s10d-stage-num {
+  width: 34px;
+  height: 34px;
+  border-radius: 17px;
+  background: #111;
+  border: 1px solid #2A2A2A;
+  color: var(--yellow);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+.s10d-stage-title {
+  font-size: 30px;
+  color: var(--white);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  margin-bottom: 14px;
+}
+.s10d-stage-copy {
+  font-size: 13.5px;
+  color: #A5A5A5;
+  line-height: 1.48;
+}
+.s10d-arrow {
+  position: relative;
+  align-self: center;
+  height: 2px;
+  background: #343434;
+}
+.s10d-arrow::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid #343434;
+  border-right: 2px solid #343434;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.s10d-output-row {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr 1fr 1fr;
+  gap: 14px;
+  max-width: 1340px;
+  margin-top: 28px;
+}
+.s10d-output-details {
+  grid-column: span 3;
+}
+.s10d-output-set {
+  display: none;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+#s10d-frame:checked ~ .s10d-output-row .s10d-output-set.frame,
+#s10d-govern:checked ~ .s10d-output-row .s10d-output-set.govern,
+#s10d-specify:checked ~ .s10d-output-row .s10d-output-set.specify,
+#s10d-ship:checked ~ .s10d-output-row .s10d-output-set.ship,
+#s10d-improve:checked ~ .s10d-output-row .s10d-output-set.improve {
+  display: grid;
+}
+.s10d-output {
+  background: #0A0A0A;
+  border: 1px solid #1C1C1C;
+  border-radius: 8px;
+  padding: 18px 20px;
+}
+.s10d-output.hero {
+  border-color: rgba(245,197,24,0.55);
+  background: rgba(245,197,24,0.06);
+}
+.s10d-output-label {
+  font-size: 10px;
+  color: var(--yellow);
+  font-weight: 700;
+  letter-spacing: 2.2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.s10d-output-main {
+  font-size: 15px;
+  color: #CFCFCF;
+  line-height: 1.38;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.s10d-output.hero .s10d-output-main {
+  font-size: 28px;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  color: var(--white);
+  font-weight: 700;
+}
+
+.s10d-thesis {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  max-width: 1340px;
+  margin-top: 22px;
+}
+.s10d-thesis-line {
+  width: 78px;
+  height: 2px;
+  background: var(--yellow);
+  flex-shrink: 0;
+}
+.s10d-thesis-text {
+  font-size: 15px;
+  color: #D2D2D2;
+  line-height: 1.4;
+}
+
+@media (max-width: 1100px) {
+  .s10d-flow {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .s10d-arrow {
+    display: none;
+  }
+  .s10d-output-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+
 /* ── 10-partners ── */
 #s9-wrapper {
   height: 140vh;
@@ -1886,7 +2574,7 @@ body {
 
 /* Quote panel */
 .s9-quote-panel {
-  display: flex; align-items: center; gap: 24px;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
   padding: 16px 24px;
   border-left: 3px solid #86BC25;
   margin-top: 16px;
@@ -1895,10 +2583,11 @@ body {
   font-size: clamp(18px, 1.8vw, 26px); font-weight: 600;
   color: var(--white); line-height: 1.3;
   font-style: italic; letter-spacing: -0.02em;
-  margin-bottom: 12px;
+  margin-bottom: 0;
 }
 .s9-quote-attr {
   font-size: 13px; color: #86BC25; font-style: normal; font-weight: 600;
+  text-align: left;
 }
 
 @media (max-width: 1000px) {
@@ -1906,6 +2595,7 @@ body {
   .s9-partners { flex-direction: column; }
   .s9-quote-panel { width: 100%; border-left: none; border-top: 3px solid #86BC25; padding: 20px 0 0; }
 }
+
 
 /* ── 11-closing ── */
 #closing {
@@ -1984,7 +2674,11 @@ body {
 
 
 <!-- DEMO_CSS_MARKER -->
+<!-- DEMO_CSS_MARKER -->
 </style>
+<script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.27.0/babel.min.js"></script>
 </head>
 <body>
 <section id="title">
@@ -2005,11 +2699,11 @@ body {
   <div class="title-divider"></div>
 
   <div class="title-presenter">
-    <a href="{{PRESENTER_LINKEDIN}}" target="_blank">
-      {{PRESENTER_NAME}}
+    <a href="" target="_blank">
+      
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
     </a>
-    <div class="title-presenter-title">{{PRESENTER_TITLE}}</div>
+    <div class="title-presenter-title"></div>
   </div>
 
   <div class="title-scroll-hint">
@@ -2529,36 +3223,1532 @@ body {
   </div>
 
   <div class="s6-frame-wrap s6-reveal">
-    <iframe src="resilience/resilience.html" loading="lazy"></iframe>
+    <button class="s6-expand-toggle" type="button" aria-label="Expand resilience tester" aria-expanded="false">+</button>
+    <div id="s6-rf">
+<div id="s6-rf-root"></div>
+</div>
+<script type="text/babel">
+    const { useState, useEffect, useCallback, useRef } = React;
+
+    // ── SVG Icon Components ──
+    const ActivityIcon = ({size = 20, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    );
+    const ZapIcon = ({size = 20, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    );
+    const BotIcon = ({size = 20, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+    );
+    const TimerIcon = ({size = 20, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/></svg>
+    );
+    const ServerIcon = ({size = 20, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg>
+    );
+    const UsersIcon = ({size = 20, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    );
+    const PlayIcon = ({size = 20, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    );
+    const PowerIcon = ({size = 20, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" x2="12" y1="2" y2="12"/></svg>
+    );
+    const PowerOffIcon = ({size = 20, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18.36 6.64A9 9 0 0 1 20.77 15"/><path d="M6.16 6.16a9 9 0 1 0 12.68 12.68"/><path d="M12 2v4"/><path d="m2 2 20 20"/></svg>
+    );
+    const CheckCircleIcon = ({size = 12, color = "white"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    );
+    const RefreshIcon = ({size = 12, color = "white", spin = false}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={spin ? {animation: 'spin 1s linear infinite'} : {}}><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+    );
+    const AlertCircleIcon = ({size = 12, color = "white"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+    );
+    const GlobeIcon = ({size = 20, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    );
+    const ArrowRightLeftIcon = ({size = 20, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></svg>
+    );
+    const XIcon = ({size = 14, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+    );
+
+    // ── Constants ──
+    const TOTAL_NODES = 3;
+    const PREFIXES = ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta"];
+    const SUFFIXES = ["Workflow", "Orchestra", "Coalition", "Ensemble", "Squad"];
+
+    function generateTeamName(index) {
+      return `${PREFIXES[index % PREFIXES.length]} ${SUFFIXES[Math.floor(Math.random() * SUFFIXES.length)]}`;
+    }
+
+    // ── ClusterSummary ──
+    function ClusterSummary({ totalInstances, totalTokens, activeNodes, totalNodes, totalTeams, avgReadLatency, avgWriteLatency }) {
+      const stats = [
+        { label: "Active Teams", value: totalTeams, icon: <ActivityIcon size={20} color="#00d8dd" />, bg: "rgba(0,216,221,0.1)" },
+        { label: "Instances", value: totalInstances, icon: <ZapIcon size={20} color="#72d35b" />, bg: "rgba(114,211,91,0.1)" },
+        { label: "Total Tokens", value: totalTokens.toLocaleString(), icon: <BotIcon size={20} color="#d2a8ff" />, bg: "rgba(210,168,255,0.1)" },
+        { label: "Avg Read", value: `${avgReadLatency}ms`, icon: <TimerIcon size={20} color="#00d8dd" />, bg: "rgba(0,216,221,0.1)" },
+        { label: "Avg Write", value: `${avgWriteLatency}ms`, icon: <TimerIcon size={20} color="#ffce4a" />, bg: "rgba(255,206,74,0.1)" },
+        { label: "Active Nodes", value: `${activeNodes} / ${totalNodes}`, icon: <ServerIcon size={20} color="#d45a00" />, bg: "rgba(255,166,87,0.1)" },
+        { label: "Cluster Health",
+          value: activeNodes === 0 ? "Failed" : activeNodes === totalNodes ? "Healthy" : "Degraded",
+          icon: <ServerIcon size={20} color={activeNodes === 0 ? "#d70023" : activeNodes === totalNodes ? "#72d35b" : "#ff5400"} />,
+          bg: activeNodes === 0 ? "rgba(215,0,35,0.15)" : activeNodes === totalNodes ? "rgba(114,211,91,0.1)" : "rgba(255,84,0,0.1)" },
+      ];
+      return (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 16 }}>
+          {stats.map((s, i) => (
+            <div key={i} className="card" style={{ padding: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ padding: 8, borderRadius: 8, background: s.bg }}>{s.icon}</div>
+                <div>
+                  <p className="text-sm text-muted">{s.label}</p>
+                  <p className="text-2xl font-semibold">{s.value}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // ── SelectedTeamCard ──
+    function SelectedTeamCard({ team }) {
+      const [, setTick] = useState(0);
+      useEffect(() => { const t = setInterval(() => setTick(c => c+1), 1000); return () => clearInterval(t); }, []);
+      const activeAgents = team.agents.filter(a => a.status === 'active').length;
+      const runtime = Math.floor((Date.now() - team.startTime) / 1000);
+      return (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <div>
+              <h3 className="font-medium">{team.name}</h3>
+              <p className="text-xs text-muted" style={{ marginTop: 4 }}>Runtime: {Math.floor(runtime / 60)}m {runtime % 60}s</p>
+            </div>
+            <span className={`badge ${team.status === 'running' ? 'badge-default' : 'badge-secondary'}`}>{team.status}</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <ActivityIcon size={14} color="#72d35b" />
+              <span className="text-xs">{activeAgents}/{team.agents.length} agents</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <BotIcon size={14} color="#d2a8ff" />
+              <span className="text-xs">{team.tokens.toLocaleString()} tokens</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <TimerIcon size={14} color="#00d8dd" />
+              <span className="text-xs">{team.averageLatency}ms avg</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ── TeamList ──
+    function TeamList({ teams, selectedTeamId, onSelectTeam }) {
+      const [, setTick] = useState(0);
+      useEffect(() => { const t = setInterval(() => setTick(c => c+1), 1000); return () => clearInterval(t); }, []);
+      return (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {teams.length === 0 ? (
+            <div style={{ padding: 24, textAlign: "center" }}>
+              <p className="text-sm text-muted">No teams running. Launch a team to get started.</p>
+            </div>
+          ) : (
+            teams.map(team => {
+              const activeAgents = team.agents.filter(a => a.status === 'active').length;
+              const runtime = Math.floor((Date.now() - team.startTime) / 1000);
+              return (
+                <div key={team.id} className="card animate-fade-in-left" style={{
+                  padding: 16, cursor: "pointer", transition: "all 0.15s",
+                  boxShadow: selectedTeamId === team.id ? "0 0 0 2px #3b82f6" : "none"
+                }} onClick={() => onSelectTeam(team.id)}
+                  onMouseEnter={e => e.currentTarget.style.boxShadow = selectedTeamId === team.id ? "0 0 0 2px #3b82f6" : "0 4px 12px rgba(0,0,0,0.1)"}
+                  onMouseLeave={e => e.currentTarget.style.boxShadow = selectedTeamId === team.id ? "0 0 0 2px #3b82f6" : "none"}
+                >
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                      <div>
+                        <h3 className="font-medium" style={{ fontSize: 14 }}>{team.name}</h3>
+                        <p className="text-xs text-muted" style={{ marginTop: 4 }}>Runtime: {Math.floor(runtime / 60)}m {runtime % 60}s</p>
+                      </div>
+                      <span className={`badge ${team.status === 'running' ? 'badge-default' : 'badge-secondary'}`}>{team.status}</span>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <ActivityIcon size={14} color="#72d35b" />
+                        <span className="text-xs">{activeAgents}/{team.agents.length}</span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <BotIcon size={14} color="#d2a8ff" />
+                        <span className="text-xs">{team.tokens.toLocaleString()}</span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <TimerIcon size={14} color="#00d8dd" />
+                        <span className="text-xs">{team.averageLatency}ms</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      );
+    }
+
+    // ── Read/Write icons ──
+    const ReadIcon = ({size = 14, color = "#06b6d4"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    );
+    const WriteIcon = ({size = 14, color = "#f59e0b"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+    );
+
+    // ── Sample data names for transaction log ──
+    const DATA_NAMES = [
+      "user_profile", "order_details", "inventory", "session_token", "cart_items",
+      "payment_info", "shipping_addr", "product_catalog", "account_prefs", "audit_log",
+      "notification", "search_index", "cache_entry", "config_value", "metric_point",
+    ];
+
+    // ── AgentGrid ──
+    function AgentGrid({ team, txLog }) {
+      const logRef = useRef(null);
+
+      if (!team) return (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 200 }}>
+          <p className="text-muted">Select a team to view instances</p>
+        </div>
+      );
+
+      const getColor = (status) => ({ active: "#72d35b", stopping: "#d45a00", starting: "#00d8dd", failed: "#d70023" }[status] || "#606060");
+      const getIcon = (status) => {
+        const c = (status === 'failed' || status === 'active' || status === 'stopping') ? "white" : "#1a1a1a";
+        if (status === 'active') return <CheckCircleIcon size={16} color={c} />;
+        if (status === 'stopping') return <RefreshIcon size={16} color={c} spin />;
+        if (status === 'starting') return <RefreshIcon size={16} color={c} spin />;
+        if (status === 'failed') return <AlertCircleIcon size={16} color={c} />;
+        return null;
+      };
+
+      return (
+        <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
+          <div style={{ marginBottom: 24 }}>
+            <h3 className="font-semibold text-lg">{team.name}</h3>
+            <p className="text-sm text-muted">{team.agents.length} instance cluster</p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${team.agents.length}, 1fr)`, gap: 32 }}>
+            {team.agents.map((inst, i) => (
+              <div key={inst.id} className="animate-scale-in" style={{
+                display: "flex", flexDirection: "column", alignItems: "center",
+                animationDelay: `${i * 80}ms`, animationFillMode: "both"
+              }}>
+                {/* Read + Write latency above */}
+                <div style={{ display: "flex", gap: 32, marginBottom: 8, alignItems: "center" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                    <ReadIcon size={12} color="#00d8dd" />
+                    <span style={{ fontSize: 11, color: "#00d8dd", fontWeight: 500 }}>{inst.readLatency}ms</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                    <WriteIcon size={12} color="#ffce4a" />
+                    <span style={{ fontSize: 11, color: "#ffce4a", fontWeight: 500 }}>{inst.writeLatency}ms</span>
+                  </div>
+                </div>
+
+                {/* Instance rectangle */}
+                <div className={inst.status === 'active' ? 'animate-pulse-slow' : ''} style={{
+                  width: "100%", minWidth: 120, height: 80, borderRadius: 8,
+                  background: getColor(inst.status),
+                  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6,
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.5)", cursor: "pointer",
+                  transition: "box-shadow 0.15s",
+                }} title={`Instance ${inst.id} - Node ${inst.nodeId}`}
+                  onMouseEnter={e => e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.6)"}
+                  onMouseLeave={e => e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.2)"}
+                >
+                  <div>{getIcon(inst.status)}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: (inst.status === 'failed' || inst.status === 'active' || inst.status === 'stopping') ? "white" : "#1a1a1a" }}>Node {inst.nodeId}</div>
+                </div>
+
+                {/* Token count below */}
+                <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 8 }}>
+                  <BotIcon size={12} color="#d2a8ff" />
+                  <span style={{ fontSize: 12, color: "var(--muted-fg)" }}>{inst.tokens.toLocaleString()} tokens</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Legend */}
+          <div style={{ marginTop: 24, paddingTop: 12, borderTop: "1px solid var(--border)", display: "flex", gap: 24, fontSize: 13 }}>
+            {[["#72d35b","Active"],["#00d8dd","Starting"],["#d45a00","Stopping"],["#d70023","Down"]].map(([c,l]) => (
+              <div key={l} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ width: 16, height: 16, borderRadius: 4, background: c }}></div>
+                <span className="text-muted">{l}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Transaction log */}
+          <div style={{ marginTop: 12, flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6, flexShrink: 0 }}>
+              <span style={{ fontSize: 12, fontWeight: 600, color: "var(--muted-fg)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Transaction Log</span>
+              <span style={{ fontSize: 11, color: "var(--muted-fg)" }}></span>
+            </div>
+            <div ref={logRef} style={{
+              flex: 1, minHeight: 0, overflowY: "scroll",
+              background: "#111111", borderRadius: 6,
+              fontFamily: "Consolas, 'Courier New', monospace", fontSize: 11,
+            }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ position: "sticky", top: 0, background: "#111111", zIndex: 1 }}>
+                    {["ACTION", "DATA", "WRITE NODE", "READ NODE", "TIMESTAMP", "LATENCY"].map(h => (
+                      <th key={h} style={{
+                        padding: "8px 10px", textAlign: "left", fontSize: 10, fontWeight: 700,
+                        color: "#606060", letterSpacing: "0.08em",
+                        borderBottom: "1px solid #313131", whiteSpace: "nowrap",
+                      }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {txLog.length === 0 ? (
+                    <tr><td colSpan={6} style={{ padding: "12px 10px", color: "#434343" }}>Waiting for transactions...</td></tr>
+                  ) : (
+                    txLog.map(entry => (
+                      <tr key={entry.id} style={{ color: entry.action === 'READ' ? '#00d8dd' : '#ffce4a' }}>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.action}</td>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.data}</td>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.writeNode}</td>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.readNode || '—'}</td>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.timestamp}</td>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.latency}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ── ControlPanel ──
+    const NODE_COLORS = { active: "#72d35b", starting: "#00d8dd", stopping: "#d45a00", failed: "#d70023" };
+    const NODE_LABELS = { active: "ON", starting: "STARTING", stopping: "STOPPING", failed: "OFF" };
+
+    function ControlPanel({ nodes, onLaunchTeam, onToggleNode }) {
+      return (
+        <div className="card" style={{ padding: 24 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div>
+              <h3 className="font-semibold" style={{ marginBottom: 12 }}>Team Control</h3>
+              <button className="btn btn-primary btn-lg" style={{ width: "100%" }} onClick={onLaunchTeam}>
+                <PlayIcon size={16} color="#1a1a1a" />&nbsp;&nbsp;Launch New Agent Team
+              </button>
+            </div>
+            <div style={{ borderTop: "1px solid var(--border)", paddingTop: 24 }}>
+              <h3 className="font-semibold" style={{ marginBottom: 12 }}>Node Management</h3>
+              <p className="text-sm text-muted" style={{ marginBottom: 16 }}>Enact node failures to observe agent migration and recovery</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {nodes.map(node => {
+                  const bg = NODE_COLORS[node.status] || "#606060";
+                  const fg = (node.status === 'failed' || node.status === 'stopping' || node.status === 'active') ? "white" : "#1a1a1a";
+                  const transitioning = node.status === 'stopping' || node.status === 'starting';
+                  return (
+                    <button key={node.id} className="btn"
+                      style={{
+                        justifyContent: "space-between", padding: "8px 12px",
+                        background: bg, color: fg,
+                        opacity: transitioning ? 0.85 : 1,
+                        cursor: transitioning ? "not-allowed" : "pointer",
+                      }}
+                      onClick={() => onToggleNode(node.id)}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        {node.status === 'failed' ? <PowerOffIcon size={16} color={fg} /> : <PowerIcon size={16} color={fg} />}
+                        <span>Node {node.id}</span>
+                      </div>
+                      <span style={{
+                        marginLeft: 8, fontSize: 11, fontWeight: 600, padding: "2px 10px",
+                        borderRadius: 9999, background: "rgba(0,0,0,0.2)", color: fg,
+                      }}>
+                        {NODE_LABELS[node.status]}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div style={{ borderTop: "1px solid var(--border)", paddingTop: 24 }}>
+              <h3 className="font-semibold" style={{ marginBottom: 8, display: "flex", alignItems: "center", gap: 8 }}>
+                <ServerIcon size={16} /> About Akka Clusters
+              </h3>
+              <p className="text-xs text-muted" style={{ lineHeight: 1.6 }}>
+                Akka clusters distribute agent workloads and memory across nodes. When a node fails, agents automatically migrate to healthy nodes. State is sharded in-memory across nodes with embedded routing and load balancing. Workflow state is managed with durable execution and memory recovery is from event sourced state. The combination reduces token waste by avoiding full workflow restarts. Akka's largest customers run clusters of 300K nodes with petabytes of data.
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function formatBytes(bytes) {
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+      return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    }
+
+    // ── HA/DR Constants ──
+    const REGION_NAMES = ["us-east-1", "eu-west-1"];
+    const HADR_PREFIXES = ["Phoenix", "Horizon", "Cascade", "Meridian", "Summit", "Apex", "Zenith", "Vanguard"];
+    const HADR_SUFFIXES = ["Pipeline", "Relay", "Sync", "Bridge", "Circuit"];
+
+    function generateHADRTeamName(index) {
+      return `${HADR_PREFIXES[index % HADR_PREFIXES.length]} ${HADR_SUFFIXES[Math.floor(Math.random() * HADR_SUFFIXES.length)]}`;
+    }
+
+    // ── HADRSummary ──
+    function HADRSummary({ totalTeams, totalTokens, regions, avgReadLatency, avgWriteLatency, replicationLatency, replicationBytes }) {
+      const availableRegions = regions.filter(r => r.status === 'available').length;
+      const transitioning = regions.some(r => r.status === 'starting' || r.status === 'stopping');
+      const stats = [
+        { label: "Active Teams", value: totalTeams, icon: <ActivityIcon size={20} color="#00d8dd" />, bg: "rgba(0,216,221,0.1)" },
+        { label: "Total Tokens", value: totalTokens.toLocaleString(), icon: <BotIcon size={20} color="#d2a8ff" />, bg: "rgba(210,168,255,0.1)" },
+        { label: "Avg Read", value: `${avgReadLatency}ms`, icon: <TimerIcon size={20} color="#00d8dd" />, bg: "rgba(0,216,221,0.1)" },
+        { label: "Avg Write", value: `${avgWriteLatency}ms`, icon: <TimerIcon size={20} color="#ffce4a" />, bg: "rgba(255,206,74,0.1)" },
+        { label: "Repl. Latency", value: `${replicationLatency}ms`, icon: <ArrowRightLeftIcon size={20} color="#d2a8ff" />, bg: "rgba(210,168,255,0.1)" },
+        { label: "Repl. Data", value: replicationBytes, icon: <ArrowRightLeftIcon size={20} color="#ffce4a" />, bg: "rgba(255,206,74,0.1)" },
+        { label: "Region Health",
+          value: transitioning ? "Transitioning" : availableRegions === 0 ? "Offline" : availableRegions === 2 ? "All Active" : "Degraded",
+          icon: <GlobeIcon size={20} color={transitioning ? "#d45a00" : availableRegions === 0 ? "#d70023" : availableRegions === 2 ? "#72d35b" : "#ff5400"} />,
+          bg: transitioning ? "rgba(212,90,0,0.1)" : availableRegions === 0 ? "rgba(215,0,35,0.15)" : availableRegions === 2 ? "rgba(114,211,91,0.1)" : "rgba(255,84,0,0.1)" },
+      ];
+      return (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 16 }}>
+          {stats.map((s, i) => (
+            <div key={i} className="card" style={{ padding: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ padding: 8, borderRadius: 8, background: s.bg }}>{s.icon}</div>
+                <div>
+                  <p className="text-sm text-muted">{s.label}</p>
+                  <p className="text-2xl font-semibold">{s.value}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // ── HADRControlPanel ──
+    const REGION_COLORS = { available: "#72d35b", starting: "#00d8dd", stopping: "#d45a00", unavailable: "#d70023" };
+    const REGION_LABELS = { available: "AVAILABLE", starting: "STARTING", stopping: "STOPPING", unavailable: "UNAVAILABLE" };
+
+    function HADRControlPanel({ regions, onLaunchTeam, onToggleRegion }) {
+      return (
+        <div className="card" style={{ padding: 24 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div>
+              <h3 className="font-semibold" style={{ marginBottom: 12 }}>Team Control</h3>
+              <button className="btn btn-primary btn-lg" style={{ width: "100%" }} onClick={onLaunchTeam}>
+                <PlayIcon size={16} color="#1a1a1a" />&nbsp;&nbsp;Launch New Agent Team
+              </button>
+            </div>
+            <div style={{ borderTop: "1px solid var(--border)", paddingTop: 24 }}>
+              <h3 className="font-semibold" style={{ marginBottom: 12 }}>Region Management</h3>
+              <p className="text-sm text-muted" style={{ marginBottom: 16 }}>Enact region outages to observe active-active failover</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {regions.map(region => {
+                  const bg = REGION_COLORS[region.status] || "#606060";
+                  const fg = "white";
+                  const transitioning = region.status === 'stopping' || region.status === 'starting';
+                  return (
+                    <button key={region.id} className="btn"
+                      style={{
+                        justifyContent: "space-between", padding: "8px 12px",
+                        background: bg, color: fg,
+                        opacity: transitioning ? 0.85 : 1,
+                        cursor: transitioning ? "not-allowed" : "pointer",
+                      }}
+                      onClick={() => onToggleRegion(region.id)}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <GlobeIcon size={16} color={fg} />
+                        <span>{region.name}</span>
+                      </div>
+                      <span style={{
+                        marginLeft: 8, fontSize: 11, fontWeight: 600, padding: "2px 10px",
+                        borderRadius: 9999, background: "rgba(0,0,0,0.2)", color: fg,
+                      }}>
+                        {REGION_LABELS[region.status]}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div style={{ borderTop: "1px solid var(--border)", paddingTop: 24 }}>
+              <h3 className="font-semibold" style={{ marginBottom: 8, display: "flex", alignItems: "center", gap: 8 }}>
+                <GlobeIcon size={16} /> About Akka HA/DR
+              </h3>
+              <p className="text-xs text-muted" style={{ lineHeight: 1.6 }}>
+                Akka provides active-active multi-region replication. Agent state is replicated across regions in real time using reliable gRPC. When a region becomes unavailable, agents continue operating in the remaining region with no data loss. Writes to either region are automatically replicated to the other. When a downed region reactivates, Akka uses vector spaces to reconcile conflicts automatically during synchronization.
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ── HADRRegionGrid ──
+    function HADRRegionGrid({ team, regions, txLog, replicationLatency, replicationBytes }) {
+      const logRef = useRef(null);
+      const [replPulse, setReplPulse] = useState(0);
+
+      useEffect(() => {
+        const t = setInterval(() => setReplPulse(p => p + 1), 1500);
+        return () => clearInterval(t);
+      }, []);
+
+      if (!team) return (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 200 }}>
+          <p className="text-muted">Select a team to view regions</p>
+        </div>
+      );
+
+      const getColor = (status) => ({ available: "#72d35b", starting: "#00d8dd", stopping: "#d45a00", unavailable: "#d70023" }[status] || "#606060");
+      const getStatusLabel = (status) => ({ available: "Available", starting: "Starting...", stopping: "Stopping...", unavailable: "Unavailable" }[status] || status);
+
+      const bothAvailable = regions.every(r => r.status === 'available');
+
+      return (
+        <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
+          <div style={{ marginBottom: 24 }}>
+            <h3 className="font-semibold text-lg">{team.name}</h3>
+            <p className="text-sm text-muted">Active-active replication across {regions.filter(r => r.available).length} region{regions.filter(r => r.available).length !== 1 ? 's' : ''}</p>
+          </div>
+
+          {/* Region boxes with replication link */}
+          <div style={{ display: "flex", alignItems: "center", gap: 0, justifyContent: "center" }}>
+            {regions.map((region, i) => {
+              const regionData = team.regionData[region.id];
+              return (
+                <React.Fragment key={region.id}>
+                  <div style={{ flex: 1, maxWidth: 280, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    {/* Latency above */}
+                    <div style={{ display: "flex", gap: 24, marginBottom: 8, alignItems: "center" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                        <ReadIcon size={12} color="#00d8dd" />
+                        <span style={{ fontSize: 11, color: "#00d8dd", fontWeight: 500 }}>{regionData.readLatency}ms</span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                        <WriteIcon size={12} color="#ffce4a" />
+                        <span style={{ fontSize: 11, color: "#ffce4a", fontWeight: 500 }}>{regionData.writeLatency}ms</span>
+                      </div>
+                    </div>
+
+                    {/* Region box */}
+                    <div className={region.status === 'available' ? 'animate-pulse-slow' : ''} style={{
+                      width: "100%", height: 100, borderRadius: 8,
+                      background: getColor(region.status),
+                      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6,
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
+                      transition: "all 0.3s",
+                    }}>
+                      {(region.status === 'starting' || region.status === 'stopping') ? (
+                        <RefreshIcon size={20} color="white" spin />
+                      ) : (
+                        <GlobeIcon size={20} color="white" />
+                      )}
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "white" }}>{region.name}</div>
+                      <div style={{ fontSize: 11, fontWeight: 500, color: "rgba(255,255,255,0.8)" }}>
+                        {getStatusLabel(region.status)}
+                      </div>
+                    </div>
+
+                    {/* Token count below */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 8 }}>
+                      <BotIcon size={12} color="#d2a8ff" />
+                      <span style={{ fontSize: 12, color: "var(--muted-fg)" }}>{regionData.tokens.toLocaleString()} tokens</span>
+                    </div>
+                  </div>
+
+                  {/* Replication link between regions */}
+                  {i === 0 && (
+                    <div style={{
+                      flex: 1, maxWidth: 200, display: "flex", flexDirection: "column", alignItems: "center",
+                      gap: 6, padding: "0 16px", alignSelf: "center",
+                    }}>
+                      {/* DNA helix replication visualization */}
+                      <svg width="100%" height="50" viewBox="0 0 200 50" style={{ overflow: "visible" }}>
+                        <defs>
+                          <linearGradient id="strandA" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#d2a8ff" stopOpacity="0.4" />
+                            <stop offset="50%" stopColor="#d2a8ff" stopOpacity="1" />
+                            <stop offset="100%" stopColor="#d2a8ff" stopOpacity="0.4" />
+                          </linearGradient>
+                          <linearGradient id="strandB" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#00d8dd" stopOpacity="0.4" />
+                            <stop offset="50%" stopColor="#00d8dd" stopOpacity="1" />
+                            <stop offset="100%" stopColor="#00d8dd" stopOpacity="0.4" />
+                          </linearGradient>
+                        </defs>
+                        {/* Strand A (sine wave) */}
+                        <path d="M 5,25 C 30,5 50,5 75,25 S 120,45 145,25 S 170,5 195,25"
+                          fill="none" stroke={bothAvailable ? "url(#strandA)" : "#606060"} strokeWidth="2.5" strokeLinecap="round"
+                          strokeOpacity={bothAvailable ? 1 : 0.3} />
+                        {/* Strand B (inverted sine wave) */}
+                        <path d="M 5,25 C 30,45 50,45 75,25 S 120,5 145,25 S 170,45 195,25"
+                          fill="none" stroke={bothAvailable ? "url(#strandB)" : "#606060"} strokeWidth="2.5" strokeLinecap="round"
+                          strokeOpacity={bothAvailable ? 1 : 0.3} />
+                        {/* Cross-links (base pairs) */}
+                        {[25, 50, 75, 100, 125, 150, 175].map((x, idx) => {
+                          const t = x / 200 * Math.PI * 2;
+                          const yA = 25 + 15 * Math.sin(t - Math.PI * 0.15);
+                          const yB = 25 - 15 * Math.sin(t - Math.PI * 0.15);
+                          return <line key={idx} x1={x} y1={Math.min(yA, yB) + 4} x2={x} y2={Math.max(yA, yB) - 4}
+                            stroke={bothAvailable ? "#ffffff" : "#606060"} strokeWidth="1" strokeOpacity={bothAvailable ? 0.2 : 0.1} />;
+                        })}
+                        {/* Animated dots flowing along strands */}
+                        {bothAvailable && (
+                          <React.Fragment>
+                            <circle r="3" fill="#d2a8ff" opacity="0.9">
+                              <animateMotion dur="2s" repeatCount="indefinite"
+                                path="M 5,25 C 30,5 50,5 75,25 S 120,45 145,25 S 170,5 195,25" />
+                            </circle>
+                            <circle r="3" fill="#d2a8ff" opacity="0.6">
+                              <animateMotion dur="2s" repeatCount="indefinite" begin="1s"
+                                path="M 5,25 C 30,5 50,5 75,25 S 120,45 145,25 S 170,5 195,25" />
+                            </circle>
+                            <circle r="3" fill="#00d8dd" opacity="0.9">
+                              <animateMotion dur="2s" repeatCount="indefinite"
+                                path="M 195,25 C 170,45 150,45 125,25 S 80,5 55,25 S 30,45 5,25" />
+                            </circle>
+                            <circle r="3" fill="#00d8dd" opacity="0.6">
+                              <animateMotion dur="2s" repeatCount="indefinite" begin="1s"
+                                path="M 195,25 C 170,45 150,45 125,25 S 80,5 55,25 S 30,45 5,25" />
+                            </circle>
+                          </React.Fragment>
+                        )}
+                      </svg>
+                      <div style={{ fontSize: 11, color: bothAvailable ? "#d2a8ff" : "#606060", fontWeight: 600, textAlign: "center" }}>
+                        {bothAvailable ? "REPLICATING" : "SUSPENDED"}
+                      </div>
+                      <div style={{ display: "flex", gap: 16, fontSize: 10, color: "var(--muted-fg)" }}>
+                        <span>{replicationLatency}ms</span>
+                        <span>{replicationBytes}</span>
+                      </div>
+                    </div>
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </div>
+
+          {/* Legend */}
+          <div style={{ marginTop: 24, paddingTop: 12, borderTop: "1px solid var(--border)", display: "flex", gap: 24, fontSize: 13 }}>
+            {[["#72d35b","Available"],["#d70023","Unavailable"]].map(([c,l]) => (
+              <div key={l} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ width: 16, height: 16, borderRadius: 4, background: c }}></div>
+                <span className="text-muted">{l}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Transaction log */}
+          <div style={{ marginTop: 12, flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6, flexShrink: 0 }}>
+              <span style={{ fontSize: 12, fontWeight: 600, color: "var(--muted-fg)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Replication Log</span>
+            </div>
+            <div ref={logRef} style={{
+              flex: 1, minHeight: 0, overflowY: "scroll",
+              background: "#111111", borderRadius: 6,
+              fontFamily: "Consolas, 'Courier New', monospace", fontSize: 11,
+            }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ position: "sticky", top: 0, background: "#111111", zIndex: 1 }}>
+                    {["ACTION", "DATA", "ORIGIN", "REPLICATED TO", "TIMESTAMP", "LATENCY"].map(h => (
+                      <th key={h} style={{
+                        padding: "8px 10px", textAlign: "left", fontSize: 10, fontWeight: 700,
+                        color: "#606060", letterSpacing: "0.08em",
+                        borderBottom: "1px solid #313131", whiteSpace: "nowrap",
+                      }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {txLog.length === 0 ? (
+                    <tr><td colSpan={6} style={{ padding: "12px 10px", color: "#434343" }}>Waiting for transactions...</td></tr>
+                  ) : (
+                    txLog.map(entry => (
+                      <tr key={entry.id} style={{ color: entry.action === 'READ' ? '#00d8dd' : entry.replicated ? '#d2a8ff' : '#ffce4a' }}>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.action}{entry.replicated ? ' ⟶ REPL' : ''}</td>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.data}</td>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.origin}</td>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.replicatedTo || '—'}</td>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.timestamp}</td>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.latency}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ── App ──
+    function App() {
+      const [activeTab, setActiveTab] = useState("clustering");
+      const [teams, setTeams] = useState([]);
+      const [selectedTeamId, setSelectedTeamId] = useState(null);
+      const [nodes, setNodes] = useState(
+        Array.from({ length: TOTAL_NODES }, (_, i) => ({ id: i + 1, active: true, status: 'active' }))
+      );
+      const [teamCounter, setTeamCounter] = useState(0);
+
+      // Tick for runtime counters
+      const [, setTick] = useState(0);
+      useEffect(() => { const t = setInterval(() => setTick(c => c + 1), 1000); return () => clearInterval(t); }, []);
+
+      // Refs and state for SVG border shape
+      const mainAreaRef = useRef(null);
+      const leftColRef = useRef(null);
+      const cardRefs = useRef({});
+      const [borderShape, setBorderShape] = useState(null);
+      const [leftColHeight, setLeftColHeight] = useState(null);
+
+      useEffect(() => {
+        if (!leftColRef.current) return;
+        const observer = new ResizeObserver(() => {
+          setLeftColHeight(leftColRef.current.offsetHeight);
+        });
+        observer.observe(leftColRef.current);
+        return () => observer.disconnect();
+      }, [teams.length]);
+
+      useEffect(() => {
+        function computeShape() {
+          if (!selectedTeamId || !mainAreaRef.current || !leftColRef.current || !cardRefs.current[selectedTeamId]) {
+            setBorderShape(null);
+            return;
+          }
+          const mainRect = mainAreaRef.current.getBoundingClientRect();
+          const leftRect = leftColRef.current.getBoundingClientRect();
+          const cardRect = cardRefs.current[selectedTeamId].getBoundingClientRect();
+
+          const x0 = cardRect.left - mainRect.left;
+          const x1 = leftRect.width + 16;  // panel left edge (card column + gap)
+          const x2 = mainRect.width;
+          const y0 = 0;
+          const yT = cardRect.top - mainRect.top;
+          const yB = cardRect.bottom - mainRect.top;
+          const y3 = mainRect.height;
+          const r = 12;
+
+          const nearTop = yT < r * 2.5;
+          const nearBot = (y3 - yB) < r * 2.5;
+
+          let d;
+          if (nearTop && nearBot) {
+            // Card spans nearly full height — simple rounded rect
+            d = [
+              `M ${x0+r},${yT}`, `L ${x2-r},${y0}`,
+              `A ${r},${r} 0 0,1 ${x2},${y0+r}`,
+              `L ${x2},${y3-r}`, `A ${r},${r} 0 0,1 ${x2-r},${y3}`,
+              `L ${x0+r},${yB}`, `A ${r},${r} 0 0,1 ${x0},${yB-r}`,
+              `L ${x0},${yT+r}`, `A ${r},${r} 0 0,1 ${x0+r},${yT}`, 'Z'
+            ].join(' ');
+          } else if (nearTop) {
+            // Card at top — notch merges with panel top
+            d = [
+              `M ${x0+r},${yT}`, `L ${x2-r},${y0}`,
+              `A ${r},${r} 0 0,1 ${x2},${y0+r}`,
+              `L ${x2},${y3-r}`, `A ${r},${r} 0 0,1 ${x2-r},${y3}`,
+              `L ${x1+r},${y3}`, `A ${r},${r} 0 0,1 ${x1},${y3-r}`,
+              `L ${x1},${yB+r}`, `A ${r},${r} 0 0,0 ${x1-r},${yB}`,
+              `L ${x0+r},${yB}`, `A ${r},${r} 0 0,1 ${x0},${yB-r}`,
+              `L ${x0},${yT+r}`, `A ${r},${r} 0 0,1 ${x0+r},${yT}`, 'Z'
+            ].join(' ');
+          } else if (nearBot) {
+            // Card at bottom — notch merges with panel bottom
+            d = [
+              `M ${x1+r},${y0}`, `L ${x2-r},${y0}`,
+              `A ${r},${r} 0 0,1 ${x2},${y0+r}`,
+              `L ${x2},${y3-r}`, `A ${r},${r} 0 0,1 ${x2-r},${y3}`,
+              `L ${x0+r},${yB}`, `A ${r},${r} 0 0,1 ${x0},${yB-r}`,
+              `L ${x0},${yT+r}`, `A ${r},${r} 0 0,1 ${x0+r},${yT}`,
+              `L ${x1-r},${yT}`, `A ${r},${r} 0 0,0 ${x1},${yT-r}`,
+              `L ${x1},${y0+r}`, `A ${r},${r} 0 0,1 ${x1+r},${y0}`, 'Z'
+            ].join(' ');
+          } else {
+            // General case — card in the middle
+            d = [
+              `M ${x1+r},${y0}`, `L ${x2-r},${y0}`,
+              `A ${r},${r} 0 0,1 ${x2},${y0+r}`,
+              `L ${x2},${y3-r}`, `A ${r},${r} 0 0,1 ${x2-r},${y3}`,
+              `L ${x1+r},${y3}`, `A ${r},${r} 0 0,1 ${x1},${y3-r}`,
+              `L ${x1},${yB+r}`, `A ${r},${r} 0 0,0 ${x1-r},${yB}`,
+              `L ${x0+r},${yB}`, `A ${r},${r} 0 0,1 ${x0},${yB-r}`,
+              `L ${x0},${yT+r}`, `A ${r},${r} 0 0,1 ${x0+r},${yT}`,
+              `L ${x1-r},${yT}`, `A ${r},${r} 0 0,0 ${x1},${yT-r}`,
+              `L ${x1},${y0+r}`, `A ${r},${r} 0 0,1 ${x1+r},${y0}`, 'Z'
+            ].join(' ');
+          }
+
+          setBorderShape({ d, width: mainRect.width, height: mainRect.height });
+        }
+
+        // Double-rAF to ensure layout has settled after React render
+        requestAnimationFrame(() => requestAnimationFrame(computeShape));
+        const observer = new ResizeObserver(() => requestAnimationFrame(computeShape));
+        if (mainAreaRef.current) observer.observe(mainAreaRef.current);
+        return () => observer.disconnect();
+      }, [selectedTeamId, teams.length, activeTab]);
+
+      // Transaction logs keyed by team ID — persisted across team switches
+      const [txLogs, setTxLogs] = useState({});
+
+      useEffect(() => {
+        if (teams.length === 0) return;
+        const interval = setInterval(() => {
+          setTxLogs(prev => {
+            const next = { ...prev };
+            teams.forEach(team => {
+              if (team.status !== 'running') return;
+              const activeInsts = team.agents.filter(a => a.status === 'active');
+              if (activeInsts.length === 0) return;
+              const txCount = (prev[team.id] || []).length;
+              const isRead = txCount >= 10 ? Math.random() > 0.4 : false;
+              const name = DATA_NAMES[Math.floor(Math.random() * DATA_NAMES.length)];
+              const now = new Date();
+              const ts = now.toLocaleTimeString('en-US', { hour12: false }) + '.' + String(now.getMilliseconds()).padStart(3, '0');
+              const latency = isRead ? (Math.floor(Math.random() * 11) + 5) : (Math.floor(Math.random() * 17) + 9);
+              const writeNode = Math.floor(Math.random() * 3) + 1;
+              const activeNode = activeInsts[Math.floor(Math.random() * activeInsts.length)];
+              const entry = {
+                id: Date.now() + Math.random(),
+                action: isRead ? 'READ' : 'WRITE',
+                data: name,
+                writeNode: isRead ? `Node${writeNode}` : `Node${activeNode.nodeId}`,
+                readNode: isRead ? `Node${activeNode.nodeId}` : '',
+                timestamp: ts,
+                latency: `${latency}ms`,
+              };
+              next[team.id] = [entry, ...(prev[team.id] || [])];
+            });
+            return next;
+          });
+        }, 400);
+        return () => clearInterval(interval);
+      }, [teams.map(t => t.id + t.agents.map(a => a.status).join('')).join(',')]);
+
+      const getActiveNodes = useCallback(() => nodes.filter(n => n.active).map(n => n.id), [nodes]);
+
+      const launchTeam = useCallback(() => {
+        const activeNodeIds = getActiveNodes();
+        const teamId = `team-${Date.now()}`;
+        const allNodeIds = [1, 2, 3];
+        const agents = allNodeIds.map((nid, i) => ({
+          id: `inst-${teamId}-${i}`, teamId, nodeId: nid,
+          status: activeNodeIds.includes(nid) ? 'active' : 'failed',
+          tokens: Math.floor(Math.random() * 500) + 100,
+          readLatency: Math.floor(Math.random() * 11) + 5,
+          writeLatency: Math.floor(Math.random() * 17) + 9,
+        }));
+        const avgRead = Math.floor(agents.reduce((s, a) => s + a.readLatency, 0) / agents.length);
+        const avgWrite = Math.floor(agents.reduce((s, a) => s + a.writeLatency, 0) / agents.length);
+        setTeams(prev => [...prev, { id: teamId, name: generateTeamName(teamCounter), agents, tokens: agents.reduce((s, a) => s + a.tokens, 0), status: 'running', startTime: Date.now(), avgReadLatency: avgRead, avgWriteLatency: avgWrite }]);
+        setSelectedTeamId(teamId);
+        setTeamCounter(prev => prev + 1);
+      }, [teamCounter, getActiveNodes]);
+
+      const deleteTeam = useCallback((teamId) => {
+        setTeams(prev => prev.filter(t => t.id !== teamId));
+        setTxLogs(prev => { const next = { ...prev }; delete next[teamId]; return next; });
+        if (selectedTeamId === teamId) setSelectedTeamId(null);
+      }, [selectedTeamId]);
+
+      const toggleNode = useCallback((nodeId) => {
+        const node = nodes.find(n => n.id === nodeId);
+        if (!node || node.status === 'stopping' || node.status === 'starting') return; // ignore during transition
+        const isActivating = !node.active;
+        if (!isActivating) {
+          // Stopping phase
+          setNodes(prev => prev.map(n => n.id === nodeId ? { ...n, status: 'stopping' } : n));
+          setTeams(prev => prev.map(team => ({ ...team, agents: team.agents.map(a => a.nodeId === nodeId && a.status === 'active' ? { ...a, status: 'stopping' } : a) })));
+          setTimeout(() => {
+            setNodes(prev => prev.map(n => n.id === nodeId ? { ...n, active: false, status: 'failed' } : n));
+            setTeams(prev => prev.map(team => ({ ...team, agents: team.agents.map(a => a.nodeId === nodeId && a.status === 'stopping' ? { ...a, status: 'failed' } : a) })));
+          }, 2000);
+        } else {
+          // Starting phase
+          setNodes(prev => prev.map(n => n.id === nodeId ? { ...n, status: 'starting' } : n));
+          setTeams(prev => prev.map(team => ({ ...team, agents: team.agents.map(a => a.nodeId === nodeId && a.status === 'failed' ? { ...a, status: 'starting' } : a) })));
+          setTimeout(() => {
+            setNodes(prev => prev.map(n => n.id === nodeId ? { ...n, active: true, status: 'active' } : n));
+            setTeams(prev => prev.map(team => ({ ...team, agents: team.agents.map(a => a.nodeId === nodeId && a.status === 'starting' ? { ...a, status: 'active' } : a) })));
+          }, 9000);
+        }
+      }, [nodes]);
+
+      // Token accumulation simulation
+      useEffect(() => {
+        const interval = setInterval(() => {
+          setTeams(prev => prev.map(team => {
+            if (team.status !== 'running') return team;
+            const updatedAgents = team.agents.map(a => {
+              if (a.status === 'active') {
+                const rChange = Math.floor(Math.random() * 21) - 10;
+                const wChange = Math.floor(Math.random() * 21) - 10;
+                return { ...a, tokens: a.tokens + Math.floor(Math.random() * 60) + 20,
+                  readLatency: Math.max(5, Math.min(15, a.readLatency + rChange)),
+                  writeLatency: Math.max(9, Math.min(25, a.writeLatency + wChange)) };
+              }
+              return a;
+            });
+            return { ...team, agents: updatedAgents, tokens: updatedAgents.reduce((s, a) => s + a.tokens, 0),
+              avgReadLatency: Math.floor(updatedAgents.reduce((s, a) => s + a.readLatency, 0) / updatedAgents.length),
+              avgWriteLatency: Math.floor(updatedAgents.reduce((s, a) => s + a.writeLatency, 0) / updatedAgents.length) };
+          }));
+        }, 2000);
+        return () => clearInterval(interval);
+      }, []);
+
+      const totalInstances = teams.reduce((s, t) => s + t.agents.length, 0);
+      const totalTokens = teams.reduce((s, t) => s + t.tokens, 0);
+      const activeNodeCount = nodes.filter(n => n.active).length;
+      const avgReadLatency = teams.length > 0 ? Math.floor(teams.reduce((s, t) => s + t.avgReadLatency, 0) / teams.length) : 0;
+      const avgWriteLatency = teams.length > 0 ? Math.floor(teams.reduce((s, t) => s + t.avgWriteLatency, 0) / teams.length) : 0;
+      const selectedTeam = teams.find(t => t.id === selectedTeamId) || null;
+
+      // ── HA/DR Refs and state ──
+      const hadrMainAreaRef = useRef(null);
+      const hadrLeftColRef = useRef(null);
+      const hadrCardRefs = useRef({});
+      const [hadrBorderShape, setHadrBorderShape] = useState(null);
+      const [hadrLeftColHeight, setHadrLeftColHeight] = useState(null);
+
+      // ── HA/DR State ──
+      const [hadrRegions, setHadrRegions] = useState([
+        { id: 0, name: REGION_NAMES[0], available: true, status: 'available' },
+        { id: 1, name: REGION_NAMES[1], available: true, status: 'available' },
+      ]);
+      const [hadrTeams, setHadrTeams] = useState([]);
+      const [hadrSelectedTeamId, setHadrSelectedTeamId] = useState(null);
+      const [hadrTeamCounter, setHadrTeamCounter] = useState(0);
+      const [hadrTxLogs, setHadrTxLogs] = useState({});
+      const [hadrReplLatency, setHadrReplLatency] = useState(42);
+      const [hadrReplBytesTotal, setHadrReplBytesTotal] = useState(0);
+
+      const hadrLaunchTeam = useCallback(() => {
+        const availableRegions = hadrRegions.filter(r => r.available);
+        if (availableRegions.length === 0) return;
+        const primaryRegion = availableRegions[Math.floor(Math.random() * availableRegions.length)];
+        const teamId = `hadr-team-${Date.now()}`;
+        const regionData = {};
+        hadrRegions.forEach(r => {
+          regionData[r.id] = {
+            tokens: Math.floor(Math.random() * 500) + 100,
+            readLatency: Math.floor(Math.random() * 11) + 5,
+            writeLatency: Math.floor(Math.random() * 17) + 9,
+          };
+        });
+        setHadrTeams(prev => [...prev, {
+          id: teamId, name: generateHADRTeamName(hadrTeamCounter),
+          primaryRegionId: primaryRegion.id, regionData,
+          tokens: Object.values(regionData).reduce((s, r) => s + r.tokens, 0),
+          status: 'running', startTime: Date.now(),
+          avgReadLatency: Math.floor(Object.values(regionData).reduce((s, r) => s + r.readLatency, 0) / 2),
+          avgWriteLatency: Math.floor(Object.values(regionData).reduce((s, r) => s + r.writeLatency, 0) / 2),
+        }]);
+        setHadrSelectedTeamId(teamId);
+        setHadrTeamCounter(prev => prev + 1);
+      }, [hadrTeamCounter, hadrRegions]);
+
+      const toggleRegion = useCallback((regionId) => {
+        const region = hadrRegions.find(r => r.id === regionId);
+        if (!region || region.status === 'stopping' || region.status === 'starting') return;
+        const isActivating = !region.available;
+        if (!isActivating) {
+          // Stopping phase
+          setHadrRegions(prev => prev.map(r => r.id === regionId ? { ...r, status: 'stopping' } : r));
+          setTimeout(() => {
+            setHadrRegions(prev => prev.map(r => r.id === regionId ? { ...r, available: false, status: 'unavailable' } : r));
+          }, 2000);
+        } else {
+          // Starting phase
+          setHadrRegions(prev => prev.map(r => r.id === regionId ? { ...r, status: 'starting' } : r));
+          setTimeout(() => {
+            setHadrRegions(prev => prev.map(r => r.id === regionId ? { ...r, available: true, status: 'available' } : r));
+          }, 9000);
+        }
+      }, [hadrRegions]);
+
+      const deleteHadrTeam = useCallback((teamId) => {
+        setHadrTeams(prev => prev.filter(t => t.id !== teamId));
+        setHadrTxLogs(prev => { const next = { ...prev }; delete next[teamId]; return next; });
+        if (hadrSelectedTeamId === teamId) setHadrSelectedTeamId(null);
+      }, [hadrSelectedTeamId]);
+
+      // HA/DR token accumulation + replication metrics
+      useEffect(() => {
+        if (hadrTeams.length === 0) return;
+        const interval = setInterval(() => {
+          setHadrTeams(prev => prev.map(team => {
+            if (team.status !== 'running') return team;
+            const updatedRegionData = { ...team.regionData };
+            hadrRegions.forEach(r => {
+              if (r.available) {
+                const rd = updatedRegionData[r.id];
+                const rChange = Math.floor(Math.random() * 21) - 10;
+                const wChange = Math.floor(Math.random() * 21) - 10;
+                updatedRegionData[r.id] = {
+                  tokens: rd.tokens + Math.floor(Math.random() * 60) + 20,
+                  readLatency: Math.max(5, Math.min(15, rd.readLatency + rChange)),
+                  writeLatency: Math.max(9, Math.min(25, rd.writeLatency + wChange)),
+                };
+              }
+            });
+            const vals = Object.values(updatedRegionData);
+            return { ...team, regionData: updatedRegionData,
+              tokens: vals.reduce((s, r) => s + r.tokens, 0),
+              avgReadLatency: Math.floor(vals.reduce((s, r) => s + r.readLatency, 0) / vals.length),
+              avgWriteLatency: Math.floor(vals.reduce((s, r) => s + r.writeLatency, 0) / vals.length),
+            };
+          }));
+          // Fluctuate replication metrics
+          const bothUp = hadrRegions.filter(r => r.available).length === 2;
+          if (bothUp) {
+            setHadrReplLatency(prev => Math.max(20, Math.min(80, prev + Math.floor(Math.random() * 21) - 10)));
+            const bytes = Math.floor(Math.random() * 500) + 100;
+            setHadrReplBytesTotal(prev => prev + bytes);
+          }
+        }, 2000);
+        return () => clearInterval(interval);
+      }, [hadrTeams.length, hadrRegions]);
+
+      // HA/DR transaction + replication log
+      useEffect(() => {
+        if (hadrTeams.length === 0) return;
+        const interval = setInterval(() => {
+          setHadrTxLogs(prev => {
+            const next = { ...prev };
+            hadrTeams.forEach(team => {
+              if (team.status !== 'running') return;
+              const availRegions = hadrRegions.filter(r => r.available);
+              if (availRegions.length === 0) return;
+              const txCount = (prev[team.id] || []).length;
+              const isRead = txCount >= 10 ? Math.random() > 0.4 : false;
+              const originRegion = availRegions[Math.floor(Math.random() * availRegions.length)];
+              const name = DATA_NAMES[Math.floor(Math.random() * DATA_NAMES.length)];
+              const now = new Date();
+              const ts = now.toLocaleTimeString('en-US', { hour12: false }) + '.' + String(now.getMilliseconds()).padStart(3, '0');
+              const latency = isRead ? (Math.floor(Math.random() * 11) + 5) : (Math.floor(Math.random() * 17) + 9);
+              const entries = [];
+              entries.push({
+                id: Date.now() + Math.random(),
+                action: isRead ? 'READ' : 'WRITE',
+                data: name, origin: originRegion.name,
+                replicatedTo: '', replicated: false,
+                timestamp: ts, latency: `${latency}ms`,
+              });
+              // If write and both regions up, add replication entry
+              if (!isRead && availRegions.length === 2) {
+                const targetRegion = hadrRegions.find(r => r.id !== originRegion.id && r.available);
+                if (targetRegion) {
+                  const replLat = Math.floor(Math.random() * 30) + 20;
+                  entries.push({
+                    id: Date.now() + Math.random() + 0.5,
+                    action: 'WRITE', data: name,
+                    origin: originRegion.name, replicatedTo: targetRegion.name,
+                    replicated: true, timestamp: ts, latency: `${replLat}ms`,
+                  });
+                }
+              }
+              next[team.id] = [...entries, ...(prev[team.id] || [])];
+            });
+            return next;
+          });
+        }, 400);
+        return () => clearInterval(interval);
+      }, [hadrTeams.map(t => t.id).join(','), hadrRegions]);
+
+      // HA/DR border shape effects
+      useEffect(() => {
+        if (!hadrLeftColRef.current) return;
+        const observer = new ResizeObserver(() => {
+          setHadrLeftColHeight(hadrLeftColRef.current.offsetHeight);
+        });
+        observer.observe(hadrLeftColRef.current);
+        return () => observer.disconnect();
+      }, [hadrTeams.length]);
+
+      useEffect(() => {
+        function computeShape() {
+          if (!hadrSelectedTeamId || !hadrMainAreaRef.current || !hadrLeftColRef.current || !hadrCardRefs.current[hadrSelectedTeamId]) {
+            setHadrBorderShape(null);
+            return;
+          }
+          const mainRect = hadrMainAreaRef.current.getBoundingClientRect();
+          const leftRect = hadrLeftColRef.current.getBoundingClientRect();
+          const cardRect = hadrCardRefs.current[hadrSelectedTeamId].getBoundingClientRect();
+
+          const x0 = cardRect.left - mainRect.left;
+          const x1 = leftRect.width + 16;
+          const x2 = mainRect.width;
+          const y0 = 0;
+          const yT = cardRect.top - mainRect.top;
+          const yB = cardRect.bottom - mainRect.top;
+          const y3 = mainRect.height;
+          const r = 12;
+
+          const nearTop = yT < r * 2.5;
+          const nearBot = (y3 - yB) < r * 2.5;
+
+          let d;
+          if (nearTop && nearBot) {
+            d = [
+              `M ${x0+r},${yT}`, `L ${x2-r},${y0}`,
+              `A ${r},${r} 0 0,1 ${x2},${y0+r}`,
+              `L ${x2},${y3-r}`, `A ${r},${r} 0 0,1 ${x2-r},${y3}`,
+              `L ${x0+r},${yB}`, `A ${r},${r} 0 0,1 ${x0},${yB-r}`,
+              `L ${x0},${yT+r}`, `A ${r},${r} 0 0,1 ${x0+r},${yT}`, 'Z'
+            ].join(' ');
+          } else if (nearTop) {
+            d = [
+              `M ${x0+r},${yT}`, `L ${x2-r},${y0}`,
+              `A ${r},${r} 0 0,1 ${x2},${y0+r}`,
+              `L ${x2},${y3-r}`, `A ${r},${r} 0 0,1 ${x2-r},${y3}`,
+              `L ${x1+r},${y3}`, `A ${r},${r} 0 0,1 ${x1},${y3-r}`,
+              `L ${x1},${yB+r}`, `A ${r},${r} 0 0,0 ${x1-r},${yB}`,
+              `L ${x0+r},${yB}`, `A ${r},${r} 0 0,1 ${x0},${yB-r}`,
+              `L ${x0},${yT+r}`, `A ${r},${r} 0 0,1 ${x0+r},${yT}`, 'Z'
+            ].join(' ');
+          } else if (nearBot) {
+            d = [
+              `M ${x1+r},${y0}`, `L ${x2-r},${y0}`,
+              `A ${r},${r} 0 0,1 ${x2},${y0+r}`,
+              `L ${x2},${y3-r}`, `A ${r},${r} 0 0,1 ${x2-r},${y3}`,
+              `L ${x0+r},${yB}`, `A ${r},${r} 0 0,1 ${x0},${yB-r}`,
+              `L ${x0},${yT+r}`, `A ${r},${r} 0 0,1 ${x0+r},${yT}`,
+              `L ${x1-r},${yT}`, `A ${r},${r} 0 0,0 ${x1},${yT-r}`,
+              `L ${x1},${y0+r}`, `A ${r},${r} 0 0,1 ${x1+r},${y0}`, 'Z'
+            ].join(' ');
+          } else {
+            d = [
+              `M ${x1+r},${y0}`, `L ${x2-r},${y0}`,
+              `A ${r},${r} 0 0,1 ${x2},${y0+r}`,
+              `L ${x2},${y3-r}`, `A ${r},${r} 0 0,1 ${x2-r},${y3}`,
+              `L ${x1+r},${y3}`, `A ${r},${r} 0 0,1 ${x1},${y3-r}`,
+              `L ${x1},${yB+r}`, `A ${r},${r} 0 0,0 ${x1-r},${yB}`,
+              `L ${x0+r},${yB}`, `A ${r},${r} 0 0,1 ${x0},${yB-r}`,
+              `L ${x0},${yT+r}`, `A ${r},${r} 0 0,1 ${x0+r},${yT}`,
+              `L ${x1-r},${yT}`, `A ${r},${r} 0 0,0 ${x1},${yT-r}`,
+              `L ${x1},${y0+r}`, `A ${r},${r} 0 0,1 ${x1+r},${y0}`, 'Z'
+            ].join(' ');
+          }
+
+          setHadrBorderShape({ d, width: mainRect.width, height: mainRect.height });
+        }
+
+        requestAnimationFrame(() => requestAnimationFrame(computeShape));
+        const observer = new ResizeObserver(() => requestAnimationFrame(computeShape));
+        if (hadrMainAreaRef.current) observer.observe(hadrMainAreaRef.current);
+        return () => observer.disconnect();
+      }, [hadrSelectedTeamId, hadrTeams.length, activeTab]);
+
+      const hadrSelectedTeam = hadrTeams.find(t => t.id === hadrSelectedTeamId) || null;
+      const hadrTotalTokens = hadrTeams.reduce((s, t) => s + t.tokens, 0);
+      const hadrAvgRead = hadrTeams.length > 0 ? Math.floor(hadrTeams.reduce((s, t) => s + t.avgReadLatency, 0) / hadrTeams.length) : 0;
+      const hadrAvgWrite = hadrTeams.length > 0 ? Math.floor(hadrTeams.reduce((s, t) => s + t.avgWriteLatency, 0) / hadrTeams.length) : 0;
+
+      return (
+        <div style={{ minHeight: "100vh", background: "#1a1a1a", padding: 24 }}>
+          <div style={{ maxWidth: 1800, margin: "0 auto" }}>
+            <div style={{ marginBottom: 24 }}>
+              <h1 className="text-3xl font-bold">Akka Reliability Tester</h1>
+              <p className="text-muted" style={{ marginTop: 8 }}>Visualizing distributed agent orchestration with high availability and resilience - no-downtime rolling updates for your AI apps, too!</p>
+            </div>
+
+            <div className="tab-bar">
+              <button className={`tab-btn ${activeTab === "clustering" ? "active" : ""}`} onClick={() => setActiveTab("clustering")}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}><ServerIcon size={16} /> Akka Clustering</span>
+              </button>
+              <button className={`tab-btn ${activeTab === "hadr" ? "active" : ""}`} onClick={() => setActiveTab("hadr")}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}><ActivityIcon size={16} /> Akka HA/DR</span>
+              </button>
+            </div>
+
+            {activeTab === "clustering" && (<div>
+            <div style={{ marginBottom: 24 }}>
+              <ClusterSummary totalInstances={totalInstances} totalTokens={totalTokens} activeNodes={activeNodeCount} totalNodes={TOTAL_NODES} totalTeams={teams.length} avgReadLatency={avgReadLatency} avgWriteLatency={avgWriteLatency} />
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "3fr 9fr", gap: 24, alignItems: "start" }}>
+              <ControlPanel nodes={nodes} onLaunchTeam={launchTeam} onToggleNode={toggleNode} />
+
+              {/* Main area */}
+              <div>
+                {teams.length === 0 ? (
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+                      <UsersIcon size={20} color="var(--muted-fg)" />
+                      <h2 className="font-semibold">Agent Teams</h2>
+                    </div>
+                    <div className="card" style={{ padding: 24, textAlign: "center" }}>
+                      <p className="text-sm text-muted">No teams running. Launch a team to get started.</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div ref={mainAreaRef} style={{ display: "flex", position: "relative", alignItems: "flex-start" }}>
+                    {/* SVG shaped border overlay */}
+                    {borderShape && (
+                      <svg style={{
+                        position: "absolute", top: 0, left: 0,
+                        width: borderShape.width, height: borderShape.height,
+                        pointerEvents: "none", zIndex: 1,
+                        overflow: "visible",
+                      }} viewBox={`0 0 ${borderShape.width} ${borderShape.height}`} fill="none">
+                        <path d={borderShape.d} fill="rgba(0,216,221,0.06)" stroke="#02a4a7" strokeWidth="2" />
+                      </svg>
+                    )}
+
+                    {/* Left column: header + team list */}
+                    <div ref={leftColRef} style={{ width: 280, flexShrink: 0, position: "relative", zIndex: 2, alignSelf: "flex-start", minHeight: 600 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+                        <UsersIcon size={20} color="var(--muted-fg)" />
+                        <h2 className="font-semibold">Agent Teams</h2>
+                      </div>
+
+                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                        {teams.map(team => {
+                          const isSelected = team.id === selectedTeamId;
+                          const activeAgents = team.agents.filter(a => a.status === 'active').length;
+                          const runtime = Math.floor((Date.now() - team.startTime) / 1000);
+                          return (
+                            <div key={team.id}
+                              ref={el => { if (el) cardRefs.current[team.id] = el; }}
+                              className="animate-fade-in-left"
+                              style={{
+                                padding: 16, cursor: "pointer",
+                                background: isSelected ? "transparent" : "var(--card)",
+                                border: isSelected ? "none" : "1px solid var(--border)",
+                                borderRadius: isSelected ? 0 : "var(--radius)",
+                                transition: "border-color 0.2s, background 0.2s",
+                              }}
+                              onClick={() => setSelectedTeamId(isSelected ? null : team.id)}
+                              onMouseEnter={e => { if (!isSelected) e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.4)"; }}
+                              onMouseLeave={e => { if (!isSelected) e.currentTarget.style.boxShadow = "none"; }}
+                            >
+                              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                                  <div>
+                                    <h3 className="font-medium" style={{ fontSize: 14 }}>{team.name}</h3>
+                                    <p className="text-xs text-muted" style={{ marginTop: 4 }}>
+                                      Runtime: {Math.floor(runtime / 60)}m {runtime % 60}s
+                                    </p>
+                                  </div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                    <span className={`badge ${team.status === 'running' ? 'badge-default' : 'badge-secondary'}`}>
+                                      {team.status}
+                                    </span>
+                                    <button style={{
+                                      background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", cursor: "pointer",
+                                      padding: 3, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center",
+                                      transition: "all 0.15s",
+                                    }}
+                                      onMouseEnter={e => { e.currentTarget.style.background = "rgba(215,0,35,0.3)"; e.currentTarget.style.borderColor = "#d70023"; }}
+                                      onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; }}
+                                      onClick={e => { e.stopPropagation(); deleteTeam(team.id); }}
+                                      title="Delete team"
+                                    >
+                                      <XIcon size={14} color="var(--muted-fg)" />
+                                    </button>
+                                  </div>
+                                </div>
+                                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 6 }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                    <ActivityIcon size={13} color="#72d35b" />
+                                    <span className="text-xs">{activeAgents}/{team.agents.length}</span>
+                                  </div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                    <BotIcon size={13} color="#d2a8ff" />
+                                    <span className="text-xs">{team.tokens.toLocaleString()}</span>
+                                  </div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                    <ReadIcon size={13} color="#00d8dd" />
+                                    <span className="text-xs">{team.avgReadLatency}ms</span>
+                                  </div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                    <WriteIcon size={13} color="#ffce4a" />
+                                    <span className="text-xs">{team.avgWriteLatency}ms</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Right column: agent grid — height constrained to left column */}
+                    {selectedTeam && (
+                      <div style={{
+                        flex: 1, minWidth: 0, position: "relative", zIndex: 2,
+                        padding: "8px 24px 21px 32px",
+                        display: "flex", flexDirection: "column",
+                        maxHeight: leftColHeight || "none",
+                        overflow: "hidden",
+                      }}>
+                        <AgentGrid team={selectedTeam} txLog={selectedTeam ? (txLogs[selectedTeam.id] || []) : []} />
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+            </div>
+            </div>)}
+
+            {activeTab === "hadr" && (<div>
+            <div style={{ marginBottom: 24 }}>
+              <HADRSummary totalTeams={hadrTeams.length} totalTokens={hadrTotalTokens} regions={hadrRegions} avgReadLatency={hadrAvgRead} avgWriteLatency={hadrAvgWrite} replicationLatency={hadrReplLatency} replicationBytes={formatBytes(hadrReplBytesTotal)} />
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "3fr 9fr", gap: 24, alignItems: "start" }}>
+              <HADRControlPanel regions={hadrRegions} onLaunchTeam={hadrLaunchTeam} onToggleRegion={toggleRegion} />
+
+              {/* Main area */}
+              <div>
+                {hadrTeams.length === 0 ? (
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+                      <UsersIcon size={20} color="var(--muted-fg)" />
+                      <h2 className="font-semibold">Agent Teams</h2>
+                    </div>
+                    <div className="card" style={{ padding: 24, textAlign: "center" }}>
+                      <p className="text-sm text-muted">No teams running. Launch a team to get started.</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div ref={hadrMainAreaRef} style={{ display: "flex", position: "relative", alignItems: "flex-start" }}>
+                    {/* SVG shaped border overlay */}
+                    {hadrBorderShape && (
+                      <svg style={{
+                        position: "absolute", top: 0, left: 0,
+                        width: hadrBorderShape.width, height: hadrBorderShape.height,
+                        pointerEvents: "none", zIndex: 1,
+                        overflow: "visible",
+                      }} viewBox={`0 0 ${hadrBorderShape.width} ${hadrBorderShape.height}`} fill="none">
+                        <path d={hadrBorderShape.d} fill="rgba(0,216,221,0.06)" stroke="#02a4a7" strokeWidth="2" />
+                      </svg>
+                    )}
+
+                    {/* Left column: header + team list */}
+                    <div ref={hadrLeftColRef} style={{ width: 280, flexShrink: 0, position: "relative", zIndex: 2, alignSelf: "flex-start", minHeight: 600 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+                        <UsersIcon size={20} color="var(--muted-fg)" />
+                        <h2 className="font-semibold">Agent Teams</h2>
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                        {hadrTeams.map(team => {
+                          const isSelected = team.id === hadrSelectedTeamId;
+                          const runtime = Math.floor((Date.now() - team.startTime) / 1000);
+                          return (
+                            <div key={team.id}
+                              ref={el => { if (el) hadrCardRefs.current[team.id] = el; }}
+                              className="animate-fade-in-left"
+                              style={{
+                                padding: 16, cursor: "pointer",
+                                background: isSelected ? "transparent" : "var(--card)",
+                                border: isSelected ? "none" : "1px solid var(--border)",
+                                borderRadius: isSelected ? 0 : "var(--radius)",
+                                transition: "border-color 0.2s, background 0.2s",
+                              }}
+                              onClick={() => setHadrSelectedTeamId(isSelected ? null : team.id)}
+                              onMouseEnter={e => { if (!isSelected) e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.4)"; }}
+                              onMouseLeave={e => { if (!isSelected) e.currentTarget.style.boxShadow = "none"; }}
+                            >
+                              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                                  <div>
+                                    <h3 className="font-medium" style={{ fontSize: 14 }}>{team.name}</h3>
+                                    <p className="text-xs text-muted" style={{ marginTop: 4 }}>Runtime: {Math.floor(runtime / 60)}m {runtime % 60}s</p>
+                                  </div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                    <span className={`badge ${team.status === 'running' ? 'badge-default' : 'badge-secondary'}`}>{team.status}</span>
+                                    <button style={{
+                                      background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", cursor: "pointer",
+                                      padding: 3, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center",
+                                      transition: "all 0.15s",
+                                    }}
+                                      onMouseEnter={e => { e.currentTarget.style.background = "rgba(215,0,35,0.3)"; e.currentTarget.style.borderColor = "#d70023"; }}
+                                      onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; }}
+                                      onClick={e => { e.stopPropagation(); deleteHadrTeam(team.id); }}
+                                      title="Delete team"
+                                    >
+                                      <XIcon size={14} color="var(--muted-fg)" />
+                                    </button>
+                                  </div>
+                                </div>
+                                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 6 }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                    <GlobeIcon size={13} color="#72d35b" />
+                                    <span className="text-xs">2 regions</span>
+                                  </div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                    <BotIcon size={13} color="#d2a8ff" />
+                                    <span className="text-xs">{team.tokens.toLocaleString()}</span>
+                                  </div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                    <ReadIcon size={13} color="#00d8dd" />
+                                    <span className="text-xs">{team.avgReadLatency}ms</span>
+                                  </div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                    <WriteIcon size={13} color="#ffce4a" />
+                                    <span className="text-xs">{team.avgWriteLatency}ms</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Right column: region grid — height constrained to left column */}
+                    {hadrSelectedTeam && (
+                      <div style={{
+                        flex: 1, minWidth: 0, position: "relative", zIndex: 2,
+                        padding: "8px 24px 21px 32px",
+                        display: "flex", flexDirection: "column",
+                        maxHeight: hadrLeftColHeight || "none",
+                        overflow: "hidden",
+                      }}>
+                        <HADRRegionGrid team={hadrSelectedTeam} regions={hadrRegions} txLog={hadrSelectedTeam ? (hadrTxLogs[hadrSelectedTeam.id] || []) : []} replicationLatency={hadrReplLatency} replicationBytes={formatBytes(hadrReplBytesTotal)} />
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+            </div>)}
+
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('s6-rf-root')).render(React.createElement(App));
+  </script>
   </div>
 </section>
 </div>
 
+
 <div id="s7-problem">
   <div id="s7-problem-sticky">
     <div class="s7-eyebrow" data-s7="0">Akka Governance Platform</div>
-    <div class="s7-problem-headline" data-s7="0">Observation is not <span class="accent">control.</span></div>
+    <div class="s7-problem-headline" data-s7="0">Evaluation is not <span class="accent">control.</span></div>
     <div class="s7-problems">
-      <div class="s7-prob" data-s7="1">
-        <div class="s7-prob-stat">Moving Target</div>
+      <div class="s7-prob" data-s7="0">
+        <div class="s7-prob-stat">&euro;35M Penalties</div>
         <div class="s7-prob-text">174 regulatory frameworks &mdash; all of them changing. Which ones apply to your agents? How do you re-posture every time they shift? EU AI Act penalties alone reach &euro;35M.</div>
       </div>
-      <div class="s7-prob" data-s7="2">
-        <div class="s7-prob-stat">Unenforceable</div>
+      <div class="s7-prob" data-s7="0">
+        <div class="s7-prob-stat">Outside Looking In</div>
         <div class="s7-prob-text">Governance tools observe AI from the outside. They can't enforce at agent boundaries, can't gate a deployment, can't link a policy decision to the human who approved it. They produce reports &mdash; not proof.</div>
       </div>
-      <div class="s7-prob" data-s7="3">
+      <div class="s7-prob" data-s7="0">
         <div class="s7-prob-stat">PB+</div>
         <div class="s7-prob-text">Petabyte-scale storage for regulatory holds &mdash; 10-year retention for high-risk AI under EU AI Act Art. 72. Copied logs aren't tamper-proof. When auditors come, you need hash-chains &mdash; not hope. Governance isn't cheap; it has to be built in.</div>
       </div>
     </div>
-    <div class="s7-thesis" data-s7="4">One platform governs what you build and what you run &mdash; and stays in sync as regulations change.</div>
   </div>
 </div>
 
 <div id="s7-answer-wrapper">
 <div id="s7-answer">
-  <div class="s7-answer-headline s7-reveal">An AI platform with a <span class="accent">living regulatory corpus</span> &mdash; enforced at runtime.</div>
+  <div class="s7-eyebrow s7-reveal">The control loop</div>
+  <div class="s7-answer-headline s7-reveal">Akka's governance is a runtime control loop: <span class="accent">Classify, Approve, Enforce, Prove.</span></div>
+
+  <div class="s7-control-loop s7-reveal">
+    <div class="s7-loop-main">
+      <div class="s7-loop-steps">
+        <div class="s7-loop-step">
+          <div class="s7-step-body">
+            <div class="s7-step-title">Classify</div>
+            <div class="s7-step-text">Map each AI system to 174 frameworks and 521 controls to derive its obligation set.</div>
+          </div>
+        </div>
+        <div class="s7-loop-arrow"></div>
+        <div class="s7-loop-step">
+          <div class="s7-step-body">
+            <div class="s7-step-title">Approve</div>
+            <div class="s7-step-text">Route dossiers through Legal, Risk, Security, Model Risk, and business-owner sign-off recipes.</div>
+          </div>
+        </div>
+        <div class="s7-loop-arrow"></div>
+        <div class="s7-loop-step">
+          <div class="s7-step-body">
+            <div class="s7-step-title">Enforce</div>
+            <div class="s7-step-text">Apply guardrails, eval checkpoints, HITL gates, policy decisions, and containment inline.</div>
+          </div>
+        </div>
+        <div class="s7-loop-arrow"></div>
+        <div class="s7-loop-step">
+          <div class="s7-step-body">
+            <div class="s7-step-title">Prove</div>
+            <div class="s7-step-text">Emit non-sampled interaction logs, evidence bundles, legal holds, retention state, and audit records.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="s7-side-col s7-impact-col">
+      <div class="s7-loop-label">Runtime safety</div>
+      <div class="s7-floating-list">
+        <div class="s7-floating-item">Policies stay current as regulations change.</div>
+        <div class="s7-floating-item">Unsafe actions are stopped before execution, not scored later.</div>
+        <div class="s7-floating-item">Every decision has a runtime evidence trail.</div>
+        <div class="s7-floating-item">Separate AI eval and observability tools become optional, not required.</div>
+      </div>
+    </div>
+
+    <div class="s7-side-col s7-reg-col">
+      <div class="s7-reg-count">174</div>
+      <div class="s7-reg-caption">AI regulations<br>monitored</div>
+      <div class="s7-reg-list">
+        <div class="s7-reg-item">EU AI Act</div>
+        <div class="s7-reg-item">DORA</div>
+        <div class="s7-reg-item">GDPR</div>
+        <div class="s7-reg-item">HIPAA</div>
+        <div class="s7-reg-item">NIST AI RMF</div>
+        <div class="s7-reg-item">ISO 42001</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="s7-proof-strip s7-reveal">
+    <div class="s7-proof-box proof-posture"><img src="images/governance-posture.png" alt="Governance posture"></div>
+    <div class="s7-proof-box proof-log"><img src="images/interaction-log.png" alt="Interaction log"></div>
+    <div class="s7-proof-box proof-control"><img src="images/control-detail.png" alt="Control detail"></div>
+    <div class="s7-proof-box proof-authoring"><img src="images/policy-authoring.png" alt="Policy authoring"></div>
+    <div class="s7-proof-box proof-sandbox"><img src="images/policy-sandbox.png" alt="Policy sandbox"></div>
+    <div class="s7-proof-box proof-audit"><img src="images/audit.png" alt="Audit package"></div>
+  </div>
 
   <div class="s7-answer-layout s7-reveal">
   <div class="s7-carousel-section">
@@ -2755,6 +4945,7 @@ body {
 </div>
 </div>
 
+
 <div id="cust-wrapper">
   <div id="cust-sticky">
 
@@ -2835,7 +5026,7 @@ body {
 <section id="pkg">
 <div class="pkg-inner">
   <div class="pkg-eyebrow pkg-reveal">The packages</div>
-  <div class="pkg-headline pkg-reveal pkg-reveal-d1">One platform. <span class="accent">Start free.</span></div>
+  <div class="pkg-headline pkg-reveal pkg-reveal-d1">One platform. <span class="accent">Any cloud.</span></div>
   <div class="pkg-sub pkg-reveal pkg-reveal-d2">Every configuration runs the full Akka platform — the same runtime, the same APIs, the same developer experience. You choose where it runs and how much you need.</div>
 
   <!-- Infrastructure bar -->
@@ -2969,12 +5160,96 @@ body {
 </div>
 <div style="height:12vh;background:var(--black)"></div>
 
+
+<div style="height:12vh;background:var(--black)"></div>
+<div id="s10-delivery-wrapper">
+<section id="s10-delivery">
+  <div class="s10d-kicker s10d-reveal">How Akka delivers</div>
+  <div class="s10d-headline s10d-reveal s10d-reveal-d1">Akka turns AI strategy into a <span class="accent">system.</span></div>
+  <div class="s10d-sub s10d-reveal s10d-reveal-d2">Akka consulting services move teams from AI idea to production system.</div>
+
+  <input class="s10d-stage-control" type="radio" name="s10d-stage" id="s10d-frame" checked>
+  <input class="s10d-stage-control" type="radio" name="s10d-stage" id="s10d-govern">
+  <input class="s10d-stage-control" type="radio" name="s10d-stage" id="s10d-specify">
+  <input class="s10d-stage-control" type="radio" name="s10d-stage" id="s10d-ship">
+  <input class="s10d-stage-control" type="radio" name="s10d-stage" id="s10d-improve">
+
+  <div class="s10d-flow s10d-reveal s10d-reveal-d3">
+    <label class="s10d-stage frame" for="s10d-frame">
+      <div class="s10d-stage-num">01</div>
+      <div class="s10d-stage-title">Frame</div>
+      <div class="s10d-stage-copy">Pick the first production slice and map systems, roles, and success metrics.</div>
+    </label>
+    <div class="s10d-arrow"></div>
+    <label class="s10d-stage govern" for="s10d-govern">
+      <div class="s10d-stage-num">02</div>
+      <div class="s10d-stage-title">Govern</div>
+      <div class="s10d-stage-copy">Define autonomy thresholds, guardrails, approvals, retention, and audit obligations.</div>
+    </label>
+    <div class="s10d-arrow"></div>
+    <label class="s10d-stage specify" for="s10d-specify">
+      <div class="s10d-stage-num">03</div>
+      <div class="s10d-stage-title">Specify</div>
+      <div class="s10d-stage-copy">Convert the method into executable Akka Specify inputs and acceptance criteria.</div>
+    </label>
+    <div class="s10d-arrow"></div>
+    <label class="s10d-stage ship" for="s10d-ship">
+      <div class="s10d-stage-num">04</div>
+      <div class="s10d-stage-title">Ship</div>
+      <div class="s10d-stage-copy">Deploy the workflow, integrations, review queues, and operational dashboards.</div>
+    </label>
+    <div class="s10d-arrow"></div>
+    <label class="s10d-stage improve" for="s10d-improve">
+      <div class="s10d-stage-num">05</div>
+      <div class="s10d-stage-title">Improve</div>
+      <div class="s10d-stage-copy">Use feedback loops, behavior metrics, and token analysis to improve outcomes and cost.</div>
+    </label>
+  </div>
+
+  <div class="s10d-output-row s10d-reveal s10d-reveal-d4">
+    <div class="s10d-output hero">
+      <div class="s10d-output-label">First milestone</div>
+      <div class="s10d-output-main">Production slice in 4-6 weeks.</div>
+    </div>
+    <div class="s10d-output-details">
+      <div class="s10d-output-set frame">
+        <div class="s10d-output"><div class="s10d-output-label">Deliverables</div><div class="s10d-output-main">Use-case brief, system map, role map</div></div>
+        <div class="s10d-output"><div class="s10d-output-label">Metrics</div><div class="s10d-output-main">Cycle time, quality, effort saved</div></div>
+        <div class="s10d-output"><div class="s10d-output-label">Plan</div><div class="s10d-output-main">Milestones, owners, acceptance criteria</div></div>
+      </div>
+      <div class="s10d-output-set govern">
+        <div class="s10d-output"><div class="s10d-output-label">Deliverables</div><div class="s10d-output-main">Control matrix, autonomy policy, risk model</div></div>
+        <div class="s10d-output"><div class="s10d-output-label">Approvals</div><div class="s10d-output-main">Decision rights, sign-off recipe, HITL gates</div></div>
+        <div class="s10d-output"><div class="s10d-output-label">Evidence</div><div class="s10d-output-main">Retention plan, audit plan, policy record</div></div>
+      </div>
+      <div class="s10d-output-set specify">
+        <div class="s10d-output"><div class="s10d-output-label">Deliverables</div><div class="s10d-output-main">Functional AI implementation</div></div>
+        <div class="s10d-output"><div class="s10d-output-label">Tests</div><div class="s10d-output-main">Scenarios, eval criteria, edge cases</div></div>
+        <div class="s10d-output"><div class="s10d-output-label">Build assets</div><div class="s10d-output-main">Services, agents, integrations, ontologies</div></div>
+      </div>
+      <div class="s10d-output-set ship">
+        <div class="s10d-output"><div class="s10d-output-label">Deliverables</div><div class="s10d-output-main">Release package, runbook, cutover plan</div></div>
+        <div class="s10d-output"><div class="s10d-output-label">Operations</div><div class="s10d-output-main">SLA view, metrics, alerts, dashboards</div></div>
+        <div class="s10d-output"><div class="s10d-output-label">Product layer</div><div class="s10d-output-main">Review queues, overrides, feedback capture</div></div>
+      </div>
+      <div class="s10d-output-set improve">
+        <div class="s10d-output"><div class="s10d-output-label">Deliverables</div><div class="s10d-output-main">Feedback loop, tuning backlog, release cadence</div></div>
+        <div class="s10d-output"><div class="s10d-output-label">Behavior</div><div class="s10d-output-main">Quality review, drift signals, escalations</div></div>
+        <div class="s10d-output"><div class="s10d-output-label">Cost</div><div class="s10d-output-main">Token analysis, cache strategy, routing plan</div></div>
+      </div>
+    </div>
+  </div>
+
+</section>
+</div>
+
+
 <div style="height:12vh;background:var(--black)"></div>
 <div id="s9-wrapper">
 <section id="s9">
   <div class="s9-promise s9-reveal">
     <div class="s9-eyebrow">How we deliver</div>
-    <div class="s9-headline">First conversation to <span class="accent">production AI in weeks.</span><br>We're with you the whole way.</div>
+    <div class="s9-headline"><span class="accent">Production AI in weeks.</span></div>
     <div class="s9-sub">The Akka team embeds with yours from pre-sales through ongoing operations. We don't hand off and walk away. We get you live, and we guarantee your SLA.</div>
   </div>
 
@@ -3007,6 +5282,7 @@ body {
 
 <!-- DEMO_HTML_MARKER -->
 
+
 <section id="closing">
   <div class="closing-logo closing-reveal">
     <svg width="109" height="25" viewBox="0 0 109 25" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -3026,6 +5302,7 @@ body {
 
   <a href="https://akka.io" class="closing-cta closing-reveal">Get started &rarr;</a>
 </section>
+<!-- DEMO_HTML_MARKER -->
 <script>
 /* ── 00-title ── */
 /* no JS needed — title uses CSS animations on load */
@@ -3047,9 +5324,8 @@ new IntersectionObserver(entries => {
 
 /* ── 02-types ── */
 /* ── Type data ─────────────────────────────────────── */
-/* Ordered: 0-3 = top row (col 0-3), 4-7 = bottom row (col 0-3) */
 // si = simple-icons slug (https://simpleicons.org) — blank = CSS text fallback
-const TYPES = [
+const TYPE_SOURCE = [
   { n:'01', name:'transact & reason', desc:'Process operational data',
     context:'Every payment, order, and decision — at sub-millisecond speed with zero data loss.',
     imgs:['capitalone','ING','westpac','bookingdotcom','gebit'] },
@@ -3076,19 +5352,27 @@ const TYPES = [
     imgs:['ciena','amprion','lloyds','RBC','tubi'] },
 ];
 
+/* Ordered by visual reveal: top/bottom within each column, then next column. */
+const TYPES = [0, 4, 1, 5, 2, 6, 3, 7].map((sourceIndex, i) => ({
+  ...TYPE_SOURCE[sourceIndex],
+  n: String(i + 1).padStart(2, '0')
+}));
+
 /* ── Build grid ────────────────────────────────────── */
 const stGrid   = document.getElementById('stGrid');
 const stDotsEl = document.getElementById('stDots');
 
 
 TYPES.forEach((t, i) => {
-  const col = i % 4;
-  const row = i < 4 ? 0 : 1;
+  const col = Math.floor(i / 2);
+  const row = i % 2;
 
   const card = document.createElement('div');
   card.className = 'st-card';
   card.dataset.col = col;
   card.dataset.row = row;
+  card.style.gridColumn = String(col + 1);
+  card.style.gridRow = String(row + 1);
 
   const pills = t.imgs.map(name =>
     `<img class="logo-tile-img" src="logos/${name}.png" alt="${name}" loading="lazy">`
@@ -3107,8 +5391,8 @@ TYPES.forEach((t, i) => {
   stGrid.appendChild(card);
 });
 
-/* 4 progress dots */
-for (let i = 0; i < 4; i++) {
+/* 8 progress dots, one per proof box */
+for (let i = 0; i < TYPES.length; i++) {
   const d = document.createElement('div');
   d.className = 'st-dot';
   stDotsEl.appendChild(d);
@@ -3121,22 +5405,21 @@ const stDots  = document.querySelectorAll('.st-dot');
 
 let stTriggered = false;
 
-function triggerStCols() {
+function triggerStBoxes() {
   if (stTriggered) return;
   stTriggered = true;
-  for (let col = 0; col < 4; col++) {
+  cards.forEach((card, i) => {
     setTimeout(() => {
-      cards.forEach(card => {
-        if (+card.dataset.col === col) card.classList.add('visible');
-      });
-      if (stDots[col]) stDots[col].classList.add('lit');
-    }, col * 1000);
-  }
+      card.classList.add('visible');
+      if (stDots[i]) stDots[i].classList.add('lit');
+    }, i * 500);
+  });
 }
 
 new IntersectionObserver(entries => {
-  if (entries[0].isIntersecting) triggerStCols();
+  if (entries[0].isIntersecting) triggerStBoxes();
 }, { threshold: 0 }).observe(document.getElementById('st-sticky'));
+
 
 /* ── 03-complexity ── */
 /* ── Section 3 ──────────────────────── */
@@ -3200,13 +5483,9 @@ document.querySelectorAll('#s13 .s13-reveal').forEach(el => s13observer.observe(
     { type:'cmd', text:'/akka:tasks && /akka:implement && /akka:build', phase:'implement' },
     { type:'lines', items: [
       { text:'[tasks] 6 tasks generated, dependency-ordered \u2714', cls:'ok' },
-      { text:'[implement] Writing LoyaltyAccount entity...', cls:'ai' },
-      { text:'[implement] Writing RewardsProgram entity...', cls:'ai' },
-      { text:'[implement] Writing REST endpoints + views...', cls:'ai' },
-      { text:'[implement] Writing RedemptionWorkflow...', cls:'ai' },
-      { text:'[implement] Generating 50 unit tests...', cls:'ai' },
+      { text:'[implement] Writing entities, endpoints, views, workflow...', cls:'ai' },
       { text:'[implement] 989 lines across 12 files \u2714  50/50 tests passing', cls:'ok' },
-      { text:'[build] mvn compile \u2714  mvn test \u2714  service running on :8080', cls:'ok' },
+      { text:'[build] mvn compile \u2714  mvn test \u2714  running on :8080', cls:'ok' },
     ], trigger:'arch'},
     { type:'blank' },
 
@@ -3214,10 +5493,8 @@ document.querySelectorAll('#s13 .s13-reveal').forEach(el => s13observer.observe(
     { type:'lines', items: [
       { text:'[review] Spec compliance 100% \u2714  Coverage 94%', cls:'ok' },
       { text:'[analyze] Full cross-artifact traceability \u2714', cls:'ok' },
-      { text:'[deploy] git commit \u2714  git push \u2714', cls:'ai' },
-      { text:'[deploy] Container image built \u2714  Pushed to registry', cls:'ai' },
-      { text:'[deploy] Routes configured \u2714  loyalty.acme.akka.app', cls:'ai' },
-      { text:'[deploy] Deploying to your private Akka cloud \u2714  Active-active HA, 3 replicas', cls:'ok' },
+      { text:'[deploy] Container built \u2714  Routes configured \u2714  loyalty.acme.akka.app', cls:'ai' },
+      { text:'[deploy] Live on your Akka cloud \u2714  Active-active HA, 3 replicas', cls:'ok' },
     ]},
     { type:'blank' },
     { type:'warn', text:'\u2728 loyalty-service is live. Spec to production in 2 hours, 14 minutes.' },
@@ -3231,11 +5508,9 @@ document.querySelectorAll('#s13 .s13-reveal').forEach(el => s13observer.observe(
   var cursorEl = null;
 
   var CMD_CHAR_MS  = 24;
-  var AI_CHAR_MS   = 20;
-  var OK_CHAR_MS   = 18;
-  var LINE_DELAY   = 280;
-  var PAUSE_AFTER_CMD = 500;
-  var PAUSE_AFTER_STEP = 400;
+  var PAUSE_AFTER_CMD = 350;
+  var WAIT_BEFORE_RESPONSE = 450;
+  var PAUSE_AFTER_STEP = 380;
 
   function scroll() { body.scrollTop = body.scrollHeight; }
 
@@ -3269,6 +5544,7 @@ document.querySelectorAll('#s13 .s13-reveal').forEach(el => s13observer.observe(
 
   var s5UpCount = 0;
   var s5State = 'idle'; /* idle | forward | reverse | done */
+  var runToken = 0;     /* incremented on reset to invalidate in-flight typing chains */
 
   function fillTerminalFull() {
     body.innerHTML = '';
@@ -3288,18 +5564,12 @@ document.querySelectorAll('#s13 .s13-reveal').forEach(el => s13observer.observe(
       } else if (step.type === 'lines') {
         for (var j = 0; j < step.items.length; j++) {
           var item = step.items[j];
-          var ld = document.createElement('div');
-          ld.className = 's5-tline';
           var c = item.cls === 'ok' ? 'success' : 'ai';
-          ld.innerHTML = '<span class="' + c + '">' + item.text + '</span>';
-          body.appendChild(ld);
+          instantLine(c, item.text, j === 0);
         }
       } else {
         var cls = step.type === 'ok' ? 'success' : (step.type === 'warn' ? 'warn' : step.type);
-        var d = document.createElement('div');
-        d.className = 's5-tline';
-        d.innerHTML = '<span class="' + cls + '">' + step.text + '</span>';
-        body.appendChild(d);
+        instantLine(cls, step.text, true);
       }
     }
     var end = document.createElement('div');
@@ -3310,6 +5580,7 @@ document.querySelectorAll('#s13 .s13-reveal').forEach(el => s13observer.observe(
   }
 
   function resetS5() {
+    runToken++;
     body.innerHTML = '';
     removeCursor();
     specCard.classList.remove('show');
@@ -3322,6 +5593,20 @@ document.querySelectorAll('#s13 .s13-reveal').forEach(el => s13observer.observe(
     s5Running = false;
     s5Anchored = false;
     s5State = 'idle';
+  }
+
+  function completeS5() {
+    if (s5State !== 'forward' || !s5Running) return;
+    runToken++;
+    fillTerminalFull();
+    specCard.classList.add('show');
+    archCard.classList.add('show');
+    revealIdx = revealQueue.length;
+    s5DownCount = 0;
+    currentPhase = null;
+    props.forEach(function(p) { p.classList.remove('active'); });
+    s5Running = false;
+    s5State = 'done';
   }
 
   function checkS5() {
@@ -3360,7 +5645,8 @@ document.querySelectorAll('#s13 .s13-reveal').forEach(el => s13observer.observe(
         s5State = 'forward';
         s5Anchored = true;
         s5Running = true;
-        setTimeout(function() { run(0); }, 600);
+        var t = runToken;
+        setTimeout(function() { run(0, t); }, 600);
       }
     }
 
@@ -3369,7 +5655,8 @@ document.querySelectorAll('#s13 .s13-reveal').forEach(el => s13observer.observe(
       s5Anchored = true;
       if (!s5Running) {
         s5Running = true;
-        setTimeout(function() { run(0); }, 600);
+        var t2 = runToken;
+        setTimeout(function() { run(0, t2); }, 600);
       }
     }
 
@@ -3401,12 +5688,9 @@ document.querySelectorAll('#s13 .s13-reveal').forEach(el => s13observer.observe(
   document.addEventListener('keydown', function(e) {
     if (!s5Anchored) return;
 
-    if (e.key === 'ArrowDown') {
-      s5DownCount++;
-      if (s5DownCount % 3 === 0 && revealIdx < revealQueue.length) {
-        revealQueue[revealIdx].classList.add('show');
-        revealIdx++;
-      }
+    if (e.key === 'ArrowDown' && s5State === 'forward' && s5Running) {
+      e.preventDefault();
+      completeS5();
     }
 
   });
@@ -3422,9 +5706,10 @@ document.querySelectorAll('#s13 .s13-reveal').forEach(el => s13observer.observe(
     }
   }
 
-  function typeText(span, text, charMs, cb) {
+  function typeText(span, text, charMs, cb, token) {
     var i = 0;
     function tick() {
+      if (token !== runToken) return;
       if (i < text.length) {
         span.textContent += text[i]; i++;
         scroll();
@@ -3434,28 +5719,20 @@ document.querySelectorAll('#s13 .s13-reveal').forEach(el => s13observer.observe(
     tick();
   }
 
-  function makeLine(cls) {
+  var AI_PREFIX_HTML = '<span class="ai-prefix">AI &rarr; </span>';
+  var AI_INDENT_HTML = '<span class="ai-indent">       </span>';
+
+  function instantLine(cls, text, isFirst) {
     var div = document.createElement('div');
     div.className = 's5-tline';
-    var span = document.createElement('span');
-    span.className = cls;
-    div.appendChild(span);
+    div.innerHTML = (isFirst ? AI_PREFIX_HTML : AI_INDENT_HTML)
+      + '<span class="' + cls + '">' + text + '</span>';
     body.appendChild(div);
-    return span;
+    scroll();
   }
 
-  function playLines(items, idx, cb) {
-    if (idx >= items.length) { if (cb) cb(); return; }
-    var item = items[idx];
-    var clsMap = { ok:'success', ai:'ai' };
-    var span = makeLine(clsMap[item.cls] || 'success');
-    addCursor(span.parentNode);
-    typeText(span, item.text, OK_CHAR_MS, function() {
-      setTimeout(function() { playLines(items, idx + 1, cb); }, LINE_DELAY);
-    });
-  }
-
-  function run(idx) {
+  function run(idx, token) {
+    if (token !== runToken) return;
     if (idx >= script.length) {
       removeCursor();
       var end = document.createElement('div');
@@ -3465,6 +5742,8 @@ document.querySelectorAll('#s13 .s13-reveal').forEach(el => s13observer.observe(
       addCursor(end);
       scroll();
       props.forEach(function(p) { p.classList.remove('active'); });
+      s5Running = false;
+      s5State = 'done';
       return;
     }
 
@@ -3477,7 +5756,7 @@ document.querySelectorAll('#s13 .s13-reveal').forEach(el => s13observer.observe(
       bl.innerHTML = '&nbsp;';
       body.appendChild(bl);
       scroll();
-      setTimeout(function() { run(idx + 1); }, 120);
+      setTimeout(function() { run(idx + 1, token); }, 120);
 
     } else if (step.type === 'cmd') {
       var line = document.createElement('div');
@@ -3490,39 +5769,30 @@ document.querySelectorAll('#s13 .s13-reveal').forEach(el => s13observer.observe(
       addCursor(line);
       scroll();
       typeText(cmdSpan, step.text, CMD_CHAR_MS, function() {
-        setTimeout(function() { removeCursor(); run(idx + 1); }, PAUSE_AFTER_CMD);
-      });
-
-    } else if (step.type === 'ai') {
-      var span = makeLine('ai');
-      addCursor(span.parentNode);
-      typeText(span, step.text, AI_CHAR_MS, function() {
-
-        setTimeout(function() { run(idx + 1); }, PAUSE_AFTER_STEP);
-      });
-
-    } else if (step.type === 'ok') {
-      var span = makeLine('success');
-      addCursor(span.parentNode);
-      typeText(span, step.text, OK_CHAR_MS, function() {
-        if (step.trigger) fireTrigger(step.trigger);
-        setTimeout(function() { run(idx + 1); }, PAUSE_AFTER_STEP);
-      });
-
-    } else if (step.type === 'warn') {
-      var span = makeLine('warn');
-      addCursor(span.parentNode);
-      typeText(span, step.text, AI_CHAR_MS, function() {
+        if (token !== runToken) return;
         removeCursor();
+        setTimeout(function() { run(idx + 1, token); }, PAUSE_AFTER_CMD);
+      }, token);
+
+    } else if (step.type === 'ai' || step.type === 'ok' || step.type === 'warn') {
+      var clsMap = { ai:'ai', ok:'success', warn:'warn' };
+      setTimeout(function() {
+        if (token !== runToken) return;
+        instantLine(clsMap[step.type], step.text, true);
         if (step.trigger) fireTrigger(step.trigger);
-        setTimeout(function() { run(idx + 1); }, PAUSE_AFTER_STEP);
-      });
+        setTimeout(function() { run(idx + 1, token); }, PAUSE_AFTER_STEP);
+      }, WAIT_BEFORE_RESPONSE);
 
     } else if (step.type === 'lines') {
-      playLines(step.items, 0, function() {
+      setTimeout(function() {
+        if (token !== runToken) return;
+        var clsMap = { ok:'success', ai:'ai' };
+        step.items.forEach(function(item, i) {
+          instantLine(clsMap[item.cls] || 'success', item.text, i === 0);
+        });
         if (step.trigger) fireTrigger(step.trigger);
-        setTimeout(function() { run(idx + 1); }, PAUSE_AFTER_STEP);
-      });
+        setTimeout(function() { run(idx + 1, token); }, PAUSE_AFTER_STEP);
+      }, WAIT_BEFORE_RESPONSE);
     }
   }
 
@@ -3534,6 +5804,7 @@ document.querySelectorAll('#s13 .s13-reveal').forEach(el => s13observer.observe(
   document.querySelectorAll('#s5 .s5-reveal').forEach(function(el) { revObs.observe(el); });
 })();
 
+
 /* ── 06-resilience ── */
 (function() {
   var revObs = new IntersectionObserver(function(entries) {
@@ -3542,7 +5813,19 @@ document.querySelectorAll('#s13 .s13-reveal').forEach(el => s13observer.observe(
     });
   }, { threshold: 0.15 });
   document.querySelectorAll('#s6 .s6-reveal').forEach(function(el) { revObs.observe(el); });
+
+  var frame = document.querySelector('#s6 .s6-frame-wrap');
+  var toggle = document.querySelector('#s6 .s6-expand-toggle');
+  if (frame && toggle) {
+    toggle.addEventListener('click', function() {
+      var expanded = frame.classList.toggle('s6-expanded');
+      toggle.textContent = expanded ? '-' : '+';
+      toggle.setAttribute('aria-label', expanded ? 'Collapse resilience tester' : 'Expand resilience tester');
+      toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    });
+  }
 })();
+
 
 /* ── 07-governance ── */
 /* ── Phase 1: scroll-driven problem reveals ── */
@@ -3554,7 +5837,7 @@ function updateS7() {
   const wTop    = s7wrapper.offsetTop;
   const wScroll = s7wrapper.offsetHeight - window.innerHeight;
   const scrolled = y - wTop;
-  const p = wScroll > 0 ? Math.min(scrolled / wScroll, 1) : 0;
+  const p = wScroll > 0 ? Math.max(0, Math.min(scrolled / wScroll, 1)) : 0;
 
   s7els.forEach(el => {
     const step = +el.dataset.s7;
@@ -3638,6 +5921,49 @@ const observer = new IntersectionObserver(entries => {
 
 document.querySelectorAll('#pkg .pkg-reveal, #pkg .pkg-tier').forEach(el => observer.observe(el));
 
+/* ── 10-delivery ── */
+(function() {
+  var revObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('#s10-delivery .s10d-reveal').forEach(function(el) { revObs.observe(el); });
+
+  var wrapper = document.getElementById('s10-delivery-wrapper');
+  var phaseIds = ['s10d-frame', 's10d-govern', 's10d-specify', 's10d-ship', 's10d-improve'];
+
+  function isDeliveryActive() {
+    if (!wrapper) return false;
+    var rect = wrapper.getBoundingClientRect();
+    var midpoint = window.innerHeight / 2;
+    return rect.top <= midpoint && rect.bottom >= midpoint;
+  }
+
+  function currentPhaseIndex() {
+    for (var i = 0; i < phaseIds.length; i++) {
+      var input = document.getElementById(phaseIds[i]);
+      if (input && input.checked) return i;
+    }
+    return 0;
+  }
+
+  function setPhase(idx) {
+    var bounded = Math.max(0, Math.min(idx, phaseIds.length - 1));
+    var input = document.getElementById(phaseIds[bounded]);
+    if (input) input.checked = true;
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (!isDeliveryActive()) return;
+    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+    e.preventDefault();
+    var delta = e.key === 'ArrowDown' ? 1 : -1;
+    setPhase(currentPhaseIndex() + delta);
+  });
+})();
+
+
 /* ── 10-partners ── */
 (function() {
   var revObs = new IntersectionObserver(function(entries) {
@@ -3672,6 +5998,7 @@ const views = [
     document.getElementById('s7-answer-wrapper'),
     document.getElementById('cust-wrapper'),
     document.getElementById('pkg-wrapper'),
+    document.getElementById('s10-delivery-wrapper'),
     document.getElementById('s9-wrapper'),
     document.getElementById('demo-wrapper'),
     document.getElementById('closing')
@@ -3707,6 +6034,7 @@ const views = [
     }
   });
 })();
+
 
 /* ── KIOSK MODE (?kiosk in URL) ── */
 (function() {
@@ -3819,6 +6147,7 @@ const views = [
     }, 800);
   });
 })();
+
 /* DEMO_JS_MARKER */
 </script>
 </body>

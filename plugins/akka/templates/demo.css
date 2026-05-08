@@ -126,8 +126,6 @@
   line-height: 1.08; letter-spacing: -0.03em; color: var(--white);
   margin-bottom: 32px;
 }
-#demo-section .app-panel .tab-headline { margin-bottom: 20px; }
-#demo-section .app-frame-wrap { display: flex; flex-direction: column; }
 #demo-section .tab-headline .accent { color: var(--yellow); }
 
 #demo-section .tab-desc {
@@ -232,14 +230,11 @@
   font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
 }
 #demo-section .app-body {
-  height: calc(100vh - 200px);
-  min-height: 600px;
-  display: flex; align-items: stretch; justify-content: center;
+  height: 420px;
+  display: flex; align-items: center; justify-content: center;
   position: relative;
   background: linear-gradient(135deg, #0A0A0A 0%, #111 100%);
-  overflow: hidden;
 }
-#demo-section .app-body iframe { display: block; flex: 1 1 auto; }
 #demo-section .app-placeholder {
   text-align: center; color: #333;
 }
@@ -247,7 +242,7 @@
 #demo-section .app-placeholder-text { font-size: 14px; }
 
 #demo-section .app-stats {
-  display: flex; gap: 24px; margin: 16px 0 20px;
+  display: flex; gap: 24px; margin-top: 24px;
   flex-wrap: wrap;
 }
 #demo-section .app-stat {

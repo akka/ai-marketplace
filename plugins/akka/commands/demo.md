@@ -452,24 +452,54 @@ After the handoff completes:
 
 ---
 
-## Step 5: Locate Bundled Templates
+## Step 5: Refresh Templates From Upstream
 
-All templates and assets are shipped inside the plugin itself — no network access or build step is required.
+Templates are pulled from the public competitive repo on every run so the slide content, copy, and structure are always current. The plugin only ships a minimal fallback used when the network or Python is unavailable.
 
-### 5a. Find the plugin templates directory
+**Upstream:** `https://github.com/TylerJewell/competitive`
+**Cache root:** `~/.akka/competitive/`
+**Staging root:** `~/.akka/sales-presentation-staged/` (mirrors the plugin layout so §6 substitution and §6h asset copy work unchanged)
 
-Search these candidate paths in order, stopping at the first that exists:
+### 5a. Refresh, build, and stage
+
+Implement this phase as a single Python script at `~/.akka/refresh_demo_templates.py` and execute it. Pure-bash globbing across nested directories is fragile on Windows shells; Python is required for the build anyway.
+
+The script must:
+
+1. **Clone or fast-forward** `~/.akka/competitive/` from `https://github.com/TylerJewell/competitive`.
+   - If the directory does not exist: `git clone --depth 1 https://github.com/TylerJewell/competitive ~/.akka/competitive`
+   - If it exists: `git -C ~/.akka/competitive pull --ff-only`
+   - On any git failure (no network, auth required, repo gone), **do not abort** — log a warning and skip to the fallback in §5c.
+
+2. **Build the deck** by running `python3 ~/.akka/competitive/sales-presentation/builder/build.py --mode overview`. This produces:
+   - `~/.akka/competitive/sales-presentation/generated/overview/index.html`
+   - `~/.akka/competitive/sales-presentation/generated/overview/{images,logos,resilience}/`
+   - On build failure: log the stderr and skip to the fallback in §5c.
+
+3. **Stage into plugin layout** at `~/.akka/sales-presentation-staged/`:
+   - `templates/base.html` ← `generated/overview/index.html`
+   - `templates/demo.css`  ← `slides/12-demo/slide.css`
+   - `templates/demo.html` ← `slides/12-demo/slide.html`
+   - `templates/demo.js`   ← `slides/12-demo/slide.js`
+   - `images/`, `logos/`, `resilience/` ← copied from `generated/overview/`
+   - Use `shutil.copytree(..., dirs_exist_ok=True)` and `shutil.copy2` so re-runs are idempotent.
+
+4. **Record `PLUGIN_DIR` = `~/.akka/sales-presentation-staged/`** when staging succeeded. The remainder of the skill (§5b, §6, §6h) reads from `PLUGIN_DIR` unchanged.
+
+### 5b. Fallback to bundled templates
+
+If git or Python is unavailable, or the build failed, fall back to the bundled copy. Search these candidate paths in order, stopping at the first that exists:
 
 ```
 ~/.claude/plugins/cache/akka-ai-marketplace/akka/*/templates/
 ~/.claude/plugins/marketplaces/akka-ai-marketplace/plugins/akka/templates/
 ```
 
-Use a glob on the version wildcard (`*`) and take the highest version match. Record this as `PLUGIN_DIR` (the `plugins/akka/` root, one level above `templates/`).
+Use a glob on the version wildcard (`*`) and take the highest version match. Record this as `PLUGIN_DIR` (the `plugins/akka/` root, one level above `templates/`). Warn the user that the deck may be stale: `"Couldn't refresh from upstream — using bundled templates. Run /akka:demo with network access to get the latest slides."`
 
-If neither path exists, stop and tell the user: `"Plugin templates not found. Re-install the Akka plugin with: akka plugin install akka"`
+If neither the staging dir nor a bundled path exists, stop and tell the user: `"Plugin templates not found. Re-install the Akka plugin with: akka plugin install akka"`
 
-### 5b. Locate the four template files
+### 5c. Locate the four template files
 
 Read these files in full before beginning substitution:
 
