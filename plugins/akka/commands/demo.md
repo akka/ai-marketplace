@@ -314,7 +314,11 @@ For each component in the group, emit a row + detail panel pair:
 
 ### 2e. Build Design Views entries in the component table
 
-For each spec diagram found (User Journey, Actor-Goal, Entity Map, Component Graph, Sequence), add a row + detail panel in the Design Views group. Render each mermaid diagram source as static HTML using the rules in §7.
+For each spec diagram found (User Journey, Actor-Goal, Entity Map, Component Graph, Sequence), add a row + detail panel in the Design Views group. **Pre-render the mermaid source to SVG with `mmdc` and inline the SVG** (§7 pre-rendering pipeline). Never emit `<pre class="mermaid">` or load mermaid.js — the deck must remain a single, self-contained, offline-capable HTML file.
+
+Sequence diagrams are the one exception: they are converted to the JSON shape consumed by `demo.js` at §2g and rendered as a hand-built SVG by the custom renderer baked into the deck. Do not pre-render sequence mermaid blocks to SVG via mmdc.
+
+The pipeline also applies to any other mermaid block the user has pointed the skill at (e.g. `reference-architecture/*.md`). Treat each one as an additional Design View row.
 
 ### 2f. Count totals
 
@@ -840,9 +844,33 @@ If any of the five Design View diagrams were missing or absent (see §2a), appen
 
 When converting mermaid diagram source to static HTML:
 
-1. **No mermaid.js** — all diagrams are rendered as static HTML/CSS/SVG
-2. **Orthogonal connections only** — right angles, no curves or diagonals
-3. **SVG for lines** — `shape-rendering: crispEdges`, 1px strokes, color `#444`
+1. **No mermaid.js at runtime, ever.** The output `demo.html` MUST be a single, self-contained file that works offline. Pre-render every mermaid block to SVG at generation time and inline the SVG directly into the HTML. Never include `<script src="…mermaid…">` tags or load mermaid from a CDN.
+2. **Orthogonal connections only** — right angles, no curves or diagonals (applies to hand-authored diagrams in §7.x below).
+3. **SVG for lines** — `shape-rendering: crispEdges`, 1px strokes, color `#444` (applies to hand-authored diagrams).
+
+### Pre-rendering pipeline for mermaid sources
+
+When a design view comes from a mermaid block (e.g. found in `plan-diagrams.md`, `reference-architecture/*.md`, or any markdown the user has pointed at):
+
+1. Extract the mermaid source between ```` ```mermaid ```` fences and write it to a temporary `.mmd` file (e.g. `~/.akka/mermaid-tmp/<key>.mmd`).
+2. Pre-render to SVG using `mmdc` from `@mermaid-js/mermaid-cli`. Prefer a globally installed `mmdc`; otherwise invoke it via npx without polluting the user's global packages:
+   ```bash
+   npx -y -p @mermaid-js/mermaid-cli mmdc \
+     -i ~/.akka/mermaid-tmp/<key>.mmd \
+     -o ~/.akka/mermaid-tmp/<key>.svg \
+     -b transparent
+   ```
+3. Inline the produced SVG into the design-view detail panel:
+   - Strip any leading `<?xml …?>` prolog and `<!DOCTYPE …>` line.
+   - Strip the SVG's outer `width="…"` / `height="…"` attributes and add `style="max-width:100%; height:auto; display:block;"` so it scales with its container.
+   - Wrap the inlined SVG in a light-background canvas (`background:#fafafa; border-radius:8px; padding:14px; overflow:auto;`) so the diagram is readable on the deck's dark surface.
+4. **Never** emit a `<pre class="mermaid">` block, a `mermaid.initialize(…)` call, or any reference to a mermaid CDN. If `mmdc` cannot be invoked (no Node, no network, command failed), fall back to the hand-authored static HTML rules in §7.x for the five canonical diagram types.
+
+This pipeline applies to **any** mermaid source the skill discovers — the five canonical diagrams in `plan-diagrams.md`, mermaid blocks elsewhere in `specs/`, and architecture diagrams in `reference-architecture/` — without exception.
+
+### Required tooling
+
+The plugin requires Node.js (≥ 18) and network access on first run so `npx -y -p @mermaid-js/mermaid-cli mmdc` can fetch the renderer. After the first run, `mmdc` is cached in npm's package cache and works offline. Surface a clear error if Node is missing: `"mermaid pre-rendering needs Node.js (≥ 18). Install Node, then re-run /akka:demo."` Do NOT degrade silently to the CDN — that breaks the offline-self-contained guarantee.
 
 **User Journey diagram** — `.dg-journey-nodes` with `.dg-journey-row` elements:
 ```html

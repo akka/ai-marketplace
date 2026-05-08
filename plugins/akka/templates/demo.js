@@ -31,7 +31,6 @@
       if (!isExpanded && detail) {
         this.classList.add('expanded');
         detail.classList.add('open');
-        detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     });
   });
