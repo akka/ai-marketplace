@@ -176,17 +176,20 @@ For each feature, read these files if they exist:
 - **Description** — write **one or two short sentences** in plain English. No jargon. No comma-spliced lists of features. Tell the reader *what the user gets*, not what the system does internally. Example good: *"AI-powered sales workspace. Reps ask plain-English questions and get a ranked list of doctors with reasons. Compliance is enforced live, not after the fact."* Example bad: *"A sales acceleration workspace that demonstrates an agentic stack — natural-language territory queries, explainable next-best-action recommendations, runtime Sunshine Act compliance, and a model-lifecycle drift gate — augmenting the existing recommendation engine without replacing it."*
 - **Bullets** — pick **4–6 bullets total**. Each bullet is **one short layman line** (≤ 12 words). Group similar requirements together rather than listing each FR-### individually. Skip anything that is not differentiating. Drop the words *MUST*, *system*, *user*, and acronyms unless they're already brand-recognizable to the buyer.
 
-**If `plan-diagrams.md` is missing OR fewer than 5 diagram types are present**, automatically invoke `/akka:plan` with this instruction (do not stop or ask the user):
-> "Generate all five mermaid diagram types (User Journey, Actor-Goal, Entity Map, Component Graph, Sequence) and write them to `specs/FEATURE/plan-diagrams.md`."
-
-After `/akka:plan` completes, re-read the file and continue to Step 3. Do not wait for user input between these steps.
-
-The five diagram types are identified by these keywords in the file:
+**Detect which of the five diagram types are present** in `plan-diagrams.md`. The five types are identified by these keywords:
 1. `journey` — User Journey
 2. `flowchart` containing actor/goal nodes — Actor-Goal
 3. `erDiagram` — Entity Map
 4. `flowchart` containing component/annotation nodes — Component Graph
 5. `sequenceDiagram` — Sequence
+
+Decide what to do based on the count of types found:
+
+- **All 5 present** — render every diagram normally and continue silently. No mention to the user.
+- **At least 1 but fewer than 5 present** — render whatever is present. Record which types are missing; surface them in the final §7 report (e.g. `Diagrams: 3 of 5 rendered. Missing: Actor-Goal, Entity Map.`) and tell the user *they can run `/akka:plan` to fill in the missing diagrams*. Do **not** invoke `/akka:plan` automatically.
+- **None present** (file missing, empty, or contains zero recognized diagram types) — skip the Design Views group entirely. In the final report, tell the user *no diagrams were found in `plan-diagrams.md`; run `/akka:plan` to generate all five, then re-run `/akka:demo`*. Do **not** invoke `/akka:plan` automatically.
+
+The rule of thumb: never silently regenerate diagrams the user already authored or auto-invoke another skill on their behalf. If at least one diagram exists, the user has touched this file — respect that and only render what's there.
 
 From `spec.md`, derive:
 - `DEMO_TITLE` — project name formatted as HTML, e.g. `Social Proofing <span class="accent">Agent</span>`
@@ -825,6 +828,12 @@ Done.
   Deploy          /akka:deploy
 ```
 
+If any of the five Design View diagrams were missing or absent (see §2a), append a line to the report **before** "Done.":
+
+- All 5 present: omit the line.
+- 1–4 present: `Diagrams: N of 5 rendered. Missing: <comma-separated list>. Run /akka:plan to fill them in, then re-run /akka:demo.`
+- 0 present: `Diagrams: none found in plan-diagrams.md. Run /akka:plan to generate all five, then re-run /akka:demo.`
+
 ---
 
 ## Diagram Rendering Rules (§7)
@@ -881,7 +890,7 @@ Phase classes: `dg-journey-p1` (blue), `dg-journey-p2` (amber), `dg-journey-p3` 
 
 - **No pom.xml found** — tell the user this doesn't appear to be an Akka project. Suggest `/akka:setup`.
 - **No specs found** — generate without Brief tab spec content. Use project name + component summary as fallback description.
-- **No diagrams found** — skip Design Views group in Architecture tab. Component code viewer still works.
+- **No diagrams found** — skip Design Views group in Architecture tab. Component code viewer still works. Surface the missing-diagram message in the §7 report so the user knows to run `/akka:plan`. Do **not** auto-invoke `/akka:plan`.
 - **Build fails** — generate the presentation anyway. App tab shows the error and suggests `/akka:build`.
 - **No Java files found** — error and stop; cannot generate a demo without components.
 - **akka_local_status shows started but port unknown** — use port 9000 as default.
