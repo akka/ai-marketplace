@@ -811,6 +811,38 @@ done
 
 Do not list directories by name — the loop ensures all of them (images, logos, resilience, and any future additions) are copied.
 
+### Package as a self-contained zip
+
+After the HTML and all assets are written, **always** package them into a single distributable zip so the deck can be emailed or dropped on a partner's machine without an unpack step on the sender's side.
+
+Bundle everything sitting next to `OUTPUT` in `OUT_DIR` that the deck references — `demo.html` itself plus every asset subdirectory that was copied in the previous step (`images/`, `logos/`, `resilience/`, and any future additions). Use a wildcard walk over `OUT_DIR` so newly added asset directories are picked up automatically. Do not include the project's own application files (e.g. `index.html`, `app.js`, `style.css` from `static-resources/`) — those are the host service's UI, not the deck.
+
+```python
+import os, zipfile
+
+ZIP_INCLUDES = {'demo.html', 'images', 'logos', 'resilience'}  # extend as new asset dirs appear
+ZIP_PATH = os.path.join(OUT_DIR, f"{project_slug}-demo.zip")
+
+with zipfile.ZipFile(ZIP_PATH, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=6) as z:
+    for entry in os.listdir(OUT_DIR):
+        if entry not in ZIP_INCLUDES:
+            continue
+        full = os.path.join(OUT_DIR, entry)
+        if os.path.isfile(full):
+            z.write(full, entry)
+        else:
+            for dirpath, _, files in os.walk(full):
+                for f in files:
+                    fp = os.path.join(dirpath, f)
+                    z.write(fp, os.path.relpath(fp, OUT_DIR))
+```
+
+`project_slug` is the lowercased, hyphen-separated artifactId from `pom.xml` (e.g. `email-agent`). For overview mode (no project introspection), use `akka-presentation`.
+
+The zip MUST be self-contained: a partner who unzips it anywhere should be able to double-click `demo.html` and see the deck render correctly with no network access. If the deck references any new asset directory in the future, add it to `ZIP_INCLUDES` so it travels with the zip.
+
+Include the zip emission in `gen_demo.py` (after the asset copy in §6h) so it happens automatically on every run.
+
 ### Restart service (live mode only)
 
 Akka serves static files from the **compiled classpath** (`target/classes/`), not directly from `src/main/resources/`. The files written above won't be accessible until the service is recompiled and restarted.
@@ -824,10 +856,11 @@ After restart, the presentation is live at `http://localhost:PORT/demo.html` and
 ```
 Done.
 
-  Presentation    http://localhost:PORT/demo.html   (live mode)
-  Presentation    open OUTPUT_PATH                  (other modes)
-  Live App        http://localhost:PORT/             (live mode only)
-  Console         http://localhost:9889             (if runtime running)
+  Presentation    http://localhost:PORT/demo.html       (live mode)
+  Presentation    open OUTPUT_PATH                      (other modes)
+  Distributable   {OUT_DIR}/{project_slug}-demo.zip     (always)
+  Live App        http://localhost:PORT/                (live mode only)
+  Console         http://localhost:9889                 (if runtime running)
   Resilience      /akka:reliability
   Deploy          /akka:deploy
 ```
