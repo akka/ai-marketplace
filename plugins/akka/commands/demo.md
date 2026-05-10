@@ -314,11 +314,13 @@ For each component in the group, emit a row + detail panel pair:
 
 ### 2e. Build Design Views entries in the component table
 
-For each spec diagram found (User Journey, Actor-Goal, Entity Map, Component Graph, Sequence), add a row + detail panel in the Design Views group. **Pre-render the mermaid source to SVG with `mmdc` and inline the SVG** (§7 pre-rendering pipeline). Never emit `<pre class="mermaid">` or load mermaid.js — the deck must remain a single, self-contained, offline-capable HTML file.
+For each spec diagram found (User Journey, Actor-Goal, Entity Map, Component Graph, Sequence), add a row + detail panel in the Design Views group. **Render each canonical diagram into the hand-authored Akka-themed HTML structures defined in §7.x** — `.dg-journey-nodes`, `.dg-ag-table`, `.dg-entity-map`, and `.dg-layer`. These structures are styled by `demo.css` to match the deck's dark/yellow theme; mmdc default-theme SVGs on a light background are NOT acceptable for the five canonical diagram types. Never emit `<pre class="mermaid">` or load mermaid.js — the deck must remain a single, self-contained, offline-capable HTML file.
 
-Sequence diagrams are the one exception: they are converted to the JSON shape consumed by `demo.js` at §2g and rendered as a hand-built SVG by the custom renderer baked into the deck. Do not pre-render sequence mermaid blocks to SVG via mmdc.
+Parse the mermaid source from `plan-diagrams.md` to extract the content (journey rows, actor/goal pairs, entity nodes and relationships, layered components and edges, sequence participants and messages) and populate the hand-authored structures. The mermaid source is structured input, not display markup — treat it as the data and let `demo.css` handle the styling.
 
-The pipeline also applies to any other mermaid block the user has pointed the skill at (e.g. `reference-architecture/*.md`). Treat each one as an additional Design View row.
+Sequence diagrams use the JSON-to-SVG path: convert to the shape at §2g, set `window.DEMO_SEQUENCE_DATA`, and let `demo.js` render to `<div id="seqDiagram">` at runtime.
+
+For any **non-canonical** mermaid block the user has pointed the skill at (e.g. `reference-architecture/*.md`, ad-hoc mermaid in other markdown), fall through to the mmdc pre-rendering pipeline in §7. Those are extras, not first-class design views, and a light `#fafafa` panel is acceptable for them.
 
 ### 2f. Count totals
 
@@ -877,16 +879,31 @@ If any of the five Design View diagrams were missing or absent (see §2a), appen
 
 When converting mermaid diagram source to static HTML:
 
-1. **No mermaid.js at runtime, ever.** The output `demo.html` MUST be a single, self-contained file that works offline. Pre-render every mermaid block to SVG at generation time and inline the SVG directly into the HTML. Never include `<script src="…mermaid…">` tags or load mermaid from a CDN.
-2. **Orthogonal connections only** — right angles, no curves or diagonals (applies to hand-authored diagrams in §7.x below).
-3. **SVG for lines** — `shape-rendering: crispEdges`, 1px strokes, color `#444` (applies to hand-authored diagrams).
+1. **No mermaid.js at runtime, ever.** The output `demo.html` MUST be a single, self-contained file that works offline. Inline pre-built HTML/SVG at generation time. Never include `<script src="…mermaid…">` tags or load mermaid from a CDN.
+2. **Hand-authored Akka-themed renderings are the default for the five canonical diagrams.** mmdc default-theme SVGs on a light `#fafafa` panel are explicitly NOT acceptable for User Journey, Actor-Goal, Entity Map, or Component Graph — they clash with the deck's dark/yellow theme. Use the structures defined in §7.x and let `demo.css` style them.
+3. **Orthogonal connections only** — right angles, no curves or diagonals (applies to hand-authored diagrams in §7.x below).
+4. **SVG for lines** — `shape-rendering: crispEdges`, 1px strokes, color `#444` (applies to hand-authored diagrams).
 
-### Pre-rendering pipeline for mermaid sources
+### Parsing mermaid source for the five canonical diagrams
 
-When a design view comes from a mermaid block (e.g. found in `plan-diagrams.md`, `reference-architecture/*.md`, or any markdown the user has pointed at):
+Treat the mermaid source in `plan-diagrams.md` as **structured data**, not display markup. Extract the content and populate the hand-authored §7.x structures:
+
+| Mermaid block | Extract | Populate |
+|---|---|---|
+| `journey` | section names, task lines (`Task: score: actor`) | `.dg-journey-nodes` rows; group by section, color phase by section order (P1/P2/P3) |
+| `flowchart` (actor/goal) | actor nodes, goal nodes, edges | `<table class="dg-ag-table">` rows: Actor → Goal → Components → External |
+| `erDiagram` | entities and relationships | `.dg-entity-map` with `.dg-node` per entity, colored per §2d component-type palette |
+| `flowchart` (component) | nodes grouped into subgraphs (External, API, Application), edges | Layered `.dg-layer` divs with `.dg-layer-nodes` and `.dg-conn-tree` connectors |
+| `sequenceDiagram` | participants, messages, regions | JSON for `window.DEMO_SEQUENCE_DATA` (see §2g); rendered by `demo.js` at runtime |
+
+If parsing fails for a canonical diagram (mermaid syntax the parser doesn't understand, missing structure, etc.), surface the failure in the §7 report — do NOT silently fall back to mmdc for canonical types. The user can fix the mermaid source and re-run, or run `/akka:plan` to regenerate it.
+
+### Mmdc fallback pipeline (non-canonical mermaid only)
+
+For mermaid blocks **outside** the five canonical types — e.g. extras the user pointed the skill at via `reference-architecture/*.md` or ad-hoc mermaid in other markdown — pre-render to SVG via `mmdc`:
 
 1. Extract the mermaid source between ```` ```mermaid ```` fences and write it to a temporary `.mmd` file (e.g. `~/.akka/mermaid-tmp/<key>.mmd`).
-2. Pre-render to SVG using `mmdc` from `@mermaid-js/mermaid-cli`. Prefer a globally installed `mmdc`; otherwise invoke it via npx without polluting the user's global packages:
+2. Pre-render to SVG using `mmdc` from `@mermaid-js/mermaid-cli`. Prefer a globally installed `mmdc`; otherwise invoke it via npx:
    ```bash
    npx -y -p @mermaid-js/mermaid-cli mmdc \
      -i ~/.akka/mermaid-tmp/<key>.mmd \
@@ -896,14 +913,14 @@ When a design view comes from a mermaid block (e.g. found in `plan-diagrams.md`,
 3. Inline the produced SVG into the design-view detail panel:
    - Strip any leading `<?xml …?>` prolog and `<!DOCTYPE …>` line.
    - Strip the SVG's outer `width="…"` / `height="…"` attributes and add `style="max-width:100%; height:auto; display:block;"` so it scales with its container.
-   - Wrap the inlined SVG in a light-background canvas (`background:#fafafa; border-radius:8px; padding:14px; overflow:auto;`) so the diagram is readable on the deck's dark surface.
-4. **Never** emit a `<pre class="mermaid">` block, a `mermaid.initialize(…)` call, or any reference to a mermaid CDN. If `mmdc` cannot be invoked (no Node, no network, command failed), fall back to the hand-authored static HTML rules in §7.x for the five canonical diagram types.
+   - Wrap the inlined SVG in a light-background canvas (`background:#fafafa; border-radius:8px; padding:14px; overflow:auto;`). Acceptable for non-canonical extras only.
+4. **Never** emit a `<pre class="mermaid">` block, a `mermaid.initialize(…)` call, or any reference to a mermaid CDN. If `mmdc` cannot be invoked, omit the extra diagram and note it in the §7 report.
 
-This pipeline applies to **any** mermaid source the skill discovers — the five canonical diagrams in `plan-diagrams.md`, mermaid blocks elsewhere in `specs/`, and architecture diagrams in `reference-architecture/` — without exception.
+### Optional tooling
 
-### Required tooling
+`mmdc` is only needed when the skill encounters non-canonical mermaid blocks. The five canonical diagrams render entirely from hand-authored structures and require no Node.js. If a project only has `plan-diagrams.md` (no extra mermaid elsewhere), the skill should run successfully with no Node dependency.
 
-The plugin requires Node.js (≥ 18) and network access on first run so `npx -y -p @mermaid-js/mermaid-cli mmdc` can fetch the renderer. After the first run, `mmdc` is cached in npm's package cache and works offline. Surface a clear error if Node is missing: `"mermaid pre-rendering needs Node.js (≥ 18). Install Node, then re-run /akka:demo."` Do NOT degrade silently to the CDN — that breaks the offline-self-contained guarantee.
+If non-canonical mermaid is present and Node is missing, surface a clear message: `"Extra mermaid block at <path> requires Node.js (≥ 18) for mmdc rendering. Install Node and re-run, or remove the block."` Do NOT degrade silently to a CDN — that breaks the offline-self-contained guarantee.
 
 **User Journey diagram** — `.dg-journey-nodes` with `.dg-journey-row` elements:
 ```html
