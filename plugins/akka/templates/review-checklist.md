@@ -39,7 +39,7 @@ Reference: Akka SDK AI coding assistant guidelines, Developer best practices.
 - E1 [CRITICAL]: `@Consume.*` annotation is on the inner `TableUpdater` subclass, NOT on the outer `View` class — wrong placement causes the view to not function. Ref: SDK samples.
 - E2 [CRITICAL]: ESE views use `onEvent(Event)`, KVE views use `onUpdate(State)` — wrong handler type means the view never populates. Ref: views docs.
 - E3 [CRITICAL]: Multi-row query methods return a wrapper record with `List<Row> items` and use `SELECT * AS items` — returning `QueryEffect<List<Row>>` directly is not supported. Ref: guidelines, views docs.
-- E4 [CRITICAL]: View row fields are never null — views struggle with null values in queries and projections. Use `Optional<T>` for fields that may be absent, or ensure `TableUpdater` handlers set explicit defaults. See also J3. Ref: views docs.
+- E4 [CRITICAL]: View row fields are never null — views struggle with null values in queries and projections. Use `Optional<T>` for fields that may be absent, or ensure `TableUpdater` handlers set explicit defaults. See also J2. Ref: views docs.
 
 ## F. Error Handling & ComponentClient
 
@@ -74,10 +74,10 @@ Reference: Data sanitization documentation.
 
 ## J. Serialization Conventions
 
-- J1 [RECOMMENDED]: All persisted records (ESE events, workflow state, KVE state) have `@TypeName("...")` — highly recommended to simplify refactoring; without it, FQCN is used and renaming the class requires migration. Ref: serialization docs.
-- J2 [RECOMMENDED]: Events are sealed interfaces with `@TypeName` on each variant record.
-- J3 [RECOMMENDED]: Optional fields use `Optional<T>` rather than nullable fields.
-- J4 [RECOMMENDED]: State transitions return new record instances via immutable `with*()` methods.
+- J1 [RECOMMENDED]: All sealed interface subtypes (ESE events, workflow step input variants) have `@TypeName("...")` on each variant record — essential for maintainability and correct routing. Note: plain records (entity state, KVE state, workflow state) do NOT need `@TypeName` — it is only required for sealed interface subtypes where the runtime must distinguish between variants. Ref: serialization docs — type name, event-sourced-entities docs, views docs, ai-coding-assistant-guidelines.
+- J2 [RECOMMENDED]: Optional fields use `Optional<T>` rather than nullable fields.
+- J3 [RECOMMENDED]: State transitions return new record instances via immutable `with*()` methods.
+- J4 [RECOMMENDED]: When using Protobuf serialization instead of Jackson, Event Sourced Entity and Consumer classes have the `@ProtoEventTypes` annotation listing all event types — unlisted message types will fail the stream and stall the consumer/view until a supporting version is deployed. Ref: serialization docs — protobuf serialization.
 
 ## K. Architecture & Conventions
 
