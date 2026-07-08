@@ -33,3 +33,7 @@ Place an `enterprise.yaml` manifest at `.akka/enterprise.yaml` (project-level), 
 - Custom context documentation sources
 - Governance rules and constitutions
 - SDLC gates and deployment overrides
+
+---
+
+Adapted in part from [Spec Kit](https://github.com/github/spec-kit) (MIT). See [`ACKNOWLEDGEMENTS.md`](../../ACKNOWLEDGEMENTS.md).
