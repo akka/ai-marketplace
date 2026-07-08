@@ -19,6 +19,7 @@ This single command handles everything: dependency installation, project scaffol
 /akka:plan      → Create implementation plan
 /akka:tasks     → Break plan into tasks
 /akka:implement → Execute tasks
+/akka:converge  → Re-check code against spec/plan/tasks; append remaining work
 /akka:build     → Build, test, run locally
 /akka:deploy    → Deploy to Akka platform
 /akka:review    → Review against spec and constitution

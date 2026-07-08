@@ -83,3 +83,13 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 - Use absolute paths
 - ERROR on gate failures or unresolved clarifications
+
+## Done When
+
+- [ ] FEATURE_DIR, FEATURE_SPEC, and the plan template were resolved via `akka_sdd_list_specs` and `akka_sdd_get_template`.
+- [ ] Technical Context is filled with concrete values; any remaining unknowns are explicitly marked `NEEDS CLARIFICATION`.
+- [ ] Constitution Check was filled from `akka_sdd_constitution`, evaluated before Phase 0, and re-evaluated after Phase 1 design — with any violations either resolved or explicitly justified in the Complexity Tracking section.
+- [ ] Phase 0 produced `research.md` with every `NEEDS CLARIFICATION` resolved (Decision / Rationale / Alternatives).
+- [ ] Phase 1 produced `data-model.md`, `quickstart.md`, and — if the project exposes external interfaces — `contracts/`.
+- [ ] `FEATURE_DIR/plan.md` was written using the template structure and no gate error was left unresolved.
+- [ ] Completion was reported with the branch, plan path, generated artifacts, and the next-command recommendation (`/akka:tasks`).

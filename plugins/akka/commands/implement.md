@@ -152,3 +152,15 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Report final status with summary of completed work
 
 Note: This command assumes a complete task breakdown exists in tasks.md. If tasks are incomplete or missing, suggest running `/akka:tasks` first to regenerate the task list.
+
+## Done When
+
+- [ ] FEATURE_DIR and `tasks.md` were resolved via `akka_sdd_list_specs` with `has_tasks == true`.
+- [ ] The current git branch is the feature branch from spec.md (created via `akka_git_create_branch` if needed) — no implementation work happened on `main`.
+- [ ] The checklists status table was displayed; if any checklist had incomplete items, the user explicitly approved proceeding.
+- [ ] Every applicable ignore file (`.gitignore`, `.dockerignore`, `.eslintignore`/eslint config, `.prettierignore`, `.npmignore`, `.terraformignore`, `.helmignore`) was created or verified with the correct patterns for the detected tech stack.
+- [ ] Tasks were executed phase-by-phase, respecting sequential dependencies and running `[P]` tasks in parallel where safe.
+- [ ] Every completed task in `tasks.md` was marked `[X]`; any failed task halted execution (or, for `[P]` tasks, was reported while continuing successful siblings).
+- [ ] All changes were staged via `akka_git_add` and committed via `akka_git_commit` with a descriptive message.
+- [ ] The user was asked whether to merge the feature branch to `main`; the answer was acted on (`akka_git_checkout` + `akka_git_merge` on yes, stay on feature branch on no).
+- [ ] The final report validates that implemented features match the spec, tests pass, and the implementation follows the plan.

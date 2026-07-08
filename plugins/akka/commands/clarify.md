@@ -178,3 +178,13 @@ Behavior rules:
 - If quota reached with unresolved high-impact categories remaining, explicitly flag them under Deferred with rationale.
 
 Context for prioritization: $ARGUMENTS
+
+## Done When
+
+- [ ] The active FEATURE_DIR and FEATURE_SPEC were resolved via `akka_sdd_list_specs` (or the user was told to run `/akka:specify` first).
+- [ ] A structured ambiguity & coverage scan was performed across every taxonomy category with a Clear / Partial / Missing status.
+- [ ] No more than 5 questions were asked in total; each was answerable with a short multiple-choice selection or a `<=5`-word short answer.
+- [ ] Each accepted answer produced exactly one bullet under `## Clarifications` → `### Session YYYY-MM-DD` and was integrated into the correct target section (Functional Requirements, User Stories, Data Model, Non-Functional / Quality Attributes, Edge Cases, or terminology).
+- [ ] Any earlier statement invalidated by a clarification was replaced, not duplicated.
+- [ ] The spec file was saved to FEATURE_SPEC after each integration and passes validation (no lingering vague placeholders the new answer was meant to resolve; markdown structure valid; only allowed new headings added).
+- [ ] The final report listed questions asked/answered, sections touched, a coverage summary (Resolved / Deferred / Clear / Outstanding), and the suggested next command.

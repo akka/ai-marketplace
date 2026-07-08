@@ -137,3 +137,16 @@ compilation or unit tests happen here; use `/akka:build` for that.
 - Report failures with evidence, not just "it failed"
 - If the spec is vague about expected behavior, state what you observed and
   ask the user whether it matches their intent
+
+## Done When
+
+- [ ] `akka_local_status` confirmed the service is running (or the command stopped and told the user to run `/akka:build` first).
+- [ ] `akka_sdd_list_specs` resolved a single target feature — matched by `$ARGUMENTS`, auto-selected when only one exists, or explicitly chosen by the user — and its `spec.md` was read (or the command stopped and told the user to run `/akka:specify`).
+- [ ] The spec was parsed for API endpoints, entities, workflows, views, agents, and acceptance criteria before any tool calls were made.
+- [ ] `akka_backoffice_list_components` (`local=true`) produced a component inventory; any component present in the spec but missing at runtime — or present at runtime but not in the spec — was flagged.
+- [ ] Every API endpoint defined in the spec was exercised via `akka_local_request` in a logical order (create before read/update/delete), covering happy-path, command, query, and any spec-defined error cases; each request/response pair was recorded for the report.
+- [ ] Internal state was verified against the API's effects using backoffice tools with `local=true`: entity state (`akka_backoffice_get_entity_state`), event journals (`akka_backoffice_list_events`), workflow steps (`akka_backoffice_get_workflow`), view projections (`akka_backoffice_query_view`), agent interactions (`akka_backoffice_list_agent_interactions`), and timers (`akka_backoffice_list_timers`) — with pagination when needed.
+- [ ] Browser inspection ran only if the spec defines a web UI; when it ran, `akka_browser_screenshot`, `akka_browser_snapshot`, and interaction tools captured the UI state and cross-referenced it with view/entity state, and `akka_browser_close` was called at the end. When the spec has no UI, this step was explicitly skipped.
+- [ ] NO code, configuration, or service state was modified beyond what the exercised API calls naturally produced (this is inspection only).
+- [ ] Every backoffice call used `local=true`; runtime crashes were reported with a link to `akka_local_logs` output rather than silently swallowed.
+- [ ] The final report organizes findings by the spec's acceptance criteria (each pass/fail with evidence), lists the component inventory, API endpoint results, internal-state consistency, browser findings, issues (blocker / warning / observation), and a next-step recommendation (`/akka:implement`, `/akka:review`, or `/akka:deploy`).

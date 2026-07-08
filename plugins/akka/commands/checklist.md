@@ -291,3 +291,15 @@ Sample items:
 - Correct: Validation of requirement quality
 - Wrong: "Does it do X?"
 - Correct: "Is X clearly specified?"
+
+## Done When
+
+- [ ] FEATURE_DIR and available artifacts were resolved via `akka_sdd_list_specs`; spec/plan/tasks were loaded only where relevant to the active focus areas (progressive disclosure).
+- [ ] No more than 3 initial clarifying questions were asked (with up to 2 targeted follow-ups only if ≥2 scenario classes remained unclear, capped at 5 total); any question already answered by `$ARGUMENTS` was skipped.
+- [ ] `FEATURE_DIR/checklists/[domain].md` was created (or appended to if it already exists) with a short, descriptive filename tied to the derived theme.
+- [ ] Every checklist item is a "unit test for English" — a question about requirement quality (Completeness / Clarity / Consistency / Measurability / Coverage / Edge Cases), never a verification of implementation behavior.
+- [ ] Items are numbered sequentially starting from `CHK001` on a fresh file, and continue from the last CHK-ID when appending.
+- [ ] No item uses the prohibited implementation-test vocabulary ("Verify", "Test", "Confirm" + behavior, "click", "navigate", "render", "load", "execute").
+- [ ] At least 80% of items carry a traceability reference (`[Spec §X.Y]`, `[Gap]`, `[Ambiguity]`, `[Conflict]`, or `[Assumption]`).
+- [ ] Total item count respects the soft cap (>40 raw candidates → prioritized by risk/impact and near-duplicates merged).
+- [ ] The report includes the full path to the checklist, item count, focus areas, depth level, actor/timing, and the reminder that each run creates a new file per domain.

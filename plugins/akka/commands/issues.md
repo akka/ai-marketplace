@@ -23,3 +23,10 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 > [!CAUTION]
 > UNDER NO CIRCUMSTANCES EVER CREATE ISSUES IN REPOSITORIES THAT DO NOT MATCH THE REMOTE URL
+
+## Done When
+
+- [ ] FEATURE_DIR and `tasks.md` were resolved via `akka_sdd_list_specs` with `has_tasks == true`.
+- [ ] The git remote was inspected and confirmed to point at a GitHub repository — for any non-GitHub remote the command stopped without creating issues.
+- [ ] Every issue was created in the repository derived from that remote and in no other repository.
+- [ ] One GitHub issue was created per unimplemented task from `tasks.md`, and the count of created issues was reported to the user.

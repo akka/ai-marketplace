@@ -82,3 +82,15 @@ If the user supplies partial updates (e.g., only one principle revision), still 
 If critical info missing (e.g., ratification date truly unknown), insert `TODO(<FIELD_NAME>): explanation` and include in the Sync Impact Report under deferred items.
 
 Do not create a new template; always operate on the existing the project constitution (via `akka_sdd_constitution`) file.
+
+## Done When
+
+- [ ] The current constitution was loaded via `akka_sdd_constitution` (or initialized from `.akka/templates/constitution-template.md` if truly missing).
+- [ ] Every `[ALL_CAPS_IDENTIFIER]` placeholder was replaced with concrete text — any intentionally-deferred slot is explicitly justified in the Sync Impact Report.
+- [ ] `CONSTITUTION_VERSION` was incremented per semver rules (MAJOR / MINOR / PATCH) with the bump rationale stated in the summary.
+- [ ] `RATIFICATION_DATE` was preserved and `LAST_AMENDED_DATE` was updated to today (ISO `YYYY-MM-DD`) if changes were made.
+- [ ] Consistency propagation was verified against `.akka/templates/plan-template.md`, `.akka/templates/spec-template.md`, `.akka/templates/tasks-template.md`, every `.akka/templates/commands/*.md`, and runtime guidance docs (README, quickstart, agent guidance).
+- [ ] Every principle is declarative, testable, and uses explicit MUST/SHOULD language — no vague `should` without rationale.
+- [ ] A Sync Impact Report was prepended as an HTML comment at the top of the constitution listing version change, modified/added/removed sections, templates updated (✅ / ⚠), and any TODOs.
+- [ ] The updated constitution was written back via `akka_sdd_constitution` (overwrite).
+- [ ] The final summary reports the new version, bump rationale, files flagged for manual follow-up, and a suggested commit message.

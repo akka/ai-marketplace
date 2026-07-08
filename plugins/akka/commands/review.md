@@ -172,3 +172,15 @@ copy that you can modify:
 
 If `.akka/review-checklist.md` does not exist, the plugin's built-in checklist
 is used.
+
+## Done When
+
+- [ ] The review mode was decided and stated up front: **Full review** (no feature named / project-wide requested) or **Feature review** (feature name given, or SDD artifacts exist and no explicit full-review request).
+- [ ] In feature review mode: FEATURE_DIR was resolved via `akka_sdd_list_specs`; `spec.md`, `plan.md`, `tasks.md`, and every file under `checklists/` were loaded; the constitution was loaded via `akka_sdd_constitution`; the implementation was assessed for functional-requirement and acceptance-criterion coverage with any deviations either justified or flagged.
+- [ ] The best-practices checklist was loaded from `.akka/review-checklist.md` if present, else from `akka_sdd_get_template` with template name `review-checklist`; every check was walked and marked PASS / WARN / FAIL, with WARN and FAIL items citing the exact file path and line number.
+- [ ] Runtime verification via backoffice tools (`akka_backoffice_list_components`, `akka_backoffice_list_events`, `akka_backoffice_get_workflow`, `akka_backoffice_query_view`, `akka_backoffice_list_agent_interactions`) was performed with `local=true` if the service is running — or explicitly noted as skipped because the service is not running.
+- [ ] Evidence was gathered by grep and file reads, not assumption — every finding cites a specific file path, line number, and the rule it violates (e.g. "violates A3"); CRITICAL findings are FAIL, RECOMMENDED are WARN, DESIGN are OBSERVATION.
+- [ ] The Section Scores table was emitted with pass/total counts per section, applicable checks only, followed by TOTAL CRITICAL / RECOMMENDED / DESIGN.
+- [ ] ALL findings were listed (not a top-N), grouped CRITICAL → RECOMMENDED → DESIGN, and within each group ordered by impact.
+- [ ] The final report explicitly states the review mode, an overall assessment (`approved` / `approved with issues` / `needs rework`), per-section pass rates, spec-alignment summary (feature review only), and recommendations.
+- [ ] Good patterns observed were acknowledged, not only problems.

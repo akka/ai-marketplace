@@ -95,3 +95,13 @@ If `akka_local_start` reports a port conflict, ask the user whether to:
 - The local environment (akka_local_start) provides gRPC proxying and service discovery
 - Report failures clearly with actionable fixes
 - If the user explicitly asks to deploy, hand off to `/akka:deploy`
+
+## Done When
+
+- [ ] `akka_maven_compile` returned success — no `[ERROR]` lines remain unaddressed.
+- [ ] `akka_maven_test` completed and every reported failure was either fixed or explicitly handed off to `/akka:implement`.
+- [ ] `akka_local_start` reports the local runtime active on `localhost:9889` (idempotent — already-running is fine).
+- [ ] The service was launched via `akka_local_run_service`; any `environment` overrides requested by the user were passed through.
+- [ ] `akka_local_status` confirms the service registered, and `akka_local_logs` (`source: "service"`) shows no unhandled startup errors.
+- [ ] The report summarizes compilation (pass/fail), tests (N passed, M failed), local service status with endpoint URL through the local proxy, and the next-step recommendation (`/akka:inspect` to inspect, `/akka:implement` to iterate, or `/akka:deploy` to ship).
+- [ ] NO Docker image was built and NO platform deploy was attempted — this stayed strictly local.

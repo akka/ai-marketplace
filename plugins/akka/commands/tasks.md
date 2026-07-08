@@ -135,3 +135,13 @@ Every task MUST strictly follow this format:
   - Within each story: Tests (if requested) → Models → Services → Endpoints → Integration
   - Each phase should be a complete, independently testable increment
 - **Final Phase**: Polish & Cross-Cutting Concerns
+
+## Done When
+
+- [ ] `FEATURE_DIR/tasks.md` was written using the template returned by `akka_sdd_get_template` (or the built-in fallback if the template call returned empty).
+- [ ] Phase structure is Phase 1 Setup, Phase 2 Foundational, Phase 3+ one phase per user story in priority order, and a Final Polish phase.
+- [ ] Every task line strictly matches `- [ ] TXXX [P?] [Story?] <description with file path>` — task ID, optional `[P]` parallel marker, `[US#]` label on user-story-phase tasks only, and an exact file path.
+- [ ] Task IDs are sequential (`T001, T002, …`) and unique across the file.
+- [ ] Every user story from spec.md has all needed tasks and is independently testable per the story goal and independent test criteria in its phase header.
+- [ ] A Dependencies section lists user-story completion order, and a Parallel Execution Examples subsection is provided per story.
+- [ ] The report includes total task count, per-story count, parallel opportunities, and the suggested MVP scope (typically User Story 1 only).

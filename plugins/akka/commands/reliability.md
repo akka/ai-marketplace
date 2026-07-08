@@ -246,3 +246,25 @@ _"Reliability testing artifacts removed."_
   request. The user can edit the config and changes take effect immediately.
 - **MCP tools only** — use `akka_*` tools for all interactions. Never use
   shell commands directly.
+
+## Done When
+
+**Attach workflow:**
+
+- [ ] Required MCP tools were verified available (`akka_local_start`, `akka_local_run_service`, `akka_local_cluster_status`, `akka_local_status`, `akka_backoffice_list_components`, `akka_backoffice_discovery`) — the command stopped and told the user to update the Akka CLI if any were missing.
+- [ ] `akka_local_status` confirms the daemon is running (started via `akka_local_start` with `postgres: true` if needed).
+- [ ] A 3-node local cluster is running (started via `akka_local_run_service` with `nodes: 3` if not already active) and `akka_local_cluster_status` verifies all nodes are up.
+- [ ] The service name came from `pom.xml`'s `<artifactId>` — not inferred from folder name or domain — and was passed as the `service` parameter to every backoffice call.
+- [ ] `akka_backoffice_list_components` (`local: true`) returned the component inventory and endpoint definitions; the full inventory was presented to the user with the auto-selected READ and WRITE operations, and the user confirmed or overrode the selection before the config was written.
+- [ ] Auto-selection followed the documented preferences: READ preferred a parameterless `GET`, WRITE preferred a `POST`/`PUT` that mutates entity state (Agent endpoints only if no other write exists); no explanatory notes about missing/rejected endpoints were added to the confirmation prompt.
+- [ ] The write body template was constructed from `akka_backoffice_discovery` protobuf definitions — not from reading source files — with `{id}` placeholders for string IDs.
+- [ ] `.akka/reliability.yml` was written with the service name, selected read/write operations (method, path, component, description, body template for write), and `cluster.nodes: 3`; `.akka/reliability.manifest` was written listing generated files.
+- [ ] The report tells the user the dashboard URL `http://localhost:9889/resilience/`, describes what the dashboard supports, and reminds them the config is hot-reloaded on edit.
+- [ ] NO Java, HTML, or other code was generated in the user's project — only `.akka/reliability.yml` and `.akka/reliability.manifest` were written.
+
+**Remove workflow:**
+
+- [ ] `.akka/reliability.manifest` was read (or the user was told there is nothing to remove).
+- [ ] The list of files to be deleted was presented and the user explicitly confirmed removal.
+- [ ] Each manifested file was deleted; for legacy artifacts including generated Java, `akka_maven_compile` was run afterward and the result reported.
+- [ ] The user was told _"Reliability testing artifacts removed."_ once removal completed.

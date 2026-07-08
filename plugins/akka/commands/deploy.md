@@ -156,3 +156,19 @@ locally (via `/akka:build`) and you're ready to ship.
   (via `akka_build_image`) is all that's needed to produce a deployable image.
   If the build fails with architecture errors, check that Docker/Colima is running
   and supports buildx — do NOT attempt to fix it by editing pom.xml.
+
+## Done When
+
+- [ ] `mvn compile` and `mvn test` succeeded — no deploy was attempted with failing tests.
+- [ ] Platform context is confirmed: `akka://context` was read; an organization and project were selected (from `akka_organizations_list` / `akka_projects_list` if empty) and passed as the `project` parameter on every subsequent platform call — `akka config set` was NOT invoked.
+- [ ] The target region was confirmed via `akka://regions`.
+- [ ] The `pom.xml` `<artifactId>` was checked; if it was a scaffold default, the user supplied the deploy service name and it was passed as the `service` parameter to `akka_services_deploy` — `<artifactId>` was NOT renamed.
+- [ ] Docker Desktop was checked for the containerd image store; if detected, the deploy paused until the user disabled it and confirmed.
+- [ ] The user explicitly confirmed the deploy.
+- [ ] `akka_local_stop_service` and `akka_local_stop` were called to release file locks before building the image.
+- [ ] `akka_build_image` produced a local Docker image and the image name/tag are known.
+- [ ] Either Option A (`akka_services_deploy` with `push=true`) or Option B (`akka_push_image` → `akka_project_export` → `akka_project_validate` → `akka_project_apply` with `dry_run=true` then real apply) completed successfully — production deploys used the descriptor-based flow.
+- [ ] `akka_services_get` and `akka_services_logs` confirm the deployed service is healthy with no startup errors.
+- [ ] Routing was configured only if requested; when configured, a hostname exists (`akka_hostnames_list` / `akka_hostnames_add`) and a route maps to the service (`akka_routes_create`).
+- [ ] NO changes were made to `pom.xml` for image building or deployment — no Jib, docker-maven-plugin, or buildx plugins were added.
+- [ ] The report includes image URI, service name and version, region, route URL (if configured), and current service status.
