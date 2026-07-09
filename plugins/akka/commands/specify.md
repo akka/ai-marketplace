@@ -252,3 +252,13 @@ Success criteria must be:
 - "Database can handle 1000 TPS" (implementation detail, use user-facing metric)
 - "React components render efficiently" (framework-specific)
 - "Redis cache hit rate above 80%" (technology-specific)
+
+## Done When
+
+- [ ] A short-name and next feature number were derived by checking remote branches, local branches, and the `specs/` directory; the highest existing N was used and N+1 was passed to `akka_sdd_create_spec`.
+- [ ] `akka_sdd_create_spec` created a numbered FEATURE_DIR and returned BRANCH_NAME and SPEC_FILE.
+- [ ] The specification was written to SPEC_FILE using the template structure, with all mandatory sections filled and section order preserved.
+- [ ] Success Criteria are measurable, technology-agnostic, user-focused, and verifiable.
+- [ ] No more than 3 `[NEEDS CLARIFICATION]` markers remain — any surplus was resolved by informed guesses documented in the Assumptions section.
+- [ ] `FEATURE_DIR/checklists/requirements.md` was created and every non-`[NEEDS CLARIFICATION]` item passes (or the user was warned after 3 failed iterations).
+- [ ] Completion was reported to the user with branch name, spec file path, checklist results, and the next-command recommendation (`/akka:clarify` or `/akka:plan`).

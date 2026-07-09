@@ -311,3 +311,19 @@ Ready to go! After restarting, run /akka:specify to start building your first fe
 - ASK BEFORE SUDO — show the exact command and get permission first
 - USER CHOOSES — optional phases (Docker, AI keys) are offered, never forced
 - DELEGATE TO CLI — after Phase 4, use `akka` CLI commands
+
+## Done When
+
+- [ ] Bash availability was tested first; if unavailable, the command stopped with the permission-limitation message and did not attempt any install steps.
+- [ ] Phase 1 recorded the OS, architecture, shell, package managers, and whether this is a new or existing project (based on `pom.xml`).
+- [ ] `java -version` reports Java 21 or newer.
+- [ ] `mvn --version` reports Maven 3.9 or newer, OR `./mvnw` exists in the project.
+- [ ] `akka version` returns a valid version.
+- [ ] `~/.m2/settings.xml` contains both `akka-repository` and `akka-plugin-repository` entries.
+- [ ] Docker availability was recorded — either installed and running, or explicitly deferred by the user.
+- [ ] For new projects: `pom.xml`, `.akka/`, `akka-context/`, `CLAUDE.md`, `AGENTS.md`, and `.mcp.json` were created by `akka specify init . --agent claude-code --skip-commands`; git was initialized with an initial commit.
+- [ ] For existing projects: any missing scaffold artifact was regenerated, and `akka code context-update` refreshed `akka-context/`.
+- [ ] AI API keys were configured or explicitly deferred by the user.
+- [ ] Phase 10 validation exercised one representative tool from every MCP capability group (`akka_sdd_list_specs`, `akka_maven_compile`, `akka_local_start`, `akka_services_list`, `akka_git_status`) and reported ✓ / ⚠ per group.
+- [ ] The final summary table was emitted with the correct ✓ / ⏭ / ⚠ marks for every row, followed by the MCP-restart instruction and the recommendation to run `/akka:specify` after restart.
+- [ ] `sudo` was requested only after showing the exact command and receiving explicit user permission; no persistent CLI configuration (`akka config set`) was silently modified.

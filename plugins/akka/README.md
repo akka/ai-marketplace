@@ -19,6 +19,7 @@ This single command handles everything: dependency installation, project scaffol
 /akka:plan      → Create implementation plan
 /akka:tasks     → Break plan into tasks
 /akka:implement → Execute tasks
+/akka:converge  → Re-check code against spec/plan/tasks; append remaining work
 /akka:build     → Build, test, run locally
 /akka:deploy    → Deploy to Akka platform
 /akka:review    → Review against spec and constitution
@@ -32,3 +33,7 @@ Place an `enterprise.yaml` manifest at `.akka/enterprise.yaml` (project-level), 
 - Custom context documentation sources
 - Governance rules and constitutions
 - SDLC gates and deployment overrides
+
+---
+
+Adapted in part from [Spec Kit](https://github.com/github/spec-kit) (MIT). See [`ACKNOWLEDGEMENTS.md`](../../ACKNOWLEDGEMENTS.md).

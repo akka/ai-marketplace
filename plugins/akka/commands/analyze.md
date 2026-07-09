@@ -177,3 +177,15 @@ Ask the user: "Would you like me to suggest concrete remediation edits for the t
 - **Prioritize constitution violations** (these are always CRITICAL)
 - **Use examples over exhaustive rules** (cite specific instances, not generic patterns)
 - **Report zero issues gracefully** (emit success report with coverage statistics)
+
+## Done When
+
+- [ ] `akka_sdd_list_specs` resolved FEATURE_DIR with `has_tasks == true`; `spec.md`, `plan.md`, and `tasks.md` were all read.
+- [ ] The constitution was loaded via `akka_sdd_constitution` for principle validation.
+- [ ] No files were modified — this run was strictly read-only.
+- [ ] Every finding has a stable ID, category, severity (`CRITICAL` / `HIGH` / `MEDIUM` / `LOW`), source location(s), summary, and recommendation.
+- [ ] Constitution MUST violations, if any, were flagged as CRITICAL.
+- [ ] The findings table is capped at 50 rows, with any overflow summarized separately.
+- [ ] A Coverage Summary table, Constitution Alignment Issues section (if any), Unmapped Tasks section (if any), and the Metrics block (total requirements, total tasks, coverage %, ambiguity count, duplication count, critical issues count) were all included.
+- [ ] A Next Actions block named specific follow-up commands (`/akka:specify` refinement, `/akka:plan` adjustment, or manual edits to `tasks.md`) and recommended blocking `/akka:implement` iff CRITICAL issues exist.
+- [ ] The user was offered — but not automatically given — concrete remediation edits for the top N issues.
