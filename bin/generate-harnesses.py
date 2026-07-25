@@ -20,7 +20,7 @@ import glob
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "plugins", "akka", "commands")
-PLUGIN_JSON = json.load(open(os.path.join(ROOT, "plugins", "akka", ".claude-plugin", "plugin.json")))
+PLUGIN_JSON = json.load(open(os.path.join(ROOT, "plugins", "akka", ".claude-plugin", "plugin.json"), encoding="utf-8"))
 VERSION = PLUGIN_JSON.get("version", "0.0.0")
 
 # The harness-agnostic MCP server (Claude registers this per-project via `akka
