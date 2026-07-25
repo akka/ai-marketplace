@@ -1,0 +1,10 @@
+{
+  "name": "akka",
+  "version": "2.4.0",
+  "description": "Complete Akka SDK development workflow \u00e2\u20ac\u201d from environment setup to production deployment",
+  "author": {
+    "name": "Akka"
+  },
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json"
+}

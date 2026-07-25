@@ -1,0 +1,11 @@
+{
+  "servers": {
+    "akka": {
+      "command": "akka",
+      "args": [
+        "mcp",
+        "serve"
+      ]
+    }
+  }
+}

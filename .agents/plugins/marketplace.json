@@ -1,0 +1,16 @@
+{
+  "name": "akka-ai-marketplace",
+  "interface": {
+    "displayName": "Akka AI Marketplace"
+  },
+  "plugins": [
+    {
+      "name": "akka",
+      "source": {
+        "source": "local",
+        "path": "."
+      },
+      "category": "Development"
+    }
+  ]
+}
