@@ -1,5 +1,5 @@
 {
-  "name": "akka-ai-marketplace",
+  "name": "ai-marketplace",
   "interface": {
     "displayName": "Akka AI Marketplace"
   },
@@ -9,6 +9,10 @@
       "source": {
         "source": "local",
         "path": "."
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
       },
       "category": "Development"
     }

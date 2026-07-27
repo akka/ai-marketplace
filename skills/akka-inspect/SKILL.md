@@ -5,10 +5,6 @@ description: "Inspect a running service's runtime state \u2014 exercise API endp
 
 ## User Input
 
-```text
-$ARGUMENTS
-```
-
 You **MUST** consider the user input before proceeding (if not empty).
 
 ## Purpose
@@ -25,7 +21,7 @@ compilation or unit tests happen here; use `/akka:build` for that.
      **stop** and tell the user: *"No service is running locally. Run
      `/akka:build` first to compile, test, and start the service."*
    - Call `akka_sdd_list_specs` to find the target feature. If the user
-     specified a feature name in `$ARGUMENTS`, match it. Otherwise, if there is
+     specified a feature name in `the user's request`, match it. Otherwise, if there is
      exactly one feature, use it. If multiple features exist, ask the user which
      to inspect.
    - If no spec exists, **stop** and tell the user: *"No feature specification
@@ -129,7 +125,7 @@ compilation or unit tests happen here; use `/akka:build` for that.
 ## Done When
 
 - [ ] `akka_local_status` confirmed the service is running (or the command stopped and told the user to run `/akka:build` first).
-- [ ] `akka_sdd_list_specs` resolved a single target feature — matched by `$ARGUMENTS`, auto-selected when only one exists, or explicitly chosen by the user — and its `spec.md` was read (or the command stopped and told the user to run `/akka:specify`).
+- [ ] `akka_sdd_list_specs` resolved a single target feature — matched by `the user's request`, auto-selected when only one exists, or explicitly chosen by the user — and its `spec.md` was read (or the command stopped and told the user to run `/akka:specify`).
 - [ ] The spec was parsed for API endpoints, entities, workflows, views, agents, and acceptance criteria before any tool calls were made.
 - [ ] `akka_backoffice_list_components` (`local=true`) produced a component inventory; any component present in the spec but missing at runtime — or present at runtime but not in the spec — was flagged.
 - [ ] Every API endpoint defined in the spec was exercised via `akka_local_request` in a logical order (create before read/update/delete), covering happy-path, command, query, and any spec-defined error cases; each request/response pair was recorded for the report.

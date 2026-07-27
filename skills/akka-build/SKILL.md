@@ -5,10 +5,6 @@ description: "Build, test, and run the service locally. This is the local develo
 
 ## User Input
 
-```text
-$ARGUMENTS
-```
-
 You **MUST** consider the user input before proceeding (if not empty).
 
 ## Purpose

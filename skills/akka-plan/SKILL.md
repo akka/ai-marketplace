@@ -5,10 +5,6 @@ description: "Execute the implementation planning workflow using the plan templa
 
 ## User Input
 
-```text
-$ARGUMENTS
-```
-
 You **MUST** consider the user input before proceeding (if not empty).
 
 ## Outline

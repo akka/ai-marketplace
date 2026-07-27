@@ -187,7 +187,7 @@ If the user defers: record it as skipped and continue.
 
 ### 7B. Existing Project (repair/upgrade mode)
 
-1. **Check SDK version:** Execute `curl -s https://doc.akka.io/sdk/_attachments/latest-version.txt` to get the latest version. Execute `grep -A1 '<parent>' pom.xml | grep '<version>' | sed 's/.*<version>\(.*\)<\/version>.*/\1/'` to get the current version. If behind, ask if the user wants to upgrade.
+1. **Check SDK version:** Execute `curl -s https://doc.akka.io/sdk/_attachments/latest-version.txt` to get the latest version. Execute `grep -A1 '<parent>' pom.xml | grep '<version>' | sed 's/.*<version>\\(.*\\)<\\/version>.*/\\1/'` to get the current version. If behind, ask if the user wants to upgrade.
 
 2. **Check for missing artifacts:** Execute `test -f .mcp.json && echo "OK" || echo "MISSING"` for each expected file (.mcp.json, .akka/constitution/, .akka/templates/, akka-context/, CLAUDE.md, AGENTS.md). For any missing, execute `akka specify init . --agent claude-code --skip-commands` to regenerate.
 

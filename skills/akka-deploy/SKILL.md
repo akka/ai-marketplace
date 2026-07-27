@@ -5,10 +5,6 @@ description: "Build a container image, push it, and deploy the service to the Ak
 
 ## User Input
 
-```text
-$ARGUMENTS
-```
-
 You **MUST** consider the user input before proceeding (if not empty).
 
 ## Purpose

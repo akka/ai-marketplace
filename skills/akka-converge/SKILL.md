@@ -5,10 +5,6 @@ description: "Assess the current codebase against the feature's spec, plan, and 
 
 ## User Input
 
-```text
-$ARGUMENTS
-```
-
 You **MUST** consider the user input before proceeding (if not empty).
 
 ## Goal

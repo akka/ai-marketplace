@@ -5,10 +5,6 @@ description: "Convert existing tasks into actionable, dependency-ordered GitHub 
 
 ## User Input
 
-```text
-$ARGUMENTS
-```
-
 You **MUST** consider the user input before proceeding (if not empty).
 
 ## Outline

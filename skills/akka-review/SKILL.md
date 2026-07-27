@@ -5,10 +5,6 @@ description: "Review implemented code for Akka SDK best practices, and optionall
 
 ## User Input
 
-```text
-$ARGUMENTS
-```
-
 You **MUST** consider the user input before proceeding (if not empty).
 
 ## Review Modes

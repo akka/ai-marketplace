@@ -1,0 +1,49 @@
+name: Harness artifacts
+
+# The per-harness plugin artifacts (Gemini TOML, Codex skills/manifests) are
+# generated from plugins/akka/commands/*.md and committed. This job proves the
+# committed output matches the source and that every generated TOML parses.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Regenerate harness artifacts
+        run: python3 bin/generate-harnesses.py
+
+      - name: Fail on drift
+        run: |
+          if ! git diff --quiet; then
+            echo "::error::Harness artifacts are out of sync with plugins/akka/commands/*.md."
+            echo "Run 'python3 bin/generate-harnesses.py' and commit the result."
+            git diff --stat
+            exit 1
+          fi
+
+      - name: Validate generated TOML
+        run: |
+          python3 - <<'PY'
+          import glob, sys, tomllib
+          bad = []
+          for p in sorted(glob.glob("commands/akka/*.toml")):
+              try:
+                  tomllib.load(open(p, "rb"))
+              except Exception as e:
+                  bad.append(f"{p}: {e}")
+          if bad:
+              print("Invalid TOML in generated Gemini commands:")
+              print("\n".join(bad))
+              sys.exit(1)
+          print(f"All {len(glob.glob('commands/akka/*.toml'))} generated TOML files parse.")
+          PY

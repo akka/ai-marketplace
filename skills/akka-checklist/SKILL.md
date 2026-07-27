@@ -26,10 +26,6 @@ description: "Generate a custom checklist for the current feature based on user 
 
 ## User Input
 
-```text
-$ARGUMENTS
-```
-
 You **MUST** consider the user input before proceeding (if not empty).
 
 ## Execution Steps
@@ -40,7 +36,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 2. **Clarify intent (dynamic)**: Derive up to THREE initial contextual clarifying questions (no pre-baked catalog). They MUST:
    - Be generated from the user's phrasing + extracted signals from spec/plan/tasks
    - Only ask about information that materially changes checklist content
-   - Be skipped individually if already unambiguous in `$ARGUMENTS`
+   - Be skipped individually if already unambiguous in `the user's request`
    - Prefer precision over breadth
 
    Generation algorithm:
@@ -69,7 +65,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
    Output the questions (label Q1/Q2/Q3). After answers: if ≥2 scenario classes (Alternate / Exception / Recovery / Non-Functional domain) remain unclear, you MAY ask up to TWO more targeted follow‑ups (Q4/Q5) with a one-line justification each (e.g., "Unresolved recovery path risk"). Do not exceed five total questions. Skip escalation if user explicitly declines more.
 
-3. **Understand user request**: Combine `$ARGUMENTS` + clarifying answers:
+3. **Understand user request**: Combine `the user's request` + clarifying answers:
    - Derive checklist theme (e.g., security, review, deploy, ux)
    - Consolidate explicit must-have items mentioned by user
    - Map focus selections to category scaffolding
@@ -296,7 +292,7 @@ Sample items:
 ## Done When
 
 - [ ] FEATURE_DIR and available artifacts were resolved via `akka_sdd_list_specs`; spec/plan/tasks were loaded only where relevant to the active focus areas (progressive disclosure).
-- [ ] No more than 3 initial clarifying questions were asked (with up to 2 targeted follow-ups only if ≥2 scenario classes remained unclear, capped at 5 total); any question already answered by `$ARGUMENTS` was skipped.
+- [ ] No more than 3 initial clarifying questions were asked (with up to 2 targeted follow-ups only if ≥2 scenario classes remained unclear, capped at 5 total); any question already answered by `the user's request` was skipped.
 - [ ] `FEATURE_DIR/checklists/[domain].md` was created (or appended to if it already exists) with a short, descriptive filename tied to the derived theme.
 - [ ] Every checklist item is a "unit test for English" — a question about requirement quality (Completeness / Clarity / Consistency / Measurability / Coverage / Edge Cases), never a verification of implementation behavior.
 - [ ] Items are numbered sequentially starting from `CHK001` on a fresh file, and continue from the last CHK-ID when appending.

@@ -10,7 +10,7 @@ every harness, so the full Akka toolset is available regardless of command forma
 
 | Harness | Command |
 |---|---|
-| **Claude Code** | `/plugin marketplace add akka/ai-marketplace` then `/plugin install akka@akka` |
+| **Claude Code** | `/plugin marketplace add akka/ai-marketplace` then `/plugin install akka@ai-marketplace` |
 | **Gemini CLI** | `gemini extensions install https://github.com/akka/ai-marketplace` |
 | **Codex CLI** | `codex plugin marketplace add akka/ai-marketplace` then `codex plugin add akka@akka` |
 | **Cursor / VS Code Copilot** | `akka specify init --agent cursor` / `--agent vscode-copilot` |
@@ -36,10 +36,11 @@ the same prompts and tools through their native mechanism.
 |---|---|---|---|
 | Claude Code | `.claude-plugin/marketplace.json` + `plugins/akka/` | `commands/*.md` (source) | project `.mcp.json` (via `akka specify init`) |
 | Gemini CLI | `gemini-extension.json` | `commands/akka/*.toml` | `mcpServers` in the manifest |
-| Codex CLI | `.agents/plugins/marketplace.json` + `.codex-plugin/plugin.json` | `skills/akka-*/SKILL.md` | `.mcp.json` (`servers`) |
+| Codex CLI | `.agents/plugins/marketplace.json` + `.codex-plugin/plugin.json` | `skills/akka-*/SKILL.md` | inline `mcpServers` in `.codex-plugin/plugin.json` |
 
-Claude-specific `handoffs` frontmatter is dropped for the other harnesses;
-`$ARGUMENTS` becomes `{{args}}` for Gemini.
+Claude-specific `handoffs` frontmatter is dropped for the other harnesses.
+`$ARGUMENTS` becomes `{{args}}` for Gemini; Codex has no argument substitution,
+so the `$ARGUMENTS` placeholder block is dropped from the generated skills.
 
 ## Regenerating
 
@@ -49,5 +50,6 @@ After editing any `plugins/akka/commands/*.md`, regenerate the harness artifacts
 python3 bin/generate-harnesses.py
 ```
 
-CI should run this and fail on drift so the committed harness artifacts stay in
-sync with the source commands.
+CI (`.github/workflows/harnesses.yml`) runs this on every PR and fails on drift —
+and separately validates that every generated Gemini `.toml` parses — so the
+committed harness artifacts stay in sync with the source commands.

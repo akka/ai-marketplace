@@ -5,10 +5,6 @@ description: "Set up a complete Akka SDK development environment from scratch. I
 
 ## User Input
 
-```text
-$ARGUMENTS
-```
-
 You **MUST** consider the user input before proceeding (if not empty).
 
 ## Purpose

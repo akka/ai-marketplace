@@ -5,10 +5,6 @@ description: "Add or remove resilience testing instrumentation \u2014 discovers 
 
 ## User Input
 
-```text
-$ARGUMENTS
-```
-
 You **MUST** consider the user input before proceeding (if not empty).
 If the input contains the word **"remove"**, execute the **Remove Workflow**.
 Otherwise, execute the **Attach Workflow**.
