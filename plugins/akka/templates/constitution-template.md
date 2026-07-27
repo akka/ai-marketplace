@@ -28,6 +28,9 @@
 [PRINCIPLE_5_DESCRIPTION]
 <!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
 
+### Requirements as Falsifiable Exit Conditions (Akka)
+Every requirement that can be checked is captured as an exit condition with a binary, observable pass predicate and a check that delegates to the ecosystem's own tooling (a compiler, test runner, or linter) — authored per ecosystem, not per dependency. A requirement that cannot be stated as a falsifiable predicate is clarified with the human, never encoded as a check that cannot observe it. Every check is reviewed adversarially — "could this pass while the invariant is false?" — before it gates the build, and new or changed exit conditions are surfaced to the human for approval at the exit-condition level.
+
 ## [SECTION_2_NAME]
 <!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
 
