@@ -13,6 +13,13 @@ Plugin marketplace for AI-assisted Akka SDK development.
 /akka:setup
 ```
 
+### Codex
+
+Codex can use the same Akka workflow from the `plugins/akka` directory.
+That plugin package includes a Codex manifest, an Akka MCP config using
+`akka mcp serve --disable-prompt`, and Codex skill aliases for the Akka
+workflows.
+
 ### Akka CLI (any AI agent)
 
 If you're using Cursor, Windsurf, VS Code Copilot, or another AI coding agent — or
@@ -39,6 +46,7 @@ The `--agent` flag controls where commands are installed:
 
 This produces the same result as the Claude Code plugin: skills, templates,
 documentation, and MCP server configuration installed in your project directory.
+For Codex, use the repo-local plugin files under `plugins/akka`.
 
 ## Getting Started
 
@@ -55,7 +63,7 @@ It will:
 4. Download SDK documentation and AI context
 5. Optionally configure Docker and AI API keys
 
-Zero prerequisites beyond having Claude Code installed.
+Zero prerequisites beyond having a supported AI coding agent installed.
 
 ## Commands
 

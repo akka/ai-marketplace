@@ -25,6 +25,30 @@ This single command handles everything: dependency installation, project scaffol
 /akka:review    → Review against spec and constitution
 ```
 
+## Codex
+
+Codex users can load the same workflow from the `plugins/akka` directory.
+The Codex variant includes:
+
+- `.codex-plugin/plugin.json`
+- `.mcp.json` pointing at `akka mcp serve --disable-prompt`
+- Codex skill aliases for the Akka workflows
+
+Use the canonical `akka-sdd` skill when you want the full workflow guidance,
+or one of the alias skills when you want a task-specific entry point:
+
+- `akka-specify`
+- `akka-plan`
+- `akka-tasks`
+- `akka-implement`
+- `akka-review`
+- `akka-build`
+- `akka-deploy`
+- `akka-analyze`
+- `akka-clarify`
+- `akka-checklist`
+- `akka-issues`
+
 ## Enterprise Support
 
 Place an `enterprise.yaml` manifest at `.akka/enterprise.yaml` (project-level), `~/.akka/enterprise.yaml` (user-level), or set `AKKA_ENTERPRISE_CONFIG_URL` to customize:

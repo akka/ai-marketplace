@@ -1,0 +1,27 @@
+{
+  "name": "akka",
+  "version": "2.4.0",
+  "description": "Complete Akka SDK development workflow - from environment setup to production deployment",
+  "author": {
+    "name": "Akka"
+  },
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Akka",
+    "shortDescription": "Akka SDK workflow support for Codex",
+    "longDescription": "Adds Codex-friendly Akka workflow aliases and the Akka CLI embedded MCP server so Codex can use the same spec-driven development flow as Claude Code.",
+    "developerName": "Akka",
+    "category": "Developer Tools",
+    "capabilities": ["Interactive", "Write"],
+    "websiteURL": "https://akka.io",
+    "privacyPolicyURL": "https://akka.io/legal/privacy",
+    "termsOfServiceURL": "https://trust.akka.io/cloud-terms-of-service",
+    "defaultPrompt": [
+      "Create an Akka feature spec",
+      "Plan an Akka SDK implementation",
+      "Use Akka MCP tools for this project"
+    ],
+    "brandColor": "#0B73F6"
+  }
+}
