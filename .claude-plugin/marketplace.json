@@ -8,13 +8,13 @@
     {
       "name": "akka",
       "source": "./plugins/akka",
-      "description": "Akka SDK development tools — setup, spec-driven development, test, build, deploy",
-      "version": "2.4.0"
+      "description": "Akka SDK development tools \u2014 setup, spec-driven development, test, build, deploy",
+      "version": "2.5.0"
     },
     {
       "name": "akka-specify",
       "source": "./plugins/akka-specify",
-      "description": "[Deprecated — use 'akka' plugin instead] Will be removed in a future release",
+      "description": "[Deprecated \u2014 use 'akka' plugin instead] Will be removed in a future release",
       "version": "2.1.0"
     }
   ]
