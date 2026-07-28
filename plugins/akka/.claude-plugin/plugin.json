@@ -1,7 +1,7 @@
 {
   "name": "akka",
-  "description": "Complete Akka SDK development workflow — from environment setup to production deployment",
-  "version": "2.4.0",
+  "description": "Complete Akka SDK development workflow \u2014 from environment setup to production deployment",
+  "version": "2.5.0",
   "author": {
     "name": "Akka"
   }
