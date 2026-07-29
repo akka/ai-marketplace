@@ -31,6 +31,9 @@
 ### Requirements as Falsifiable Exit Conditions (Akka)
 Every requirement that can be checked is captured as an exit condition with a binary, observable pass predicate and a check that delegates to the ecosystem's own tooling (a compiler, test runner, or linter) — authored per ecosystem, not per dependency. A requirement that cannot be stated as a falsifiable predicate is clarified with the human, never encoded as a check that cannot observe it. Every check is reviewed adversarially — "could this pass while the invariant is false?" — before it gates the build, and new or changed exit conditions are surfaced to the human for approval at the exit-condition level.
 
+### Generated Harnesses and Generated Content Are Governed (Akka)
+Enterprise-configuration assets and documentation are surfaces under the same coverage rule as code, not exceptions to it. Generated harnesses (CI, scanning, supply-chain, content style packages) are governed by the activated / configured / attested family: an asset is present, current against the recorded policy version, and enforcing — a step that does not gate the merge is treated as failing — or it is attested where it runs in an external system. Generated content is governed by language, structure, and tone: the deterministic prose rules and structure are verified by a linter in the project's own tree, and the holistic tone dimension is attested by a judge, never scored by the engine. Generation runs in the assistant; the engine verifies deterministically and records attestations. Nothing false-passes: a missing surface, a hollow asset, or an unattested delegated check reds or stalls, and never advances the build silently.
+
 ## [SECTION_2_NAME]
 <!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
 

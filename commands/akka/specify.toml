@@ -275,6 +275,15 @@ After any feedback, call `akka_ec_conform`, then present `akka_ec_summary` to th
 
 Once a build is active, treat every reply as feedback and run this loop — the user does not need to prefix `/akka:specify` each time. The gates are state-based, so a reply that is not recorded simply does not advance the build and the pending item re-surfaces (a stall, never a false pass). This capture-and-review logic runs the same in Enforced and À la carte mode; only Enforced mode blocks on the gates.
 
+### Companion generators
+
+Two surfaces beyond code have their own generator commands, each paired with an exit-condition family the engine verifies:
+
+- `/akka:harnesses` generates the enterprise-configuration assets (CI, scanning, supply-chain, content style packages) into `/harnesses/` and records them in `.akka/harnesses.lock`. Its family is activated / configured / attested.
+- `/akka:docs` generates the rendered documentation under `docs/`. Its family is language, structure, completeness, and tone.
+
+Generation runs in the assistant; the engine detects the surfaces, verifies deterministically, and records the attestations the assistant submits. Both follow the same mode invariant — present in both modes, advisory in À la carte, blocking in Enforced — so a coverage gap in a harness or a page reds the same single gate as an uncovered code module.
+
 ## Done When
 
 - [ ] Any checkable requirement in the feedback was captured as an exit condition + check via `akka_ec_capture`, surfaced for approval at the exit-condition level, and approved via `akka_ec_approve`.
