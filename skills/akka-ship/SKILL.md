@@ -22,8 +22,22 @@ accepted:
   release ship steps (typically deploy to production).
 
 Author-time is a precondition, not a ship target. There is no `/akka:ship
-author`. Every ship (review or release) refuses fast when any applicable
-author-tier condition is not green, before running any higher-tier auditors.
+author`.
+
+The author-time conditions are evaluated first, on their own, before any
+higher-tier auditor is given a chance. In Enforced mode a ship that fails them
+stops right there — the review-time and release-time checks never run, so a ship
+that cannot succeed does not first spend minutes on scanning, dynamic analysis,
+or live-service probes. The user sees only the author-time verdict, which is the
+only one that has been computed.
+
+In À la carte mode the gate is advisory like every other condition: the run
+continues, every in-scope tier is evaluated, and the user gets the complete
+picture to override against.
+
+An active waiver satisfies the precondition exactly as it satisfies any other
+condition — a waiver is a person's time-bound, recorded acceptance, not a
+bypass.
 
 ## Outline
 
@@ -34,8 +48,10 @@ author-tier condition is not green, before running any higher-tier auditors.
 
 2. **Invoke the CLI.** Run `akka specify ship <target>` in the project directory
    (via the shell). Capture the output. The CLI:
-   - Runs the auditors for every applicable exit condition in scope for the
-     target.
+   - Runs the author-time auditors first and stops there in Enforced mode if any
+     of them blocks.
+   - Otherwise runs the auditors for every remaining applicable exit condition
+     in scope for the target.
    - Reports the verdict (`READY_TO_SHIP` or `NOT_READY`).
    - Refuses to run any ship steps in Enforced mode unless the verdict is
      `READY_TO_SHIP`.
@@ -50,6 +66,12 @@ author-tier condition is not green, before running any higher-tier auditors.
    ship refused, say what would unblock it — the reason field on each blocking
    condition is the user-facing action.
 
+   When the refusal came from the author-time precondition, say so explicitly
+   and say that the later checks were not run. Do not describe the remaining
+   conditions as passing, failing, or outstanding — nothing is known about them
+   yet. "Your own checks have to pass before the rest even run" is the honest
+   framing.
+
 ## Key rules
 
 - The target is required. Never invoke the CLI without one.
@@ -57,8 +79,12 @@ author-tier condition is not green, before running any higher-tier auditors.
   they intended rather than guessing.
 - Ship steps are org-specific. This command runs the auditors and, on pass,
   hands off to whatever steps the organization declared in its policy.
-- Same behavior in both modes for auditor evaluation; only ship-gating differs
-  (advisory in À la carte, blocking in Enforced).
+- The author-time precondition is checked before anything else, in both modes.
+  In Enforced mode it is where the run stops on failure; in À la carte mode it
+  is reported and the run continues.
+- How a condition is judged never depends on the mode. What differs is
+  ship-gating (advisory in À la carte, blocking in Enforced) and, as a
+  consequence, how much gets evaluated before a blocked ship gives up.
 
 ## Done When
 
@@ -69,3 +95,5 @@ author-tier condition is not green, before running any higher-tier auditors.
 - [ ] The plain outcome was shown to the user, and any blocking conditions
       were surfaced with their user-facing reasons (no internal ids, no
       machinery words).
+- [ ] If the refusal came from the author-time precondition, the report said so
+      and did not characterize the checks that never ran.
