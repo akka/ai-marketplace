@@ -39,8 +39,9 @@ one condition it cannot decide.
      absent, mandated substitutions honored, terminology correct, and the
      structural conventions — required sections present, heading conventions
      followed. This is an introspective check: shell out to Vale, map a non-zero
-     exit to red. On a machine without Vale the condition is deferred, never a
-     false red.
+     exit to `red`. On a machine without Vale the condition is `open` with reason
+     `blocked-outside-project` and Vale named as the missing tool, never a false
+     `red`.
 
    - **Completeness (the coverage gate).** Every documentable thing enumerated in
      step 1 has a page on disk. A documentable thing with no page reds the gate.
@@ -55,9 +56,9 @@ one condition it cannot decide.
      adversarially ("find every place this reads like marketing"). When the pages
      pass, call `akka_harness_attest` with the tone condition key and a receipt
      reference. The attestation is keyed to a content-plus-rubric signature, so a
-     rule change or an edit re-stales it and the condition returns to deferred
-     until re-run. The engine records that the judge ran and covered the current
-     content; it never scores the prose itself.
+     rule change or an edit invalidates it and the condition returns to `open`
+     with reason `needs-user-action` until re-run. The engine records that the
+     judge ran and covered the current content; it never scores the prose itself.
 
 4. **Report.** Call `akka_ec_conform`, then present `akka_ec_summary` to the user
    **verbatim** — the plain outcome. Do NOT restate internal condition ids or the
@@ -70,7 +71,8 @@ one condition it cannot decide.
   Vale; completeness is a page-exists test; only the tone judgment runs here in
   the assistant, and it reaches the engine as an attestation, not a score.
 - Nothing false-passes. A missing page reds the coverage gate; a banned phrasing
-  reds the language check; tone with no attestation stays deferred.
+  reds the language check; tone with no attestation stays `open` with reason
+  `needs-user-action`.
 - Same behavior in both modes. The generator and the three conditions exist in
   À la carte and Enforced mode alike. Only ship-gating differs: advisory in
   À la carte, blocking in Enforced.
@@ -79,7 +81,7 @@ one condition it cannot decide.
 
 - [ ] The documentable things (commands, active exit conditions, detected endpoints) were enumerated as the completeness target.
 - [ ] A page was generated or refreshed under `docs/` for each documentable thing, following the project's structural and terminology conventions.
-- [ ] CONTENT-LANGUAGE ran Vale over `docs/` with the project's `.vale.ini` and reported pass/red (or deferred where Vale is unavailable — never a false red).
+- [ ] CONTENT-LANGUAGE ran Vale over `docs/` with the project's `.vale.ini` and reported `green`/`red` (or `open` with reason `blocked-outside-project` where Vale is unavailable — never a false `red`).
 - [ ] Completeness was checked as the documentation surface class of the coverage gate; any undocumented thing reds the gate or was recorded as a waiver with a reason.
 - [ ] CONTENT-TONE applied the decomposed adversarial rubric as pass/fail predicates and, on pass, was attested via `akka_harness_attest` with the condition key and a receipt reference — never left as a numeric score.
 - [ ] `akka_ec_conform` was called and the plain `akka_ec_summary` (never internal ids or the word "auditor") was shown to the user.
