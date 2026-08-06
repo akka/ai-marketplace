@@ -1,6 +1,6 @@
 {
   "name": "akka",
-  "version": "2.6.0",
+  "version": "2.7.0",
   "description": "Complete Akka SDK development workflow \u2014 from environment setup to production deployment",
   "mcpServers": {
     "akka": {
