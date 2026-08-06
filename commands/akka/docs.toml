@@ -19,6 +19,16 @@ code module needs a covering check. Generation lives here in the assistant; the
 engine verifies the deterministic conditions and records the attestation for the
 one condition it cannot decide.
 
+## When it runs
+
+`/akka:docs` is primarily an À la carte command. The developer invokes it
+directly when they want to (re)generate the project's rendered documentation
+and see how the content-governance exit conditions decided. In Enforced mode
+the assistant runs the same activity autonomously as part of its build loop,
+whenever CONTENT-LANGUAGE, Completeness, or CONTENT-TONE is `open` and the
+assistant can act on it. In both modes the behavior is identical; only
+ship-gating differs.
+
 ## Outline
 
 1. **Enumerate the documentable things.** Collect what the project can document
@@ -26,43 +36,88 @@ one condition it cannot decide.
    the public API endpoints detected in the tree. This enumerable set is the
    completeness target.
 
-2. **Generate or refresh the pages.** Write a page under `docs/` for each
-   documentable thing, and update pages whose subject changed since they were last
-   written. Follow the project's structural conventions — required sections,
-   heading levels, terminology — because the deterministic checks below verify
-   those conventions.
+2. **Load the fixed template.** Read
+   `plugins/akka/templates/docs-template.html` from the akka plugin. This file
+   is the fixed design contract for `/akka:docs`: it contains the full CSS,
+   the full HTML skeleton, the header, the stats grid, the collapsible
+   diagram and component sections, the SVG scaffolding for the interaction
+   diagram, and the layered scaffolding for the component graph. Every
+   generated `docs/index.html` uses this template verbatim — the assistant
+   MUST NOT modify the CSS, the layout, the fonts, the colors, or any other
+   design detail. Customers do not override the design; the template is the
+   design.
 
-3. **Verify against the content-governance family.** Run the three conditions and
-   report each:
+3. **Fill the placeholders and paste the fragments.** The template contains
+   two kinds of insertion points:
 
-   - **CONTENT-LANGUAGE (deterministic).** The Vale prose linter over `docs/`
-     using the project's `.vale.ini` (generated into `/harnesses/content/` by
-     `/akka:harnesses`). It decides the falsifiable rules: banned phrasings
+   - **Single-value placeholders**: `{{TITLE}}`, `{{LEAD}}`,
+     `{{STAT_COMPONENTS}}`, `{{STAT_EVENTS}}`, `{{STAT_ENDPOINTS}}`,
+     `{{STAT_VIEWS}}`, `{{STAT_DOMAIN_OBJECTS}}`, `{{ENTITY_HINT}}`,
+     `{{INTERACTION_HINT}}`, `{{COMPONENT_GRAPH_HINT}}`,
+     `{{FOOTER_TARGET}}`. Fill each with the project-specific value.
+
+   - **Region placeholders**: `{{ENTITY_BOXES}}`, `{{INTERACTION_SVG_BODY}}`,
+     `{{COMPONENT_GRAPH_LAYERS}}`, `{{COMPONENT_REFERENCE}}`. The template
+     shows each region's fragment shapes as HTML comments directly above the
+     placeholder. Copy the fragment verbatim for every entity / domain object
+     / component / lane / message and fill only the identifier and field
+     values. Do not restyle. Do not restructure.
+
+   Component-kind coloring is fixed by the CSS classes (`ese`, `kve`, `view`,
+   `wf`, `agent`, `ep`, `ext`). Choose the class that matches the component's
+   Akka type; the accent color follows automatically.
+
+4. **Write `docs/index.html`.** After filling every placeholder, write the
+   result to `docs/index.html` in the project directory. The file is
+   self-contained — no external JavaScript, no external CSS, no build step
+   needed to view — so it can be opened directly in a browser or served from
+   any static host.
+
+5. **Pages for enumerated documentable things beyond the four rendered
+   artifacts.** For every à-la-carte command, active exit condition, and
+   detected public endpoint that is not already covered by the four
+   rendered artifacts, append a matching `<details class="sec">` section to
+   the `{{COMPONENT_REFERENCE}}` region using the same fragment shape shown
+   in the template. Follow the project's terminology; the deterministic
+   checks below verify it.
+
+6. **Verify against the content-governance family.** Run the three conditions and
+   report each. Each has a default ship tier:
+
+   - **CONTENT-LANGUAGE (deterministic, ship tier: author).** The Vale prose linter
+     over `docs/` using the project's `.vale.ini` (generated into `/harnesses/content/`
+     by `/akka:harnesses`). It decides the falsifiable rules: banned phrasings
      absent, mandated substitutions honored, terminology correct, and the
      structural conventions — required sections present, heading conventions
      followed. This is an introspective check: shell out to Vale, map a non-zero
      exit to `red`. On a machine without Vale the condition is `open` with reason
      `blocked-outside-project` and Vale named as the missing tool, never a false
-     `red`.
+     `red`. The author-tier default means this check runs on every ship — Vale is
+     fast enough to be a per-commit gate.
 
-   - **Completeness (the coverage gate).** Every documentable thing enumerated in
-     step 1 has a page on disk. A documentable thing with no page reds the gate.
-     Completeness is not a separate command — it is the documentation surface class
-     inside the single coverage gate. A thing intentionally left undocumented is a
-     recorded waiver with a reason, not a silent omission.
+   - **Completeness (the coverage gate, ship tier: author).** Every documentable
+     thing enumerated in step 1 has a page on disk. A documentable thing with no
+     page reds the gate. Completeness is not a separate command — it is the
+     documentation surface class inside the single coverage gate. A thing
+     intentionally left undocumented is a recorded waiver with a reason, not a
+     silent omission. The author-tier default means every ship verifies that no
+     documentable thing has been left without a page.
 
-   - **CONTENT-TONE (delegated).** The holistic dimension a linter cannot reduce
-     to a token list — state a fact, not a flourish; declarative, not persuasive;
-     reads like a person. Do not score prose 1-to-5; that rubber-stamps. Apply the
-     project's decomposed rubric as single-criterion pass/fail predicates, framed
-     adversarially ("find every place this reads like marketing"). When the pages
-     pass, call `akka_harness_attest` with the tone condition key and a receipt
-     reference. The attestation is keyed to a content-plus-rubric signature, so a
-     rule change or an edit invalidates it and the condition returns to `open`
-     with reason `needs-user-action` until re-run. The engine records that the
-     judge ran and covered the current content; it never scores the prose itself.
+   - **CONTENT-TONE (delegated, ship tier: review).** The holistic dimension a
+     linter cannot reduce to a token list — state a fact, not a flourish;
+     declarative, not persuasive; reads like a person. Do not score prose 1-to-5;
+     that rubber-stamps. Apply the project's decomposed rubric as single-criterion
+     pass/fail predicates, framed adversarially ("find every place this reads like
+     marketing"). When the pages pass, call `akka_harness_attest` with the tone
+     condition key and a receipt reference. The attestation is keyed to a
+     content-plus-rubric signature, so a rule change or an edit invalidates it and
+     the condition returns to `open` with reason `needs-user-action` until re-run.
+     The engine records that the judge ran and covered the current content; it
+     never scores the prose itself. The review-tier default means CONTENT-TONE is
+     verified before the change is opened for team review, not on every commit —
+     re-attesting every time a source file changes would be excessive.
 
-4. **Report.** Call `akka_ec_conform`, then present `akka_ec_summary` to the user
+7. **Report.** Call `akka_ec_conform`, then present `akka_ec_summary` to the user
    **verbatim** — the plain outcome. Do NOT restate internal condition ids or the
    words "auditor" / "coverage gate". Offer *"say 'show details' for the full
    checklist"* for the manifest.

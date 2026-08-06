@@ -1,0 +1,249 @@
+<!doctype html>
+<!--
+  /akka:docs template — DO NOT edit the CSS, the layout, the fonts, or the
+  colors when generating a project's documentation. This template is the
+  fixed design contract; the assistant fills the {{placeholders}} and copies
+  the fragments below into the placeholder regions verbatim.
+
+  Placeholders (single-value):
+    {{TITLE}}                    — value for <title> and <h1> (project name)
+    {{LEAD}}                     — one-line description under the h1
+    {{STAT_COMPONENTS}}          — total component count
+    {{STAT_EVENTS}}              — total emitted-event count
+    {{STAT_ENDPOINTS}}           — total endpoint count
+    {{STAT_VIEWS}}               — total view count
+    {{STAT_DOMAIN_OBJECTS}}      — total domain-object count
+    {{ENTITY_HINT}}              — sec-hint text for the entity diagram
+    {{INTERACTION_HINT}}         — sec-hint text for the interaction diagram
+    {{COMPONENT_GRAPH_HINT}}     — sec-hint text for the component graph
+    {{FOOTER_TARGET}}            — right-side footer text (typically "Akka SDK")
+
+  Placeholder regions (paste one or more fragments; fragments are shown in
+  HTML comments at the top of each region below):
+    {{ENTITY_BOXES}}             — one ent-box or dom-box fragment per entity/domain object
+    {{INTERACTION_SVG_BODY}}     — the SVG body for the interaction diagram
+    {{COMPONENT_GRAPH_LAYERS}}   — one dg-layer fragment per layer, plus one graph legend
+    {{COMPONENT_REFERENCE}}      — one component-section fragment per component
+-->
+<html lang="en"><head><meta charset="utf-8">
+<title>{{TITLE}} — Project Documentation</title>
+<style>
+:root{--yellow:#F5C518;--green:#28C840;--white:#F5F5F5;}
+*{margin:0;box-sizing:border-box}
+body{background:#070707;color:#B8B8B8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding:48px 40px 80px;position:relative}
+.bg{position:fixed;inset:0;background-image:radial-gradient(circle,rgba(245,197,24,0.035) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+.wrap>*{position:relative;z-index:1}
+.mono{font-family:'SF Mono','Cascadia Code','Consolas',monospace}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.brand-mark{font-weight:800;letter-spacing:1px;color:#0A0A0A;background:var(--yellow);padding:3px 9px;border-radius:5px;font-size:14px}
+.brand-sub{font-size:11px;text-transform:uppercase;letter-spacing:3px;color:#666;font-weight:600}
+h1{font-size:40px;font-weight:700;letter-spacing:-0.03em;color:var(--white);margin:14px 0 6px}
+.lead{font-size:15px;color:#999;max-width:720px;margin-bottom:34px}
+.section-label{font-size:11px;text-transform:uppercase;letter-spacing:3px;color:var(--yellow);font-weight:600;margin:52px 0 16px;display:flex;align-items:center;gap:10px}
+.section-label::before{content:'';width:28px;height:2px;background:var(--yellow)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:8px}
+.stat{background:#0A0A0A;border:1px solid #1C1C1C;border-radius:8px;padding:16px;text-align:center}
+.stat-num{font-size:30px;font-weight:700;color:var(--yellow);line-height:1}
+.stat-label{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:1.5px;margin-top:6px}
+/* collapsible section */
+details.sec{background:#0A0A0A;border:1px solid #1C1C1C;border-radius:10px;margin-bottom:10px;overflow:hidden}
+details.sec>summary{list-style:none;cursor:pointer;padding:15px 20px;display:flex;align-items:center;gap:11px;user-select:none}
+details.sec>summary::-webkit-details-marker{display:none}
+.chev{color:#555;font-size:10px;transition:transform .2s ease;width:12px;flex-shrink:0}
+details[open]>summary .chev{transform:rotate(90deg);color:var(--yellow)}
+.sec-dot{width:8px;height:8px;border-radius:4px;flex-shrink:0}
+.sec-title{font-size:14px;font-weight:700;color:var(--white)}
+.sec-type{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#666;margin-left:2px}
+.sec-id{font-size:11px;color:#F5C518;margin-left:2px}
+.sec-hint{font-size:12px;color:#666;margin-left:auto;text-align:right}
+.sec-body{padding:4px 22px 22px;border-top:1px solid #141414}
+/* code */
+.comp-desc{font-size:13.5px;color:#9a9a9a;margin:12px 0 14px;max-width:820px}
+.code{background:#050505;border:1px solid #1C1C1C;border-radius:8px;overflow:hidden}
+.code-bar{background:#0D0D0D;border-bottom:1px solid #1C1C1C;padding:6px 14px;font-size:11px;color:#666}
+.code-body{padding:14px 18px;font-size:12px;line-height:1.75;color:#B8B8B8;white-space:pre;overflow-x:auto}
+.kw{color:#C792EA}.ty{color:#FFCB6B}.st{color:#C3E88D}.cm{color:#546E7A;font-style:italic}.an{color:#F5C518}.fn{color:#82AAFF}.num{color:#F78C6C}
+/* diagrams */
+.dg-layer{padding:14px 0;border-bottom:1px solid #1C1C1C}.dg-layer:last-child{border-bottom:none}
+.dg-layer-label{font-size:9px;text-transform:uppercase;letter-spacing:2px;font-weight:700;color:#F5C518;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.dg-layer-label::before{content:'';width:14px;height:1px;background:#F5C518}
+.dg-nodes{display:flex;gap:10px;flex-wrap:wrap}
+.node{border-radius:6px;padding:8px 14px;min-width:120px}
+.node .nt{font-size:7px;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:3px}
+.node .nn{font-size:12px;font-weight:700;color:#fff}
+.node.ext{background:#141414;border:1px dashed #666}.node.ext .nt{color:#666}
+.node.ep{background:#141414;border:1px solid #fff}.node.ep .nt{color:#aaa}
+.node.ese{background:#1A1600;border:1px solid #F5C518}.node.ese .nt{color:#F5C518}
+.node.view{background:#120A1A;border:1px solid #A855F7}.node.view .nt{color:#A855F7}
+.node.kve{background:#04180A;border:1px solid #28C840}.node.kve .nt{color:#28C840}
+.node.wf{background:#0F1418;border:1px solid #7EC8E3}.node.wf .nt{color:#7EC8E3}
+.node.agent{background:#141414;border:1px solid #FF6B6B}.node.agent .nt{color:#FF6B6B}
+.legend{display:flex;gap:18px;padding-top:14px;margin-top:6px;border-top:1px solid #1C1C1C;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:10px;color:#888}
+.legend-bar{width:14px;height:2px;border-radius:1px}
+.entity{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:6px}
+.ent-box{background:#050505;border:1px solid #1C1C1C;border-radius:8px;overflow:hidden}
+.ent-title{background:#1A1600;border-bottom:1px solid #F5C518;padding:8px 14px;font-weight:700;color:#F5C518;font-size:13px}
+.ent-rows{padding:8px 0}
+.ent-row{display:flex;justify-content:space-between;padding:4px 14px;font-size:12px;font-family:'SF Mono','Consolas',monospace}
+.ent-row .fname{color:#ccc}.ent-row .ftype{color:#FFCB6B}
+.ent-events{padding:8px 14px 12px}
+.ent-events .lbl{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#888;margin-bottom:6px}
+.ent-ev{display:inline-block;background:#141414;border:1px solid #333;border-radius:4px;padding:3px 9px;margin:0 5px 5px 0;font-size:11px;color:#C3E88D;font-family:'SF Mono','Consolas',monospace}
+.foot{margin-top:56px;padding-top:20px;border-top:1px solid #1C1C1C;font-size:11px;color:#555;display:flex;justify-content:space-between}
+.foot .cmd{color:#F5C518}
+</style></head>
+<body><div class="bg"></div><div class="wrap">
+
+<div class="brand"><span class="brand-mark">AKKA</span><span class="brand-sub">Project Documentation</span></div>
+<h1>{{TITLE}}</h1>
+<p class="lead">{{LEAD}}</p>
+
+<div class="stats">
+  <div class="stat"><div class="stat-num">{{STAT_COMPONENTS}}</div><div class="stat-label">Components</div></div>
+  <div class="stat"><div class="stat-num">{{STAT_EVENTS}}</div><div class="stat-label">Events</div></div>
+  <div class="stat"><div class="stat-num">{{STAT_ENDPOINTS}}</div><div class="stat-label">Endpoints</div></div>
+  <div class="stat"><div class="stat-num">{{STAT_VIEWS}}</div><div class="stat-label">Views</div></div>
+  <div class="stat"><div class="stat-num">{{STAT_DOMAIN_OBJECTS}}</div><div class="stat-label">Domain Objects</div></div>
+</div>
+
+<div class="section-label">Diagrams</div>
+
+<details class="sec">
+  <summary><span class="chev">&#9654;</span><span class="sec-dot" style="background:#F5C518"></span><span class="sec-title">Entity diagram</span><span class="sec-hint">{{ENTITY_HINT}}</span></summary>
+  <div class="sec-body">
+  <div class="entity">
+    <!--
+      {{ENTITY_BOXES}} — paste one fragment per entity, then one per domain object.
+
+      ENTITY FRAGMENT (event-sourced entity or key-value entity):
+        <div class="ent-box">
+          <div class="ent-title">EntityName <span style="font-weight:400;font-size:10px;color:#888">&middot; state</span></div>
+          <div class="ent-rows">
+            <div class="ent-row"><span class="fname">fieldName</span><span class="ftype">Type</span></div>
+            <!-- repeat one .ent-row per state field -->
+          </div>
+          <div class="ent-events"><div class="lbl">Events</div>
+            <span class="ent-ev">EventName</span>
+            <!-- repeat one .ent-ev per event; omit the whole .ent-events block for key-value entities -->
+          </div>
+        </div>
+
+      DOMAIN-OBJECT FRAGMENT (a record or class the entity references):
+        <div class="ent-box">
+          <div class="ent-title" style="background:#0A0A0A;border-bottom-color:#546E7A;color:#B0BEC5">ObjectName <span style="font-weight:400;font-size:10px;color:#888">&middot; domain object</span></div>
+          <div class="ent-rows">
+            <div class="ent-row"><span class="fname">fieldName</span><span class="ftype">Type</span></div>
+          </div>
+          <div class="ent-events"><div class="lbl">Referenced by</div>
+            <span class="ent-ev" style="color:#F5C518;border-color:#5a4a00">Entity.field</span>
+          </div>
+        </div>
+    -->
+    {{ENTITY_BOXES}}
+  </div>
+  </div>
+</details>
+
+<details class="sec">
+  <summary><span class="chev">&#9654;</span><span class="sec-dot" style="background:#F5C518"></span><span class="sec-title">Interaction diagram</span><span class="sec-hint">{{INTERACTION_HINT}}</span></summary>
+  <div class="sec-body">
+  <svg viewBox="0 0 980 320" width="100%" font-family="'SF Mono','Consolas',monospace">
+    <!--
+      {{INTERACTION_SVG_BODY}} — draw the primary request path as a sequence diagram.
+
+      LANE HEADERS (one <rect>+<text> per participant, evenly spaced across the width; fill/stroke by component type):
+        <g font-size="11" font-weight="700" text-anchor="middle">
+          <rect x="40"  y="14" width="150" height="30" rx="4" fill="#141414" stroke="#666" stroke-dasharray="4 3"/><text x="115" y="34" fill="#999">Client</text>          <!-- external -->
+          <rect x="285" y="14" width="185" height="30" rx="4" fill="#141414" stroke="#fff"/>                       <text x="377" y="34" fill="#fff">EndpointName</text>   <!-- endpoint -->
+          <rect x="560" y="14" width="175" height="30" rx="4" fill="#1A1600" stroke="#F5C518"/>                    <text x="647" y="34" fill="#F5C518">EntityName</text>   <!-- event-sourced entity -->
+          <rect x="800" y="14" width="150" height="30" rx="4" fill="#120A1A" stroke="#A855F7"/>                    <text x="875" y="34" fill="#A855F7">ViewName</text>    <!-- view -->
+        </g>
+
+      LANE LIFELINES:
+        <g stroke="#2a2a2a"><line x1="115" y1="44" x2="115" y2="310"/> ...one line per participant... </g>
+
+      ACTIVATION BAR (on the entity, running while it handles the command):
+        <rect x="642" y="96" width="10" height="130" fill="#1A1600" stroke="#F5C518"/>
+
+      MESSAGE ARROWS AND LABELS (one group; solid for requests/commands, yellow for events/persist, dashed for replies):
+        <g font-size="10" text-anchor="middle">
+          <line x1="X1" y1="Y" x2="X2" y2="Y" stroke="#8a8a8a"/>
+          <polygon points="X2,Y ..." fill="#8a8a8a"/>
+          <text x="Xmid" y="Ylabel" fill="#aaa">label</text>
+        </g>
+    -->
+    {{INTERACTION_SVG_BODY}}
+  </svg>
+  <div class="legend">
+    <div class="legend-item"><span class="legend-bar" style="background:#8a8a8a"></span>request / command</div>
+    <div class="legend-item"><span class="legend-bar" style="background:#F5C518"></span>event / persist</div>
+    <div class="legend-item"><span class="legend-bar" style="background:#6a6a6a;height:0;border-top:1px dashed #6a6a6a"></span>reply / projection</div>
+  </div>
+  </div>
+</details>
+
+<details class="sec">
+  <summary><span class="chev">&#9654;</span><span class="sec-dot" style="background:#F5C518"></span><span class="sec-title">Component graph</span><span class="sec-hint">{{COMPONENT_GRAPH_HINT}}</span></summary>
+  <div class="sec-body">
+    <!--
+      {{COMPONENT_GRAPH_LAYERS}} — three layers, top-to-bottom: Edge, Domain, Read model.
+
+      LAYER FRAGMENT (one per layer that has nodes):
+        <div class="dg-layer"><div class="dg-layer-label">LayerName</div><div class="dg-nodes">
+          <!-- one node fragment per component in this layer -->
+        </div></div>
+
+      NODE FRAGMENTS by component kind (class controls the color; the .nt label is the human name of the kind):
+        <div class="node ext"><div class="nt">External</div><div class="nn">ClientName</div></div>
+        <div class="node ep"><div class="nt">HTTP Endpoint</div><div class="nn">EndpointName</div></div>
+        <div class="node ese"><div class="nt">Event Sourced Entity</div><div class="nn">EntityName</div></div>
+        <div class="node kve"><div class="nt">Key Value Entity</div><div class="nn">EntityName</div></div>
+        <div class="node view"><div class="nt">View</div><div class="nn">ViewName</div></div>
+        <div class="node wf"><div class="nt">Workflow</div><div class="nn">WorkflowName</div></div>
+        <div class="node agent"><div class="nt">Agent</div><div class="nn">AgentName</div></div>
+    -->
+    {{COMPONENT_GRAPH_LAYERS}}
+  <div class="legend">
+    <div class="legend-item"><span class="legend-bar" style="background:#fff"></span>Endpoint</div>
+    <div class="legend-item"><span class="legend-bar" style="background:#F5C518"></span>Event Sourced Entity</div>
+    <div class="legend-item"><span class="legend-bar" style="background:#28C840"></span>Key Value Entity</div>
+    <div class="legend-item"><span class="legend-bar" style="background:#A855F7"></span>View</div>
+    <div class="legend-item"><span class="legend-bar" style="background:#7EC8E3"></span>Workflow</div>
+    <div class="legend-item"><span class="legend-bar" style="background:#FF6B6B"></span>Agent</div>
+  </div>
+  </div>
+</details>
+
+<div class="section-label">Components</div>
+
+<!--
+  {{COMPONENT_REFERENCE}} — one component-section fragment per component, in a
+  consistent order (Endpoints, then Entities, then Views, then Workflows, then Agents).
+
+  COMPONENT SECTION FRAGMENT (adjust .sec-dot color and .sec-type text per kind):
+    <details class="sec">
+      <summary>
+        <span class="chev">&#9654;</span>
+        <span class="sec-dot" style="background:#F5C518"></span>          <!-- kind color: ep→#fff, ese→#F5C518, kve→#28C840, view→#A855F7, wf→#7EC8E3, agent→#FF6B6B -->
+        <span class="sec-title">ComponentClassName</span>
+        <span class="sec-type">Kind Label</span>                          <!-- e.g. "Event Sourced Entity" -->
+        <span class="sec-id mono">component-id</span>                     <!-- the @ComponentId value -->
+        <span class="sec-hint">Short description of what this component does</span>
+      </summary>
+      <div class="sec-body">
+        <p class="comp-desc">One-paragraph description of the component, its role, and its collaborators.</p>
+        <div class="code">
+          <div class="code-bar mono">SourceFileName.java</div>
+          <div class="code-body mono">
+            <!-- syntax-highlighted excerpt using .kw, .ty, .st, .cm, .an, .fn, .num spans -->
+          </div>
+        </div>
+      </div>
+    </details>
+-->
+{{COMPONENT_REFERENCE}}
+
+<div class="foot"><span>Generated by <span class="cmd mono">/akka:docs</span> &middot; docs/index.html</span><span>{{FOOTER_TARGET}}</span></div>
+</div></body></html>
