@@ -6,6 +6,9 @@ Emits (repo-root, so each harness's native installer resolves this one repo):
   - Gemini CLI:  gemini-extension.json + commands/akka/<name>.toml
   - Codex CLI:   .codex-plugin/plugin.json (MCP server declared inline)
                  + skills/akka-<name>/SKILL.md + .agents/plugins/marketplace.json
+  - Agent Plugins 1.0.0 (agent-plugins.org): plugin.json + mcp.json, reusing the
+                 root skills/ tree the Codex target already emits at the location
+                 the spec mandates. Additive — no existing harness reads these.
 
 Claude Code (.claude-plugin/marketplace.json + plugins/akka/commands/*.md) is the
 source and is left untouched. The `akka mcp serve` MCP server is registered in each
@@ -27,6 +30,9 @@ VERSION = PLUGIN_JSON.get("version", "0.0.0")
 # The harness-agnostic MCP server (Claude registers this per-project via `akka
 # specify init`; for the other harnesses we bundle it in the plugin manifest).
 MCP = {"command": "akka", "args": ["mcp", "serve"]}
+
+# Agent Plugins spec version pinned in the emitted $schema URLs.
+SPEC_VERSION = "1.0.0"
 
 
 def parse_command(path):
@@ -129,13 +135,44 @@ def gen_codex(cmds):
     return len(cmds)
 
 
+def gen_agent_plugins():
+    """Agent Plugins 1.0.0: plugin.json + mcp.json at the plugin root.
+
+    The spec fixes component locations rather than declaring them: skills are
+    discovered at skills/<name>/SKILL.md — exactly where gen_codex already writes
+    them — so this target only has to emit the two manifests. Must run after
+    gen_codex, which resets skills/.
+
+    Root `mcp.json` does not collide with Claude Code's project `./.mcp.json`;
+    the spec's filename is undotted. Commands are out of scope in v1 (reserved
+    for a later version), so the Gemini/Codex command fan-out still stands.
+    """
+    write(os.path.join(ROOT, "plugin.json"), json.dumps({
+        "$schema": f"https://agent-plugins.org/schemas/{SPEC_VERSION}/plugin.schema.json",
+        "name": "akka",
+        "version": VERSION,
+        "description": PLUGIN_JSON.get("description", "Akka SDK development tools"),
+        "author": PLUGIN_JSON.get("author", {"name": "Akka"}),
+        "homepage": "https://akka.io",
+        "repository": "https://github.com/akka/ai-marketplace",
+        "license": "Apache-2.0",
+        "keywords": ["akka", "sdk", "spec-driven-development", "agentic"],
+    }, indent=2) + "\n")
+    write(os.path.join(ROOT, "mcp.json"), json.dumps({
+        "$schema": f"https://agent-plugins.org/schemas/{SPEC_VERSION}/mcp.schema.json",
+        "mcpServers": {"akka": dict(MCP, type="stdio")},
+    }, indent=2) + "\n")
+
+
 def main():
     cmds = commands()
     g = gen_gemini(cmds)
     c = gen_codex(cmds)
+    gen_agent_plugins()
     print(f"source commands: {len(cmds)}")
     print(f"gemini: gemini-extension.json + {g} commands/akka/*.toml")
     print(f"codex:  .codex-plugin/plugin.json + {c} skills/ + .agents/plugins/marketplace.json")
+    print(f"agent-plugins {SPEC_VERSION}: plugin.json + mcp.json (skills/ shared with codex)")
 
 
 if __name__ == "__main__":
