@@ -1,0 +1,18 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "akka",
+  "version": "2.7.0",
+  "description": "Complete Akka SDK development workflow \u2014 from environment setup to production deployment",
+  "author": {
+    "name": "Akka"
+  },
+  "homepage": "https://akka.io",
+  "repository": "https://github.com/akka/ai-marketplace",
+  "license": "Apache-2.0",
+  "keywords": [
+    "akka",
+    "sdk",
+    "spec-driven-development",
+    "agentic"
+  ]
+}

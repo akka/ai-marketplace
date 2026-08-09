@@ -37,6 +37,28 @@ the same prompts and tools through their native mechanism.
 | Claude Code | `.claude-plugin/marketplace.json` + `plugins/akka/` | `commands/*.md` (source) | project `.mcp.json` (via `akka specify init`) |
 | Gemini CLI | `gemini-extension.json` | `commands/akka/*.toml` | `mcpServers` in the manifest |
 | Codex CLI | `.agents/plugins/marketplace.json` + `.codex-plugin/plugin.json` | `skills/akka-*/SKILL.md` | inline `mcpServers` in `.codex-plugin/plugin.json` |
+| Any [Agent Plugins](https://agent-plugins.org) client | `plugin.json` + `mcp.json` | *(not in spec v1)* — reached as `skills/akka-*/SKILL.md` | `mcp.json` |
+
+## Agent Plugins 1.0.0
+
+The repo root is also a valid [Agent Plugins](https://agent-plugins.org/specification)
+package: `plugin.json` + `mcp.json`, with skills discovered at the spec's fixed
+`skills/<name>/SKILL.md` location — the same tree the Codex target emits, so there
+is no second copy. This is **additive**: no harness in the install table above reads
+these files today, and every existing manifest stays authoritative. It costs nothing
+if the spec stalls, and makes the plugin indexable by Agentic Resource Discovery /
+AI Catalog if it doesn't.
+
+Two limits worth knowing before leaning on it:
+
+- **Commands are out of scope in spec v1** (reserved for a later version). An Agent
+  Plugins client sees the 19 skills and the MCP toolset, but not `/akka:specify`.
+  So the Gemini/Codex command fan-out above does not go away.
+- **One plugin per directory.** The deprecated `akka-specify` plugin is not
+  represented; only `akka` is. Multi-plugin catalogs live in the separate ARD layer.
+
+`mcp.json` (undotted) is a distinct filename from Claude Code's project `./.mcp.json`,
+so the two do not collide.
 
 Claude-specific `handoffs` frontmatter is dropped for the other harnesses.
 `$ARGUMENTS` becomes `{{args}}` for Gemini; Codex has no argument substitution,
