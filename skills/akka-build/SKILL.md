@@ -1,6 +1,6 @@
 ---
 name: akka-build
-description: "Build, test, and run the service locally. This is the local development loop \u2014 no platform deployment happens here."
+description: "Build, test, and run the service locally. This is the local development loop — no platform deployment happens here."
 ---
 
 ## User Input

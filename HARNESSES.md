@@ -52,7 +52,7 @@ AI Catalog if it doesn't.
 Two limits worth knowing before leaning on it:
 
 - **Commands are out of scope in spec v1** (reserved for a later version). An Agent
-  Plugins client sees the 19 skills and the MCP toolset, but not `/akka:specify`.
+  Plugins client sees the 22 skills and the MCP toolset, but not `/akka:specify`.
   So the Gemini/Codex command fan-out above does not go away.
 - **One plugin per directory.** The deprecated `akka-specify` plugin is not
   represented; only `akka` is. Multi-plugin catalogs live in the separate ARD layer.
