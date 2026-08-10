@@ -67,22 +67,30 @@ Zero prerequisites beyond having a supported AI coding agent installed.
 
 ## Commands
 
-| Plugin (Claude Code) | CLI-installed     | Description                                    |
-| -------------------- | ----------------- | ---------------------------------------------- |
-| `/akka:setup`        | `/akka.setup`     | Set up a complete Akka development environment |
-| `/akka:specify`      | `/akka.specify`   | Create or update a feature specification       |
-| `/akka:plan`         | `/akka.plan`      | Generate an implementation plan from a spec    |
-| `/akka:tasks`        | `/akka.tasks`     | Break a plan into ordered, testable tasks      |
-| `/akka:implement`    | `/akka.implement` | Execute tasks from the task list               |
-| `/akka:inspect`      | `/akka.inspect`   | Inspect a deployed service                     |
-| `/akka:build`        | `/akka.build`     | Build, test, and run the service locally       |
-| `/akka:deploy`       | `/akka.deploy`    | Deploy to the Akka platform                    |
-| `/akka:review`       | `/akka.review`    | Review code against spec and constitution      |
-| `/akka:clarify`      | `/akka.clarify`   | Resolve open questions in specs or plans       |
-| `/akka:analyze`      | `/akka.analyze`   | Analyze codebase for patterns and issues       |
-| `/akka:checklist`    | `/akka.checklist` | Generate implementation or review checklists   |
-| `/akka:issues`       | `/akka.issues`    | Track and manage issues                        |
-| `/akka:constitution` | —                 | Edit the project constitution                  |
+| Plugin (Claude Code) | CLI-installed        | Description                                            |
+| -------------------- | -------------------- | ------------------------------------------------------ |
+| `/akka:setup`        | `/akka.setup`        | Set up a complete Akka development environment         |
+| `/akka:constitution` | `/akka.constitution` | Create or update the project constitution              |
+| `/akka:specify`      | `/akka.specify`      | Create or update a feature specification               |
+| `/akka:clarify`      | `/akka.clarify`      | Resolve open questions in specs or plans               |
+| `/akka:plan`         | `/akka.plan`         | Generate an implementation plan from a spec            |
+| `/akka:tasks`        | `/akka.tasks`        | Break a plan into ordered, testable tasks              |
+| `/akka:analyze`      | `/akka.analyze`      | Analyze codebase for patterns and issues               |
+| `/akka:checklist`    | `/akka.checklist`    | Generate implementation or review checklists           |
+| `/akka:implement`    | `/akka.implement`    | Execute tasks from the task list                       |
+| `/akka:harnesses`    | `/akka.harnesses`    | Generate the enterprise-configuration assets required  |
+| `/akka:converge`     | `/akka.converge`     | Queue remaining work the spec and plan still require   |
+| `/akka:review`       | `/akka.review`       | Review code against spec and constitution              |
+| `/akka:build`        | `/akka.build`        | Build, test, and run the service locally               |
+| `/akka:inspect`      | `/akka.inspect`      | Inspect a deployed service                             |
+| `/akka:reliability`  | `/akka.reliability`  | Add or remove resilience-testing instrumentation       |
+| `/akka:deploy`       | `/akka.deploy`       | Deploy to the Akka platform                            |
+| `/akka:issues`       | `/akka.issues`       | Track and manage issues                                |
+| `/akka:status`       | `/akka.status`       | Show the definition-of-done rollup, read-only          |
+| `/akka:conform`      | `/akka.conform`      | Run the auditors and return the ship-readiness verdict |
+| `/akka:ship`         | `/akka.ship`         | Run the auditors and, on pass, run the ship steps      |
+| `/akka:mode`         | `/akka.mode`         | Switch between Enforced and À la carte modes           |
+| `/akka:docs`         | `/akka.docs`         | Generate rendered project documentation into `docs/`   |
 
 > **Migrating from `akka-specify`?** The `akka-specify` plugin is still available but deprecated. Uninstall it and install `akka` instead.
 
@@ -90,8 +98,9 @@ Zero prerequisites beyond having a supported AI coding agent installed.
 
 The spec-driven development workflow (specify, plan, tasks, clarify, analyze, checklist,
 issues) is built on [SpecKit](https://github.com/github/spec-kit), adapted for the
-Akka SDK with MCP tool integration. The build, deploy, implement, review, setup, and
-constitution skills are original to Akka.
+Akka SDK with MCP tool integration. The build, conform, constitution, converge, deploy,
+docs, harnesses, implement, inspect, mode, reliability, review, setup, ship, and status
+skills are original to Akka.
 
 ## License
 
