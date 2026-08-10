@@ -1,6 +1,6 @@
 ---
 name: akka-mode
-description: "Show or switch the project's conformance mode between Enforced and \u00c0 la carte, within the set the organization allows."
+description: "Show or switch the project's conformance mode between Enforced and À la carte, within the set the organization allows."
 ---
 
 ## User Input

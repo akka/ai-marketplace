@@ -1,6 +1,6 @@
 ---
 name: akka-setup
-description: "Set up a complete Akka SDK development environment from scratch. Installs Java, Maven, Akka CLI, configures tokens, scaffolds a project, and downloads context documentation. Idempotent \u2014 safe to rerun for repair/upgrade."
+description: "Set up a complete Akka SDK development environment from scratch. Installs Java, Maven, Akka CLI, configures tokens, scaffolds a project, and downloads context documentation. Idempotent — safe to rerun for repair/upgrade."
 ---
 
 ## User Input

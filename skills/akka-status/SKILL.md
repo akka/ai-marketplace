@@ -1,6 +1,6 @@
 ---
 name: akka-status
-description: "Show a read-only rollup of the definition of done \u2014 every exit condition with its state, properties, and open reason \u2014 without running any auditor."
+description: "Show a read-only rollup of the definition of done — every exit condition with its state, properties, and open reason — without running any auditor."
 ---
 
 ## User Input

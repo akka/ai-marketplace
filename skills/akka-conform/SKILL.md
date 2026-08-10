@@ -1,6 +1,6 @@
 ---
 name: akka-conform
-description: "Run the in-scope auditors, print the definition-of-done manifest, and return the engine verdict \u2014 READY_TO_SHIP or NOT_READY."
+description: "Run the in-scope auditors, print the definition-of-done manifest, and return the engine verdict — READY_TO_SHIP or NOT_READY."
 ---
 
 ## User Input

@@ -1,6 +1,6 @@
 ---
 name: akka-reliability
-description: "Add or remove resilience testing instrumentation \u2014 discovers endpoints at runtime and writes a config file for the daemon-hosted dashboard."
+description: "Add or remove resilience testing instrumentation — discovers endpoints at runtime and writes a config file for the daemon-hosted dashboard."
 ---
 
 ## User Input

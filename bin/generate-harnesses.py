@@ -85,7 +85,10 @@ def gen_gemini(cmds):
         prompt = prompt.replace("\\", "\\\\").replace('"""', '\\"\\"\\"')
         toml = ""
         if desc:
-            toml += f"description = {json.dumps(desc)}\n\n"
+            # ensure_ascii=False: the file is UTF-8 and the prompt body below is
+            # written unescaped, so an escaped description would spell the same
+            # character two ways in one file.
+            toml += f"description = {json.dumps(desc, ensure_ascii=False)}\n\n"
         toml += 'prompt = """\n' + prompt + '\n"""\n'
         write(os.path.join(ROOT, "commands", "akka", f"{name}.toml"), toml)
     return len(cmds)
@@ -119,7 +122,7 @@ def gen_codex(cmds):
         skill = "---\n"
         skill += f"name: akka-{name}\n"
         if desc:
-            skill += f"description: {json.dumps(desc)}\n"
+            skill += f"description: {json.dumps(desc, ensure_ascii=False)}\n"
         skill += "---\n\n" + codex_body(body) + "\n"
         write(os.path.join(ROOT, "skills", f"akka-{name}", "SKILL.md"), skill)
     write(os.path.join(ROOT, ".agents", "plugins", "marketplace.json"), json.dumps({

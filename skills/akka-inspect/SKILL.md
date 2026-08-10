@@ -1,6 +1,6 @@
 ---
 name: akka-inspect
-description: "Inspect a running service's runtime state \u2014 exercise API endpoints, verify internal state via backoffice, and validate the UI via browser. Spec-driven."
+description: "Inspect a running service's runtime state — exercise API endpoints, verify internal state via backoffice, and validate the UI via browser. Spec-driven."
 ---
 
 ## User Input
