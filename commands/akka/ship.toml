@@ -86,6 +86,9 @@ bypass.
 - How a condition is judged never depends on the mode. What differs is
   ship-gating (advisory in À la carte, blocking in Enforced) and, as a
   consequence, how much gets evaluated before a blocked ship gives up.
+- Where the exit-condition set is dormant, a ship has no definition of done to
+  clear and proceeds. Say that the project has no checks set up rather than
+  announcing that it passed them.
 
 ## Done When
 

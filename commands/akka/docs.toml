@@ -130,9 +130,10 @@ ship-gating differs.
 - Nothing false-passes. A missing page reds the coverage gate; a banned phrasing
   reds the language check; tone with no attestation stays `open` with reason
   `needs-user-action`.
-- Same behavior in both modes. The generator and the three conditions exist in
-  À la carte and Enforced mode alike. Only ship-gating differs: advisory in
-  À la carte, blocking in Enforced.
+- Same behavior wherever the exit-condition set is active. The generator and the
+  three conditions exist in À la carte and Enforced mode alike; only ship-gating
+  differs, advisory in À la carte and blocking in Enforced. Where the set is
+  dormant the pages are still generated and no conditions are recorded.
 
 ## Done When
 

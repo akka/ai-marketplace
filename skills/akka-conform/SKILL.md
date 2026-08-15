@@ -78,9 +78,17 @@ A `NOT_READY` verdict says what is blocking and what to do about it:
 - Report the verdict the engine returned. Never soften a `NOT_READY`, and never
   infer `READY_TO_SHIP` from a manifest that looks clean — the verdict accounts
   for staleness and waiver effectiveness, which reading states does not.
-- The mode does not change the verdict. Conform judges identically in both
-  modes; only `/akka:ship` acts on the verdict differently. Do not report a
-  verdict as advisory because the project is À la carte.
+- The mode does not change the verdict. Conform judges identically wherever the
+  exit-condition set is active; only `/akka:ship` acts on the verdict
+  differently. Never restate a `NOT_READY` as though it were a pass because the
+  project is À la carte — but do say what it means there, because a verdict
+  that reads as a blocker when nothing is blocked is its own kind of wrong.
+  Report the verdict, then name the consequence: in À la carte, that ship
+  proceeds anyway with a recorded override.
+- Where the exit-condition set is dormant there is nothing to conform to.
+  Say so plainly — the project has no checks set up yet — and do not present a
+  `READY_TO_SHIP` over the Akka baseline as though the project had passed a
+  definition of done it never defined.
 - Never resolve a condition to get a better verdict. Sign-off, strike, and
   waive are the user's decisions to record, not steps to reach `READY_TO_SHIP`.
 - `blocked-outside-project` is not the user's failure. Report it as a missing
