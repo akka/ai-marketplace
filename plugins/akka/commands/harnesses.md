@@ -120,9 +120,11 @@ whether you generate an asset and how the engine verifies it.
   never a `green` pass.
 - Currency is proven, not remembered. The lock file plus the provisioned auditor
   catch drift; a developer never has to notice that the policy moved.
-- Same behavior in both modes. The generator and its checks exist in À la carte
-  and Enforced mode alike. Only ship-gating differs: advisory in À la carte,
-  blocking in Enforced.
+- Same behavior wherever the exit-condition set is active. The generator and its
+  checks exist in À la carte and Enforced mode alike; only ship-gating differs,
+  advisory in À la carte and blocking in Enforced. Where the set is dormant the
+  generator still produces its assets, but records no conditions and no gate —
+  the harnesses are the deliverable, not the checking of them.
 
 ## Done When
 

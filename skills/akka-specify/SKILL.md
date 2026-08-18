@@ -244,7 +244,11 @@ Success criteria must be:
 
 ## Exit conditions and the feedback loop
 
-Akka Specify turns requirements into machine-checked **exit conditions**, each backed by a **check** that delegates to the ecosystem's own tooling. In À la carte mode every check is advisory, the user always sees the full picture, and the run never blocks on a failing condition. In Enforced mode the engine will not let the build advance until every check passes and has been reviewed. On each `/akka:specify <feedback>` turn:
+Akka Specify turns requirements into machine-checked **exit conditions**, each backed by a **check** that delegates to the ecosystem's own tooling. In Enforced mode the engine will not let the build advance until every check passes and has been reviewed. In À la carte mode every check is advisory — the user always sees the full picture and the run never blocks on a failing condition.
+
+**Check first whether this loop applies at all.** Run `akka specify mode`. In À la carte mode the exit-condition set is dormant until the developer asks for it, and the whole of this section is then **skipped**: capture nothing, create no auditors, call no `akka_ec_*` tool, and do not report a verdict. Treat `/akka:specify` as spec-and-plan work and nothing more. The dormant state is not a gap to close and not something to talk the user into — mention exit conditions only if they ask what else is available, and never more than once. If the developer does ask for checks, run `akka specify mode a-la-carte --exit-conditions=honor` and then follow this loop with every result advisory.
+
+When the set is active, on each `/akka:specify <feedback>` turn:
 
 ### 1. Capture feedback as exit conditions
 
@@ -271,7 +275,7 @@ After any feedback, call `akka_ec_conform`, then present `akka_ec_summary` to th
 
 ### Routing and mode
 
-Once a build is active, treat every reply as feedback and run this loop — the user does not need to prefix `/akka:specify` each time. The gates are state-based, so a reply that is not recorded simply does not advance the build and the pending item re-surfaces (a stall, never a false pass). This capture-and-review logic runs the same in À la carte and Enforced mode; only Enforced mode blocks on the gates.
+Once a build is active, treat every reply as feedback and run this loop — the user does not need to prefix `/akka:specify` each time. The gates are state-based, so a reply that is not recorded simply does not advance the build and the pending item re-surfaces (a stall, never a false pass). This capture-and-review logic is identical wherever the exit-condition set is active; Enforced mode additionally blocks on the gates. Where the set is dormant the loop does not run at all, so there are no gates to stall on.
 
 ### Companion generators
 
@@ -280,12 +284,13 @@ Two surfaces beyond code have their own generator commands, each paired with an 
 - `/akka:harnesses` generates the enterprise-configuration assets (CI, scanning, supply-chain, content style packages) into `/harnesses/` and records them in `.akka/harnesses.lock`. Its family is activated / configured / attested.
 - `/akka:docs` generates the rendered documentation under `docs/`. Its family is language, structure, completeness, and tone.
 
-Generation runs in the assistant; the engine detects the surfaces, verifies deterministically, and records the attestations the assistant submits. Both follow the same mode invariant — present in both modes, advisory in À la carte, blocking in Enforced — so a coverage gap in a harness or a page reds the same single gate as an uncovered code module.
+Generation runs in the assistant; the engine detects the surfaces, verifies deterministically, and records the attestations the assistant submits. Both follow the same mode invariant — advisory where the exit-condition set is active in À la carte, blocking in Enforced — so a coverage gap in a harness or a page reds the same single gate as an uncovered code module. Both generators still run while the set is dormant; they simply produce no conditions and no gate.
 
 ## Done When
 
-- [ ] Any checkable requirement in the feedback was captured as an exit condition + check via `akka_ec_capture`, surfaced for approval at the exit-condition level, and approved via `akka_ec_approve`.
-- [ ] The active checks were reviewed adversarially and `akka_ec_adequacy_submit` was called; the plain `akka_ec_summary` (never internal ids) was shown to the user.
+- [ ] The mode was read before any `akka_ec_*` call, and where the exit-condition set was dormant nothing was captured, approved, audited, or reported as a verdict.
+- [ ] Where the set was active: any checkable requirement in the feedback was captured as an exit condition + check via `akka_ec_capture`, surfaced for approval at the exit-condition level, and approved via `akka_ec_approve`.
+- [ ] Where the set was active: the active checks were reviewed adversarially and `akka_ec_adequacy_submit` was called; the plain `akka_ec_summary` (never internal ids) was shown to the user.
 - [ ] A short-name and next feature number were derived by checking remote branches, local branches, and the `specs/` directory; the highest existing N was used and N+1 was passed to `akka_sdd_create_spec`.
 - [ ] `akka_sdd_create_spec` created a numbered FEATURE_DIR and returned BRANCH_NAME and SPEC_FILE.
 - [ ] The specification was written to SPEC_FILE using the template structure, with all mandatory sections filled and section order preserved.
