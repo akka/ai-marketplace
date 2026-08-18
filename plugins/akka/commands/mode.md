@@ -70,8 +70,8 @@ locked Enforced mode cannot be dropped to À la carte to bypass the ship gate.
    When that happens, ask the user plainly — *"This project already has checks
    set up. In À la carte they will not block shipping either way: do you want
    to keep checking them, or set them aside?"* — then rerun with
-   `--ecs=honor` or `--ecs=ignore`. Nothing is deleted by `ignore`; the
-   captured conditions stay in the project state and `--ecs=honor` brings them
+   `--exit-conditions=honor` or `--exit-conditions=ignore`. Nothing is deleted by `ignore`; the
+   captured conditions stay in the project state and `--exit-conditions=honor` brings them
    back. A project with no conditions yet switches without any question.
 
 4. **Handle an old CLI.** `akka specify mode` requires Akka CLI **3.0.70 or
@@ -99,8 +99,8 @@ locked Enforced mode cannot be dropped to À la carte to bypass the ship gate.
   dormant set is dormant because nobody asked for it, and a set aside one
   because the developer said so — describe which of the two it is rather than
   saying conditions were "turned off".
-- `--ecs=ignore` is not a delete. Never describe it as removing conditions or
-  auditors; they persist in the project state and come back with `--ecs=honor`.
+- `--exit-conditions=ignore` is not a delete. Never describe it as removing conditions or
+  auditors; they persist in the project state and come back with `--exit-conditions=honor`.
 - With no argument this command is read-only. Do not set a mode the user did
   not ask for, and do not "helpfully" switch modes as part of another command.
   Asking the existing-conditions question when the CLI refuses is not a mode
@@ -115,7 +115,7 @@ locked Enforced mode cannot be dropped to À la carte to bypass the ship gate.
       reported as a CLI version problem with the upgrade instruction — never as
       a project or policy error.
 - [ ] A refusal naming the existing conditions was turned into a plain question
-      to the user, and the answer was applied by rerunning with `--ecs=honor`
-      or `--ecs=ignore` — never decided on the user's behalf.
+      to the user, and the answer was applied by rerunning with `--exit-conditions=honor`
+      or `--exit-conditions=ignore` — never decided on the user's behalf.
 - [ ] The effective mode was reported plainly, along with what it means for
       shipping, and any org lock was stated as a lock rather than a choice.
