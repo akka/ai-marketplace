@@ -44,6 +44,16 @@
   over the generated page and CONTENT-LANGUAGE goes red on any finding. These
   are not style advice.
 
+  Machine-checked: the accessible-SVG contract; diagonal connectors; every
+  <rect> and <line> coordinate on the 4px grid; a label mask clipped by a node
+  drawn after it; a connector label with no mask at all; the node, connector,
+  lane and accent budgets; every CSS class used having a rule; the Akka palette;
+  no remote assets and no scripts; and the file's encoding (no BOM, no mojibake).
+
+  NOT machine-checked, so they need care: elbow radius, attach-point spacing,
+  the 6-10px label gap, and paint order. Each needs information the markup does
+  not carry, and a check that misfires is worse than no check.
+
   A11Y — every diagram <svg> MUST carry:
     role="img" and aria-labelledby="<slug>-<name>-title <slug>-<name>-desc"
     <title> as its FIRST child, before <defs>, id="<slug>-<name>-title"

@@ -188,8 +188,14 @@ ship-gating differs.
      followed.
 
      *Diagram structure.* `python harnesses/content/diagram_check.py docs/*.html`,
-     which decides the falsifiable half of step 4 — the accessible-SVG contract,
-     diagonal connectors, remote assets, and colors outside the Akka palette.
+     which decides the falsifiable half of step 4: the accessible-SVG contract;
+     diagonal connectors; every `<rect>` and `<line>` coordinate on the 4px grid;
+     a label mask clipped by a node drawn after it; a connector label with no
+     mask; the node, connector, lane and accent budgets; every CSS class used
+     having a rule; the Akka palette; remote assets and scripts; and the file's
+     encoding. Four rules stay unchecked because the markup does not carry what
+     they need — elbow radius, attach-point spacing, the 6–10px label gap, and
+     paint order — so those are the ones to read carefully by eye.
 
      Both are introspective: shell out, map a non-zero exit to `red`. On a
      machine without Vale or without Python the affected check is `open` with

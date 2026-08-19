@@ -77,8 +77,10 @@ types, code, connector labels, event chips. A human-readable name never goes in 
 ## Geometry
 
 - **4px grid.** Every coordinate, width, height, gap and font size divisible by 4. Exempt:
-  stroke widths (0.8, 1, 1.2) and opacity.
-- **Radius** 4, 6, 8, or 10. Never a pill on a node.
+  stroke widths (0.8, 1, 1.2), opacity, and corner radius. Checked on `<rect>` and
+  `<line>` coordinates.
+- **Radius** 4, 6, 8, or 10 on a box; 2 on a label mask, where a larger radius eats the
+  plate. Never a pill on a node.
 - **Component-graph bands** at y=64, 192, 320; nodes 160×48; add 128 per extra band.
 - **Elbow radius** r=8 (6 in tight layouts).
 - **Attach points** ≥12px apart when several connectors share a box edge.
