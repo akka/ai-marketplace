@@ -36,7 +36,7 @@ jobs:
           python3 - <<'PY'
           import glob, sys, tomllib
           bad = []
-          for p in sorted(glob.glob("commands/akka/*.toml")):
+          for p in sorted(glob.glob("commands/*.toml")):
               try:
                   tomllib.load(open(p, "rb"))
               except Exception as e:
@@ -45,5 +45,5 @@ jobs:
               print("Invalid TOML in generated Gemini commands:")
               print("\n".join(bad))
               sys.exit(1)
-          print(f"All {len(glob.glob('commands/akka/*.toml'))} generated TOML files parse.")
+          print(f"All {len(glob.glob('commands/*.toml'))} generated TOML files parse.")
           PY

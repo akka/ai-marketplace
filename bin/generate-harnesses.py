@@ -3,9 +3,9 @@
 source of truth: plugins/akka/commands/*.md.
 
 Emits (repo-root, so each harness's native installer resolves this one repo):
-  - Gemini CLI:  gemini-extension.json + commands/akka/<name>.toml
+  - Gemini CLI:  gemini-extension.json + commands/<name>.toml
   - Codex CLI:   .codex-plugin/plugin.json (MCP server declared inline)
-                 + skills/akka-<name>/SKILL.md + .agents/plugins/marketplace.json
+                 + skills/<name>/SKILL.md + .agents/plugins/marketplace.json
   - Antigravity / AGY: mcp_config.json (reusing root plugin.json and skills/)
   - Agent Plugins 1.0.0 (agent-plugins.org): plugin.json + mcp.json, reusing the
                  root skills/ tree the Codex target already emits at the location
@@ -67,7 +67,7 @@ def reset_dir(path):
 
 
 def gen_gemini(cmds):
-    """Gemini CLI extension: gemini-extension.json + commands/akka/*.toml."""
+    """Gemini CLI extension: gemini-extension.json + commands/*.toml."""
     manifest = {
         "name": "akka",
         "version": VERSION,
@@ -76,7 +76,7 @@ def gen_gemini(cmds):
     }
     write(os.path.join(ROOT, "gemini-extension.json"),
           json.dumps(manifest, indent=2) + "\n")
-    reset_dir(os.path.join(ROOT, "commands", "akka"))
+    reset_dir(os.path.join(ROOT, "commands"))
     for name, desc, body in cmds:
         # $ARGUMENTS (Claude) -> {{args}} (Gemini)
         prompt = body.replace("$ARGUMENTS", "{{args}}")
@@ -91,7 +91,7 @@ def gen_gemini(cmds):
             # character two ways in one file.
             toml += f"description = {json.dumps(desc, ensure_ascii=False)}\n\n"
         toml += 'prompt = """\n' + prompt + '\n"""\n'
-        write(os.path.join(ROOT, "commands", "akka", f"{name}.toml"), toml)
+        write(os.path.join(ROOT, "commands", f"{name}.toml"), toml)
     return len(cmds)
 
 
@@ -121,11 +121,11 @@ def gen_codex(cmds):
     reset_dir(os.path.join(ROOT, "skills"))
     for name, desc, body in cmds:
         skill = "---\n"
-        skill += f"name: akka-{name}\n"
+        skill += f"name: {name}\n"
         if desc:
             skill += f"description: {json.dumps(desc, ensure_ascii=False)}\n"
         skill += "---\n\n" + codex_body(body) + "\n"
-        write(os.path.join(ROOT, "skills", f"akka-{name}", "SKILL.md"), skill)
+        write(os.path.join(ROOT, "skills", name, "SKILL.md"), skill)
     write(os.path.join(ROOT, ".agents", "plugins", "marketplace.json"), json.dumps({
         "name": "ai-marketplace",
         "interface": {"displayName": "Akka AI Marketplace"},
@@ -187,7 +187,7 @@ def main():
     gen_agent_plugins()
     gen_antigravity()
     print(f"source commands: {len(cmds)}")
-    print(f"gemini:      gemini-extension.json + {g} commands/akka/*.toml")
+    print(f"gemini:      gemini-extension.json + {g} commands/*.toml")
     print(f"codex:       .codex-plugin/plugin.json + {c} skills/ + .agents/plugins/marketplace.json")
     print(f"antigravity: mcp_config.json (plugin.json + skills/ shared)")
     print(f"agent-plugins {SPEC_VERSION}: plugin.json + mcp.json (skills/ shared with codex)")

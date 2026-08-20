@@ -37,10 +37,10 @@ the same prompts and tools through their native mechanism.
 | Harness | Manifest (committed) | Commands become | MCP |
 |---|---|---|---|
 | Claude Code | `.claude-plugin/marketplace.json` + `plugins/akka/` | `commands/*.md` (source) | project `.mcp.json` (via `akka specify init`) |
-| Antigravity CLI (`agy`) | `plugin.json` + `mcp_config.json` | `skills/akka-*/SKILL.md` | `mcp_config.json` |
-| Gemini CLI | `gemini-extension.json` | `commands/akka/*.toml` | `mcpServers` in the manifest |
-| Codex CLI | `.agents/plugins/marketplace.json` + `.codex-plugin/plugin.json` | `skills/akka-*/SKILL.md` | inline `mcpServers` in `.codex-plugin/plugin.json` |
-| Any [Agent Plugins](https://agent-plugins.org) client | `plugin.json` + `mcp.json` | *(not in spec v1)* — reached as `skills/akka-*/SKILL.md` | `mcp.json` |
+| Antigravity CLI (`agy`) | `plugin.json` + `mcp_config.json` | `skills/*/SKILL.md` | `mcp_config.json` |
+| Gemini CLI | `gemini-extension.json` | `commands/*.toml` | `mcpServers` in the manifest |
+| Codex CLI | `.agents/plugins/marketplace.json` + `.codex-plugin/plugin.json` | `skills/*/SKILL.md` | inline `mcpServers` in `.codex-plugin/plugin.json` |
+| Any [Agent Plugins](https://agent-plugins.org) client | `plugin.json` + `mcp.json` | *(not in spec v1)* — reached as `skills/*/SKILL.md` | `mcp.json` |
 
 ## Agent Plugins 1.0.0
 
