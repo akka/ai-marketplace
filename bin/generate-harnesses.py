@@ -6,6 +6,7 @@ Emits (repo-root, so each harness's native installer resolves this one repo):
   - Gemini CLI:  gemini-extension.json + commands/akka/<name>.toml
   - Codex CLI:   .codex-plugin/plugin.json (MCP server declared inline)
                  + skills/akka-<name>/SKILL.md + .agents/plugins/marketplace.json
+  - Antigravity / AGY: mcp_config.json (reusing root plugin.json and skills/)
   - Agent Plugins 1.0.0 (agent-plugins.org): plugin.json + mcp.json, reusing the
                  root skills/ tree the Codex target already emits at the location
                  the spec mandates. Additive — no existing harness reads these.
@@ -138,6 +139,18 @@ def gen_codex(cmds):
     return len(cmds)
 
 
+def gen_antigravity():
+    """Antigravity / AGY CLI: mcp_config.json at the plugin root.
+
+    Antigravity discovers plugins using root `plugin.json` (emitted by
+    gen_agent_plugins), skills under `skills/` (emitted by gen_codex),
+    and MCP servers under `mcp_config.json`.
+    """
+    write(os.path.join(ROOT, "mcp_config.json"), json.dumps({
+        "mcpServers": {"akka": MCP},
+    }, indent=2) + "\n")
+
+
 def gen_agent_plugins():
     """Agent Plugins 1.0.0: plugin.json + mcp.json at the plugin root.
 
@@ -172,9 +185,11 @@ def main():
     g = gen_gemini(cmds)
     c = gen_codex(cmds)
     gen_agent_plugins()
+    gen_antigravity()
     print(f"source commands: {len(cmds)}")
-    print(f"gemini: gemini-extension.json + {g} commands/akka/*.toml")
-    print(f"codex:  .codex-plugin/plugin.json + {c} skills/ + .agents/plugins/marketplace.json")
+    print(f"gemini:      gemini-extension.json + {g} commands/akka/*.toml")
+    print(f"codex:       .codex-plugin/plugin.json + {c} skills/ + .agents/plugins/marketplace.json")
+    print(f"antigravity: mcp_config.json (plugin.json + skills/ shared)")
     print(f"agent-plugins {SPEC_VERSION}: plugin.json + mcp.json (skills/ shared with codex)")
 
 

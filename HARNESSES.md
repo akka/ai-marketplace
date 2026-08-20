@@ -11,6 +11,7 @@ every harness, so the full Akka toolset is available regardless of command forma
 | Harness | Command |
 |---|---|
 | **Claude Code** | `/plugin marketplace add akka/ai-marketplace` then `/plugin install akka@ai-marketplace` |
+| **Antigravity CLI (`agy`)** | `agy plugin install https://github.com/akka/ai-marketplace` |
 | **Gemini CLI** | `gemini extensions install https://github.com/akka/ai-marketplace` |
 | **Codex CLI** | `codex plugin marketplace add akka/ai-marketplace` then `codex plugin add akka@akka` |
 | **Cursor / VS Code Copilot** | `akka specify init --agent cursor` / `--agent vscode-copilot` |
@@ -23,6 +24,7 @@ tools. The slash-command invocation, however, depends on what each harness suppo
 | Harness | How commands are invoked |
 |---|---|
 | Claude Code | `/akka:specify` (plugin slash commands) |
+| Antigravity CLI (`agy`) | as **skills** (e.g., slash commands / progressive disclosure) |
 | Gemini CLI | `/akka:specify` (colon-namespaced custom commands) |
 | Codex CLI | as **skills** — `@akka` / model-selected / natural language (no `/akka:` slash) |
 | Cursor | rules + MCP / `@`-mentions (no `/akka:` slash) |
@@ -35,6 +37,7 @@ the same prompts and tools through their native mechanism.
 | Harness | Manifest (committed) | Commands become | MCP |
 |---|---|---|---|
 | Claude Code | `.claude-plugin/marketplace.json` + `plugins/akka/` | `commands/*.md` (source) | project `.mcp.json` (via `akka specify init`) |
+| Antigravity CLI (`agy`) | `plugin.json` + `mcp_config.json` | `skills/akka-*/SKILL.md` | `mcp_config.json` |
 | Gemini CLI | `gemini-extension.json` | `commands/akka/*.toml` | `mcpServers` in the manifest |
 | Codex CLI | `.agents/plugins/marketplace.json` + `.codex-plugin/plugin.json` | `skills/akka-*/SKILL.md` | inline `mcpServers` in `.codex-plugin/plugin.json` |
 | Any [Agent Plugins](https://agent-plugins.org) client | `plugin.json` + `mcp.json` | *(not in spec v1)* — reached as `skills/akka-*/SKILL.md` | `mcp.json` |

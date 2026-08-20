@@ -13,6 +13,12 @@ Plugin marketplace for AI-assisted Akka SDK development.
 /akka:setup
 ```
 
+### Antigravity (`agy`)
+
+```bash
+agy plugin install https://github.com/akka/ai-marketplace
+```
+
 ### Codex
 
 Codex can use the same Akka workflow from the `plugins/akka` directory.
