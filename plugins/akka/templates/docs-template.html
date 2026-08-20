@@ -16,14 +16,85 @@
     {{ENTITY_HINT}}              — sec-hint text for the entity diagram
     {{INTERACTION_HINT}}         — sec-hint text for the interaction diagram
     {{COMPONENT_GRAPH_HINT}}     — sec-hint text for the component graph
+    {{SLUG}}                     — short kebab-case project slug, used to prefix
+                                   every SVG title/desc id (see A11Y below)
+    {{INTERACTION_TITLE}}        — <title> for the interaction diagram (<60 chars)
+    {{INTERACTION_DESC}}         — <desc>: one sentence on what it shows
+    {{COMPONENT_GRAPH_TITLE}}    — <title> for the component graph (<60 chars)
+    {{COMPONENT_GRAPH_DESC}}     — <desc>: one sentence on what it shows
     {{FOOTER_TARGET}}            — right-side footer text (typically "Akka SDK")
 
   Placeholder regions (paste one or more fragments; fragments are shown in
   HTML comments at the top of each region below):
     {{ENTITY_BOXES}}             — one ent-box or dom-box fragment per entity/domain object
     {{INTERACTION_SVG_BODY}}     — the SVG body for the interaction diagram
-    {{COMPONENT_GRAPH_LAYERS}}   — one dg-layer fragment per layer, plus one graph legend
+    {{COMPONENT_GRAPH_BODY}}     — the SVG body for the component graph
+    {{ADDITIONAL_DIAGRAMS}}      — zero or more extra diagrams that earn their slot;
+                                   this is where an over-budget diagram's detail half goes
     {{COMPONENT_REFERENCE}}      — one component-section fragment per component
+
+  Adding an extra diagram means adding its CSS too if it uses a class the three
+  fixed diagrams do not — a class with no rule renders as SVG defaults, which on
+  this dark ground is a black shape on a black background. The page carries its
+  own copy of this stylesheet, so a change here reaches existing pages only when
+  they are regenerated.
+
+  ============================================================================
+  RULES THAT ARE VERIFIED. `/akka:docs` runs harnesses/content/diagram_check.py
+  over the generated page and CONTENT-LANGUAGE goes red on any finding. These
+  are not style advice.
+
+  Machine-checked: the accessible-SVG contract; diagonal connectors; every
+  <rect> and <line> coordinate on the 4px grid; a label mask clipped by a node
+  drawn after it; a connector label with no mask at all; the node, connector,
+  lane and accent budgets; every CSS class used having a rule; the Akka palette;
+  no remote assets and no scripts; and the file's encoding (no BOM, no mojibake).
+
+  NOT machine-checked, so they need care: elbow radius, attach-point spacing,
+  the 6-10px label gap, and paint order. Each needs information the markup does
+  not carry, and a check that misfires is worse than no check.
+
+  A11Y — every diagram <svg> MUST carry:
+    role="img" and aria-labelledby="<slug>-<name>-title <slug>-<name>-desc"
+    <title> as its FIRST child, before <defs>, id="<slug>-<name>-title"
+    <desc> immediately after, id="<slug>-<name>-desc"
+    Bare ids `title` / `desc` are banned: two diagrams on one page would
+    collide and the second gets announced with the first one's name.
+    <desc> states what the diagram shows, not its geometry. "Command path from
+    the HTTP endpoint through the order entity to the read model", never
+    "a box at the left with arrows to three boxes".
+
+  CONNECTORS — no diagonal <line> between off-axis nodes. Two nodes that share
+    neither x nor y are joined by a rounded right-angle <path> elbow, r=8:
+      M x1 y1 V (ym-8) Q x1 ym (x1+8s) ym H (x2-8s) Q x2 ym x2 (ym+8) V y2
+    where ym is the midpoint of the vertical gap and s = sign(x2-x1).
+    A plain <line> is correct only when x1==x2 or y1==y2.
+    Two connectors entering the same edge of a box get their own attach point,
+    >=12px apart: for N connectors on an edge of length L, point k sits at
+    L*k/(N+1) from the leading corner.
+
+  ARROW LABELS — every label needs an opaque mask rect behind it AND a visible
+    6-10px gap between the bottom of that mask and the stroke. A label sitting
+    on its own connector hides the thing it describes. Mask fill is #070707 on
+    open canvas, #0A0A0A inside a .sec panel.
+
+  COLOR — the two rules apply to different diagrams, and mixing them erases
+    both. Inventory graphics (component graph, entity boxes) are CATEGORICAL:
+    the seven kind colors identify what a thing is, and the legend decodes
+    them. Narrative graphics (the interaction diagram) are EDITORIAL: the
+    primary path is yellow, everything else is muted grey. Do not color an
+    interaction lane by component kind — it makes every arrow equally loud and
+    the reader cannot find the path that matters.
+
+  BUDGET — per diagram: max 9 nodes, max 12 connectors, max 5 interaction
+    lanes. Over budget, split into an overview plus a detail diagram rather
+    than shrinking the type. A component omitted to stay in budget is a
+    recorded waiver with a reason in the component reference, never a silent
+    drop.
+
+  GRID — every coordinate, width, height, gap and font-size divisible by 4.
+    Exempt: stroke widths (0.8, 1, 1.2) and opacity.
+  ============================================================================
 -->
 <html lang="en"><head><meta charset="utf-8">
 <title>{{TITLE}} — Project Documentation</title>
@@ -79,6 +150,28 @@ details[open]>summary .chev{transform:rotate(90deg);color:var(--yellow)}
 .node.kve{background:#04180A;border:1px solid #28C840}.node.kve .nt{color:#28C840}
 .node.wf{background:#0F1418;border:1px solid #7EC8E3}.node.wf .nt{color:#7EC8E3}
 .node.agent{background:#141414;border:1px solid #FF6B6B}.node.agent .nt{color:#FF6B6B}
+/* component graph — kind color is fixed by class, exactly as the .node rules above */
+.cg{width:100%;height:auto}
+.cg .band{font-size:9px;letter-spacing:2px;font-weight:700;fill:#F5C518;text-transform:uppercase}
+.cg .nn{font-size:12px;font-weight:700;fill:#fff}
+.cg .nt{font-size:7px;letter-spacing:1px;font-weight:700}
+.cg .edge{stroke:#8a8a8a;stroke-width:1;fill:none}
+.cg .edge.evt{stroke:#F5C518}
+.cg .edge.async{stroke-dasharray:5 4}
+.cg .elbl{font-size:8px;letter-spacing:.06em;fill:#aaa}
+.cg .emask{fill:#0A0A0A}
+.cg .n-ext rect.box{fill:#141414;stroke:#666;stroke-dasharray:4 3}.cg .n-ext .nt{fill:#666}
+.cg .n-ep   rect.box{fill:#141414;stroke:#fff}                    .cg .n-ep .nt{fill:#aaa}
+.cg .n-ese  rect.box{fill:#1A1600;stroke:#F5C518}                 .cg .n-ese .nt{fill:#F5C518}
+.cg .n-view rect.box{fill:#120A1A;stroke:#A855F7}                 .cg .n-view .nt{fill:#A855F7}
+.cg .n-kve  rect.box{fill:#04180A;stroke:#28C840}                 .cg .n-kve .nt{fill:#28C840}
+.cg .n-wf   rect.box{fill:#0F1418;stroke:#7EC8E3}                 .cg .n-wf .nt{fill:#7EC8E3}
+.cg .n-agent rect.box{fill:#141414;stroke:#FF6B6B}                .cg .n-agent .nt{fill:#FF6B6B}
+/* additional diagrams reuse .cg; states are not components, so they get their own treatment */
+.cg .state rect{fill:#141414;stroke:#666;stroke-width:1}
+.cg .state.focal rect{fill:#1A1600;stroke:#F5C518}
+.cg .state.term rect{fill:#0A0A0A;stroke:#333}
+.cg .sub{font-size:9px;fill:#888;font-family:'SF Mono','Consolas',monospace}
 .legend{display:flex;gap:18px;padding-top:14px;margin-top:6px;border-top:1px solid #1C1C1C;flex-wrap:wrap}
 .legend-item{display:flex;align-items:center;gap:6px;font-size:10px;color:#888}
 .legend-bar{width:14px;height:2px;border-radius:1px}
@@ -116,6 +209,7 @@ details[open]>summary .chev{transform:rotate(90deg);color:var(--yellow)}
   <div class="entity">
     <!--
       {{ENTITY_BOXES}} — paste one fragment per entity, then one per domain object.
+      Inventory graphic: kind color is categorical here (see COLOR above).
 
       ENTITY FRAGMENT (event-sourced entity or key-value entity):
         <div class="ent-box">
@@ -149,36 +243,49 @@ details[open]>summary .chev{transform:rotate(90deg);color:var(--yellow)}
 <details class="sec">
   <summary><span class="chev">&#9654;</span><span class="sec-dot" style="background:#F5C518"></span><span class="sec-title">Interaction diagram</span><span class="sec-hint">{{INTERACTION_HINT}}</span></summary>
   <div class="sec-body">
-  <svg viewBox="0 0 980 320" width="100%" font-family="'SF Mono','Consolas',monospace">
+  <svg viewBox="0 0 980 320" width="100%" role="img"
+       aria-labelledby="{{SLUG}}-interaction-title {{SLUG}}-interaction-desc"
+       font-family="'SF Mono','Consolas',monospace">
+    <title id="{{SLUG}}-interaction-title">{{INTERACTION_TITLE}}</title>
+    <desc id="{{SLUG}}-interaction-desc">{{INTERACTION_DESC}}</desc>
     <!--
-      {{INTERACTION_SVG_BODY}} — draw the primary request path as a sequence diagram.
+      {{INTERACTION_SVG_BODY}} — the primary request path as a sequence diagram.
+      NARRATIVE graphic: editorial color. The primary path is yellow; every
+      other arrow is muted grey. Max 5 lanes; if the path needs more, draw the
+      main path here and put the rest in a second diagram.
 
-      LANE HEADERS (one <rect>+<text> per participant, evenly spaced across the width; fill/stroke by component type):
+      LANE HEADERS (one <rect>+<text> per participant, evenly spaced; the lane
+      BOX keeps its kind color — it identifies the component — but the ARROWS
+      below follow the editorial rule, not the kind):
         <g font-size="11" font-weight="700" text-anchor="middle">
-          <rect x="40"  y="14" width="150" height="30" rx="4" fill="#141414" stroke="#666" stroke-dasharray="4 3"/><text x="115" y="34" fill="#999">Client</text>          <!-- external -->
-          <rect x="285" y="14" width="185" height="30" rx="4" fill="#141414" stroke="#fff"/>                       <text x="377" y="34" fill="#fff">EndpointName</text>   <!-- endpoint -->
-          <rect x="560" y="14" width="175" height="30" rx="4" fill="#1A1600" stroke="#F5C518"/>                    <text x="647" y="34" fill="#F5C518">EntityName</text>   <!-- event-sourced entity -->
-          <rect x="800" y="14" width="150" height="30" rx="4" fill="#120A1A" stroke="#A855F7"/>                    <text x="875" y="34" fill="#A855F7">ViewName</text>    <!-- view -->
+          <rect x="40"  y="16" width="152" height="32" rx="4" fill="#141414" stroke="#666" stroke-dasharray="4 3"/><text x="116" y="36" fill="#999">Client</text>
+          <rect x="284" y="16" width="184" height="32" rx="4" fill="#141414" stroke="#fff"/>                       <text x="376" y="36" fill="#fff">EndpointName</text>
+          <rect x="560" y="16" width="176" height="32" rx="4" fill="#1A1600" stroke="#F5C518"/>                    <text x="648" y="36" fill="#F5C518">EntityName</text>
+          <rect x="800" y="16" width="152" height="32" rx="4" fill="#120A1A" stroke="#A855F7"/>                    <text x="876" y="36" fill="#A855F7">ViewName</text>
         </g>
 
-      LANE LIFELINES:
-        <g stroke="#2a2a2a"><line x1="115" y1="44" x2="115" y2="310"/> ...one line per participant... </g>
+      LIFELINES — vertical, so a plain <line> is correct here:
+        <g stroke="#2a2a2a"><line x1="116" y1="48" x2="116" y2="312"/> ...one per lane... </g>
 
-      ACTIVATION BAR (on the entity, running while it handles the command):
-        <rect x="642" y="96" width="10" height="130" fill="#1A1600" stroke="#F5C518"/>
+      ACTIVATION BAR (on the entity, while it handles the command):
+        <rect x="644" y="96" width="8" height="128" fill="#1A1600" stroke="#F5C518"/>
 
-      MESSAGE ARROWS AND LABELS (one group; solid for requests/commands, yellow for events/persist, dashed for replies):
-        <g font-size="10" text-anchor="middle">
-          <line x1="X1" y1="Y" x2="X2" y2="Y" stroke="#8a8a8a"/>
-          <polygon points="X2,Y ..." fill="#8a8a8a"/>
-          <text x="Xmid" y="Ylabel" fill="#aaa">label</text>
+      MESSAGE ARROW — horizontal, so <line> is correct. Note the mask rect and
+      the 8px gap: the label sits at ARROW_Y-20..-8, the stroke at ARROW_Y.
+        <g text-anchor="middle">
+          <line x1="116" y1="96" x2="368" y2="96" stroke="#F5C518"/>
+          <polygon points="376,96 368,92 368,100" fill="#F5C518"/>
+          <rect class="emask" x="224" y="76" width="36" height="12" rx="2" fill="#0A0A0A"/>
+          <text x="242" y="85" fill="#aaa" font-size="8" letter-spacing="0.06em">POST</text>
         </g>
+      Secondary arrows are stroke="#8a8a8a" with polygon fill="#8a8a8a";
+      replies add stroke-dasharray="5 4".
     -->
     {{INTERACTION_SVG_BODY}}
   </svg>
   <div class="legend">
-    <div class="legend-item"><span class="legend-bar" style="background:#8a8a8a"></span>request / command</div>
-    <div class="legend-item"><span class="legend-bar" style="background:#F5C518"></span>event / persist</div>
+    <div class="legend-item"><span class="legend-bar" style="background:#F5C518"></span>primary path</div>
+    <div class="legend-item"><span class="legend-bar" style="background:#8a8a8a"></span>secondary call</div>
     <div class="legend-item"><span class="legend-bar" style="background:#6a6a6a;height:0;border-top:1px dashed #6a6a6a"></span>reply / projection</div>
   </div>
   </div>
@@ -187,24 +294,62 @@ details[open]>summary .chev{transform:rotate(90deg);color:var(--yellow)}
 <details class="sec">
   <summary><span class="chev">&#9654;</span><span class="sec-dot" style="background:#F5C518"></span><span class="sec-title">Component graph</span><span class="sec-hint">{{COMPONENT_GRAPH_HINT}}</span></summary>
   <div class="sec-body">
+  <svg class="cg" viewBox="0 0 980 420" width="100%" role="img"
+       aria-labelledby="{{SLUG}}-graph-title {{SLUG}}-graph-desc"
+       font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
+    <title id="{{SLUG}}-graph-title">{{COMPONENT_GRAPH_TITLE}}</title>
+    <desc id="{{SLUG}}-graph-desc">{{COMPONENT_GRAPH_DESC}}</desc>
+    <defs>
+      <marker id="{{SLUG}}-a" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+        <polygon points="0 0, 8 3, 0 6" fill="#8a8a8a"/>
+      </marker>
+      <marker id="{{SLUG}}-a-evt" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+        <polygon points="0 0, 8 3, 0 6" fill="#F5C518"/>
+      </marker>
+    </defs>
     <!--
-      {{COMPONENT_GRAPH_LAYERS}} — three layers, top-to-bottom: Edge, Domain, Read model.
+      {{COMPONENT_GRAPH_BODY}} — a real graph: three bands top-to-bottom
+      (Edge, Domain, Read model) with CONNECTORS between them. This is an
+      INVENTORY graphic, so kind color is categorical and the legend decodes it.
 
-      LAYER FRAGMENT (one per layer that has nodes):
-        <div class="dg-layer"><div class="dg-layer-label">LayerName</div><div class="dg-nodes">
-          <!-- one node fragment per component in this layer -->
-        </div></div>
+      Grow the viewBox height by 128 per extra band; keep every value on the
+      4px grid. Budget: max 9 nodes, max 12 connectors.
 
-      NODE FRAGMENTS by component kind (class controls the color; the .nt label is the human name of the kind):
-        <div class="node ext"><div class="nt">External</div><div class="nn">ClientName</div></div>
-        <div class="node ep"><div class="nt">HTTP Endpoint</div><div class="nn">EndpointName</div></div>
-        <div class="node ese"><div class="nt">Event Sourced Entity</div><div class="nn">EntityName</div></div>
-        <div class="node kve"><div class="nt">Key Value Entity</div><div class="nn">EntityName</div></div>
-        <div class="node view"><div class="nt">View</div><div class="nn">ViewName</div></div>
-        <div class="node wf"><div class="nt">Workflow</div><div class="nn">WorkflowName</div></div>
-        <div class="node agent"><div class="nt">Agent</div><div class="nn">AgentName</div></div>
+      BAND LABEL (one per band that has nodes):
+        <text class="band" x="24" y="48">Edge</text>
+        <line x1="24" y1="56" x2="956" y2="56" stroke="#1C1C1C" stroke-width="1"/>
+      Band node rows sit at y=64, y=192, y=320.
+
+      NODE (width 160, height 48; class sets the kind color — n-ext, n-ep,
+      n-ese, n-kve, n-view, n-wf, n-agent):
+        <g class="n-ese">
+          <rect class="box" x="400" y="192" width="160" height="48" rx="6" stroke-width="1"/>
+          <text class="nt" x="412" y="209">EVENT SOURCED ENTITY</text>
+          <text class="nn" x="412" y="228">OrderEntity</text>
+        </g>
+
+      CONNECTOR — DRAW ALL CONNECTORS BEFORE THE NODES so z-order puts the
+      lines behind the boxes. Same x (a straight drop) is a <line>:
+        <line class="edge" x1="480" y1="112" x2="480" y2="188" marker-end="url(#{{SLUG}}-a)"/>
+      Different x is a rounded elbow <path>, never a diagonal <line>. From
+      (x1,112) down to (x2,192) with the turn at ym=152, r=8, s=sign(x2-x1):
+        <path class="edge" d="M 240 112 V 144 Q 240 152 248 152 H 392 Q 400 152 400 160 V 188"
+              marker-end="url(#{{SLUG}}-a)"/>
+      An event/persist edge adds class "evt" and marker-end url(#{{SLUG}}-a-evt);
+      an async or optional edge adds class "async".
+
+      CONNECTOR LABEL — mask rect, then text, with an 8px gap above the stroke.
+      Place it on a segment running through open canvas, never overlapping a
+      node (nodes paint after, and would clip the text to a fragment):
+        <rect class="emask" x="292" y="132" width="56" height="12" rx="2"/>
+        <text class="elbl" x="320" y="141" text-anchor="middle">PERSIST</text>
+
+      When two connectors leave the same edge of a box, fan the attach points
+      >=12px apart: for N connectors on an edge of length L, point k is at
+      L*k/(N+1) from the leading corner. Never merge two strokes into one path.
     -->
-    {{COMPONENT_GRAPH_LAYERS}}
+    {{COMPONENT_GRAPH_BODY}}
+  </svg>
   <div class="legend">
     <div class="legend-item"><span class="legend-bar" style="background:#fff"></span>Endpoint</div>
     <div class="legend-item"><span class="legend-bar" style="background:#F5C518"></span>Event Sourced Entity</div>
@@ -215,6 +360,63 @@ details[open]>summary .chev{transform:rotate(90deg);color:var(--yellow)}
   </div>
   </div>
 </details>
+
+<!--
+  {{ADDITIONAL_DIAGRAMS}} — zero or more extra diagrams, or nothing.
+
+  The three diagrams above are fixed: every project gets an entity diagram, an
+  interaction diagram and a component graph. This region is variable, and it is
+  where the complexity budget's remedy lives — when a project exceeds the node,
+  connector or lane budget, the rule is to split into an overview plus a detail
+  diagram, and the detail goes here. A budget waiver with no detail diagram is a
+  hole, not a resolution.
+
+  An extra diagram must EARN its slot. Add one only when it shows something no
+  other diagram on the page carries, and say which in the sec-hint. Two or three
+  is a normal maximum; a page of diagrams nobody reads is worse than three that
+  are read. The types that tend to earn it:
+
+    State machine  — an entity or record with a lifecycle in its events, where
+                     the guards are the interesting part
+    Sequence       — the detail half of an over-budget interaction diagram
+    Timeline       — several independent clocks on one record
+    ER             — relationships between domain records that the entity
+                     diagram shows as separate boxes with no edges
+
+  Every rule from the three fixed diagrams applies here unchanged: the
+  accessible-SVG contract with a diagram-unique {{SLUG}}-<name>- id prefix,
+  rounded right-angle elbows, masked labels with a 6-10px gap, the 4px grid,
+  and the budget.
+
+  ADDITIONAL DIAGRAM FRAGMENT:
+    <details class="sec">
+      <summary><span class="chev">&#9654;</span><span class="sec-dot" style="background:#F5C518"></span><span class="sec-title">Diagram name</span><span class="sec-hint">what only this diagram shows</span></summary>
+      <div class="sec-body">
+      <svg class="cg" viewBox="0 0 980 320" width="100%" role="img"
+           aria-labelledby="{{SLUG}}-<name>-title {{SLUG}}-<name>-desc"
+           font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
+        <title id="{{SLUG}}-<name>-title">Short name</title>
+        <desc id="{{SLUG}}-<name>-desc">One sentence on what it shows.</desc>
+        <defs>
+          <marker id="{{SLUG}}-<name>-a" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#8a8a8a"/>
+          </marker>
+        </defs>
+        <!-- connectors first, then nodes -->
+      </svg>
+      </div>
+    </details>
+
+  STATE FRAGMENT (for a state machine — a state is not a component, so it takes
+  the neutral treatment; add class "focal" for the one state that matters and
+  "term" for a terminal one):
+    <g class="state focal">
+      <rect x="400" y="160" width="176" height="64" rx="6"/>
+      <text class="nn" x="416" y="188">Open</text>
+      <text class="sub" x="416" y="206">validUntil absent</text>
+    </g>
+-->
+{{ADDITIONAL_DIAGRAMS}}
 
 <div class="section-label">Components</div>
 
@@ -242,6 +444,9 @@ details[open]>summary .chev{transform:rotate(90deg);color:var(--yellow)}
         </div>
       </div>
     </details>
+
+  A component left out of a diagram to stay inside the complexity budget is
+  recorded here with the reason, in its own .comp-desc — never dropped silently.
 -->
 {{COMPONENT_REFERENCE}}
 

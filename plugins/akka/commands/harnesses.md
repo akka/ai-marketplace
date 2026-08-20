@@ -58,7 +58,9 @@ whether you generate an asset and how the engine verifies it.
    - `/harnesses/supply-chain/` — SBOM and signing steps wired to the mandated
      registry or signing service.
    - `/harnesses/content/` — the content style package (`.vale.ini`, `styles/`)
-     for the content governance family; see `/akka:docs`.
+     for the content governance family, plus `diagram_check.py` copied from
+     `plugins/akka/harnesses/content/` — the structural checker for generated
+     diagrams. Both feed CONTENT-LANGUAGE; see `/akka:docs`.
    Use the enterprise's target values, mandated vendors, and privileged endpoints
    where the policy supplies them. Leave the last-mile connection the developer
    alone can make — adding a secret, enabling a workflow, linking an account — as
