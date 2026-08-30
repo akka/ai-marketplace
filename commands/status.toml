@@ -64,6 +64,22 @@ machine.
 - Do not change the project. No sign-offs, no strikes, no waivers, no mode
   changes as a side effect of showing status.
 
+### Prompt to graduate a port
+
+Where `.akka/discovery/run.json` exists and every condition of `generated`
+provenance is green, say so and name the next command. Those auditors compare
+the rebuild against a running original, and they stop working when that system
+is decommissioned:
+
+```
+  <n> of <n> parity conditions are green.
+
+  These auditors compare the rebuild against a running <original>. If that
+  system is decommissioned, <n> of them stop working.
+
+  Run /akka:port finalize.
+```
+
 ## Done When
 
 - [ ] `akka_ec_status` was called and the manifest was resolved without running

@@ -1,0 +1,162 @@
+description = "Build a specification from a system that already exists, generate the exit conditions that hold a rebuild to it, and hand off to the Akka Specify Plugin."
+
+prompt = """
+## User Input
+
+```text
+{{args}}
+```
+
+You **MUST** consider the user input before proceeding (if not empty).
+
+## Purpose
+
+`/akka:port` derives a specification from a system that already exists, generates
+the exit conditions that hold a rebuild to that system's behaviour, and hands the
+result to the Plugin as an ordinary project.
+
+It runs at two moments. The first invocation studies the original and hands off.
+`/akka:port finalize` runs after the rebuild matches it. Between them the port
+proceeds without the user, because every decision they make is made at
+invocation.
+
+## Outline
+
+### 1. Parse the argument
+
+- **`finalize`** — skip to *Finalize* below.
+- **Anything else** — a repository reference, a URL, or the address of a running
+  instance, optionally with `--study=`, `--probe=`, and `--also=`.
+- **Empty** — ask for what is missing, in the order below, and then run. Never
+  ask anything after the work starts.
+
+### 2. Ask only for what was not supplied
+
+Ask in this order, and only for what the invocation did not carry:
+
+1. **The system.** "What are you porting? A repository reference, a URL, or the
+   address of a running instance."
+2. **The study level.** Show the three with what each costs *and what it asks of
+   them*: `read` executes nothing, `run` starts software they may not control on
+   their machine, `diff` keeps the original running for the duration.
+3. **The probes.** Run `akka specify probes list --source <clone> --target <url>
+   --study=<level>` and show its output. It reports which probes can reach this
+   system and which cannot, with the capability each one lacks. Accept changes in
+   the `+name,-name` form, or an empty answer for the defaults.
+
+Do not ask about `--also`. Its absence is a legitimate answer, and asking every
+user to decline additional obligations teaches them to dismiss the question.
+
+### 3. Confirm, and print the reproducible invocation
+
+Show the system, the study level, the probes, and any additional obligations.
+Print the equivalent fully specified command, because that is what a second
+person runs to reproduce this port. Then confirm once.
+
+### 4. Discover
+
+- Clone the original where the argument names a repository.
+- Run `akka specify probes run --source <clone> --target <url> --study=<level>
+  --probe=<changes>`. It writes `.akka/discovery/` and the run record.
+- Read the results. Where an observation is ambiguous, design a further
+  experiment and run it again. Where that loop exhausts itself, **record an
+  assumption and continue** — never stop to ask.
+
+### 5. Write the specification
+
+- `akka_sdd_create_spec`, then fill the standard template.
+- Every requirement is annotated `observed`, with the evidence rung it earned and
+  the probe that established it: `(observed, exercised: sequence)`.
+- Every requirement gets a Traceability row naming a source and a test.
+- **No `[NEEDS CLARIFICATION]` marker may survive.** An assumption is recorded as
+  a requirement at the weakest evidence rung with a note, and stays visible.
+
+### 6. Account for every interface element
+
+Read `.akka/discovery/surface.json`. Each element is covered by a requirement, or
+dropped with a reason recorded as a divergence. An element the discovery could
+not describe is dropped and named, never passed over.
+
+### 7. Author the conditions and hand off
+
+- One parity condition per requirement, written through the exit-condition
+  authoring path so each carries `generated` provenance.
+- The project defaults, plus anything `--also` declared.
+- `akka specify mode enforced`.
+- Report the count and name `/akka:implement` as the next step.
+
+### 8. Report progress while it runs
+
+The user is free to work on other projects. Emit an update **when a condition
+changes state**, and **at least every thirty minutes** even when nothing has
+changed, so a stalled port stays visible:
+
+```
+  <system> · <elapsed> · step: <step>
+
+    conditions      <n> of <total> green
+    since <time>    +<n> green · <n> red
+    working on      <what>
+
+  Nothing needs you.
+```
+
+Where something waits on a person, say so plainly under `Needs you:` with what
+would settle it. The final update reports that the parity conditions are green
+and names `/akka:port finalize`.
+
+### Finalize
+
+Runs when the parity conditions are green.
+
+Rewrite each `generated` auditor so its reference is a recorded value rather than
+the live original:
+
+- **A recorded fixture**, where the condition compared two responses.
+- **A replayed table**, where it compared decisions across a sweep of inputs.
+- **An absolute budget**, where it compared two timings — the figure the original
+  achieved becomes the budget.
+
+A condition that can only be expressed as a live comparison, and whose subject
+cannot be recorded, is **retired with its reason kept in the project**. Never
+delete one silently.
+
+Report the counts by kind, and say that the project is now an ordinary Akka
+Specify Plugin project.
+
+## Key rules
+
+- **Nothing blocks mid-run.** Every question is asked at invocation. A port that
+  stops to ask turns a several-hour unattended run into a several-hour wait.
+- **An unresolved question is settled by discovery, not by the user.** Design a
+  further experiment. Where none settles it, record an assumption at the weakest
+  evidence rung. `/akka:clarify` has no part in a port, and enforced mode refuses
+  it.
+- **A probe that could not run is reported, never omitted.** A specification
+  missing a probe's findings reads exactly like one where the probe ran and found
+  nothing.
+- **Claim only the evidence earned.** A requirement derived by reading source is
+  `inspected`. Name the probe that established it, because
+  `PROC-RULE-EVIDENCE` checks the claim against the run record.
+- **Every interface element gets a disposition.** Covered, or dropped with a
+  reason. Silence is the failure this command exists to prevent.
+- **Finalize rewrites only `generated` conditions.** Never touch one a person
+  wrote.
+
+## Done When
+
+- [ ] Every missing argument was asked for at invocation, and nothing was asked
+      afterwards.
+- [ ] The equivalent fully specified invocation was printed before the work
+      started.
+- [ ] `akka specify probes run` wrote `.akka/discovery/`, and probes that could
+      not run are named with the capability they lacked.
+- [ ] The specification carries no surviving clarification marker, every
+      requirement has a traceability row, and every requirement records its
+      evidence and the probe that established it.
+- [ ] Every enumerated interface element is covered by a requirement or dropped
+      with a recorded reason.
+- [ ] The project is in enforced mode and the next command was named.
+- [ ] On `finalize`, every generated condition was graduated or retired with its
+      reason, and the counts by kind were reported.
+"""

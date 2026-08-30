@@ -35,8 +35,10 @@ whether unmet exit conditions block shipping.
   by an effective waiver. You use sign-off, strike, and waive to resolve each
   `open` or `red` condition first.
 
-Every Specify command is available in both modes; the mode changes what the
-engine does on its own, not the command set. In Enforced mode the process gates
+The mode also decides which commands you may run. Enforced mode gives the
+sequence to the engine, so the steps it sequences are refused with the remedy
+named: `/akka:mode`, `/akka:specify`, `/akka:port`, `/akka:ship`, and
+`/akka:status` stay available. In Enforced mode the process gates
 `PROC-AUDITOR-COVERAGE` and `PROC-ADEQUACY-REVIEWED` apply as usual. While the
 set is dormant they do not resolve at all — there is nothing yet to have
 covered or reviewed.
