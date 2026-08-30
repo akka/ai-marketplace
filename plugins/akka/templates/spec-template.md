@@ -95,10 +95,37 @@
 - **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
 - **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
 
+*Recording where a requirement came from:*
+
+A requirement you chose needs no further account of itself. A requirement imposed
+from outside, or read off a system that already exists, is a claim about the world
+and can be wrong. Annotate those in parentheses after the identifier.
+
+- **FR-008** (constrained, documented): System MUST retain audit records for seven years
+- **FR-009** (observed, exercised): System MUST return 409 when an order is submitted twice
+
+The first value is where the requirement came from: `decided`, `constrained`, or
+`observed`. The second is how it was established: `inspected` for reading the
+source, `documented` for a statement in a manual or specification, `exercised` for
+calling it and observing the result. A requirement with no annotation is read as
+`decided`.
+
 ### Key Entities *(include if feature involves data)*
 
 - **[Entity 1]**: [What it represents, key attributes without implementation]
 - **[Entity 2]**: [What it represents, relationships to other entities]
+
+## Traceability *(mandatory)*
+
+<!--
+  ACTION REQUIRED: One row for every FR- and SC- identifier above. A requirement
+  with no row is a promise nothing checks.
+-->
+
+| Requirement | Source | Test |
+|---|---|---|
+| FR-001 | [where this obligation comes from] | [the test that proves it] |
+| FR-002 | [where this obligation comes from] | [the test that proves it] |
 
 ## Success Criteria *(mandatory)*
 
