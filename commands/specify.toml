@@ -194,7 +194,19 @@ Given that feature description, do this:
 
    d. **Update Checklist**: After each validation iteration, update the checklist file with current pass/fail status
 
-7. Report completion with branch name, spec file path, checklist results, and readiness for the next phase (`/akka:clarify` or `/akka:plan`).
+7. Report completion with branch name, spec file path, and checklist results.
+
+   **The next step depends on the mode.** Run `akka specify mode` and read it.
+
+   - **À la carte** — recommend the next command (`/akka:clarify` or
+     `/akka:plan`) and stop. The developer drives.
+   - **Enforced** — do not name a command. Those steps are refused when a person
+     invokes them, so recommending one hands the developer a dead end. Carry out
+     the sequence yourself instead, in order, following each command's own
+     instructions from this same conversation: plan, tasks, implement, build,
+     conform. Stop when a step reports something only a person can settle, and
+     say what it is. That is what makes this the engine rather than a step in
+     one.
 
 **NOTE:** The script creates and checks out the new branch and initializes the spec file before writing.
 
@@ -316,5 +328,8 @@ Generation runs in the assistant; the engine detects the surfaces, verifies dete
 - [ ] Success Criteria are measurable, technology-agnostic, user-focused, and verifiable.
 - [ ] No more than 3 `[NEEDS CLARIFICATION]` markers remain — any surplus was resolved by informed guesses documented in the Assumptions section.
 - [ ] `FEATURE_DIR/checklists/requirements.md` was created and every non-`[NEEDS CLARIFICATION]` item passes (or the user was warned after 3 failed iterations).
-- [ ] Completion was reported to the user with branch name, spec file path, checklist results, and the next-command recommendation (`/akka:clarify` or `/akka:plan`).
+- [ ] Completion was reported with branch name, spec file path, and checklist results.
+- [ ] The mode was read, and the next step matched it: a recommendation in À la
+      carte, and the sequence carried out here in Enforced, with no command named
+      that the gate would refuse.
 """

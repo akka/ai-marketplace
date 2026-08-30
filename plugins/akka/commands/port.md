@@ -151,11 +151,11 @@ conditions:
 - Omit `--consent-for` where the user declined in step 2. The conditions are
   written either way; without it each auditor waits for its own approval.
 - `akka specify mode enforced`.
-- Report the count, and name `/akka:specify` as the next step. It is the
-  re-entrant engine: it sequences planning, implementation, building, and
-  conformance itself, and it is one of the five commands enforcement permits.
-  Naming any of the steps it sequences — `/akka:implement`, `/akka:plan`,
-  `/akka:build` — tells the user to run something that will be refused.
+- Report the count, and name `/akka:specify` as the next step. Under enforcement
+  it does not recommend a following command; it carries the sequence out itself,
+  and it is one of the five commands enforcement permits. Naming any of the steps
+  it sequences — `/akka:plan`, `/akka:implement`, `/akka:build` — tells the user
+  to run something that will be refused.
 
 ### 8. Report progress while it runs
 
@@ -194,8 +194,13 @@ rather than the live original, and write the result back:
 ```bash
 akka specify conditions list --json > generated.json
 # rewrite each auditor in that file
-akka specify conditions graduate --file generated.json
+akka specify conditions graduate --file generated.json --consent-for <system>
 ```
+
+Graduation replaces every auditor's command, so the approval recorded against the
+old command no longer applies. Pass `--consent-for` with the same system named at
+invocation: without it every graduated condition comes out of `finalize` waiting
+for an approval, which is the opposite of what finalize is for.
 
 Rewrite each one as:
 

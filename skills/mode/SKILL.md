@@ -33,9 +33,10 @@ whether unmet exit conditions block shipping.
   `open` or `red` condition first.
 
 The mode also decides which commands you may run. Enforced mode gives the
-sequence to the engine, so the steps it sequences are refused with the remedy
-named: `/akka:mode`, `/akka:specify`, `/akka:port`, `/akka:ship`, and
-`/akka:status` stay available. In Enforced mode the process gates
+sequence to the engine, so five commands stay available — `/akka:mode`,
+`/akka:specify`, `/akka:port`, `/akka:ship`, and `/akka:status` — and every step
+the engine sequences is refused when you invoke it yourself, with the remedy
+named. In Enforced mode the process gates
 `PROC-AUDITOR-COVERAGE` and `PROC-ADEQUACY-REVIEWED` apply as usual. While the
 set is dormant they do not resolve at all — there is nothing yet to have
 covered or reviewed.
