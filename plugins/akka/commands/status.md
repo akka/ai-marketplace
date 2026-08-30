@@ -19,6 +19,15 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Before anything else
+
+Run `akka specify mode --allows status`. It exits non-zero when the project's mode
+does not permit this command to be invoked directly. On a non-zero exit, print
+its message verbatim and stop. Do not continue, and do not work around it.
+
+Enforced mode gives the sequence to the engine, so the steps it sequences are
+refused when a person invokes them. The message names the remedy.
+
 ## Purpose
 
 `/akka:status` prints the current definition-of-done manifest: every exit
@@ -74,28 +83,8 @@ machine.
 - Do not change the project. No sign-offs, no strikes, no waivers, no mode
   changes as a side effect of showing status.
 
-### Prompt to graduate a port
-
-Where `.akka/discovery/run.json` exists and every condition of `generated`
-provenance is green, say so and name the next command. Read the provenance from
-`akka_ec_list`, whose entries carry it; the rendered manifest does not. Those auditors compare
-the rebuild against a running original, and they stop working when that system
-is decommissioned:
-
-```
-  <n> of <n> parity conditions are green.
-
-  These auditors compare the rebuild against a running <original>. If that
-  system is decommissioned, <n> of them stop working.
-
-  Run /akka:port finalize.
-```
-
 ## Done When
 
-- [ ] Where a discovery record exists and every generated condition is green, the
-      prompt to graduate the port was shown, with the provenance read from
-      `akka_ec_list`.
 - [ ] `akka_ec_status` was called and the manifest was resolved without running
       any auditor.
 - [ ] `akka_ec_rollup` was called and its counts led the report.

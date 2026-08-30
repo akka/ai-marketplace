@@ -7,6 +7,15 @@ description: "Execute the implementation plan by processing and executing all ta
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Before anything else
+
+Run `akka specify mode --allows implement`. It exits non-zero when the project's mode
+does not permit this command to be invoked directly. On a non-zero exit, print
+its message verbatim and stop. Do not continue, and do not work around it.
+
+Enforced mode gives the sequence to the engine, so the steps it sequences are
+refused when a person invokes them. The message names the remedy.
+
 ## Outline
 
 1. Call the `akka_sdd_list_specs` MCP tool to find features. Verify that tasks.md exists for the target feature (has_tasks must be true). If tasks.md is missing, instruct the user to run `/akka:tasks` first. Read the tasks.md content from FEATURE_DIR. Also note which other artifacts are available (AVAILABLE_DOCS).

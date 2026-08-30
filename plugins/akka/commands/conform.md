@@ -19,6 +19,15 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Before anything else
+
+Run `akka specify mode --allows conform`. It exits non-zero when the project's mode
+does not permit this command to be invoked directly. On a non-zero exit, print
+its message verbatim and stop. Do not continue, and do not work around it.
+
+Enforced mode gives the sequence to the engine, so the steps it sequences are
+refused when a person invokes them. The message names the remedy.
+
 ## Purpose
 
 `/akka:conform` runs the in-scope auditors and reports whether the feature is
@@ -106,7 +115,31 @@ A `NOT_READY` verdict says what is blocking and what to do about it:
 - `blocked-outside-project` is not the user's failure. Report it as a missing
   tool or policy change and name what is missing.
 
+### Prompt to graduate a port
+
+Where `.akka/discovery/run.json` exists and this run resolved every condition of
+`generated` provenance green, say so and name the next command. Read the
+provenance from `akka_ec_list`, whose entries carry it; the rendered manifest
+does not. This is the command that can raise the prompt, because it is the one
+that evaluates the auditors: a status read resolves the set without running
+them, so nothing is green there.
+
+Those auditors compare the rebuild against a running original, and they stop
+working when that system is decommissioned:
+
+```
+  <n> of <n> parity conditions are green.
+
+  These auditors compare the rebuild against a running <original>. If that
+  system is decommissioned, <n> of them stop working.
+
+  Run /akka:port finalize.
+```
+
 ## Done When
+
+- [ ] Where a discovery record exists and this run resolved every generated
+      condition green, the prompt to graduate the port was shown.
 
 - [ ] `akka_ec_conform` was called once for the project directory and its
       verdict was reported as returned.

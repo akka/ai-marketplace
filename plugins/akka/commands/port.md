@@ -15,6 +15,15 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Before anything else
+
+Run `akka specify mode --allows port`. It exits non-zero when the project's mode
+does not permit this command to be invoked directly. On a non-zero exit, print
+its message verbatim and stop. Do not continue, and do not work around it.
+
+Enforced mode gives the sequence to the engine, so the steps it sequences are
+refused when a person invokes them. The message names the remedy.
+
 ## Purpose
 
 `/akka:port` derives a specification from a system that already exists, generates
@@ -111,6 +120,27 @@ Write the conditions to a file and hand it to the CLI:
 akka specify conditions author --file conditions.yaml --consent-for <system>
 ```
 
+The file is a `conditions:` list. Each entry takes the exit-condition fields, and
+a parity condition carries the auditor that compares the rebuild against the
+original:
+
+```yaml
+conditions:
+  - id: PORT-FR-001
+    tier: product
+    dod_type: functional
+    invariant: "the rebuild answers /reports as the original does"
+    pass: "responses_equal"
+    auditor:
+      run: ["python", ".akka/parity/compare.py", "--path", "/reports"]
+  - id: PROJ-PROVENANCE-DECLARED
+    tier: project
+    dod_type: documentation-training
+    invariant: "every requirement declares where it came from"
+    default_level: on-but-dev-configurable
+    check: provenance-declared
+```
+
 - One parity condition per requirement. Each is written into the project's
   generated set, kept apart from conditions a person wrote so that *Finalize*
   cannot reach one of theirs.
@@ -121,14 +151,16 @@ akka specify conditions author --file conditions.yaml --consent-for <system>
 - Omit `--consent-for` where the user declined in step 2. The conditions are
   written either way; without it each auditor waits for its own approval.
 - `akka specify mode enforced`.
-- Report the count, and say that the engine now sequences the work. **Do not name
-  another command to run.** Under enforcement only `mode`, `specify`, `port`,
-  `ship`, and `status` may be invoked, and naming any other one tells the user to
-  run something that will be refused.
+- Report the count, and name `/akka:specify` as the next step. It is the
+  re-entrant engine: it sequences planning, implementation, building, and
+  conformance itself, and it is one of the five commands enforcement permits.
+  Naming any of the steps it sequences — `/akka:implement`, `/akka:plan`,
+  `/akka:build` — tells the user to run something that will be refused.
 
 ### 8. Report progress while it runs
 
-The user is free to work on other projects. Emit an update **when a condition
+`/akka:specify` drives the rebuild from here. The user is free to work on other
+projects. Emit an update **when a condition
 changes state**, and **at least every thirty minutes** even when nothing has
 changed, so a stalled port stays visible:
 
@@ -141,6 +173,11 @@ changed, so a stalled port stays visible:
 
   Nothing needs you.
 ```
+
+`Nothing needs you.` speaks for the parity conditions. Say it only when nothing
+else in the project is waiting either: several library conditions close on a
+human sign-off and are open from the first minute, and a line claiming nothing
+is needed while one of them waits is the failure this update exists to prevent.
 
 Where something waits on a person, say so plainly under `Needs you:` with what
 would settle it. A condition sitting unapproved is that case, and the update says
@@ -167,8 +204,13 @@ Rewrite each one as:
 - **An absolute budget**, where it compared two timings — the figure the original
   achieved becomes the budget.
 
-A condition that can only be expressed as a live comparison, and whose subject
-cannot be recorded, is **left out of the file**. `graduate` retires it and names
+Only parity conditions are rewritten. A condition that never referenced the
+original — `PROJ-PROVENANCE-DECLARED`, or anything else written alongside the
+parity set — is carried through unchanged. Leaving one out retires it, so
+include it as it stands.
+
+A parity condition that can only be expressed as a live comparison, and whose
+subject cannot be recorded, is **left out of the file**. `graduate` retires it and names
 it, so the project records that it went and why. Never drop one silently.
 
 Report the counts by kind, name any that were retired, and say that the project
@@ -212,8 +254,8 @@ is now an ordinary Akka Specify Plugin project.
       says so.
 - [ ] The conditions were written with `akka specify conditions author`, and
       `PROJ-PROVENANCE-DECLARED` was turned on with them.
-- [ ] The project is in enforced mode, and no command outside the enforced set
-      was named as the next step.
+- [ ] The project is in enforced mode, `/akka:specify` was named as the next
+      step, and no command the engine sequences was named instead.
 - [ ] On `finalize`, every generated condition was graduated through
       `akka specify conditions graduate` or retired with its reason recorded, and
       the counts by kind were reported.

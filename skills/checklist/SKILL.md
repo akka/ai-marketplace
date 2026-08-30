@@ -28,6 +28,15 @@ description: "Generate a custom checklist for the current feature based on user 
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Before anything else
+
+Run `akka specify mode --allows checklist`. It exits non-zero when the project's mode
+does not permit this command to be invoked directly. On a non-zero exit, print
+its message verbatim and stop. Do not continue, and do not work around it.
+
+Enforced mode gives the sequence to the engine, so the steps it sequences are
+refused when a person invokes them. The message names the remedy.
+
 ## Execution Steps
 
 1. **Setup**: Call the `akka_sdd_list_specs` MCP tool to find features and their available documents. From the response, identify the target feature's FEATURE_DIR and which artifacts exist (AVAILABLE_DOCS: spec.md, plan.md, tasks.md, etc.). If no features exist, instruct the user to run `/akka:specify` first.
