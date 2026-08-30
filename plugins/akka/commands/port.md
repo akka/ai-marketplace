@@ -17,12 +17,15 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Before anything else
 
-Run `akka specify mode --allows port`. It exits non-zero when the project's mode
-does not permit this command to be invoked directly. On a non-zero exit, print
-its message verbatim and stop. Do not continue, and do not work around it.
+Run `akka specify mode --allows port`. Add `--as-engine` when you are carrying
+this command out as part of a sequence `/akka:specify` is driving, rather than
+because a person invoked it. It exits non-zero when the project's mode does not
+permit the command. On a non-zero exit, print its message verbatim and stop. Do
+not continue, and do not work around it.
 
-Enforced mode gives the sequence to the engine, so the steps it sequences are
-refused when a person invokes them. The message names the remedy.
+Enforced mode gives the sequence to the engine, so a step it sequences is refused
+to a person and permitted to the engine. A refusal with a reason of its own, such
+as re-running setup, stands either way. The message names the remedy.
 
 ## Purpose
 
@@ -198,9 +201,15 @@ akka specify conditions graduate --file generated.json --consent-for <system>
 ```
 
 Graduation replaces every auditor's command, so the approval recorded against the
-old command no longer applies. Pass `--consent-for` with the same system named at
-invocation: without it every graduated condition comes out of `finalize` waiting
-for an approval, which is the opposite of what finalize is for.
+old command no longer applies, and without a consent every graduated condition
+comes out of `finalize` waiting for one.
+
+`finalize` runs long after the question was asked, so read the answer rather than
+asking again. `akka specify conditions list` reports the consent the project
+recorded and the system it was granted for. Pass `--consent-for` with that system.
+**Where the project records no consent, the user declined, and omitting the flag
+is the whole point** — passing it would approve, at finalize, exactly what they
+refused at invocation.
 
 Rewrite each one as:
 
@@ -264,3 +273,5 @@ is now an ordinary Akka Specify Plugin project.
 - [ ] On `finalize`, every generated condition was graduated through
       `akka specify conditions graduate` or retired with its reason recorded, and
       the counts by kind were reported.
+- [ ] `--consent-for` was passed on `finalize` only where the project records a
+      consent, so a user who declined at invocation was not overridden at the end.

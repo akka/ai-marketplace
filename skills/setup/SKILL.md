@@ -14,6 +14,10 @@ This command is what installs it, so its absence is the ordinary case rather tha
 a refusal. Where the CLI is present and exits non-zero, print its message
 verbatim and stop. Do not continue, and do not work around it.
 
+Re-running setup would change the ground the conditions were verified against, so
+under enforcement it is refused to the engine as well. `--as-engine` does not
+lift this one.
+
 Enforced mode gives the sequence to the engine, so the steps it sequences are
 refused when a person invokes them. The message names the remedy.
 

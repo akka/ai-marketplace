@@ -9,12 +9,15 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Before anything else
 
-Run `akka specify mode --allows specify`. It exits non-zero when the project's mode
-does not permit this command to be invoked directly. On a non-zero exit, print
-its message verbatim and stop. Do not continue, and do not work around it.
+Run `akka specify mode --allows specify`. Add `--as-engine` when you are carrying
+this command out as part of a sequence `/akka:specify` is driving, rather than
+because a person invoked it. It exits non-zero when the project's mode does not
+permit the command. On a non-zero exit, print its message verbatim and stop. Do
+not continue, and do not work around it.
 
-Enforced mode gives the sequence to the engine, so the steps it sequences are
-refused when a person invokes them. The message names the remedy.
+Enforced mode gives the sequence to the engine, so a step it sequences is refused
+to a person and permitted to the engine. A refusal with a reason of its own, such
+as re-running setup, stands either way. The message names the remedy.
 
 ## Outline
 
@@ -202,9 +205,10 @@ Given that feature description, do this:
      invokes them, so recommending one hands the developer a dead end. Carry out
      the sequence yourself instead, in order, following each command's own
      instructions from this same conversation: plan, tasks, implement, build,
-     conform. Stop when a step reports something only a person can settle, and
-     say what it is. That is what makes this the engine rather than a step in
-     one.
+     conform. You are the engine while you do this, so each step's opening gate
+     check is run with `--as-engine`; without it the step refuses itself and the
+     sequence stops at its first line. Stop when a step reports something only a
+     person can settle, and say what it is.
 
 **NOTE:** The script creates and checks out the new branch and initializes the spec file before writing.
 
