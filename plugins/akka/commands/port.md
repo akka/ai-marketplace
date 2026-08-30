@@ -92,6 +92,9 @@ not describe is dropped and named, never passed over.
 - One parity condition per requirement, written through the exit-condition
   authoring path so each carries `generated` provenance.
 - The project defaults, plus anything `--also` declared.
+- `PROJ-PROVENANCE-DECLARED`, which ships off by default. Every requirement in a
+  ported specification was read off a system that already exists, so one that
+  declares nothing is an assumption nobody has been asked to confirm.
 - `akka specify mode enforced`.
 - Report the count and name `/akka:implement` as the next step.
 
