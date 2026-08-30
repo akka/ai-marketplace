@@ -205,11 +205,13 @@ old command no longer applies, and without a consent every graduated condition
 comes out of `finalize` waiting for one.
 
 `finalize` runs long after the question was asked, so read the answer rather than
-asking again. `akka specify conditions list` reports the consent the project
-recorded and the system it was granted for. Pass `--consent-for` with that system.
-**Where the project records no consent, the user declined, and omitting the flag
-is the whole point** — passing it would approve, at finalize, exactly what they
-refused at invocation.
+asking again. The JSON you already read carries it: `conditions list --json`
+returns a `consent` object with the system it was granted for, alongside the
+conditions. Pass `--consent-for` with that system.
+
+**Where there is no `consent` in that output, the user declined, and omitting the
+flag is the whole point** — passing it would approve, at finalize, exactly what
+they refused at invocation.
 
 Rewrite each one as:
 
