@@ -26,41 +26,56 @@ invocation.
 
 - **`finalize`** — skip to *Finalize* below.
 - **Anything else** — a repository reference, a URL, or the address of a running
-  instance, optionally with `--study=`, `--probe=`, and `--also=`.
+  instance, optionally with `--study=` and `--probe=`.
 - **Empty** — ask for what is missing, in the order below, and then run. Never
   ask anything after the work starts.
 
 ### 2. Ask only for what was not supplied
 
-Ask in this order, and only for what the invocation did not carry:
+Ask in this order, and only for what the invocation did not carry.
 
 1. **The system.** "What are you porting? A repository reference, a URL, or the
-   address of a running instance."
+   address of a running instance." Either a readable clone or a running address
+   is enough on its own. Record which you were given, because it decides which
+   probes can run and whether the interface can be enumerated at all.
 2. **The study level.** Show the three with what each costs *and what it asks of
    them*: `read` executes nothing, `run` starts software they may not control on
    their machine, `diff` keeps the original running for the duration.
-3. **The probes.** Run `akka specify probes list --source <clone> --target <url>
+3. **Consent for the conditions this run will write.** A generated auditor is a
+   command, and a command a person has not seen does not run until they approve
+   it. Approving them one at a time would stop the run at each condition, so the
+   consent is taken here: "This run will write one check per requirement and run
+   them against your rebuild. Approve them as they are written?" Their answer
+   becomes `--consent-for` in step 7. If they decline, say plainly that the port
+   will still write the conditions, that each will sit unapproved until
+   `akka_ec_approve` records their approval, and that the run will not reach
+   green unattended.
+
+Clone the repository now, before the next question, so the picker reports what
+this system can actually support. `akka specify probes list` reads the clone to
+decide which probes can reach it, and a clone that does not exist yet resolves as
+no readable source at all.
+
+4. **The probes.** Run `akka specify probes list --source <clone> --target <url>
    --study=<level>` and show its output. It reports which probes can reach this
    system and which cannot, with the capability each one lacks. Accept changes in
    the `+name,-name` form, or an empty answer for the defaults.
 
-Do not ask about `--also`. Its absence is a legitimate answer, and asking every
-user to decline additional obligations teaches them to dismiss the question.
-
 ### 3. Confirm, and print the reproducible invocation
 
-Show the system, the study level, the probes, and any additional obligations.
-Print the equivalent fully specified command, because that is what a second
-person runs to reproduce this port. Then confirm once.
+Show the system, the study level, the probes, and whether the conditions will be
+approved as written. Print the equivalent fully specified command, because that
+is what a second person runs to reproduce this port. Then confirm once.
 
 ### 4. Discover
 
-- Clone the original where the argument names a repository.
 - Run `akka specify probes run --source <clone> --target <url> --study=<level>
   --probe=<changes>`. It writes `.akka/discovery/` and the run record.
 - Read the results. Where an observation is ambiguous, design a further
   experiment and run it again. Where that loop exhausts itself, **record an
   assumption and continue** — never stop to ask.
+- Read `.akka/discovery/run.json`. A probe listed under `failed` established
+  nothing, so no requirement may cite it as its evidence.
 
 ### 5. Write the specification
 
@@ -77,13 +92,33 @@ Read `.akka/discovery/surface.json`. Each element is covered by a requirement, o
 dropped with a reason recorded as a divergence. An element the discovery could
 not describe is dropped and named, never passed over.
 
+That file exists only where the `surface` probe ran, which needs a readable
+clone. Where the port was given a running address and no source, say so in the
+specification: the interface was not enumerated, so the requirements cover what
+was driven rather than what exists, and anything not driven is unaccounted for.
+
 ### 7. Author the conditions and hand off
 
-- One parity condition per requirement, written through the exit-condition
-  authoring path so each carries `generated` provenance.
-- The project defaults, plus anything `--also` declared.
+Write the conditions to a file and hand it to the CLI:
+
+```bash
+akka specify conditions author --file conditions.yaml --consent-for <system>
+```
+
+- One parity condition per requirement. Each is written into the project's
+  generated set, kept apart from conditions a person wrote so that *Finalize*
+  cannot reach one of theirs.
+- Include `PROJ-PROVENANCE-DECLARED` at `on-but-dev-configurable` in the same
+  file. It ships off, because turning it on is a statement about a project's
+  specification. Every requirement here was read off a system that already
+  exists, so one that declares nothing is an assumption nobody has confirmed.
+- Omit `--consent-for` where the user declined in step 2. The conditions are
+  written either way; without it each auditor waits for its own approval.
 - `akka specify mode enforced`.
-- Report the count and name `/akka:implement` as the next step.
+- Report the count, and say that the engine now sequences the work. **Do not name
+  another command to run.** Under enforcement only `mode`, `specify`, `port`,
+  `ship`, and `status` may be invoked, and naming any other one tells the user to
+  run something that will be refused.
 
 ### 8. Report progress while it runs
 
@@ -102,15 +137,24 @@ changed, so a stalled port stays visible:
 ```
 
 Where something waits on a person, say so plainly under `Needs you:` with what
-would settle it. The final update reports that the parity conditions are green
-and names `/akka:port finalize`.
+would settle it. A condition sitting unapproved is that case, and the update says
+which one, and that `akka_ec_approve` records the approval. The final update
+reports that the parity conditions are green and names `/akka:port finalize`.
 
-### Finalize
+## Finalize
 
 Runs when the parity conditions are green.
 
-Rewrite each `generated` auditor so its reference is a recorded value rather than
-the live original:
+Read the generated set, rewrite each auditor so its reference is a recorded value
+rather than the live original, and write the result back:
+
+```bash
+akka specify conditions list --json > generated.json
+# rewrite each auditor in that file
+akka specify conditions graduate --file generated.json
+```
+
+Rewrite each one as:
 
 - **A recorded fixture**, where the condition compared two responses.
 - **A replayed table**, where it compared decisions across a sweep of inputs.
@@ -118,11 +162,11 @@ the live original:
   achieved becomes the budget.
 
 A condition that can only be expressed as a live comparison, and whose subject
-cannot be recorded, is **retired with its reason kept in the project**. Never
-delete one silently.
+cannot be recorded, is **left out of the file**. `graduate` retires it and names
+it, so the project records that it went and why. Never drop one silently.
 
-Report the counts by kind, and say that the project is now an ordinary Akka
-Specify Plugin project.
+Report the counts by kind, name any that were retired, and say that the project
+is now an ordinary Akka Specify Plugin project.
 
 ## Key rules
 
@@ -136,27 +180,35 @@ Specify Plugin project.
   missing a probe's findings reads exactly like one where the probe ran and found
   nothing.
 - **Claim only the evidence earned.** A requirement derived by reading source is
-  `inspected`. Name the probe that established it, because
-  `PROC-RULE-EVIDENCE` checks the claim against the run record.
+  `inspected`. Name the probe that established it, because `PROC-RULE-EVIDENCE`
+  checks the claim against the run record, and a probe that failed counts as one
+  that did not run.
 - **Every interface element gets a disposition.** Covered, or dropped with a
   reason. Silence is the failure this command exists to prevent.
-- **Finalize rewrites only `generated` conditions.** Never touch one a person
+- **Finalize rewrites only generated conditions.** Never touch one a person
   wrote.
 
 ## Done When
 
 - [ ] Every missing argument was asked for at invocation, and nothing was asked
       afterwards.
+- [ ] The repository was cloned before the probe picker ran, so the picker
+      reported what this system supports rather than what an absent clone does.
 - [ ] The equivalent fully specified invocation was printed before the work
       started.
 - [ ] `akka specify probes run` wrote `.akka/discovery/`, and probes that could
       not run are named with the capability they lacked.
 - [ ] The specification carries no surviving clarification marker, every
       requirement has a traceability row, and every requirement records its
-      evidence and the probe that established it.
+      evidence and a probe that actually produced a result.
 - [ ] Every enumerated interface element is covered by a requirement or dropped
-      with a recorded reason.
-- [ ] The project is in enforced mode and the next command was named.
-- [ ] On `finalize`, every generated condition was graduated or retired with its
-      reason, and the counts by kind were reported.
+      with a recorded reason; or, where nothing was enumerated, the specification
+      says so.
+- [ ] The conditions were written with `akka specify conditions author`, and
+      `PROJ-PROVENANCE-DECLARED` was turned on with them.
+- [ ] The project is in enforced mode, and no command outside the enforced set
+      was named as the next step.
+- [ ] On `finalize`, every generated condition was graduated through
+      `akka specify conditions graduate` or retired with its reason recorded, and
+      the counts by kind were reported.
 """

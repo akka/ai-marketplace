@@ -104,6 +104,10 @@ and can be wrong. Annotate those in parentheses after the identifier.
 - **FR-008** (constrained, documented): System MUST retain audit records for seven years
 - **FR-009** (observed, exercised): System MUST return 409 when an order is submitted twice
 
+<!-- DELETE THIS EXPLANATORY BLOCK, INCLUDING THE TWO BULLETS ABOVE. They parse as
+     real requirements, and left in place they are two identifiers with no
+     traceability rows, which PROJ-SPEC-SCHEMA reports. -->
+
 The first value is where the requirement came from: `decided`, `constrained`, or
 `observed`. The second is how it was established: `inspected` for reading the
 source, `documented` for a statement in a manual or specification, `exercised` for
@@ -118,8 +122,9 @@ calling it and observing the result. A requirement with no annotation is read as
 ## Traceability *(mandatory)*
 
 <!--
-  ACTION REQUIRED: One row for every FR- and SC- identifier above. A requirement
-  with no row is a promise nothing checks.
+  ACTION REQUIRED: One row for every FR- and SC- identifier in this document,
+  including the success criteria below. A requirement with no row is a promise
+  nothing checks.
 -->
 
 | Requirement | Source | Test |

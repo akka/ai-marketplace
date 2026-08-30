@@ -1,17 +1,9 @@
 ---
-description: Build a specification from a system that already exists, generate the exit conditions that hold a rebuild to it, and hand off to the Akka Specify Plugin.
-handoffs:
-  - label: Show Status
-    agent: akka.specify
-    prompt: Report the current state of the port
-    send: true
+name: port
+description: "Build a specification from a system that already exists, generate the exit conditions that hold a rebuild to it, and hand off to the Akka Specify Plugin."
 ---
 
 ## User Input
-
-```text
-$ARGUMENTS
-```
 
 You **MUST** consider the user input before proceeding (if not empty).
 

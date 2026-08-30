@@ -92,13 +92,13 @@ Given that feature description, do this:
     6. Define Success Criteria
        Create measurable, technology-agnostic outcomes
        Include both quantitative metrics (time, performance, volume) and qualitative measures (user satisfaction, task completion)
+       Each criterion must be verifiable without implementation details
     7. Fill the Traceability table
        One row for every FR- and SC- identifier, naming where the obligation comes
        from and the test that proves it. A requirement with no row is a promise
        nothing checks, and PROJ-SPEC-SCHEMA reports it.
-       Each criterion must be verifiable without implementation details
-    7. Identify Key Entities (if data involved)
-    8. Return: SUCCESS (spec ready for planning)
+    8. Identify Key Entities (if data involved)
+    9. Return: SUCCESS (spec ready for planning)
 
 5. Write the specification to SPEC_FILE using the template structure, replacing placeholders with concrete details derived from the feature description (arguments) while preserving section order and headings.
 

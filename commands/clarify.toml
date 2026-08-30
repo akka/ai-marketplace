@@ -180,6 +180,7 @@ Context for prioritization: {{args}}
 - [ ] A structured ambiguity & coverage scan was performed across every taxonomy category with a Clear / Partial / Missing status.
 - [ ] No more than 5 questions were asked in total; each was answerable with a short multiple-choice selection or a `<=5`-word short answer.
 - [ ] Each accepted answer produced exactly one bullet under `## Clarifications` → `### Session YYYY-MM-DD` and was integrated into the correct target section (Functional Requirements, User Stories, Data Model, Non-Functional / Quality Attributes, Edge Cases, or terminology).
+- [ ] Every `[NEEDS CLARIFICATION]` marker the answer settles was removed, and the requirement it produced has a row in the Traceability table naming a source and a test. A marker left in the specification reds PROJ-SPEC-SCHEMA.
 - [ ] Any earlier statement invalidated by a clarification was replaced, not duplicated.
 - [ ] The spec file was saved to FEATURE_SPEC after each integration and passes validation (no lingering vague placeholders the new answer was meant to resolve; markdown structure valid; only allowed new headings added).
 - [ ] The final report listed questions asked/answered, sections touched, a coverage summary (Resolved / Deferred / Clear / Outstanding), and the suggested next command.

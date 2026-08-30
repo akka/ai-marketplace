@@ -77,7 +77,8 @@ machine.
 ### Prompt to graduate a port
 
 Where `.akka/discovery/run.json` exists and every condition of `generated`
-provenance is green, say so and name the next command. Those auditors compare
+provenance is green, say so and name the next command. Read the provenance from
+`akka_ec_list`, whose entries carry it; the rendered manifest does not. Those auditors compare
 the rebuild against a running original, and they stop working when that system
 is decommissioned:
 
@@ -92,6 +93,9 @@ is decommissioned:
 
 ## Done When
 
+- [ ] Where a discovery record exists and every generated condition is green, the
+      prompt to graduate the port was shown, with the provenance read from
+      `akka_ec_list`.
 - [ ] `akka_ec_status` was called and the manifest was resolved without running
       any auditor.
 - [ ] `akka_ec_rollup` was called and its counts led the report.
