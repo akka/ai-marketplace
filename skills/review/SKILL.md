@@ -51,6 +51,10 @@ If not, fall back to `akka_sdd_get_template` with template name
 each check, report PASS, WARN (acceptable deviation with reason), or FAIL
 (must fix). For WARN and FAIL items, cite the specific file(s) and line(s).
 
+Some sections are conditional. Before walking Section R (Multi-Region
+Readiness), apply the **Section R gating** rules under Report Format to decide
+whether it runs at all, and state that decision in the report.
+
 ### Step 6: Runtime verification (optional, either mode)
 
 If the service is running locally (via `/akka:build`), use backoffice tools
@@ -71,6 +75,9 @@ runtime — not just in code:
 ### Step 7: Report
 
    - **Mode**: state whether this was a full review or a feature review
+   - **Multi-region**: state whether Section R ran and why: multi-region
+     confirmed (naming the signal and the primary selection mode), or skipped
+     as single-region
    - Overall assessment: approved / approved with issues / needs rework
    - Issues found, grouped by severity (CRITICAL first, then RECOMMENDED,
      then DESIGN)
@@ -121,13 +128,55 @@ N. Consumer & Idempotency          | N/9        | RECOMMENDED
 O. Testing Conventions             | N/7        | RECOMMENDED
 P. Error Handling Conventions      | N/3        | RECOMMENDED
 Q. Design Review                   | N/19       | DESIGN
-TOTAL CRITICAL                     | N/27
-TOTAL RECOMMENDED                  | N/47
-TOTAL DESIGN                       | N/19
+R. Multi-Region Readiness          | N/15       | MIXED (optional)
+TOTAL CRITICAL                     | N/32
+TOTAL RECOMMENDED                  | N/52
+TOTAL DESIGN                       | N/24
 ```
 
 Note: Skip sections that don't apply (e.g., no gRPC endpoints, no workflows).
 Only count applicable checks in the total.
+
+Section R (Multi-Region Readiness) mixes severities. Score each R item by its
+own `[CRITICAL]` / `[RECOMMENDED]` / `[DESIGN]` tag. Do not assume a fixed ID
+range: a project-level checklist may reorder or edit the checks.
+
+**Section R gating.** Section R is optional. Run it only when multi-region
+deployment is confirmed by at least one of:
+
+- the user input asks for it, for example with `multi-region`
+- the `akka://regions` resource lists more than one region for the project
+- a project descriptor in the repository lists more than one region under
+  `spec.regions`
+- the constitution or a feature spec requires the service to run, or to be
+  deployable, in more than one region
+
+A service descriptor with a `replication` block supports these signals but does
+not confirm multi-region deployment on its own. If signals conflict (for
+example a spec requires two regions while the project descriptor lists one),
+run Section R and state the conflict.
+
+If none of those holds, do NOT run Section R. Emit its row as
+`R. Multi-Region Readiness | N/A | not evaluated, single region` and exclude
+its checks from all three totals. Never infer multi-region deployment from the
+code alone, and never report an R finding as FAIL on a project whose region
+topology you could not confirm: a single-region service is not at risk from
+any of them.
+
+When Section R runs, state the primary selection mode it was reviewed against
+(`request-region`, `pinned-region`, or both when descriptors differ) and where
+it came from (a service descriptor, or the `request-region` default). An R item
+that does not apply to the reviewed mode or code (for example R12 under
+`request-region`) is N/A and excluded from the counts. A DESIGN item counts as
+passed when it raises no observation. Report a handler that violates both an R
+item and a check in another section (for example R6 and K8) once, under the
+item with the higher severity, and name the other.
+
+The totals above describe the bundled default checklist. If the checklist you
+loaded differs (a project-level `.akka/review-checklist.md`, or an older
+template served by `akka_sdd_get_template`), derive the per-section and total
+counts from the checklist you actually loaded, and score only the sections it
+contains.
 
 ### Findings
 
@@ -171,7 +220,8 @@ is used.
 - [ ] The best-practices checklist was loaded from `.akka/review-checklist.md` if present, else from `akka_sdd_get_template` with template name `review-checklist`; every check was walked and marked PASS / WARN / FAIL, with WARN and FAIL items citing the exact file path and line number.
 - [ ] Runtime verification via backoffice tools (`akka_backoffice_list_components`, `akka_backoffice_list_events`, `akka_backoffice_get_workflow`, `akka_backoffice_query_view`, `akka_backoffice_list_agent_interactions`) was performed with `local=true` if the service is running — or explicitly noted as skipped because the service is not running.
 - [ ] Evidence was gathered by grep and file reads, not assumption — every finding cites a specific file path, line number, and the rule it violates (e.g. "violates A3"); CRITICAL findings are FAIL, RECOMMENDED are WARN, DESIGN are OBSERVATION.
-- [ ] The Section Scores table was emitted with pass/total counts per section, applicable checks only, followed by TOTAL CRITICAL / RECOMMENDED / DESIGN.
+- [ ] The Section Scores table was emitted with pass/total counts per section, applicable checks only, followed by TOTAL CRITICAL / RECOMMENDED / DESIGN, with counts derived from the checklist actually loaded, not assumed from this document.
+- [ ] Section R applicability was decided by the gating rules and stated explicitly: either multi-region was confirmed (naming the signal: the user input, `akka://regions`, a constitution or spec, or a service descriptor) together with the primary selection mode reviewed against, or the section was skipped as single-region with its checks excluded from all totals.
 - [ ] ALL findings were listed (not a top-N), grouped CRITICAL → RECOMMENDED → DESIGN, and within each group ordered by impact.
 - [ ] The final report explicitly states the review mode, an overall assessment (`approved` / `approved with issues` / `needs rework`), per-section pass rates, spec-alignment summary (feature review only), and recommendations.
 - [ ] Good patterns observed were acknowledged, not only problems.
