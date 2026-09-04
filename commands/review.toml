@@ -95,6 +95,9 @@ runtime — not just in code:
 - For DESIGN checks, read the domain model, entity state shapes, event types,
   workflow steps, and component interaction patterns holistically — these
   cannot be checked mechanically
+- For component-selection checks (Q14-Q19), compare the implemented components
+  against the Component Architecture table in plan.md (if present) and the
+  "Choosing a component" section of `akka-context/sdk/components/index.html.md`
 - Acknowledge good patterns and practices, not just problems
 
 ## Report Format
@@ -119,10 +122,10 @@ M. Workflow & Agent Conventions    | N/10       | RECOMMENDED
 N. Consumer & Idempotency          | N/9        | RECOMMENDED
 O. Testing Conventions             | N/7        | RECOMMENDED
 P. Error Handling Conventions      | N/3        | RECOMMENDED
-Q. Design Review                   | N/13       | DESIGN
+Q. Design Review                   | N/19       | DESIGN
 TOTAL CRITICAL                     | N/26
 TOTAL RECOMMENDED                  | N/46
-TOTAL DESIGN                       | N/13
+TOTAL DESIGN                       | N/19
 ```
 
 Note: Skip sections that don't apply (e.g., no gRPC endpoints, no workflows).

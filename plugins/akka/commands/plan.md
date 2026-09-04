@@ -29,7 +29,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Fill Constitution Check section from constitution
    - Evaluate gates (ERROR if violations unjustified)
    - Phase 0: Generate research.md (resolve all NEEDS CLARIFICATION)
-   - Phase 1: Generate data-model.md, contracts/, quickstart.md
+   - Phase 1: Map domain concepts to Akka components (Component Architecture table), then generate data-model.md, contracts/, quickstart.md
    - Re-evaluate Constitution Check post-design
 
 4. **Stop and report**: Command ends after Phase 2 planning. Report branch, IMPL_PLAN path, and generated artifacts.
@@ -63,21 +63,27 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 **Prerequisites:** `research.md` complete
 
-1. **Extract entities from feature spec** → `data-model.md`:
+1. **Map domain concepts to Akka components** → the Component Architecture table in plan.md:
+   - Read the "Choosing a component" section in `akka-context/sdk/components/index.html.md` (first time in session) before mapping
+   - For each domain concept, process, and query in the spec, choose the component per the decision guide: entity type (Key Value vs Event Sourced), Workflow vs Consumer, whether a View is needed, endpoint type, or a plain domain class instead of a component
+   - Record every choice in the table with the reason AND the rejected alternative with why it was not chosen
+   - ERROR if any table row lacks a justified rejected alternative
+
+2. **Extract entities from feature spec** → `data-model.md`:
    - Entity name, fields, relationships
    - Validation rules from requirements
    - State transitions if applicable
 
-2. **Define interface contracts** (if project has external interfaces) → `/contracts/`:
+3. **Define interface contracts** (if project has external interfaces) → `/contracts/`:
    - Identify what interfaces the project exposes to users or other systems
    - Document the contract format appropriate for the project type
    - Examples: public APIs for libraries, command schemas for CLI tools, endpoints for web services, grammars for parsers, UI contracts for applications
    - Skip if project is purely internal (build scripts, one-off tools, etc.)
 
-3. **Agent context update**:
+4. **Agent context update**:
    - Agent context files are managed automatically by the Akka CLI when running `akka_sdd_init`. No manual agent context update is needed.
 
-**Output**: data-model.md, /contracts/*, quickstart.md
+**Output**: Component Architecture table in plan.md, data-model.md, /contracts/*, quickstart.md
 
 ## Key rules
 
@@ -90,6 +96,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 - [ ] Technical Context is filled with concrete values; any remaining unknowns are explicitly marked `NEEDS CLARIFICATION`.
 - [ ] Constitution Check was filled from `akka_sdd_constitution`, evaluated before Phase 0, and re-evaluated after Phase 1 design — with any violations either resolved or explicitly justified in the Complexity Tracking section.
 - [ ] Phase 0 produced `research.md` with every `NEEDS CLARIFICATION` resolved (Decision / Rationale / Alternatives).
+- [ ] The Component Architecture table in `plan.md` maps every domain concept, process, and query to a component (or a plain domain class), each row naming the rejected alternative and why it was not chosen — informed by the "Choosing a component" section of `akka-context/sdk/components/index.html.md`.
 - [ ] Phase 1 produced `data-model.md`, `quickstart.md`, and — if the project exposes external interfaces — `contracts/`.
 - [ ] `FEATURE_DIR/plan.md` was written using the template structure and no gate error was left unresolved.
 - [ ] Completion was reported with the branch, plan path, generated artifacts, and the next-command recommendation (`/akka:tasks`).
