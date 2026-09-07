@@ -53,7 +53,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 **Prerequisites:** `research.md` complete
 
 1. **Map domain concepts to Akka components** → the Component Architecture table in plan.md:
-   - Read the "Choosing a component" section in `akka-context/sdk/components/index.html.md` (first time in session) before mapping
+   - Read the "Choosing a component type" section in `akka-context/sdk/components/index.html.md` (first time in session) before mapping
    - For each domain concept, process, and query in the spec, choose the component per the decision guide: entity type (Key Value vs Event Sourced), Workflow vs Consumer, whether a View is needed, endpoint type, or a plain domain class instead of a component
    - Record every choice in the table with the reason AND the rejected alternative with why it was not chosen
    - ERROR if any table row lacks a justified rejected alternative
@@ -85,7 +85,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 - [ ] Technical Context is filled with concrete values; any remaining unknowns are explicitly marked `NEEDS CLARIFICATION`.
 - [ ] Constitution Check was filled from `akka_sdd_constitution`, evaluated before Phase 0, and re-evaluated after Phase 1 design — with any violations either resolved or explicitly justified in the Complexity Tracking section.
 - [ ] Phase 0 produced `research.md` with every `NEEDS CLARIFICATION` resolved (Decision / Rationale / Alternatives).
-- [ ] The Component Architecture table in `plan.md` maps every domain concept, process, and query to a component (or a plain domain class), each row naming the rejected alternative and why it was not chosen — informed by the "Choosing a component" section of `akka-context/sdk/components/index.html.md`.
+- [ ] The Component Architecture table in `plan.md` maps every domain concept, process, and query to a component (or a plain domain class), each row naming the rejected alternative and why it was not chosen — informed by the "Choosing a component type" section of `akka-context/sdk/components/index.html.md`.
 - [ ] Phase 1 produced `data-model.md`, `quickstart.md`, and — if the project exposes external interfaces — `contracts/`.
 - [ ] `FEATURE_DIR/plan.md` was written using the template structure and no gate error was left unresolved.
 - [ ] Completion was reported with the branch, plan path, generated artifacts, and the next-command recommendation (`/akka:tasks`).

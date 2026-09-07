@@ -91,7 +91,7 @@ directories captured above]
 ## Component Architecture
 
 *Filled during Phase 1 (design). Before completing this table, read the
-"Choosing a component" section in `akka-context/sdk/components/index.html.md`.*
+"Choosing a component type" section in `akka-context/sdk/components/index.html.md`.*
 
 | Domain concept / process | Component | Why this component | Rejected alternative and why not |
 |--------------------------|-----------|--------------------|----------------------------------|

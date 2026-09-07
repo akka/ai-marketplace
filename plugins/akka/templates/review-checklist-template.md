@@ -176,7 +176,7 @@ intended usage patterns — not just reading code mechanically.
 
 **Component selection**
 
-Reference: "Choosing a component" in `akka-context/sdk/components/index.html.md`; the Component Architecture table in plan.md (if present).
+Reference: "Choosing a component type" in `akka-context/sdk/components/index.html.md`; the Component Architecture table in plan.md (if present).
 
 - Q14 [DESIGN]: Component choices match the plan's Component Architecture table and the decision guide — each component is justified against its nearest alternative; deviations from the plan are recorded with a reason.
 - Q15 [DESIGN]: Entity type fits the need — no Key Value Entity with a hand-maintained history list (needs Event Sourced); no Event Sourced Entity whose only event is a whole-state `StateChanged` (Key Value is enough); audit and ledger requirements are event-sourced.

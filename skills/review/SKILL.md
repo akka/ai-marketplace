@@ -95,7 +95,7 @@ runtime — not just in code:
   cannot be checked mechanically
 - For component-selection checks (Q14-Q19), compare the implemented components
   against the Component Architecture table in plan.md (if present) and the
-  "Choosing a component" section of `akka-context/sdk/components/index.html.md`
+  "Choosing a component type" section of `akka-context/sdk/components/index.html.md`
 - Acknowledge good patterns and practices, not just problems
 
 ## Report Format

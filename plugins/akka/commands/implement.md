@@ -121,7 +121,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - **Validation checkpoints**: Verify each phase completion before proceeding
 
 8. Implementation execution rules:
-   - **Component fidelity**: Implement components as mapped in plan.md's Component Architecture table. If a task needs a component not in the table, consult the "Choosing a component" section of `akka-context/sdk/components/index.html.md`, then record the addition (with the rejected alternative) in plan.md before coding
+   - **Component fidelity**: Implement components as mapped in plan.md's Component Architecture table. If a task needs a component not in the table, consult the "Choosing a component type" section of `akka-context/sdk/components/index.html.md`, then record the addition (with the rejected alternative) in plan.md before coding
    - **Setup first**: Initialize project structure, dependencies, configuration
    - **Tests before code**: If you need to write tests for contracts, entities, and integration scenarios
    - **Core development**: Implement models, services, CLI commands, endpoints
