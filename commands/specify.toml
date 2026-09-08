@@ -9,6 +9,18 @@ prompt = """
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Before anything else
+
+Run `akka specify mode --allows specify`. Add `--as-engine` when you are carrying
+this command out as part of a sequence `/akka:specify` is driving, rather than
+because a person invoked it. It exits non-zero when the project's mode does not
+permit the command. On a non-zero exit, print its message verbatim and stop. Do
+not continue, and do not work around it.
+
+Enforced mode gives the sequence to the engine, so a step it sequences is refused
+to a person and permitted to the engine. A refusal with a reason of its own, such
+as re-running setup, stands either way. The message names the remedy.
+
 ## Outline
 
 The text the user typed after `/akka:specify` in the triggering message **is** the feature description. Assume you always have it available in this conversation even if `{{args}}` appears literally below. Do not ask the user to repeat it unless they provided an empty command.
@@ -76,12 +88,20 @@ Given that feature description, do this:
     5. Generate Functional Requirements
        Each requirement must be testable
        Use reasonable defaults for unspecified details (document assumptions in Assumptions section)
+       Annotate any requirement that is not your own decision. A requirement
+       imposed from outside is `(constrained, <evidence>)`; one read off a system
+       that already exists is `(observed, <evidence>)`. Evidence is `inspected`,
+       `documented`, or `exercised`. Leave a requirement you chose unannotated.
     6. Define Success Criteria
        Create measurable, technology-agnostic outcomes
        Include both quantitative metrics (time, performance, volume) and qualitative measures (user satisfaction, task completion)
        Each criterion must be verifiable without implementation details
-    7. Identify Key Entities (if data involved)
-    8. Return: SUCCESS (spec ready for planning)
+    7. Fill the Traceability table
+       One row for every FR- and SC- identifier, naming where the obligation comes
+       from and the test that proves it. A requirement with no row is a promise
+       nothing checks, and PROJ-SPEC-SCHEMA reports it.
+    8. Identify Key Entities (if data involved)
+    9. Return: SUCCESS (spec ready for planning)
 
 5. Write the specification to SPEC_FILE using the template structure, replacing placeholders with concrete details derived from the feature description (arguments) while preserving section order and headings.
 
@@ -177,7 +197,20 @@ Given that feature description, do this:
 
    d. **Update Checklist**: After each validation iteration, update the checklist file with current pass/fail status
 
-7. Report completion with branch name, spec file path, checklist results, and readiness for the next phase (`/akka:clarify` or `/akka:plan`).
+7. Report completion with branch name, spec file path, and checklist results.
+
+   **The next step depends on the mode.** Run `akka specify mode` and read it.
+
+   - **À la carte** — recommend the next command (`/akka:clarify` or
+     `/akka:plan`) and stop. The developer drives.
+   - **Enforced** — do not name a command. Those steps are refused when a person
+     invokes them, so recommending one hands the developer a dead end. Carry out
+     the sequence yourself instead, in order, following each command's own
+     instructions from this same conversation: plan, tasks, implement, build,
+     conform. You are the engine while you do this, so each step's opening gate
+     check is run with `--as-engine`; without it the step refuses itself and the
+     sequence stops at its first line. Stop when a step reports something only a
+     person can settle, and say what it is.
 
 **NOTE:** The script creates and checks out the new branch and initializes the spec file before writing.
 
@@ -299,5 +332,8 @@ Generation runs in the assistant; the engine detects the surfaces, verifies dete
 - [ ] Success Criteria are measurable, technology-agnostic, user-focused, and verifiable.
 - [ ] No more than 3 `[NEEDS CLARIFICATION]` markers remain — any surplus was resolved by informed guesses documented in the Assumptions section.
 - [ ] `FEATURE_DIR/checklists/requirements.md` was created and every non-`[NEEDS CLARIFICATION]` item passes (or the user was warned after 3 failed iterations).
-- [ ] Completion was reported to the user with branch name, spec file path, checklist results, and the next-command recommendation (`/akka:clarify` or `/akka:plan`).
+- [ ] Completion was reported with branch name, spec file path, and checklist results.
+- [ ] The mode was read, and the next step matched it: a recommendation in À la
+      carte, and the sequence carried out here in Enforced, with no command named
+      that the gate would refuse.
 """
