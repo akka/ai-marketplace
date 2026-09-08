@@ -20,10 +20,11 @@ description: "Task list template for feature implementation"
 
 ## Path Conventions
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- **Single Akka service** (default): `src/main/java/{org}/{app}/` with `api/`, `application/`, `domain/` packages; tests in `src/test/java/{org}/{app}/`
+- **Service + separate frontend**: `backend/` (Akka service layout), `frontend/src/`
+- **Multiple services**: one Akka service layout per bounded context
+- Component types (entity kind, workflow vs consumer, views, endpoints) come from the Component Architecture table in plan.md
+- Paths shown below assume a single Akka service - adjust based on plan.md structure
 
 <!--
   ============================================================================
@@ -62,12 +63,12 @@ description: "Task list template for feature implementation"
 
 Examples of foundational tasks (adjust based on your project):
 
-- [ ] T004 Setup database schema and migrations framework
-- [ ] T005 [P] Implement authentication/authorization framework
-- [ ] T006 [P] Setup API routing and middleware structure
-- [ ] T007 Create base models/entities that all stories depend on
-- [ ] T008 Configure error handling and logging infrastructure
-- [ ] T009 Setup environment configuration management
+- [ ] T004 Create shared domain records in src/main/java/{org}/{app}/domain/
+- [ ] T005 [P] Configure ACLs and JWT authentication on endpoints per plan.md
+- [ ] T006 [P] Create Bootstrap class (implements ServiceSetup) and dependency injection wiring
+- [ ] T007 Create the components all stories depend on, per the Component Architecture table in plan.md
+- [ ] T008 Configure error handling conventions and logging
+- [ ] T009 Setup application.conf (model provider, sanitization, service config)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,16 +84,16 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for [endpoint] in tests/contract/test_[name].py
-- [ ] T011 [P] [US1] Integration test for [user journey] in tests/integration/test_[name].py
+- [ ] T010 [P] [US1] Unit test for [Domain1]Entity in src/test/java/{org}/{app}/application/[Domain1]EntityTest.java
+- [ ] T011 [P] [US1] Integration test for [user journey] in src/test/java/{org}/{app}/api/[Domain1]EndpointIntegrationTest.java
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Create [Entity1] model in src/models/[entity1].py
-- [ ] T013 [P] [US1] Create [Entity2] model in src/models/[entity2].py
-- [ ] T014 [US1] Implement [Service] in src/services/[service].py (depends on T012, T013)
-- [ ] T015 [US1] Implement [endpoint/feature] in src/[location]/[file].py
-- [ ] T016 [US1] Add validation and error handling
+- [ ] T012 [P] [US1] Create [Domain1] record and events in src/main/java/{org}/{app}/domain/
+- [ ] T013 [P] [US1] Create [Domain2] record in src/main/java/{org}/{app}/domain/
+- [ ] T014 [US1] Implement [Domain1]Entity (component type per plan.md) in src/main/java/{org}/{app}/application/[Domain1]Entity.java (depends on T012)
+- [ ] T015 [US1] Implement [Domain1]Endpoint in src/main/java/{org}/{app}/api/[Domain1]Endpoint.java
+- [ ] T016 [US1] Add validation in domain records and error effects in command handlers
 - [ ] T017 [US1] Add logging for user story 1 operations
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -107,14 +108,14 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for [endpoint] in tests/contract/test_[name].py
-- [ ] T019 [P] [US2] Integration test for [user journey] in tests/integration/test_[name].py
+- [ ] T018 [P] [US2] Unit test for [component] in src/test/java/{org}/{app}/application/[Name]Test.java
+- [ ] T019 [P] [US2] Integration test for [user journey] in src/test/java/{org}/{app}/api/[Name]IntegrationTest.java
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Create [Entity] model in src/models/[entity].py
-- [ ] T021 [US2] Implement [Service] in src/services/[service].py
-- [ ] T022 [US2] Implement [endpoint/feature] in src/[location]/[file].py
+- [ ] T020 [P] [US2] Create [Domain] record in src/main/java/{org}/{app}/domain/
+- [ ] T021 [US2] Implement [component] (type per plan.md) in src/main/java/{org}/{app}/application/
+- [ ] T022 [US2] Implement [endpoint or view query] in src/main/java/{org}/{app}/api/ or application/
 - [ ] T023 [US2] Integrate with User Story 1 components (if needed)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -129,14 +130,14 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US3] Contract test for [endpoint] in tests/contract/test_[name].py
-- [ ] T025 [P] [US3] Integration test for [user journey] in tests/integration/test_[name].py
+- [ ] T024 [P] [US3] Unit test for [component] in src/test/java/{org}/{app}/application/[Name]Test.java
+- [ ] T025 [P] [US3] Integration test for [user journey] in src/test/java/{org}/{app}/api/[Name]IntegrationTest.java
 
 ### Implementation for User Story 3
 
-- [ ] T026 [P] [US3] Create [Entity] model in src/models/[entity].py
-- [ ] T027 [US3] Implement [Service] in src/services/[service].py
-- [ ] T028 [US3] Implement [endpoint/feature] in src/[location]/[file].py
+- [ ] T026 [P] [US3] Create [Domain] record in src/main/java/{org}/{app}/domain/
+- [ ] T027 [US3] Implement [component] (type per plan.md) in src/main/java/{org}/{app}/application/
+- [ ] T028 [US3] Implement [endpoint or view query] in src/main/java/{org}/{app}/api/ or application/
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -179,8 +180,9 @@ Examples of foundational tasks (adjust based on your project):
 ### Within Each User Story
 
 - Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
+- Domain records before components
+- Components before endpoints
+- Component types come from the Component Architecture table in plan.md — do not change them at task time
 - Core implementation before integration
 - Story complete before moving to next priority
 
@@ -199,12 +201,12 @@ Examples of foundational tasks (adjust based on your project):
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
-Task: "Integration test for [user journey] in tests/integration/test_[name].py"
+Task: "Unit test for [Domain1]Entity in src/test/java/{org}/{app}/application/[Domain1]EntityTest.java"
+Task: "Integration test for [user journey] in src/test/java/{org}/{app}/api/[Domain1]EndpointIntegrationTest.java"
 
-# Launch all models for User Story 1 together:
-Task: "Create [Entity1] model in src/models/[entity1].py"
-Task: "Create [Entity2] model in src/models/[entity2].py"
+# Launch all domain records for User Story 1 together:
+Task: "Create [Domain1] record and events in src/main/java/{org}/{app}/domain/"
+Task: "Create [Domain2] record in src/main/java/{org}/{app}/domain/"
 ```
 
 ---

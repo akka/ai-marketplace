@@ -56,43 +56,55 @@ specs/[###-feature]/
 -->
 
 ```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
+# [REMOVE IF UNUSED] Option 1: Single Akka service (DEFAULT)
 src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+├── main/
+│   ├── java/{org}/{app}/
+│   │   ├── api/           # HTTP/gRPC/MCP endpoints, request/response records
+│   │   ├── application/   # Akka components: entities, views, workflows, consumers, agents
+│   │   └── domain/        # Domain records and business logic (no Akka imports)
+│   ├── proto/             # Protobuf definitions (gRPC endpoints only)
+│   └── resources/
+│       └── static-resources/  # Web UI assets (only if the service serves a UI)
+└── test/
+    └── java/{org}/{app}/  # Unit and integration tests
 
-tests/
-├── contract/
-├── integration/
-└── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
+# [REMOVE IF UNUSED] Option 2: Akka service + separately hosted frontend
 backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
+└── [same as Option 1]
 
 frontend/
 ├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
 └── tests/
 
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+# [REMOVE IF UNUSED] Option 3: Multiple Akka services (one per bounded context)
+services/
+├── {service-a}/
+│   └── [same as Option 1]
+└── {service-b}/
+    └── [same as Option 1]
 ```
 
 **Structure Decision**: [Document the selected structure and reference the real
 directories captured above]
+
+## Component Architecture
+
+*Filled during Phase 1 (design). Before completing this table, read the
+"Choosing a component type" section in `akka-context/sdk/components/index.html.md`.*
+
+| Domain concept / process | Component | Why this component | Rejected alternative and why not (close-call decisions) |
+|--------------------------|-----------|--------------------|----------------------------------|
+| [e.g., Wallet] | Event Sourced Entity | Transaction ledger is a business requirement | Key Value Entity: no history, cannot audit |
+| [e.g., Transfer process] | Workflow | Multi-step, needs compensation and a queryable status | Consumer chain: no compensation path, no status |
+| [e.g., Wallets by owner query] | View | Lookup by non-id attribute across entities | Direct entity read: only works by id |
+
+Rows for close-call decisions (entity type, view vs direct entity read,
+workflow vs consumer, timed action vs workflow timer) MUST name the rejected
+alternative and why it was not chosen (constitution: "Right component for the
+job"). For obvious choices the last column may stay empty. Pure logic with no
+state, subscription, schedule, or API surface is a plain domain class and does
+not appear in this table.
 
 ## Complexity Tracking
 
