@@ -93,16 +93,18 @@ directories captured above]
 *Filled during Phase 1 (design). Before completing this table, read the
 "Choosing a component type" section in `akka-context/sdk/components/index.html.md`.*
 
-| Domain concept / process | Component | Why this component | Rejected alternative and why not |
+| Domain concept / process | Component | Why this component | Rejected alternative and why not (close-call decisions) |
 |--------------------------|-----------|--------------------|----------------------------------|
 | [e.g., Wallet] | Event Sourced Entity | Transaction ledger is a business requirement | Key Value Entity: no history, cannot audit |
 | [e.g., Transfer process] | Workflow | Multi-step, needs compensation and a queryable status | Consumer chain: no compensation path, no status |
 | [e.g., Wallets by owner query] | View | Lookup by non-id attribute across entities | Direct entity read: only works by id |
 
-Every row MUST name the rejected alternative and why it was not chosen
-(constitution: "Right component for the job"). Pure logic with no state,
-subscription, schedule, or API surface is a plain domain class and does not
-appear in this table.
+Rows for close-call decisions (entity type, view vs direct entity read,
+workflow vs consumer, timed action vs workflow timer) MUST name the rejected
+alternative and why it was not chosen (constitution: "Right component for the
+job"). For obvious choices the last column may stay empty. Pure logic with no
+state, subscription, schedule, or API surface is a plain domain class and does
+not appear in this table.
 
 ## Complexity Tracking
 

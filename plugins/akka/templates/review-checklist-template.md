@@ -178,7 +178,7 @@ intended usage patterns — not just reading code mechanically.
 
 Reference: "Choosing a component type" in `akka-context/sdk/components/index.html.md`; its decision helpers carry stable anchors (`cs1-*` through `cs11-*`) cited below. Also the Component Architecture table in plan.md (if present).
 
-- Q14 [DESIGN]: Component choices match the plan's Component Architecture table and the decision guide — each component is justified against its nearest alternative; deviations from the plan are recorded with a reason.
+- Q14 [DESIGN]: Component choices match the plan's Component Architecture table and the decision guide — close-call choices are justified against the rejected alternative; deviations from the plan are recorded with a reason.
 - Q15 [DESIGN]: Entity type fits the need — no Key Value Entity with a hand-maintained history list (needs Event Sourced); no Event Sourced Entity whose only event is a whole-state `StateChanged` (Key Value is enough); audit and ledger requirements are event-sourced. Ref: `cs1-entity-type`.
 - Q16 [DESIGN]: No View whose only query is a lookup by entity id (read the entity directly via `ComponentClient`); no read-your-own-write through a View in the same request that made the write. Ref: `cs2-view-or-entity-read`.
 - Q17 [DESIGN]: No single-step Workflow that only calls one component (use a Consumer or a direct call); no consumer chain forming an implicit multi-step process that needs compensation or a status (use a Workflow). Ref: `cs3-workflow-or-choreography`, `cs4-consumer-or-direct-call`.
