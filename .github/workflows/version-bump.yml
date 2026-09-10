@@ -50,7 +50,10 @@ jobs:
             `akka-specify` is intentionally left untouched.
 
             After merging, cut the tag & release from the resulting `main`
-            commit so the tagged artifact carries the bumped versions:
+            commit so the tagged artifact carries the bumped versions, and
+            advance the floating `stable` tag so customers on the default
+            `--channel stable` pick this release up on their next
+            `akka specify init`:
 
             ```sh
             git switch main && git pull
@@ -58,4 +61,10 @@ jobs:
               --title ${{ inputs.version }} \
               --target main \
               --generate-notes
+            git tag -f stable ${{ inputs.version }}
+            git push -f origin refs/tags/stable
             ```
+
+            The `git push -f` for `refs/tags/stable` is expected — that
+            tag is a floating pointer, not an immutable release marker.
+            See `RELEASING.md` for the full contract.
