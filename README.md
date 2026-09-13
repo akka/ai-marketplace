@@ -7,7 +7,7 @@ Plugin marketplace for AI-assisted Akka SDK development.
 ### Claude Code (plugin)
 
 ```
-/plugin marketplace add akka/ai-marketplace
+/plugin marketplace add akka/ai-marketplace@stable
 /plugin install akka@ai-marketplace
 /reload-plugins
 /akka:setup
@@ -18,6 +18,20 @@ Plugin marketplace for AI-assisted Akka SDK development.
 ```bash
 agy plugin install https://github.com/akka/ai-marketplace
 ```
+
+`agy plugin install` does not accept a git-ref pin today, so this command
+installs from the default branch. See the version-pinning section below
+for the gap this introduces and how to work around it.
+
+### Gemini CLI
+
+```bash
+gemini extensions install https://github.com/akka/ai-marketplace
+```
+
+Like `agy`, `gemini extensions install` does not accept a git-ref pin
+today, so this command installs from the default branch. See the
+version-pinning section below.
 
 ### Codex
 
@@ -99,6 +113,74 @@ Zero prerequisites beyond having a supported AI coding agent installed.
 | `/akka:docs`         | `/akka.docs`         | Generate rendered project documentation into `docs/`   |
 
 > **Migrating from `akka-specify`?** The `akka-specify` plugin is still available but deprecated. Uninstall it and install `akka` instead.
+
+## Repository layout — one repo, multiple manifests
+
+The repo root carries several manifests side by side so a single source of
+truth ships to every harness. Each harness reads only its own files;
+[HARNESSES.md](HARNESSES.md) is the authoritative mapping and this table
+must stay in sync with it. This table covers the harnesses that read a
+root manifest directly. Cursor and GitHub Copilot in VS Code install
+into the workspace via `akka specify init --agent cursor` and
+`--agent vscode-copilot` respectively; they do not read a repo-root
+manifest.
+
+| Root manifest files | Read by |
+| --- | --- |
+| `.claude-plugin/marketplace.json` + `plugins/akka/` | Claude Code |
+| `plugin.json` + `mcp_config.json` | Antigravity CLI (`agy`) |
+| `gemini-extension.json` | Gemini CLI |
+| `.agents/plugins/marketplace.json` + `.codex-plugin/plugin.json` | Codex CLI |
+| `plugin.json` + `mcp.json` ([Agent Plugins 1.0](https://agent-plugins.org/specification)) | No harness reads these today; additive for future AP 1.0 clients. See the AP 1.0 notes below. |
+
+`plugin.json` at the root does double duty: it is the Antigravity manifest
+*and* the AP 1.0 manifest. Antigravity's plugin metadata schema aligns
+with `agent-plugins.org/schemas/1.0.0/plugin.schema.json` — the schema
+URL is declared inside the file itself — so a single `plugin.json` serves
+both harnesses. `mcp_config.json` and `mcp.json` are distinct files
+because Antigravity and AP 1.0 look for MCP configuration at different
+filenames; both carry the same `mcpServers` payload.
+
+**Agent Plugins 1.0 posture.** The AP 1.0 files are additive: the
+`skills/<name>/SKILL.md` tree is the same one the Codex target emits,
+so there is no second copy. Commands are out of scope in AP 1.0 v1, so
+an AP 1.0 client that ships would reach the workflow through the 22
+skills and the MCP toolset, not through `/akka:*` slash commands.
+
+## `/akka:setup` skill — stable path for aliases
+
+The canonical location for the `/akka:setup` skill is
+[`skills/setup/SKILL.md`](skills/setup/SKILL.md). `akka.ai/setup` aliases
+this path, so link to the repo file rather than copying the content.
+
+## Version pinning — install pins to `@stable` where the harness supports it
+
+Where a harness's install command accepts a git ref, this README and
+every downstream install command pin to `stable` (a floating pointer
+advanced on each release cut) or a specific `vX.Y.Z` tag:
+
+```
+akka/ai-marketplace@stable
+akka/ai-marketplace@vX.Y.Z
+```
+
+`main` moves ahead of what has been validated end-to-end, so an install
+that resolves against `main` can pull an unreleased marketplace against a
+released CLI. `stable` and every released `vX.Y.Z` tag are the only refs
+safe to install from. The tag-cutting workflow and the `stable`-tag
+contract are in [RELEASING.md](RELEASING.md); the CLI mechanism that
+consumes them (`akka specify init --channel stable` vs `--channel edge`)
+is documented in the Akka CLI docs.
+
+**Harnesses whose installers do not yet support git-ref pinning.**
+`agy plugin install` and `gemini extensions install` accept a URL but
+not a `@ref`, so both install from the default branch today.
+`codex plugin marketplace add` may accept a `@ref` — the syntax is not
+verified from public docs — so its install commands are left unpinned
+until confirmed. Until git-ref pinning is available (or verified) for
+each of these harnesses, treat those installs as a "when `main` is
+safe" path — release cadence is the mitigation, not per-install
+pinning.
 
 ## Attribution
 
