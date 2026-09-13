@@ -16,8 +16,12 @@ Plugin marketplace for AI-assisted Akka SDK development.
 ### Antigravity (`agy`)
 
 ```bash
-agy plugin install https://github.com/akka/ai-marketplace@stable
+agy plugin install https://github.com/akka/ai-marketplace
 ```
+
+`agy plugin install` does not accept a git-ref pin today, so this command
+installs from the default branch. See the version-pinning section below
+for the gap this introduces and how to work around it.
 
 ### Codex
 
@@ -110,10 +114,10 @@ must stay in sync with it.
 | Root manifest files | Read by |
 | --- | --- |
 | `.claude-plugin/marketplace.json` + `plugins/akka/` | Claude Code |
-| `.agents/plugins/marketplace.json` + `.codex-plugin/plugin.json` | Codex CLI |
-| `gemini-extension.json` | Gemini CLI |
 | `plugin.json` + `mcp_config.json` | Antigravity CLI (`agy`) |
-| `plugin.json` + `mcp.json` ([Agent Plugins 1.0](https://agent-plugins.org/specification)) | **No harness reads these today.** Present so the plugin is indexable by any future AP 1.0 client without a second copy of the skill content — the `skills/<name>/SKILL.md` tree is the same one the Codex target emits. Commands are out of scope in AP 1.0 v1, so an AP 1.0 client that ships would reach the workflow through the 22 skills and the MCP toolset, not through `/akka:*` slash commands. |
+| `gemini-extension.json` | Gemini CLI |
+| `.agents/plugins/marketplace.json` + `.codex-plugin/plugin.json` | Codex CLI |
+| `plugin.json` + `mcp.json` ([Agent Plugins 1.0](https://agent-plugins.org/specification)) | No harness reads these today; additive for future AP 1.0 clients. See the AP 1.0 notes below. |
 
 `plugin.json` at the root does double duty: it is the Antigravity manifest
 *and* the AP 1.0 manifest. Antigravity's plugin metadata schema aligns
@@ -123,17 +127,23 @@ both harnesses. `mcp_config.json` and `mcp.json` are distinct files
 because Antigravity and AP 1.0 look for MCP configuration at different
 filenames; both carry the same `mcpServers` payload.
 
-### `/akka:setup` skill — stable path for aliases
+**Agent Plugins 1.0 posture.** The AP 1.0 files are additive: the
+`skills/<name>/SKILL.md` tree is the same one the Codex target emits,
+so there is no second copy. Commands are out of scope in AP 1.0 v1, so
+an AP 1.0 client that ships would reach the workflow through the 22
+skills and the MCP toolset, not through `/akka:*` slash commands.
+
+## `/akka:setup` skill — stable path for aliases
 
 The canonical location for the `/akka:setup` skill is
 [`skills/setup/SKILL.md`](skills/setup/SKILL.md). `akka.ai/setup` aliases
 this path, so link to the repo file rather than copying the content.
 
-## Version pinning — install pins to `@stable`, never `main`
+## Version pinning — install pins to `@stable` where the harness supports it
 
-Every install command in this README and every downstream install command
-references the `stable` tag (a floating pointer advanced on each release
-cut) or a specific `vX.Y.Z` tag:
+Where a harness's install command accepts a git ref, this README and
+every downstream install command pin to `stable` (a floating pointer
+advanced on each release cut) or a specific `vX.Y.Z` tag:
 
 ```
 akka/ai-marketplace@stable
@@ -147,6 +157,13 @@ safe to install from. The tag-cutting workflow and the `stable`-tag
 contract are in [RELEASING.md](RELEASING.md); the CLI mechanism that
 consumes them (`akka specify init --channel stable` vs `--channel edge`)
 is documented in the Akka CLI docs.
+
+**Harnesses whose installers do not yet support git-ref pinning.**
+`agy plugin install` and `gemini extensions install` accept a URL but
+not a `@ref`, so both install from the default branch today. This is a
+known gap tracked as an upstream request in each harness. Until it
+lands, treat these installs as a "when `main` is safe" path — release
+cadence is the mitigation, not per-install pinning.
 
 ## Attribution
 

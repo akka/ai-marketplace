@@ -10,10 +10,10 @@ every harness, so the full Akka toolset is available regardless of command forma
 
 | Harness | Command |
 |---|---|
-| **Claude Code** | `/plugin marketplace add akka/ai-marketplace` then `/plugin install akka@ai-marketplace` |
-| **Antigravity CLI (`agy`)** | `agy plugin install https://github.com/akka/ai-marketplace` |
-| **Gemini CLI** | `gemini extensions install https://github.com/akka/ai-marketplace` |
-| **Codex CLI** | `codex plugin marketplace add akka/ai-marketplace` then `codex plugin add akka@akka` |
+| **Claude Code** | `/plugin marketplace add akka/ai-marketplace@stable` then `/plugin install akka@ai-marketplace` |
+| **Antigravity CLI (`agy`)** | `agy plugin install https://github.com/akka/ai-marketplace` (see README "Version pinning" — `agy` installs from the default branch until git-ref pinning lands upstream) |
+| **Gemini CLI** | `gemini extensions install https://github.com/akka/ai-marketplace` (see README "Version pinning") |
+| **Codex CLI** | `codex plugin marketplace add akka/ai-marketplace@stable` then `codex plugin add akka@akka` |
 | **Cursor / VS Code Copilot** | `akka specify init --agent cursor` / `--agent vscode-copilot` |
 
 ## Invocation differs by harness
