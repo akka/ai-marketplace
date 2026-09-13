@@ -23,6 +23,16 @@ agy plugin install https://github.com/akka/ai-marketplace
 installs from the default branch. See the version-pinning section below
 for the gap this introduces and how to work around it.
 
+### Gemini CLI
+
+```bash
+gemini extensions install https://github.com/akka/ai-marketplace
+```
+
+Like `agy`, `gemini extensions install` does not accept a git-ref pin
+today, so this command installs from the default branch. See the
+version-pinning section below.
+
 ### Codex
 
 Codex can use the same Akka workflow from the `plugins/akka` directory.
@@ -160,10 +170,10 @@ is documented in the Akka CLI docs.
 
 **Harnesses whose installers do not yet support git-ref pinning.**
 `agy plugin install` and `gemini extensions install` accept a URL but
-not a `@ref`, so both install from the default branch today. This is a
-known gap tracked as an upstream request in each harness. Until it
-lands, treat these installs as a "when `main` is safe" path — release
-cadence is the mitigation, not per-install pinning.
+not a `@ref`, so both install from the default branch today. Until
+git-ref pinning is available for either harness, treat these installs
+as a "when `main` is safe" path — release cadence is the mitigation,
+not per-install pinning.
 
 ## Attribution
 
