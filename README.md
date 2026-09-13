@@ -100,47 +100,52 @@ Zero prerequisites beyond having a supported AI coding agent installed.
 
 > **Migrating from `akka-specify`?** The `akka-specify` plugin is still available but deprecated. Uninstall it and install `akka` instead.
 
-## Repository layout — one repo, four manifests
+## Repository layout — one repo, multiple manifests
 
 The repo root carries several manifests side by side so a single source of
-truth ships to every harness. Each harness reads only its own file; see
-[HARNESSES.md](HARNESSES.md) for the full mapping.
+truth ships to every harness. Each harness reads only its own files;
+[HARNESSES.md](HARNESSES.md) is the authoritative mapping and this table
+must stay in sync with it.
 
-| Manifest at repo root | Read by |
+| Root manifest files | Read by |
 | --- | --- |
-| `.claude-plugin/marketplace.json` + `plugins/akka/` | Claude Code, Claude Tag |
-| `plugin.json` + `mcp.json` + `skills/` ([Agent Plugins 1.0](https://agent-plugins.org/specification)) | Codex CLI, Cursor, Kiro, GitHub Copilot (VS Code), Antigravity, and any other AP 1.0 client |
-| `.codex-plugin/plugin.json` | Codex CLI (native manifest, retained during AP 1.0 rollout) |
+| `.claude-plugin/marketplace.json` + `plugins/akka/` | Claude Code (and Claude Tag) |
+| `.agents/plugins/marketplace.json` + `.codex-plugin/plugin.json` | Codex CLI |
 | `gemini-extension.json` | Gemini CLI |
-| `.agents/` | Antigravity `agy` |
+| `plugin.json` + `mcp_config.json` | Antigravity CLI (`agy`) |
+| `plugin.json` + `mcp.json` ([Agent Plugins 1.0](https://agent-plugins.org/specification)) | **No harness reads these today.** Present so the plugin is indexable by any future AP 1.0 client without a second copy of the skill content — the `skills/<name>/SKILL.md` tree is the same one the Codex target emits. Commands are out of scope in AP 1.0 v1, so an AP 1.0 client that ships would reach the workflow through the 22 skills and the MCP toolset, not through `/akka:*` slash commands. |
 
-The AP 1.0 tree (`plugin.json`, `mcp.json`, `skills/<name>/SKILL.md`) is the
-same one the Codex target emits — there is no second copy of the skill
-content. Commands are out of scope in AP 1.0 v1, so AP 1.0 clients reach
-the workflow through the 22 skills and the MCP toolset rather than through
-`/akka:*` slash commands.
+`plugin.json` at the root does double duty: it is the Antigravity manifest
+*and* the AP 1.0 manifest (the two schemas are compatible). `mcp_config.json`
+and `mcp.json` are distinct files — Antigravity reads the former, AP 1.0
+reads the latter.
 
 The canonical location for the `/akka:setup` skill is
 [`skills/setup/SKILL.md`](skills/setup/SKILL.md). `akka.ai/setup` aliases
 this path, so link to the repo file rather than copying the content.
 
-## Version pinning — install pins to a tag, never `main`
+## Version pinning — install pins to `@stable`, never `main`
 
-Every downstream install command references a released tag:
+Every downstream install command references the `stable` tag (a floating
+pointer advanced on each release cut) or a specific `vX.Y.Z` tag:
 
 ```
-akka/ai-marketplace@v2.9.1
+akka/ai-marketplace@stable
+akka/ai-marketplace@vX.Y.Z
 ```
 
 `main` moves ahead of what has been validated end-to-end, so an install
 that resolves against `main` can pull an unreleased marketplace against a
-released CLI. The `stable` tag (a floating pointer) and every `vX.Y.Z` tag
-are the only refs safe to install from. The tag-cutting workflow and the
-`stable`-tag contract are in [RELEASING.md](RELEASING.md).
+released CLI. `stable` and every released `vX.Y.Z` tag are the only refs
+safe to install from. The tag-cutting workflow and the `stable`-tag
+contract are in [RELEASING.md](RELEASING.md); the CLI mechanism that
+consumes them (`akka specify init --channel stable` vs `--channel edge`)
+is documented in the Akka CLI docs.
 
-The Claude Code snippet at the top of this README omits the tag pin for
-brevity; the AI-install playbook at `akka.ai/` (which AI coding assistants
-read to install Akka on the user's behalf) always emits the pinned form.
+The install snippets at the top of this README omit the tag pin for
+brevity. The AI-install playbook at `akka.ai/` (which AI coding assistants
+read to install Akka on the user's behalf) always emits the `@stable`
+form; a follow-up will pin the top-of-README snippets to match.
 
 ## Attribution
 
