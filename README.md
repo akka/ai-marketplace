@@ -100,6 +100,48 @@ Zero prerequisites beyond having a supported AI coding agent installed.
 
 > **Migrating from `akka-specify`?** The `akka-specify` plugin is still available but deprecated. Uninstall it and install `akka` instead.
 
+## Repository layout — one repo, four manifests
+
+The repo root carries several manifests side by side so a single source of
+truth ships to every harness. Each harness reads only its own file; see
+[HARNESSES.md](HARNESSES.md) for the full mapping.
+
+| Manifest at repo root | Read by |
+| --- | --- |
+| `.claude-plugin/marketplace.json` + `plugins/akka/` | Claude Code, Claude Tag |
+| `plugin.json` + `mcp.json` + `skills/` ([Agent Plugins 1.0](https://agent-plugins.org/specification)) | Codex CLI, Cursor, Kiro, GitHub Copilot (VS Code), Antigravity, and any other AP 1.0 client |
+| `.codex-plugin/plugin.json` | Codex CLI (native manifest, retained during AP 1.0 rollout) |
+| `gemini-extension.json` | Gemini CLI |
+| `.agents/` | Antigravity `agy` |
+
+The AP 1.0 tree (`plugin.json`, `mcp.json`, `skills/<name>/SKILL.md`) is the
+same one the Codex target emits — there is no second copy of the skill
+content. Commands are out of scope in AP 1.0 v1, so AP 1.0 clients reach
+the workflow through the 22 skills and the MCP toolset rather than through
+`/akka:*` slash commands.
+
+The canonical location for the `/akka:setup` skill is
+[`skills/setup/SKILL.md`](skills/setup/SKILL.md). `akka.ai/setup` aliases
+this path, so link to the repo file rather than copying the content.
+
+## Version pinning — install pins to a tag, never `main`
+
+Every downstream install command references a released tag:
+
+```
+akka/ai-marketplace@v2.9.1
+```
+
+`main` moves ahead of what has been validated end-to-end, so an install
+that resolves against `main` can pull an unreleased marketplace against a
+released CLI. The `stable` tag (a floating pointer) and every `vX.Y.Z` tag
+are the only refs safe to install from. The tag-cutting workflow and the
+`stable`-tag contract are in [RELEASING.md](RELEASING.md).
+
+The Claude Code snippet at the top of this README omits the tag pin for
+brevity; the AI-install playbook at `akka.ai/` (which AI coding assistants
+read to install Akka on the user's behalf) always emits the pinned form.
+
 ## Attribution
 
 The spec-driven development workflow (specify, plan, tasks, clarify, analyze, checklist,
