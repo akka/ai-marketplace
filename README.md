@@ -119,7 +119,11 @@ Zero prerequisites beyond having a supported AI coding agent installed.
 The repo root carries several manifests side by side so a single source of
 truth ships to every harness. Each harness reads only its own files;
 [HARNESSES.md](HARNESSES.md) is the authoritative mapping and this table
-must stay in sync with it.
+must stay in sync with it. This table covers the harnesses that read a
+root manifest directly. Cursor and GitHub Copilot in VS Code install
+into the workspace via `akka specify init --agent cursor` and
+`--agent vscode-copilot` respectively; they do not read a repo-root
+manifest.
 
 | Root manifest files | Read by |
 | --- | --- |
@@ -170,10 +174,13 @@ is documented in the Akka CLI docs.
 
 **Harnesses whose installers do not yet support git-ref pinning.**
 `agy plugin install` and `gemini extensions install` accept a URL but
-not a `@ref`, so both install from the default branch today. Until
-git-ref pinning is available for either harness, treat these installs
-as a "when `main` is safe" path — release cadence is the mitigation,
-not per-install pinning.
+not a `@ref`, so both install from the default branch today.
+`codex plugin marketplace add` may accept a `@ref` — the syntax is not
+verified from public docs — so its install commands are left unpinned
+until confirmed. Until git-ref pinning is available (or verified) for
+each of these harnesses, treat those installs as a "when `main` is
+safe" path — release cadence is the mitigation, not per-install
+pinning.
 
 ## Attribution
 
