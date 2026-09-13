@@ -7,7 +7,7 @@ Plugin marketplace for AI-assisted Akka SDK development.
 ### Claude Code (plugin)
 
 ```
-/plugin marketplace add akka/ai-marketplace
+/plugin marketplace add akka/ai-marketplace@stable
 /plugin install akka@ai-marketplace
 /reload-plugins
 /akka:setup
@@ -16,7 +16,7 @@ Plugin marketplace for AI-assisted Akka SDK development.
 ### Antigravity (`agy`)
 
 ```bash
-agy plugin install https://github.com/akka/ai-marketplace
+agy plugin install https://github.com/akka/ai-marketplace@stable
 ```
 
 ### Codex
@@ -109,16 +109,21 @@ must stay in sync with it.
 
 | Root manifest files | Read by |
 | --- | --- |
-| `.claude-plugin/marketplace.json` + `plugins/akka/` | Claude Code (and Claude Tag) |
+| `.claude-plugin/marketplace.json` + `plugins/akka/` | Claude Code |
 | `.agents/plugins/marketplace.json` + `.codex-plugin/plugin.json` | Codex CLI |
 | `gemini-extension.json` | Gemini CLI |
 | `plugin.json` + `mcp_config.json` | Antigravity CLI (`agy`) |
 | `plugin.json` + `mcp.json` ([Agent Plugins 1.0](https://agent-plugins.org/specification)) | **No harness reads these today.** Present so the plugin is indexable by any future AP 1.0 client without a second copy of the skill content — the `skills/<name>/SKILL.md` tree is the same one the Codex target emits. Commands are out of scope in AP 1.0 v1, so an AP 1.0 client that ships would reach the workflow through the 22 skills and the MCP toolset, not through `/akka:*` slash commands. |
 
 `plugin.json` at the root does double duty: it is the Antigravity manifest
-*and* the AP 1.0 manifest (the two schemas are compatible). `mcp_config.json`
-and `mcp.json` are distinct files — Antigravity reads the former, AP 1.0
-reads the latter.
+*and* the AP 1.0 manifest. Antigravity's plugin metadata schema aligns
+with `agent-plugins.org/schemas/1.0.0/plugin.schema.json` — the schema
+URL is declared inside the file itself — so a single `plugin.json` serves
+both harnesses. `mcp_config.json` and `mcp.json` are distinct files
+because Antigravity and AP 1.0 look for MCP configuration at different
+filenames; both carry the same `mcpServers` payload.
+
+### `/akka:setup` skill — stable path for aliases
 
 The canonical location for the `/akka:setup` skill is
 [`skills/setup/SKILL.md`](skills/setup/SKILL.md). `akka.ai/setup` aliases
@@ -126,8 +131,9 @@ this path, so link to the repo file rather than copying the content.
 
 ## Version pinning — install pins to `@stable`, never `main`
 
-Every downstream install command references the `stable` tag (a floating
-pointer advanced on each release cut) or a specific `vX.Y.Z` tag:
+Every install command in this README and every downstream install command
+references the `stable` tag (a floating pointer advanced on each release
+cut) or a specific `vX.Y.Z` tag:
 
 ```
 akka/ai-marketplace@stable
@@ -141,11 +147,6 @@ safe to install from. The tag-cutting workflow and the `stable`-tag
 contract are in [RELEASING.md](RELEASING.md); the CLI mechanism that
 consumes them (`akka specify init --channel stable` vs `--channel edge`)
 is documented in the Akka CLI docs.
-
-The install snippets at the top of this README omit the tag pin for
-brevity. The AI-install playbook at `akka.ai/` (which AI coding assistants
-read to install Akka on the user's behalf) always emits the `@stable`
-form; a follow-up will pin the top-of-README snippets to match.
 
 ## Attribution
 
