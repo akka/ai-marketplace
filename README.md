@@ -23,16 +23,6 @@ agy plugin install https://github.com/akka/ai-marketplace
 installs from the default branch. See the version-pinning section below
 for the gap this introduces and how to work around it.
 
-### Gemini CLI
-
-```bash
-gemini extensions install https://github.com/akka/ai-marketplace
-```
-
-Like `agy`, `gemini extensions install` does not accept a git-ref pin
-today, so this command installs from the default branch. See the
-version-pinning section below.
-
 ### Codex
 
 Codex can use the same Akka workflow from the `plugins/akka` directory.
