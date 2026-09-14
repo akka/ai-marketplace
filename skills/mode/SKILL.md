@@ -7,6 +7,18 @@ description: "Show or switch the project's conformance mode between Enforced and
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Before anything else
+
+Run `akka specify mode --allows mode`. Add `--as-engine` when you are carrying
+this command out as part of a sequence `/akka:specify` is driving, rather than
+because a person invoked it. It exits non-zero when the project's mode does not
+permit the command. On a non-zero exit, print its message verbatim and stop. Do
+not continue, and do not work around it.
+
+Enforced mode gives the sequence to the engine, so a step it sequences is refused
+to a person and permitted to the engine. A refusal with a reason of its own, such
+as re-running setup, stands either way. The message names the remedy.
+
 ## Purpose
 
 `/akka:mode` shows the project's conformance mode, or sets it. The mode is
@@ -23,8 +35,11 @@ whether unmet exit conditions block shipping.
   by an effective waiver. You use sign-off, strike, and waive to resolve each
   `open` or `red` condition first.
 
-Every Specify command is available in both modes; the mode changes what the
-engine does on its own, not the command set. In Enforced mode the process gates
+The mode also decides which commands you may run. Enforced mode gives the
+sequence to the engine, so five commands stay available — `/akka:mode`,
+`/akka:specify`, `/akka:port`, `/akka:ship`, and `/akka:status` — and every step
+the engine sequences is refused when you invoke it yourself, with the remedy
+named. In Enforced mode the process gates
 `PROC-AUDITOR-COVERAGE` and `PROC-ADEQUACY-REVIEWED` apply as usual. While the
 set is dormant they do not resolve at all — there is nothing yet to have
 covered or reviewed.
