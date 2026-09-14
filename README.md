@@ -119,7 +119,6 @@ manifest.
 | --- | --- |
 | `.claude-plugin/marketplace.json` + `plugins/akka/` | Claude Code |
 | `plugin.json` + `mcp_config.json` | Antigravity CLI (`agy`) |
-| `gemini-extension.json` | Gemini CLI |
 | `.agents/plugins/marketplace.json` + `.codex-plugin/plugin.json` | Codex CLI |
 | `plugin.json` + `mcp.json` ([Agent Plugins 1.0](https://agent-plugins.org/specification)) | No harness reads these today; additive for future AP 1.0 clients. See the AP 1.0 notes below. |
 
@@ -163,7 +162,7 @@ consumes them (`akka specify init --channel stable` vs `--channel edge`)
 is documented in the Akka CLI docs.
 
 **Harnesses whose installers do not yet support git-ref pinning.**
-`agy plugin install` and `gemini extensions install` accept a URL but
+`agy plugin install` accepts a URL but
 not a `@ref`, so both install from the default branch today.
 `codex plugin marketplace add` may accept a `@ref` — the syntax is not
 verified from public docs — so its install commands are left unpinned
