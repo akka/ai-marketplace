@@ -62,6 +62,7 @@ Reference: Developer best practices — Payload and state size.
 - H1 [CRITICAL]: No blocking I/O in entity command handlers, entity event handlers, or workflow step handlers — blocks the component thread, causing timeouts and degraded throughput.
 - H2 [CRITICAL]: No shared mutable state in components — causes race conditions and data corruption.
 - H3 [CRITICAL]: No hardcoded secrets, API keys, or endpoints in source files — security vulnerability.
+- H4 [CRITICAL]: HTTP calls use the SDK-provided client — inject `akka.javasdk.http.HttpClientProvider` in the constructor and reuse the `httpClientFor(...)` result; no hand-built HTTP clients (`HttpClient.newHttpClient()`, `HttpClient.newBuilder()`, `new OkHttpClient()`, Apache `HttpClients.create*`) in service code. Every hand-built client owns its own selector thread and executor; created per request they accumulate until the service runs out of threads. The SDK client also handles routing, encryption, and authentication for service-to-service calls. Grep the whole codebase for this check. Ref: component-and-service-calls docs.
 
 ## I. PII & Data Sanitization
 
