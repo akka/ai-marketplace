@@ -111,7 +111,7 @@ D. Agents                          | N/1        | CRITICAL
 E. Views                           | N/4        | CRITICAL
 F. Error Handling                  | N/2        | CRITICAL
 G. Payload & State Size            | N/4        | CRITICAL
-H. Code Quality & Safety           | N/3        | CRITICAL
+H. Code Quality & Safety           | N/4        | CRITICAL
 I. PII & Data Sanitization         | N/4        | CRITICAL
 J. Serialization Conventions       | N/4        | RECOMMENDED
 K. Architecture & Conventions      | N/8        | RECOMMENDED
@@ -121,8 +121,8 @@ N. Consumer & Idempotency          | N/9        | RECOMMENDED
 O. Testing Conventions             | N/7        | RECOMMENDED
 P. Error Handling Conventions      | N/3        | RECOMMENDED
 Q. Design Review                   | N/19       | DESIGN
-TOTAL CRITICAL                     | N/26
-TOTAL RECOMMENDED                  | N/46
+TOTAL CRITICAL                     | N/27
+TOTAL RECOMMENDED                  | N/47
 TOTAL DESIGN                       | N/19
 ```
 
