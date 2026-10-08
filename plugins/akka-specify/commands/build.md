@@ -41,7 +41,8 @@ works locally and you're ready to ship, hand off to `/akka-specify:deploy`.
 3. **Start local environment**: Use the `akka_local_start` MCP tool to start
    the local development environment in the background. **Tell the user** that
    the local runtime is starting — it provides gRPC proxying, service discovery,
-   and trace collection on `localhost:9889`. This is idempotent — if already
+   trace collection and the local console on `localhost:9889` (this is not the
+   service port). This is idempotent — if already
    running, tell the user it is already active and report its status.
 
 4. **Run the service**: Use `akka_local_run_service` to start the service
@@ -55,13 +56,15 @@ works locally and you're ready to ship, hand off to `/akka-specify:deploy`.
 
 5. **Verify**: Use `akka_local_status` to confirm the service registered.
    Use `akka_local_logs` with `source: "service"` to check for runtime errors.
-   Test endpoints through the local proxy (`localhost:9889`). **Tell the user**
-   the service endpoint URL and whether it started successfully.
+   The service serves its HTTP endpoints on its own port, typically
+   `localhost:9000` — confirm the actual port from `akka_local_status` or the
+   service logs rather than assuming it. Test endpoints there, not on 9889.
+   **Tell the user** the service endpoint URL and whether it started successfully.
 
 6. **Report**: Summarize local build results:
    - Compilation: pass/fail
    - Tests: N passed, M failed
-   - Local service: running/failed (with endpoint URLs via local proxy)
+   - Local service: running/failed (with endpoint URLs on the service port, typically `localhost:9000`)
    - Next step: iterate with `/akka-specify:implement` or ship with `/akka-specify:deploy`
 
 ## Error Handling

@@ -29,7 +29,8 @@ works locally and you're ready to ship, hand off to `/akka:deploy`.
 3. **Start local environment**: Use the `akka_local_start` MCP tool to start
    the local development environment in the background. **Tell the user** that
    the local runtime is starting — it provides gRPC proxying, service discovery,
-   and trace collection on `localhost:9889`. This is idempotent — if already
+   trace collection and the local console on `localhost:9889` (this is not the
+   service port). This is idempotent — if already
    running, tell the user it is already active and report its status.
 
 4. **Run the service**: Use `akka_local_run_service` to start the service
@@ -43,13 +44,15 @@ works locally and you're ready to ship, hand off to `/akka:deploy`.
 
 5. **Verify**: Use `akka_local_status` to confirm the service registered.
    Use `akka_local_logs` with `source: "service"` to check for runtime errors.
-   Test endpoints through the local proxy (`localhost:9889`). **Tell the user**
-   the service endpoint URL and whether it started successfully.
+   The service serves its HTTP endpoints on its own port, typically
+   `localhost:9000` — confirm the actual port from `akka_local_status` or the
+   service logs rather than assuming it. Test endpoints there, not on 9889.
+   **Tell the user** the service endpoint URL and whether it started successfully.
 
 6. **Report**: Summarize local build results:
    - Compilation: pass/fail
    - Tests: N passed, M failed
-   - Local service: running/failed (with endpoint URLs via local proxy)
+   - Local service: running/failed (with endpoint URLs on the service port, typically `localhost:9000`)
    - Next step: inspect with `/akka:inspect`, iterate with `/akka:implement`,
      or ship with `/akka:deploy`
 
@@ -87,5 +90,5 @@ If `akka_local_start` reports a port conflict, ask the user whether to:
 - [ ] `akka_local_start` reports the local runtime active on `localhost:9889` (idempotent — already-running is fine).
 - [ ] The service was launched via `akka_local_run_service`; any `environment` overrides requested by the user were passed through.
 - [ ] `akka_local_status` confirms the service registered, and `akka_local_logs` (`source: "service"`) shows no unhandled startup errors.
-- [ ] The report summarizes compilation (pass/fail), tests (N passed, M failed), local service status with endpoint URL through the local proxy, and the next-step recommendation (`/akka:inspect` to inspect, `/akka:implement` to iterate, or `/akka:deploy` to ship).
+- [ ] The report summarizes compilation (pass/fail), tests (N passed, M failed), local service status with endpoint URL on the service port (typically `localhost:9000`, not the 9889 runtime port), and the next-step recommendation (`/akka:inspect` to inspect, `/akka:implement` to iterate, or `/akka:deploy` to ship).
 - [ ] NO Docker image was built and NO platform deploy was attempted — this stayed strictly local.
