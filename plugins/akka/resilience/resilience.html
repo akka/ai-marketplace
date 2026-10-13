@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Akka Reliability Tester</title>
+  <link rel="icon" href="https://doc.akka.io/_/img/favicon.ico" />
+  <script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.27.0/babel.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #1a1a1a; --fg: #f5f5f5; --card: #2f2f2f; --card-fg: #e5e5e5;
+      --muted: #434343; --muted-fg: #c9c9c9; --border: #434343;
+      --primary: #00d8dd; --primary-fg: #1a1a1a;
+      --accent: #ffce4a; --accent-fg: #1a1a1a;
+      --destructive: #ff5400; --destructive-fg: #ffffff;
+      --secondary: #313131; --secondary-fg: #e5e5e5;
+      --radius: 0.625rem;
+      --cyan: #00d8dd; --cyan-dk: #02a4a7;
+      --yellow: #ffce4a; --yellow-dk: #f5b60b;
+    }
+    body { font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--fg); line-height: 1.5; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); }
+    .badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 12px; font-weight: 500; }
+    .badge-default { background: var(--cyan); color: var(--primary-fg); }
+    .badge-secondary { background: var(--secondary); color: var(--secondary-fg); }
+    .badge-destructive { background: var(--destructive); color: var(--destructive-fg); }
+    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 20px; border-radius: var(--radius); font-size: 14px; font-weight: 500; border: none; cursor: pointer; transition: all 0.15s; }
+    .btn:hover { opacity: 0.9; box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
+    .btn-primary { background: var(--yellow); color: var(--accent-fg); }
+    .btn-primary:hover { background: var(--yellow-dk); }
+    .btn-destructive { background: var(--destructive); color: var(--destructive-fg); }
+    .btn-lg { padding: 14px 24px; font-size: 15px; }
+    .text-muted { color: var(--muted-fg); }
+    .text-xs { font-size: 12px; }
+    .text-sm { font-size: 14px; }
+    .text-lg { font-size: 18px; }
+    .text-2xl { font-size: 24px; }
+    .text-3xl { font-size: 30px; }
+    .font-semibold { font-weight: 600; }
+    .font-medium { font-weight: 500; }
+    .font-bold { font-weight: 700; }
+
+    /* Scrollbar styling for dark theme */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #2f2f2f; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb { background: #606060; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #c9c9c9; }
+
+    /* Animations */
+    @keyframes fadeInLeft { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .animate-fade-in-left { animation: fadeInLeft 0.3s ease-out; }
+    .animate-scale-in { animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .animate-pulse-slow { animation: pulse 2s ease-in-out infinite; }
+    .animate-spin { animation: spin 1s linear infinite; }
+
+    /* Tab styles */
+    .tab-bar { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+    .tab-btn { padding: 12px 24px; font-size: 15px; font-weight: 600; font-family: inherit; color: var(--muted-fg); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.15s; letter-spacing: 0.01em; }
+    .tab-btn:hover { color: var(--fg); }
+    .tab-btn.active { color: var(--fg); border-bottom-color: var(--yellow); }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useCallback, useRef } = React;
+
+    // ── SVG Icon Components ──
+    const ActivityIcon = ({size = 20, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    );
+    const ZapIcon = ({size = 20, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    );
+    const BotIcon = ({size = 20, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+    );
+    const TimerIcon = ({size = 20, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/></svg>
+    );
+    const ServerIcon = ({size = 20, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg>
+    );
+    const UsersIcon = ({size = 20, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    );
+    const PlayIcon = ({size = 20, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    );
+    const PowerIcon = ({size = 20, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" x2="12" y1="2" y2="12"/></svg>
+    );
+    const PowerOffIcon = ({size = 20, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18.36 6.64A9 9 0 0 1 20.77 15"/><path d="M6.16 6.16a9 9 0 1 0 12.68 12.68"/><path d="M12 2v4"/><path d="m2 2 20 20"/></svg>
+    );
+    const CheckCircleIcon = ({size = 12, color = "white"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    );
+    const RefreshIcon = ({size = 12, color = "white", spin = false}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={spin ? {animation: 'spin 1s linear infinite'} : {}}><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+    );
+    const AlertCircleIcon = ({size = 12, color = "white"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+    );
+    const GlobeIcon = ({size = 20, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    );
+    const ArrowRightLeftIcon = ({size = 20, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></svg>
+    );
+    const XIcon = ({size = 14, color = "currentColor"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+    );
+
+    // ── Constants ──
+    const TOTAL_NODES = 3;
+    const PREFIXES = ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta"];
+    const SUFFIXES = ["Workflow", "Orchestra", "Coalition", "Ensemble", "Squad"];
+
+    function generateTeamName(index) {
+      return `${PREFIXES[index % PREFIXES.length]} ${SUFFIXES[Math.floor(Math.random() * SUFFIXES.length)]}`;
+    }
+
+    // ── ClusterSummary ──
+    function ClusterSummary({ totalInstances, totalTokens, activeNodes, totalNodes, totalTeams, avgReadLatency, avgWriteLatency }) {
+      const stats = [
+        { label: "Active Teams", value: totalTeams, icon: <ActivityIcon size={20} color="#00d8dd" />, bg: "rgba(0,216,221,0.1)" },
+        { label: "Instances", value: totalInstances, icon: <ZapIcon size={20} color="#72d35b" />, bg: "rgba(114,211,91,0.1)" },
+        { label: "Total Tokens", value: totalTokens.toLocaleString(), icon: <BotIcon size={20} color="#d2a8ff" />, bg: "rgba(210,168,255,0.1)" },
+        { label: "Avg Read", value: `${avgReadLatency}ms`, icon: <TimerIcon size={20} color="#00d8dd" />, bg: "rgba(0,216,221,0.1)" },
+        { label: "Avg Write", value: `${avgWriteLatency}ms`, icon: <TimerIcon size={20} color="#ffce4a" />, bg: "rgba(255,206,74,0.1)" },
+        { label: "Active Nodes", value: `${activeNodes} / ${totalNodes}`, icon: <ServerIcon size={20} color="#d45a00" />, bg: "rgba(255,166,87,0.1)" },
+        { label: "Cluster Health",
+          value: activeNodes === 0 ? "Failed" : activeNodes === totalNodes ? "Healthy" : "Degraded",
+          icon: <ServerIcon size={20} color={activeNodes === 0 ? "#d70023" : activeNodes === totalNodes ? "#72d35b" : "#ff5400"} />,
+          bg: activeNodes === 0 ? "rgba(215,0,35,0.15)" : activeNodes === totalNodes ? "rgba(114,211,91,0.1)" : "rgba(255,84,0,0.1)" },
+      ];
+      return (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 16 }}>
+          {stats.map((s, i) => (
+            <div key={i} className="card" style={{ padding: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ padding: 8, borderRadius: 8, background: s.bg }}>{s.icon}</div>
+                <div>
+                  <p className="text-sm text-muted">{s.label}</p>
+                  <p className="text-2xl font-semibold">{s.value}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // ── SelectedTeamCard ──
+    function SelectedTeamCard({ team }) {
+      const [, setTick] = useState(0);
+      useEffect(() => { const t = setInterval(() => setTick(c => c+1), 1000); return () => clearInterval(t); }, []);
+      const activeAgents = team.agents.filter(a => a.status === 'active').length;
+      const runtime = Math.floor((Date.now() - team.startTime) / 1000);
+      return (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <div>
+              <h3 className="font-medium">{team.name}</h3>
+              <p className="text-xs text-muted" style={{ marginTop: 4 }}>Runtime: {Math.floor(runtime / 60)}m {runtime % 60}s</p>
+            </div>
+            <span className={`badge ${team.status === 'running' ? 'badge-default' : 'badge-secondary'}`}>{team.status}</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <ActivityIcon size={14} color="#72d35b" />
+              <span className="text-xs">{activeAgents}/{team.agents.length} agents</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <BotIcon size={14} color="#d2a8ff" />
+              <span className="text-xs">{team.tokens.toLocaleString()} tokens</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <TimerIcon size={14} color="#00d8dd" />
+              <span className="text-xs">{team.averageLatency}ms avg</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ── TeamList ──
+    function TeamList({ teams, selectedTeamId, onSelectTeam }) {
+      const [, setTick] = useState(0);
+      useEffect(() => { const t = setInterval(() => setTick(c => c+1), 1000); return () => clearInterval(t); }, []);
+      return (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {teams.length === 0 ? (
+            <div style={{ padding: 24, textAlign: "center" }}>
+              <p className="text-sm text-muted">No teams running. Launch a team to get started.</p>
+            </div>
+          ) : (
+            teams.map(team => {
+              const activeAgents = team.agents.filter(a => a.status === 'active').length;
+              const runtime = Math.floor((Date.now() - team.startTime) / 1000);
+              return (
+                <div key={team.id} className="card animate-fade-in-left" style={{
+                  padding: 16, cursor: "pointer", transition: "all 0.15s",
+                  boxShadow: selectedTeamId === team.id ? "0 0 0 2px #3b82f6" : "none"
+                }} onClick={() => onSelectTeam(team.id)}
+                  onMouseEnter={e => e.currentTarget.style.boxShadow = selectedTeamId === team.id ? "0 0 0 2px #3b82f6" : "0 4px 12px rgba(0,0,0,0.1)"}
+                  onMouseLeave={e => e.currentTarget.style.boxShadow = selectedTeamId === team.id ? "0 0 0 2px #3b82f6" : "none"}
+                >
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                      <div>
+                        <h3 className="font-medium" style={{ fontSize: 14 }}>{team.name}</h3>
+                        <p className="text-xs text-muted" style={{ marginTop: 4 }}>Runtime: {Math.floor(runtime / 60)}m {runtime % 60}s</p>
+                      </div>
+                      <span className={`badge ${team.status === 'running' ? 'badge-default' : 'badge-secondary'}`}>{team.status}</span>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <ActivityIcon size={14} color="#72d35b" />
+                        <span className="text-xs">{activeAgents}/{team.agents.length}</span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <BotIcon size={14} color="#d2a8ff" />
+                        <span className="text-xs">{team.tokens.toLocaleString()}</span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <TimerIcon size={14} color="#00d8dd" />
+                        <span className="text-xs">{team.averageLatency}ms</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      );
+    }
+
+    // ── Read/Write icons ──
+    const ReadIcon = ({size = 14, color = "#06b6d4"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    );
+    const WriteIcon = ({size = 14, color = "#f59e0b"}) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+    );
+
+    // ── Sample data names for transaction log ──
+    const DATA_NAMES = [
+      "user_profile", "order_details", "inventory", "session_token", "cart_items",
+      "payment_info", "shipping_addr", "product_catalog", "account_prefs", "audit_log",
+      "notification", "search_index", "cache_entry", "config_value", "metric_point",
+    ];
+
+    // ── AgentGrid ──
+    function AgentGrid({ team, txLog }) {
+      const logRef = useRef(null);
+
+      if (!team) return (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 200 }}>
+          <p className="text-muted">Select a team to view instances</p>
+        </div>
+      );
+
+      const getColor = (status) => ({ active: "#72d35b", stopping: "#d45a00", starting: "#00d8dd", failed: "#d70023" }[status] || "#606060");
+      const getIcon = (status) => {
+        const c = (status === 'failed' || status === 'active' || status === 'stopping') ? "white" : "#1a1a1a";
+        if (status === 'active') return <CheckCircleIcon size={16} color={c} />;
+        if (status === 'stopping') return <RefreshIcon size={16} color={c} spin />;
+        if (status === 'starting') return <RefreshIcon size={16} color={c} spin />;
+        if (status === 'failed') return <AlertCircleIcon size={16} color={c} />;
+        return null;
+      };
+
+      return (
+        <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
+          <div style={{ marginBottom: 24 }}>
+            <h3 className="font-semibold text-lg">{team.name}</h3>
+            <p className="text-sm text-muted">{team.agents.length} instance cluster</p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${team.agents.length}, 1fr)`, gap: 32 }}>
+            {team.agents.map((inst, i) => (
+              <div key={inst.id} className="animate-scale-in" style={{
+                display: "flex", flexDirection: "column", alignItems: "center",
+                animationDelay: `${i * 80}ms`, animationFillMode: "both"
+              }}>
+                {/* Read + Write latency above */}
+                <div style={{ display: "flex", gap: 32, marginBottom: 8, alignItems: "center" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                    <ReadIcon size={12} color="#00d8dd" />
+                    <span style={{ fontSize: 11, color: "#00d8dd", fontWeight: 500 }}>{inst.readLatency}ms</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                    <WriteIcon size={12} color="#ffce4a" />
+                    <span style={{ fontSize: 11, color: "#ffce4a", fontWeight: 500 }}>{inst.writeLatency}ms</span>
+                  </div>
+                </div>
+
+                {/* Instance rectangle */}
+                <div className={inst.status === 'active' ? 'animate-pulse-slow' : ''} style={{
+                  width: "100%", minWidth: 120, height: 80, borderRadius: 8,
+                  background: getColor(inst.status),
+                  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6,
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.5)", cursor: "pointer",
+                  transition: "box-shadow 0.15s",
+                }} title={`Instance ${inst.id} - Node ${inst.nodeId}`}
+                  onMouseEnter={e => e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.6)"}
+                  onMouseLeave={e => e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.2)"}
+                >
+                  <div>{getIcon(inst.status)}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: (inst.status === 'failed' || inst.status === 'active' || inst.status === 'stopping') ? "white" : "#1a1a1a" }}>Node {inst.nodeId}</div>
+                </div>
+
+                {/* Token count below */}
+                <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 8 }}>
+                  <BotIcon size={12} color="#d2a8ff" />
+                  <span style={{ fontSize: 12, color: "var(--muted-fg)" }}>{inst.tokens.toLocaleString()} tokens</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Legend */}
+          <div style={{ marginTop: 24, paddingTop: 12, borderTop: "1px solid var(--border)", display: "flex", gap: 24, fontSize: 13 }}>
+            {[["#72d35b","Active"],["#00d8dd","Starting"],["#d45a00","Stopping"],["#d70023","Down"]].map(([c,l]) => (
+              <div key={l} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ width: 16, height: 16, borderRadius: 4, background: c }}></div>
+                <span className="text-muted">{l}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Transaction log */}
+          <div style={{ marginTop: 12, flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6, flexShrink: 0 }}>
+              <span style={{ fontSize: 12, fontWeight: 600, color: "var(--muted-fg)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Transaction Log</span>
+              <span style={{ fontSize: 11, color: "var(--muted-fg)" }}></span>
+            </div>
+            <div ref={logRef} style={{
+              flex: 1, minHeight: 0, overflowY: "scroll",
+              background: "#111111", borderRadius: 6,
+              fontFamily: "Consolas, 'Courier New', monospace", fontSize: 11,
+            }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ position: "sticky", top: 0, background: "#111111", zIndex: 1 }}>
+                    {["ACTION", "DATA", "WRITE NODE", "READ NODE", "TIMESTAMP", "LATENCY"].map(h => (
+                      <th key={h} style={{
+                        padding: "8px 10px", textAlign: "left", fontSize: 10, fontWeight: 700,
+                        color: "#606060", letterSpacing: "0.08em",
+                        borderBottom: "1px solid #313131", whiteSpace: "nowrap",
+                      }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {txLog.length === 0 ? (
+                    <tr><td colSpan={6} style={{ padding: "12px 10px", color: "#434343" }}>Waiting for transactions...</td></tr>
+                  ) : (
+                    txLog.map(entry => (
+                      <tr key={entry.id} style={{ color: entry.action === 'READ' ? '#00d8dd' : '#ffce4a' }}>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.action}</td>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.data}</td>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.writeNode}</td>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.readNode || '—'}</td>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.timestamp}</td>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.latency}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ── ControlPanel ──
+    const NODE_COLORS = { active: "#72d35b", starting: "#00d8dd", stopping: "#d45a00", failed: "#d70023" };
+    const NODE_LABELS = { active: "ON", starting: "STARTING", stopping: "STOPPING", failed: "OFF" };
+
+    function ControlPanel({ nodes, onLaunchTeam, onToggleNode }) {
+      return (
+        <div className="card" style={{ padding: 24 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div>
+              <h3 className="font-semibold" style={{ marginBottom: 12 }}>Team Control</h3>
+              <button className="btn btn-primary btn-lg" style={{ width: "100%" }} onClick={onLaunchTeam}>
+                <PlayIcon size={16} color="#1a1a1a" />&nbsp;&nbsp;Launch New Agent Team
+              </button>
+            </div>
+            <div style={{ borderTop: "1px solid var(--border)", paddingTop: 24 }}>
+              <h3 className="font-semibold" style={{ marginBottom: 12 }}>Node Management</h3>
+              <p className="text-sm text-muted" style={{ marginBottom: 16 }}>Enact node failures to observe agent migration and recovery</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {nodes.map(node => {
+                  const bg = NODE_COLORS[node.status] || "#606060";
+                  const fg = (node.status === 'failed' || node.status === 'stopping' || node.status === 'active') ? "white" : "#1a1a1a";
+                  const transitioning = node.status === 'stopping' || node.status === 'starting';
+                  return (
+                    <button key={node.id} className="btn"
+                      style={{
+                        justifyContent: "space-between", padding: "8px 12px",
+                        background: bg, color: fg,
+                        opacity: transitioning ? 0.85 : 1,
+                        cursor: transitioning ? "not-allowed" : "pointer",
+                      }}
+                      onClick={() => onToggleNode(node.id)}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        {node.status === 'failed' ? <PowerOffIcon size={16} color={fg} /> : <PowerIcon size={16} color={fg} />}
+                        <span>Node {node.id}</span>
+                      </div>
+                      <span style={{
+                        marginLeft: 8, fontSize: 11, fontWeight: 600, padding: "2px 10px",
+                        borderRadius: 9999, background: "rgba(0,0,0,0.2)", color: fg,
+                      }}>
+                        {NODE_LABELS[node.status]}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div style={{ borderTop: "1px solid var(--border)", paddingTop: 24 }}>
+              <h3 className="font-semibold" style={{ marginBottom: 8, display: "flex", alignItems: "center", gap: 8 }}>
+                <ServerIcon size={16} /> About Akka Clusters
+              </h3>
+              <p className="text-xs text-muted" style={{ lineHeight: 1.6 }}>
+                Akka clusters distribute agent workloads and memory across nodes. When a node fails, agents automatically migrate to healthy nodes. State is sharded in-memory across nodes with embedded routing and load balancing. Workflow state is managed with durable execution and memory recovery is from event sourced state. The combination reduces token waste by avoiding full workflow restarts. Akka's largest customers run clusters of 300K nodes with petabytes of data.
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function formatBytes(bytes) {
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+      return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    }
+
+    // ── HA/DR Constants ──
+    const REGION_NAMES = ["us-east-1", "eu-west-1"];
+    const HADR_PREFIXES = ["Phoenix", "Horizon", "Cascade", "Meridian", "Summit", "Apex", "Zenith", "Vanguard"];
+    const HADR_SUFFIXES = ["Pipeline", "Relay", "Sync", "Bridge", "Circuit"];
+
+    function generateHADRTeamName(index) {
+      return `${HADR_PREFIXES[index % HADR_PREFIXES.length]} ${HADR_SUFFIXES[Math.floor(Math.random() * HADR_SUFFIXES.length)]}`;
+    }
+
+    // ── HADRSummary ──
+    function HADRSummary({ totalTeams, totalTokens, regions, avgReadLatency, avgWriteLatency, replicationLatency, replicationBytes }) {
+      const availableRegions = regions.filter(r => r.status === 'available').length;
+      const transitioning = regions.some(r => r.status === 'starting' || r.status === 'stopping');
+      const stats = [
+        { label: "Active Teams", value: totalTeams, icon: <ActivityIcon size={20} color="#00d8dd" />, bg: "rgba(0,216,221,0.1)" },
+        { label: "Total Tokens", value: totalTokens.toLocaleString(), icon: <BotIcon size={20} color="#d2a8ff" />, bg: "rgba(210,168,255,0.1)" },
+        { label: "Avg Read", value: `${avgReadLatency}ms`, icon: <TimerIcon size={20} color="#00d8dd" />, bg: "rgba(0,216,221,0.1)" },
+        { label: "Avg Write", value: `${avgWriteLatency}ms`, icon: <TimerIcon size={20} color="#ffce4a" />, bg: "rgba(255,206,74,0.1)" },
+        { label: "Repl. Latency", value: `${replicationLatency}ms`, icon: <ArrowRightLeftIcon size={20} color="#d2a8ff" />, bg: "rgba(210,168,255,0.1)" },
+        { label: "Repl. Data", value: replicationBytes, icon: <ArrowRightLeftIcon size={20} color="#ffce4a" />, bg: "rgba(255,206,74,0.1)" },
+        { label: "Region Health",
+          value: transitioning ? "Transitioning" : availableRegions === 0 ? "Offline" : availableRegions === 2 ? "All Active" : "Degraded",
+          icon: <GlobeIcon size={20} color={transitioning ? "#d45a00" : availableRegions === 0 ? "#d70023" : availableRegions === 2 ? "#72d35b" : "#ff5400"} />,
+          bg: transitioning ? "rgba(212,90,0,0.1)" : availableRegions === 0 ? "rgba(215,0,35,0.15)" : availableRegions === 2 ? "rgba(114,211,91,0.1)" : "rgba(255,84,0,0.1)" },
+      ];
+      return (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 16 }}>
+          {stats.map((s, i) => (
+            <div key={i} className="card" style={{ padding: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ padding: 8, borderRadius: 8, background: s.bg }}>{s.icon}</div>
+                <div>
+                  <p className="text-sm text-muted">{s.label}</p>
+                  <p className="text-2xl font-semibold">{s.value}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // ── HADRControlPanel ──
+    const REGION_COLORS = { available: "#72d35b", starting: "#00d8dd", stopping: "#d45a00", unavailable: "#d70023" };
+    const REGION_LABELS = { available: "AVAILABLE", starting: "STARTING", stopping: "STOPPING", unavailable: "UNAVAILABLE" };
+
+    function HADRControlPanel({ regions, onLaunchTeam, onToggleRegion }) {
+      return (
+        <div className="card" style={{ padding: 24 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div>
+              <h3 className="font-semibold" style={{ marginBottom: 12 }}>Team Control</h3>
+              <button className="btn btn-primary btn-lg" style={{ width: "100%" }} onClick={onLaunchTeam}>
+                <PlayIcon size={16} color="#1a1a1a" />&nbsp;&nbsp;Launch New Agent Team
+              </button>
+            </div>
+            <div style={{ borderTop: "1px solid var(--border)", paddingTop: 24 }}>
+              <h3 className="font-semibold" style={{ marginBottom: 12 }}>Region Management</h3>
+              <p className="text-sm text-muted" style={{ marginBottom: 16 }}>Enact region outages to observe active-active failover</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {regions.map(region => {
+                  const bg = REGION_COLORS[region.status] || "#606060";
+                  const fg = "white";
+                  const transitioning = region.status === 'stopping' || region.status === 'starting';
+                  return (
+                    <button key={region.id} className="btn"
+                      style={{
+                        justifyContent: "space-between", padding: "8px 12px",
+                        background: bg, color: fg,
+                        opacity: transitioning ? 0.85 : 1,
+                        cursor: transitioning ? "not-allowed" : "pointer",
+                      }}
+                      onClick={() => onToggleRegion(region.id)}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <GlobeIcon size={16} color={fg} />
+                        <span>{region.name}</span>
+                      </div>
+                      <span style={{
+                        marginLeft: 8, fontSize: 11, fontWeight: 600, padding: "2px 10px",
+                        borderRadius: 9999, background: "rgba(0,0,0,0.2)", color: fg,
+                      }}>
+                        {REGION_LABELS[region.status]}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div style={{ borderTop: "1px solid var(--border)", paddingTop: 24 }}>
+              <h3 className="font-semibold" style={{ marginBottom: 8, display: "flex", alignItems: "center", gap: 8 }}>
+                <GlobeIcon size={16} /> About Akka HA/DR
+              </h3>
+              <p className="text-xs text-muted" style={{ lineHeight: 1.6 }}>
+                Akka provides active-active multi-region replication. Agent state is replicated across regions in real time using reliable gRPC. When a region becomes unavailable, agents continue operating in the remaining region with no data loss. Writes to either region are automatically replicated to the other. When a downed region reactivates, Akka uses vector spaces to reconcile conflicts automatically during synchronization.
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ── HADRRegionGrid ──
+    function HADRRegionGrid({ team, regions, txLog, replicationLatency, replicationBytes }) {
+      const logRef = useRef(null);
+      const [replPulse, setReplPulse] = useState(0);
+
+      useEffect(() => {
+        const t = setInterval(() => setReplPulse(p => p + 1), 1500);
+        return () => clearInterval(t);
+      }, []);
+
+      if (!team) return (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 200 }}>
+          <p className="text-muted">Select a team to view regions</p>
+        </div>
+      );
+
+      const getColor = (status) => ({ available: "#72d35b", starting: "#00d8dd", stopping: "#d45a00", unavailable: "#d70023" }[status] || "#606060");
+      const getStatusLabel = (status) => ({ available: "Available", starting: "Starting...", stopping: "Stopping...", unavailable: "Unavailable" }[status] || status);
+
+      const bothAvailable = regions.every(r => r.status === 'available');
+
+      return (
+        <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
+          <div style={{ marginBottom: 24 }}>
+            <h3 className="font-semibold text-lg">{team.name}</h3>
+            <p className="text-sm text-muted">Active-active replication across {regions.filter(r => r.available).length} region{regions.filter(r => r.available).length !== 1 ? 's' : ''}</p>
+          </div>
+
+          {/* Region boxes with replication link */}
+          <div style={{ display: "flex", alignItems: "center", gap: 0, justifyContent: "center" }}>
+            {regions.map((region, i) => {
+              const regionData = team.regionData[region.id];
+              return (
+                <React.Fragment key={region.id}>
+                  <div style={{ flex: 1, maxWidth: 280, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    {/* Latency above */}
+                    <div style={{ display: "flex", gap: 24, marginBottom: 8, alignItems: "center" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                        <ReadIcon size={12} color="#00d8dd" />
+                        <span style={{ fontSize: 11, color: "#00d8dd", fontWeight: 500 }}>{regionData.readLatency}ms</span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                        <WriteIcon size={12} color="#ffce4a" />
+                        <span style={{ fontSize: 11, color: "#ffce4a", fontWeight: 500 }}>{regionData.writeLatency}ms</span>
+                      </div>
+                    </div>
+
+                    {/* Region box */}
+                    <div className={region.status === 'available' ? 'animate-pulse-slow' : ''} style={{
+                      width: "100%", height: 100, borderRadius: 8,
+                      background: getColor(region.status),
+                      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6,
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
+                      transition: "all 0.3s",
+                    }}>
+                      {(region.status === 'starting' || region.status === 'stopping') ? (
+                        <RefreshIcon size={20} color="white" spin />
+                      ) : (
+                        <GlobeIcon size={20} color="white" />
+                      )}
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "white" }}>{region.name}</div>
+                      <div style={{ fontSize: 11, fontWeight: 500, color: "rgba(255,255,255,0.8)" }}>
+                        {getStatusLabel(region.status)}
+                      </div>
+                    </div>
+
+                    {/* Token count below */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 8 }}>
+                      <BotIcon size={12} color="#d2a8ff" />
+                      <span style={{ fontSize: 12, color: "var(--muted-fg)" }}>{regionData.tokens.toLocaleString()} tokens</span>
+                    </div>
+                  </div>
+
+                  {/* Replication link between regions */}
+                  {i === 0 && (
+                    <div style={{
+                      flex: 1, maxWidth: 200, display: "flex", flexDirection: "column", alignItems: "center",
+                      gap: 6, padding: "0 16px", alignSelf: "center",
+                    }}>
+                      {/* DNA helix replication visualization */}
+                      <svg width="100%" height="50" viewBox="0 0 200 50" style={{ overflow: "visible" }}>
+                        <defs>
+                          <linearGradient id="strandA" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#d2a8ff" stopOpacity="0.4" />
+                            <stop offset="50%" stopColor="#d2a8ff" stopOpacity="1" />
+                            <stop offset="100%" stopColor="#d2a8ff" stopOpacity="0.4" />
+                          </linearGradient>
+                          <linearGradient id="strandB" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#00d8dd" stopOpacity="0.4" />
+                            <stop offset="50%" stopColor="#00d8dd" stopOpacity="1" />
+                            <stop offset="100%" stopColor="#00d8dd" stopOpacity="0.4" />
+                          </linearGradient>
+                        </defs>
+                        {/* Strand A (sine wave) */}
+                        <path d="M 5,25 C 30,5 50,5 75,25 S 120,45 145,25 S 170,5 195,25"
+                          fill="none" stroke={bothAvailable ? "url(#strandA)" : "#606060"} strokeWidth="2.5" strokeLinecap="round"
+                          strokeOpacity={bothAvailable ? 1 : 0.3} />
+                        {/* Strand B (inverted sine wave) */}
+                        <path d="M 5,25 C 30,45 50,45 75,25 S 120,5 145,25 S 170,45 195,25"
+                          fill="none" stroke={bothAvailable ? "url(#strandB)" : "#606060"} strokeWidth="2.5" strokeLinecap="round"
+                          strokeOpacity={bothAvailable ? 1 : 0.3} />
+                        {/* Cross-links (base pairs) */}
+                        {[25, 50, 75, 100, 125, 150, 175].map((x, idx) => {
+                          const t = x / 200 * Math.PI * 2;
+                          const yA = 25 + 15 * Math.sin(t - Math.PI * 0.15);
+                          const yB = 25 - 15 * Math.sin(t - Math.PI * 0.15);
+                          return <line key={idx} x1={x} y1={Math.min(yA, yB) + 4} x2={x} y2={Math.max(yA, yB) - 4}
+                            stroke={bothAvailable ? "#ffffff" : "#606060"} strokeWidth="1" strokeOpacity={bothAvailable ? 0.2 : 0.1} />;
+                        })}
+                        {/* Animated dots flowing along strands */}
+                        {bothAvailable && (
+                          <React.Fragment>
+                            <circle r="3" fill="#d2a8ff" opacity="0.9">
+                              <animateMotion dur="2s" repeatCount="indefinite"
+                                path="M 5,25 C 30,5 50,5 75,25 S 120,45 145,25 S 170,5 195,25" />
+                            </circle>
+                            <circle r="3" fill="#d2a8ff" opacity="0.6">
+                              <animateMotion dur="2s" repeatCount="indefinite" begin="1s"
+                                path="M 5,25 C 30,5 50,5 75,25 S 120,45 145,25 S 170,5 195,25" />
+                            </circle>
+                            <circle r="3" fill="#00d8dd" opacity="0.9">
+                              <animateMotion dur="2s" repeatCount="indefinite"
+                                path="M 195,25 C 170,45 150,45 125,25 S 80,5 55,25 S 30,45 5,25" />
+                            </circle>
+                            <circle r="3" fill="#00d8dd" opacity="0.6">
+                              <animateMotion dur="2s" repeatCount="indefinite" begin="1s"
+                                path="M 195,25 C 170,45 150,45 125,25 S 80,5 55,25 S 30,45 5,25" />
+                            </circle>
+                          </React.Fragment>
+                        )}
+                      </svg>
+                      <div style={{ fontSize: 11, color: bothAvailable ? "#d2a8ff" : "#606060", fontWeight: 600, textAlign: "center" }}>
+                        {bothAvailable ? "REPLICATING" : "SUSPENDED"}
+                      </div>
+                      <div style={{ display: "flex", gap: 16, fontSize: 10, color: "var(--muted-fg)" }}>
+                        <span>{replicationLatency}ms</span>
+                        <span>{replicationBytes}</span>
+                      </div>
+                    </div>
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </div>
+
+          {/* Legend */}
+          <div style={{ marginTop: 24, paddingTop: 12, borderTop: "1px solid var(--border)", display: "flex", gap: 24, fontSize: 13 }}>
+            {[["#72d35b","Available"],["#d70023","Unavailable"]].map(([c,l]) => (
+              <div key={l} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ width: 16, height: 16, borderRadius: 4, background: c }}></div>
+                <span className="text-muted">{l}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Transaction log */}
+          <div style={{ marginTop: 12, flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6, flexShrink: 0 }}>
+              <span style={{ fontSize: 12, fontWeight: 600, color: "var(--muted-fg)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Replication Log</span>
+            </div>
+            <div ref={logRef} style={{
+              flex: 1, minHeight: 0, overflowY: "scroll",
+              background: "#111111", borderRadius: 6,
+              fontFamily: "Consolas, 'Courier New', monospace", fontSize: 11,
+            }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ position: "sticky", top: 0, background: "#111111", zIndex: 1 }}>
+                    {["ACTION", "DATA", "ORIGIN", "REPLICATED TO", "TIMESTAMP", "LATENCY"].map(h => (
+                      <th key={h} style={{
+                        padding: "8px 10px", textAlign: "left", fontSize: 10, fontWeight: 700,
+                        color: "#606060", letterSpacing: "0.08em",
+                        borderBottom: "1px solid #313131", whiteSpace: "nowrap",
+                      }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {txLog.length === 0 ? (
+                    <tr><td colSpan={6} style={{ padding: "12px 10px", color: "#434343" }}>Waiting for transactions...</td></tr>
+                  ) : (
+                    txLog.map(entry => (
+                      <tr key={entry.id} style={{ color: entry.action === 'READ' ? '#00d8dd' : entry.replicated ? '#d2a8ff' : '#ffce4a' }}>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.action}{entry.replicated ? ' ⟶ REPL' : ''}</td>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.data}</td>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.origin}</td>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.replicatedTo || '—'}</td>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.timestamp}</td>
+                        <td style={{ padding: "3px 10px", whiteSpace: "nowrap" }}>{entry.latency}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ── App ──
+    function App() {
+      const [activeTab, setActiveTab] = useState("clustering");
+      const [teams, setTeams] = useState([]);
+      const [selectedTeamId, setSelectedTeamId] = useState(null);
+      const [nodes, setNodes] = useState(
+        Array.from({ length: TOTAL_NODES }, (_, i) => ({ id: i + 1, active: true, status: 'active' }))
+      );
+      const [teamCounter, setTeamCounter] = useState(0);
+
+      // Tick for runtime counters
+      const [, setTick] = useState(0);
+      useEffect(() => { const t = setInterval(() => setTick(c => c + 1), 1000); return () => clearInterval(t); }, []);
+
+      // Refs and state for SVG border shape
+      const mainAreaRef = useRef(null);
+      const leftColRef = useRef(null);
+      const cardRefs = useRef({});
+      const [borderShape, setBorderShape] = useState(null);
+      const [leftColHeight, setLeftColHeight] = useState(null);
+
+      useEffect(() => {
+        if (!leftColRef.current) return;
+        const observer = new ResizeObserver(() => {
+          setLeftColHeight(leftColRef.current.offsetHeight);
+        });
+        observer.observe(leftColRef.current);
+        return () => observer.disconnect();
+      }, [teams.length]);
+
+      useEffect(() => {
+        function computeShape() {
+          if (!selectedTeamId || !mainAreaRef.current || !leftColRef.current || !cardRefs.current[selectedTeamId]) {
+            setBorderShape(null);
+            return;
+          }
+          const mainRect = mainAreaRef.current.getBoundingClientRect();
+          const leftRect = leftColRef.current.getBoundingClientRect();
+          const cardRect = cardRefs.current[selectedTeamId].getBoundingClientRect();
+
+          const x0 = cardRect.left - mainRect.left;
+          const x1 = leftRect.width + 16;  // panel left edge (card column + gap)
+          const x2 = mainRect.width;
+          const y0 = 0;
+          const yT = cardRect.top - mainRect.top;
+          const yB = cardRect.bottom - mainRect.top;
+          const y3 = mainRect.height;
+          const r = 12;
+
+          const nearTop = yT < r * 2.5;
+          const nearBot = (y3 - yB) < r * 2.5;
+
+          let d;
+          if (nearTop && nearBot) {
+            // Card spans nearly full height — simple rounded rect
+            d = [
+              `M ${x0+r},${yT}`, `L ${x2-r},${y0}`,
+              `A ${r},${r} 0 0,1 ${x2},${y0+r}`,
+              `L ${x2},${y3-r}`, `A ${r},${r} 0 0,1 ${x2-r},${y3}`,
+              `L ${x0+r},${yB}`, `A ${r},${r} 0 0,1 ${x0},${yB-r}`,
+              `L ${x0},${yT+r}`, `A ${r},${r} 0 0,1 ${x0+r},${yT}`, 'Z'
+            ].join(' ');
+          } else if (nearTop) {
+            // Card at top — notch merges with panel top
+            d = [
+              `M ${x0+r},${yT}`, `L ${x2-r},${y0}`,
+              `A ${r},${r} 0 0,1 ${x2},${y0+r}`,
+              `L ${x2},${y3-r}`, `A ${r},${r} 0 0,1 ${x2-r},${y3}`,
+              `L ${x1+r},${y3}`, `A ${r},${r} 0 0,1 ${x1},${y3-r}`,
+              `L ${x1},${yB+r}`, `A ${r},${r} 0 0,0 ${x1-r},${yB}`,
+              `L ${x0+r},${yB}`, `A ${r},${r} 0 0,1 ${x0},${yB-r}`,
+              `L ${x0},${yT+r}`, `A ${r},${r} 0 0,1 ${x0+r},${yT}`, 'Z'
+            ].join(' ');
+          } else if (nearBot) {
+            // Card at bottom — notch merges with panel bottom
+            d = [
+              `M ${x1+r},${y0}`, `L ${x2-r},${y0}`,
+              `A ${r},${r} 0 0,1 ${x2},${y0+r}`,
+              `L ${x2},${y3-r}`, `A ${r},${r} 0 0,1 ${x2-r},${y3}`,
+              `L ${x0+r},${yB}`, `A ${r},${r} 0 0,1 ${x0},${yB-r}`,
+              `L ${x0},${yT+r}`, `A ${r},${r} 0 0,1 ${x0+r},${yT}`,
+              `L ${x1-r},${yT}`, `A ${r},${r} 0 0,0 ${x1},${yT-r}`,
+              `L ${x1},${y0+r}`, `A ${r},${r} 0 0,1 ${x1+r},${y0}`, 'Z'
+            ].join(' ');
+          } else {
+            // General case — card in the middle
+            d = [
+              `M ${x1+r},${y0}`, `L ${x2-r},${y0}`,
+              `A ${r},${r} 0 0,1 ${x2},${y0+r}`,
+              `L ${x2},${y3-r}`, `A ${r},${r} 0 0,1 ${x2-r},${y3}`,
+              `L ${x1+r},${y3}`, `A ${r},${r} 0 0,1 ${x1},${y3-r}`,
+              `L ${x1},${yB+r}`, `A ${r},${r} 0 0,0 ${x1-r},${yB}`,
+              `L ${x0+r},${yB}`, `A ${r},${r} 0 0,1 ${x0},${yB-r}`,
+              `L ${x0},${yT+r}`, `A ${r},${r} 0 0,1 ${x0+r},${yT}`,
+              `L ${x1-r},${yT}`, `A ${r},${r} 0 0,0 ${x1},${yT-r}`,
+              `L ${x1},${y0+r}`, `A ${r},${r} 0 0,1 ${x1+r},${y0}`, 'Z'
+            ].join(' ');
+          }
+
+          setBorderShape({ d, width: mainRect.width, height: mainRect.height });
+        }
+
+        // Double-rAF to ensure layout has settled after React render
+        requestAnimationFrame(() => requestAnimationFrame(computeShape));
+        const observer = new ResizeObserver(() => requestAnimationFrame(computeShape));
+        if (mainAreaRef.current) observer.observe(mainAreaRef.current);
+        return () => observer.disconnect();
+      }, [selectedTeamId, teams.length, activeTab]);
+
+      // Transaction logs keyed by team ID — persisted across team switches
+      const [txLogs, setTxLogs] = useState({});
+
+      useEffect(() => {
+        if (teams.length === 0) return;
+        const interval = setInterval(() => {
+          setTxLogs(prev => {
+            const next = { ...prev };
+            teams.forEach(team => {
+              if (team.status !== 'running') return;
+              const activeInsts = team.agents.filter(a => a.status === 'active');
+              if (activeInsts.length === 0) return;
+              const txCount = (prev[team.id] || []).length;
+              const isRead = txCount >= 10 ? Math.random() > 0.4 : false;
+              const name = DATA_NAMES[Math.floor(Math.random() * DATA_NAMES.length)];
+              const now = new Date();
+              const ts = now.toLocaleTimeString('en-US', { hour12: false }) + '.' + String(now.getMilliseconds()).padStart(3, '0');
+              const latency = isRead ? (Math.floor(Math.random() * 11) + 5) : (Math.floor(Math.random() * 17) + 9);
+              const writeNode = Math.floor(Math.random() * 3) + 1;
+              const activeNode = activeInsts[Math.floor(Math.random() * activeInsts.length)];
+              const entry = {
+                id: Date.now() + Math.random(),
+                action: isRead ? 'READ' : 'WRITE',
+                data: name,
+                writeNode: isRead ? `Node${writeNode}` : `Node${activeNode.nodeId}`,
+                readNode: isRead ? `Node${activeNode.nodeId}` : '',
+                timestamp: ts,
+                latency: `${latency}ms`,
+              };
+              next[team.id] = [entry, ...(prev[team.id] || [])];
+            });
+            return next;
+          });
+        }, 400);
+        return () => clearInterval(interval);
+      }, [teams.map(t => t.id + t.agents.map(a => a.status).join('')).join(',')]);
+
+      const getActiveNodes = useCallback(() => nodes.filter(n => n.active).map(n => n.id), [nodes]);
+
+      const launchTeam = useCallback(() => {
+        const activeNodeIds = getActiveNodes();
+        const teamId = `team-${Date.now()}`;
+        const allNodeIds = [1, 2, 3];
+        const agents = allNodeIds.map((nid, i) => ({
+          id: `inst-${teamId}-${i}`, teamId, nodeId: nid,
+          status: activeNodeIds.includes(nid) ? 'active' : 'failed',
+          tokens: Math.floor(Math.random() * 500) + 100,
+          readLatency: Math.floor(Math.random() * 11) + 5,
+          writeLatency: Math.floor(Math.random() * 17) + 9,
+        }));
+        const avgRead = Math.floor(agents.reduce((s, a) => s + a.readLatency, 0) / agents.length);
+        const avgWrite = Math.floor(agents.reduce((s, a) => s + a.writeLatency, 0) / agents.length);
+        setTeams(prev => [...prev, { id: teamId, name: generateTeamName(teamCounter), agents, tokens: agents.reduce((s, a) => s + a.tokens, 0), status: 'running', startTime: Date.now(), avgReadLatency: avgRead, avgWriteLatency: avgWrite }]);
+        setSelectedTeamId(teamId);
+        setTeamCounter(prev => prev + 1);
+      }, [teamCounter, getActiveNodes]);
+
+      const deleteTeam = useCallback((teamId) => {
+        setTeams(prev => prev.filter(t => t.id !== teamId));
+        setTxLogs(prev => { const next = { ...prev }; delete next[teamId]; return next; });
+        if (selectedTeamId === teamId) setSelectedTeamId(null);
+      }, [selectedTeamId]);
+
+      const toggleNode = useCallback((nodeId) => {
+        const node = nodes.find(n => n.id === nodeId);
+        if (!node || node.status === 'stopping' || node.status === 'starting') return; // ignore during transition
+        const isActivating = !node.active;
+        if (!isActivating) {
+          // Stopping phase
+          setNodes(prev => prev.map(n => n.id === nodeId ? { ...n, status: 'stopping' } : n));
+          setTeams(prev => prev.map(team => ({ ...team, agents: team.agents.map(a => a.nodeId === nodeId && a.status === 'active' ? { ...a, status: 'stopping' } : a) })));
+          setTimeout(() => {
+            setNodes(prev => prev.map(n => n.id === nodeId ? { ...n, active: false, status: 'failed' } : n));
+            setTeams(prev => prev.map(team => ({ ...team, agents: team.agents.map(a => a.nodeId === nodeId && a.status === 'stopping' ? { ...a, status: 'failed' } : a) })));
+          }, 2000);
+        } else {
+          // Starting phase
+          setNodes(prev => prev.map(n => n.id === nodeId ? { ...n, status: 'starting' } : n));
+          setTeams(prev => prev.map(team => ({ ...team, agents: team.agents.map(a => a.nodeId === nodeId && a.status === 'failed' ? { ...a, status: 'starting' } : a) })));
+          setTimeout(() => {
+            setNodes(prev => prev.map(n => n.id === nodeId ? { ...n, active: true, status: 'active' } : n));
+            setTeams(prev => prev.map(team => ({ ...team, agents: team.agents.map(a => a.nodeId === nodeId && a.status === 'starting' ? { ...a, status: 'active' } : a) })));
+          }, 9000);
+        }
+      }, [nodes]);
+
+      // Token accumulation simulation
+      useEffect(() => {
+        const interval = setInterval(() => {
+          setTeams(prev => prev.map(team => {
+            if (team.status !== 'running') return team;
+            const updatedAgents = team.agents.map(a => {
+              if (a.status === 'active') {
+                const rChange = Math.floor(Math.random() * 21) - 10;
+                const wChange = Math.floor(Math.random() * 21) - 10;
+                return { ...a, tokens: a.tokens + Math.floor(Math.random() * 60) + 20,
+                  readLatency: Math.max(5, Math.min(15, a.readLatency + rChange)),
+                  writeLatency: Math.max(9, Math.min(25, a.writeLatency + wChange)) };
+              }
+              return a;
+            });
+            return { ...team, agents: updatedAgents, tokens: updatedAgents.reduce((s, a) => s + a.tokens, 0),
+              avgReadLatency: Math.floor(updatedAgents.reduce((s, a) => s + a.readLatency, 0) / updatedAgents.length),
+              avgWriteLatency: Math.floor(updatedAgents.reduce((s, a) => s + a.writeLatency, 0) / updatedAgents.length) };
+          }));
+        }, 2000);
+        return () => clearInterval(interval);
+      }, []);
+
+      const totalInstances = teams.reduce((s, t) => s + t.agents.length, 0);
+      const totalTokens = teams.reduce((s, t) => s + t.tokens, 0);
+      const activeNodeCount = nodes.filter(n => n.active).length;
+      const avgReadLatency = teams.length > 0 ? Math.floor(teams.reduce((s, t) => s + t.avgReadLatency, 0) / teams.length) : 0;
+      const avgWriteLatency = teams.length > 0 ? Math.floor(teams.reduce((s, t) => s + t.avgWriteLatency, 0) / teams.length) : 0;
+      const selectedTeam = teams.find(t => t.id === selectedTeamId) || null;
+
+      // ── HA/DR Refs and state ──
+      const hadrMainAreaRef = useRef(null);
+      const hadrLeftColRef = useRef(null);
+      const hadrCardRefs = useRef({});
+      const [hadrBorderShape, setHadrBorderShape] = useState(null);
+      const [hadrLeftColHeight, setHadrLeftColHeight] = useState(null);
+
+      // ── HA/DR State ──
+      const [hadrRegions, setHadrRegions] = useState([
+        { id: 0, name: REGION_NAMES[0], available: true, status: 'available' },
+        { id: 1, name: REGION_NAMES[1], available: true, status: 'available' },
+      ]);
+      const [hadrTeams, setHadrTeams] = useState([]);
+      const [hadrSelectedTeamId, setHadrSelectedTeamId] = useState(null);
+      const [hadrTeamCounter, setHadrTeamCounter] = useState(0);
+      const [hadrTxLogs, setHadrTxLogs] = useState({});
+      const [hadrReplLatency, setHadrReplLatency] = useState(42);
+      const [hadrReplBytesTotal, setHadrReplBytesTotal] = useState(0);
+
+      const hadrLaunchTeam = useCallback(() => {
+        const availableRegions = hadrRegions.filter(r => r.available);
+        if (availableRegions.length === 0) return;
+        const primaryRegion = availableRegions[Math.floor(Math.random() * availableRegions.length)];
+        const teamId = `hadr-team-${Date.now()}`;
+        const regionData = {};
+        hadrRegions.forEach(r => {
+          regionData[r.id] = {
+            tokens: Math.floor(Math.random() * 500) + 100,
+            readLatency: Math.floor(Math.random() * 11) + 5,
+            writeLatency: Math.floor(Math.random() * 17) + 9,
+          };
+        });
+        setHadrTeams(prev => [...prev, {
+          id: teamId, name: generateHADRTeamName(hadrTeamCounter),
+          primaryRegionId: primaryRegion.id, regionData,
+          tokens: Object.values(regionData).reduce((s, r) => s + r.tokens, 0),
+          status: 'running', startTime: Date.now(),
+          avgReadLatency: Math.floor(Object.values(regionData).reduce((s, r) => s + r.readLatency, 0) / 2),
+          avgWriteLatency: Math.floor(Object.values(regionData).reduce((s, r) => s + r.writeLatency, 0) / 2),
+        }]);
+        setHadrSelectedTeamId(teamId);
+        setHadrTeamCounter(prev => prev + 1);
+      }, [hadrTeamCounter, hadrRegions]);
+
+      const toggleRegion = useCallback((regionId) => {
+        const region = hadrRegions.find(r => r.id === regionId);
+        if (!region || region.status === 'stopping' || region.status === 'starting') return;
+        const isActivating = !region.available;
+        if (!isActivating) {
+          // Stopping phase
+          setHadrRegions(prev => prev.map(r => r.id === regionId ? { ...r, status: 'stopping' } : r));
+          setTimeout(() => {
+            setHadrRegions(prev => prev.map(r => r.id === regionId ? { ...r, available: false, status: 'unavailable' } : r));
+          }, 2000);
+        } else {
+          // Starting phase
+          setHadrRegions(prev => prev.map(r => r.id === regionId ? { ...r, status: 'starting' } : r));
+          setTimeout(() => {
+            setHadrRegions(prev => prev.map(r => r.id === regionId ? { ...r, available: true, status: 'available' } : r));
+          }, 9000);
+        }
+      }, [hadrRegions]);
+
+      const deleteHadrTeam = useCallback((teamId) => {
+        setHadrTeams(prev => prev.filter(t => t.id !== teamId));
+        setHadrTxLogs(prev => { const next = { ...prev }; delete next[teamId]; return next; });
+        if (hadrSelectedTeamId === teamId) setHadrSelectedTeamId(null);
+      }, [hadrSelectedTeamId]);
+
+      // HA/DR token accumulation + replication metrics
+      useEffect(() => {
+        if (hadrTeams.length === 0) return;
+        const interval = setInterval(() => {
+          setHadrTeams(prev => prev.map(team => {
+            if (team.status !== 'running') return team;
+            const updatedRegionData = { ...team.regionData };
+            hadrRegions.forEach(r => {
+              if (r.available) {
+                const rd = updatedRegionData[r.id];
+                const rChange = Math.floor(Math.random() * 21) - 10;
+                const wChange = Math.floor(Math.random() * 21) - 10;
+                updatedRegionData[r.id] = {
+                  tokens: rd.tokens + Math.floor(Math.random() * 60) + 20,
+                  readLatency: Math.max(5, Math.min(15, rd.readLatency + rChange)),
+                  writeLatency: Math.max(9, Math.min(25, rd.writeLatency + wChange)),
+                };
+              }
+            });
+            const vals = Object.values(updatedRegionData);
+            return { ...team, regionData: updatedRegionData,
+              tokens: vals.reduce((s, r) => s + r.tokens, 0),
+              avgReadLatency: Math.floor(vals.reduce((s, r) => s + r.readLatency, 0) / vals.length),
+              avgWriteLatency: Math.floor(vals.reduce((s, r) => s + r.writeLatency, 0) / vals.length),
+            };
+          }));
+          // Fluctuate replication metrics
+          const bothUp = hadrRegions.filter(r => r.available).length === 2;
+          if (bothUp) {
+            setHadrReplLatency(prev => Math.max(20, Math.min(80, prev + Math.floor(Math.random() * 21) - 10)));
+            const bytes = Math.floor(Math.random() * 500) + 100;
+            setHadrReplBytesTotal(prev => prev + bytes);
+          }
+        }, 2000);
+        return () => clearInterval(interval);
+      }, [hadrTeams.length, hadrRegions]);
+
+      // HA/DR transaction + replication log
+      useEffect(() => {
+        if (hadrTeams.length === 0) return;
+        const interval = setInterval(() => {
+          setHadrTxLogs(prev => {
+            const next = { ...prev };
+            hadrTeams.forEach(team => {
+              if (team.status !== 'running') return;
+              const availRegions = hadrRegions.filter(r => r.available);
+              if (availRegions.length === 0) return;
+              const txCount = (prev[team.id] || []).length;
+              const isRead = txCount >= 10 ? Math.random() > 0.4 : false;
+              const originRegion = availRegions[Math.floor(Math.random() * availRegions.length)];
+              const name = DATA_NAMES[Math.floor(Math.random() * DATA_NAMES.length)];
+              const now = new Date();
+              const ts = now.toLocaleTimeString('en-US', { hour12: false }) + '.' + String(now.getMilliseconds()).padStart(3, '0');
+              const latency = isRead ? (Math.floor(Math.random() * 11) + 5) : (Math.floor(Math.random() * 17) + 9);
+              const entries = [];
+              entries.push({
+                id: Date.now() + Math.random(),
+                action: isRead ? 'READ' : 'WRITE',
+                data: name, origin: originRegion.name,
+                replicatedTo: '', replicated: false,
+                timestamp: ts, latency: `${latency}ms`,
+              });
+              // If write and both regions up, add replication entry
+              if (!isRead && availRegions.length === 2) {
+                const targetRegion = hadrRegions.find(r => r.id !== originRegion.id && r.available);
+                if (targetRegion) {
+                  const replLat = Math.floor(Math.random() * 30) + 20;
+                  entries.push({
+                    id: Date.now() + Math.random() + 0.5,
+                    action: 'WRITE', data: name,
+                    origin: originRegion.name, replicatedTo: targetRegion.name,
+                    replicated: true, timestamp: ts, latency: `${replLat}ms`,
+                  });
+                }
+              }
+              next[team.id] = [...entries, ...(prev[team.id] || [])];
+            });
+            return next;
+          });
+        }, 400);
+        return () => clearInterval(interval);
+      }, [hadrTeams.map(t => t.id).join(','), hadrRegions]);
+
+      // HA/DR border shape effects
+      useEffect(() => {
+        if (!hadrLeftColRef.current) return;
+        const observer = new ResizeObserver(() => {
+          setHadrLeftColHeight(hadrLeftColRef.current.offsetHeight);
+        });
+        observer.observe(hadrLeftColRef.current);
+        return () => observer.disconnect();
+      }, [hadrTeams.length]);
+
+      useEffect(() => {
+        function computeShape() {
+          if (!hadrSelectedTeamId || !hadrMainAreaRef.current || !hadrLeftColRef.current || !hadrCardRefs.current[hadrSelectedTeamId]) {
+            setHadrBorderShape(null);
+            return;
+          }
+          const mainRect = hadrMainAreaRef.current.getBoundingClientRect();
+          const leftRect = hadrLeftColRef.current.getBoundingClientRect();
+          const cardRect = hadrCardRefs.current[hadrSelectedTeamId].getBoundingClientRect();
+
+          const x0 = cardRect.left - mainRect.left;
+          const x1 = leftRect.width + 16;
+          const x2 = mainRect.width;
+          const y0 = 0;
+          const yT = cardRect.top - mainRect.top;
+          const yB = cardRect.bottom - mainRect.top;
+          const y3 = mainRect.height;
+          const r = 12;
+
+          const nearTop = yT < r * 2.5;
+          const nearBot = (y3 - yB) < r * 2.5;
+
+          let d;
+          if (nearTop && nearBot) {
+            d = [
+              `M ${x0+r},${yT}`, `L ${x2-r},${y0}`,
+              `A ${r},${r} 0 0,1 ${x2},${y0+r}`,
+              `L ${x2},${y3-r}`, `A ${r},${r} 0 0,1 ${x2-r},${y3}`,
+              `L ${x0+r},${yB}`, `A ${r},${r} 0 0,1 ${x0},${yB-r}`,
+              `L ${x0},${yT+r}`, `A ${r},${r} 0 0,1 ${x0+r},${yT}`, 'Z'
+            ].join(' ');
+          } else if (nearTop) {
+            d = [
+              `M ${x0+r},${yT}`, `L ${x2-r},${y0}`,
+              `A ${r},${r} 0 0,1 ${x2},${y0+r}`,
+              `L ${x2},${y3-r}`, `A ${r},${r} 0 0,1 ${x2-r},${y3}`,
+              `L ${x1+r},${y3}`, `A ${r},${r} 0 0,1 ${x1},${y3-r}`,
+              `L ${x1},${yB+r}`, `A ${r},${r} 0 0,0 ${x1-r},${yB}`,
+              `L ${x0+r},${yB}`, `A ${r},${r} 0 0,1 ${x0},${yB-r}`,
+              `L ${x0},${yT+r}`, `A ${r},${r} 0 0,1 ${x0+r},${yT}`, 'Z'
+            ].join(' ');
+          } else if (nearBot) {
+            d = [
+              `M ${x1+r},${y0}`, `L ${x2-r},${y0}`,
+              `A ${r},${r} 0 0,1 ${x2},${y0+r}`,
+              `L ${x2},${y3-r}`, `A ${r},${r} 0 0,1 ${x2-r},${y3}`,
+              `L ${x0+r},${yB}`, `A ${r},${r} 0 0,1 ${x0},${yB-r}`,
+              `L ${x0},${yT+r}`, `A ${r},${r} 0 0,1 ${x0+r},${yT}`,
+              `L ${x1-r},${yT}`, `A ${r},${r} 0 0,0 ${x1},${yT-r}`,
+              `L ${x1},${y0+r}`, `A ${r},${r} 0 0,1 ${x1+r},${y0}`, 'Z'
+            ].join(' ');
+          } else {
+            d = [
+              `M ${x1+r},${y0}`, `L ${x2-r},${y0}`,
+              `A ${r},${r} 0 0,1 ${x2},${y0+r}`,
+              `L ${x2},${y3-r}`, `A ${r},${r} 0 0,1 ${x2-r},${y3}`,
+              `L ${x1+r},${y3}`, `A ${r},${r} 0 0,1 ${x1},${y3-r}`,
+              `L ${x1},${yB+r}`, `A ${r},${r} 0 0,0 ${x1-r},${yB}`,
+              `L ${x0+r},${yB}`, `A ${r},${r} 0 0,1 ${x0},${yB-r}`,
+              `L ${x0},${yT+r}`, `A ${r},${r} 0 0,1 ${x0+r},${yT}`,
+              `L ${x1-r},${yT}`, `A ${r},${r} 0 0,0 ${x1},${yT-r}`,
+              `L ${x1},${y0+r}`, `A ${r},${r} 0 0,1 ${x1+r},${y0}`, 'Z'
+            ].join(' ');
+          }
+
+          setHadrBorderShape({ d, width: mainRect.width, height: mainRect.height });
+        }
+
+        requestAnimationFrame(() => requestAnimationFrame(computeShape));
+        const observer = new ResizeObserver(() => requestAnimationFrame(computeShape));
+        if (hadrMainAreaRef.current) observer.observe(hadrMainAreaRef.current);
+        return () => observer.disconnect();
+      }, [hadrSelectedTeamId, hadrTeams.length, activeTab]);
+
+      const hadrSelectedTeam = hadrTeams.find(t => t.id === hadrSelectedTeamId) || null;
+      const hadrTotalTokens = hadrTeams.reduce((s, t) => s + t.tokens, 0);
+      const hadrAvgRead = hadrTeams.length > 0 ? Math.floor(hadrTeams.reduce((s, t) => s + t.avgReadLatency, 0) / hadrTeams.length) : 0;
+      const hadrAvgWrite = hadrTeams.length > 0 ? Math.floor(hadrTeams.reduce((s, t) => s + t.avgWriteLatency, 0) / hadrTeams.length) : 0;
+
+      return (
+        <div style={{ minHeight: "100vh", background: "#1a1a1a", padding: 24 }}>
+          <div style={{ maxWidth: 1800, margin: "0 auto" }}>
+            <div style={{ marginBottom: 24 }}>
+              <h1 className="text-3xl font-bold">Akka Reliability Tester</h1>
+              <p className="text-muted" style={{ marginTop: 8 }}>Visualizing distributed agent orchestration with high availability and resilience - no-downtime rolling updates for your AI apps, too!</p>
+            </div>
+
+            <div className="tab-bar">
+              <button className={`tab-btn ${activeTab === "clustering" ? "active" : ""}`} onClick={() => setActiveTab("clustering")}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}><ServerIcon size={16} /> Akka Clustering</span>
+              </button>
+              <button className={`tab-btn ${activeTab === "hadr" ? "active" : ""}`} onClick={() => setActiveTab("hadr")}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}><ActivityIcon size={16} /> Akka HA/DR</span>
+              </button>
+            </div>
+
+            {activeTab === "clustering" && (<div>
+            <div style={{ marginBottom: 24 }}>
+              <ClusterSummary totalInstances={totalInstances} totalTokens={totalTokens} activeNodes={activeNodeCount} totalNodes={TOTAL_NODES} totalTeams={teams.length} avgReadLatency={avgReadLatency} avgWriteLatency={avgWriteLatency} />
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "3fr 9fr", gap: 24, alignItems: "start" }}>
+              <ControlPanel nodes={nodes} onLaunchTeam={launchTeam} onToggleNode={toggleNode} />
+
+              {/* Main area */}
+              <div>
+                {teams.length === 0 ? (
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+                      <UsersIcon size={20} color="var(--muted-fg)" />
+                      <h2 className="font-semibold">Agent Teams</h2>
+                    </div>
+                    <div className="card" style={{ padding: 24, textAlign: "center" }}>
+                      <p className="text-sm text-muted">No teams running. Launch a team to get started.</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div ref={mainAreaRef} style={{ display: "flex", position: "relative", alignItems: "flex-start" }}>
+                    {/* SVG shaped border overlay */}
+                    {borderShape && (
+                      <svg style={{
+                        position: "absolute", top: 0, left: 0,
+                        width: borderShape.width, height: borderShape.height,
+                        pointerEvents: "none", zIndex: 1,
+                        overflow: "visible",
+                      }} viewBox={`0 0 ${borderShape.width} ${borderShape.height}`} fill="none">
+                        <path d={borderShape.d} fill="rgba(0,216,221,0.06)" stroke="#02a4a7" strokeWidth="2" />
+                      </svg>
+                    )}
+
+                    {/* Left column: header + team list */}
+                    <div ref={leftColRef} style={{ width: 280, flexShrink: 0, position: "relative", zIndex: 2, alignSelf: "flex-start", minHeight: 600 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+                        <UsersIcon size={20} color="var(--muted-fg)" />
+                        <h2 className="font-semibold">Agent Teams</h2>
+                      </div>
+
+                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                        {teams.map(team => {
+                          const isSelected = team.id === selectedTeamId;
+                          const activeAgents = team.agents.filter(a => a.status === 'active').length;
+                          const runtime = Math.floor((Date.now() - team.startTime) / 1000);
+                          return (
+                            <div key={team.id}
+                              ref={el => { if (el) cardRefs.current[team.id] = el; }}
+                              className="animate-fade-in-left"
+                              style={{
+                                padding: 16, cursor: "pointer",
+                                background: isSelected ? "transparent" : "var(--card)",
+                                border: isSelected ? "none" : "1px solid var(--border)",
+                                borderRadius: isSelected ? 0 : "var(--radius)",
+                                transition: "border-color 0.2s, background 0.2s",
+                              }}
+                              onClick={() => setSelectedTeamId(isSelected ? null : team.id)}
+                              onMouseEnter={e => { if (!isSelected) e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.4)"; }}
+                              onMouseLeave={e => { if (!isSelected) e.currentTarget.style.boxShadow = "none"; }}
+                            >
+                              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                                  <div>
+                                    <h3 className="font-medium" style={{ fontSize: 14 }}>{team.name}</h3>
+                                    <p className="text-xs text-muted" style={{ marginTop: 4 }}>
+                                      Runtime: {Math.floor(runtime / 60)}m {runtime % 60}s
+                                    </p>
+                                  </div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                    <span className={`badge ${team.status === 'running' ? 'badge-default' : 'badge-secondary'}`}>
+                                      {team.status}
+                                    </span>
+                                    <button style={{
+                                      background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", cursor: "pointer",
+                                      padding: 3, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center",
+                                      transition: "all 0.15s",
+                                    }}
+                                      onMouseEnter={e => { e.currentTarget.style.background = "rgba(215,0,35,0.3)"; e.currentTarget.style.borderColor = "#d70023"; }}
+                                      onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; }}
+                                      onClick={e => { e.stopPropagation(); deleteTeam(team.id); }}
+                                      title="Delete team"
+                                    >
+                                      <XIcon size={14} color="var(--muted-fg)" />
+                                    </button>
+                                  </div>
+                                </div>
+                                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 6 }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                    <ActivityIcon size={13} color="#72d35b" />
+                                    <span className="text-xs">{activeAgents}/{team.agents.length}</span>
+                                  </div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                    <BotIcon size={13} color="#d2a8ff" />
+                                    <span className="text-xs">{team.tokens.toLocaleString()}</span>
+                                  </div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                    <ReadIcon size={13} color="#00d8dd" />
+                                    <span className="text-xs">{team.avgReadLatency}ms</span>
+                                  </div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                    <WriteIcon size={13} color="#ffce4a" />
+                                    <span className="text-xs">{team.avgWriteLatency}ms</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Right column: agent grid — height constrained to left column */}
+                    {selectedTeam && (
+                      <div style={{
+                        flex: 1, minWidth: 0, position: "relative", zIndex: 2,
+                        padding: "8px 24px 21px 32px",
+                        display: "flex", flexDirection: "column",
+                        maxHeight: leftColHeight || "none",
+                        overflow: "hidden",
+                      }}>
+                        <AgentGrid team={selectedTeam} txLog={selectedTeam ? (txLogs[selectedTeam.id] || []) : []} />
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+            </div>
+            </div>)}
+
+            {activeTab === "hadr" && (<div>
+            <div style={{ marginBottom: 24 }}>
+              <HADRSummary totalTeams={hadrTeams.length} totalTokens={hadrTotalTokens} regions={hadrRegions} avgReadLatency={hadrAvgRead} avgWriteLatency={hadrAvgWrite} replicationLatency={hadrReplLatency} replicationBytes={formatBytes(hadrReplBytesTotal)} />
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "3fr 9fr", gap: 24, alignItems: "start" }}>
+              <HADRControlPanel regions={hadrRegions} onLaunchTeam={hadrLaunchTeam} onToggleRegion={toggleRegion} />
+
+              {/* Main area */}
+              <div>
+                {hadrTeams.length === 0 ? (
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+                      <UsersIcon size={20} color="var(--muted-fg)" />
+                      <h2 className="font-semibold">Agent Teams</h2>
+                    </div>
+                    <div className="card" style={{ padding: 24, textAlign: "center" }}>
+                      <p className="text-sm text-muted">No teams running. Launch a team to get started.</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div ref={hadrMainAreaRef} style={{ display: "flex", position: "relative", alignItems: "flex-start" }}>
+                    {/* SVG shaped border overlay */}
+                    {hadrBorderShape && (
+                      <svg style={{
+                        position: "absolute", top: 0, left: 0,
+                        width: hadrBorderShape.width, height: hadrBorderShape.height,
+                        pointerEvents: "none", zIndex: 1,
+                        overflow: "visible",
+                      }} viewBox={`0 0 ${hadrBorderShape.width} ${hadrBorderShape.height}`} fill="none">
+                        <path d={hadrBorderShape.d} fill="rgba(0,216,221,0.06)" stroke="#02a4a7" strokeWidth="2" />
+                      </svg>
+                    )}
+
+                    {/* Left column: header + team list */}
+                    <div ref={hadrLeftColRef} style={{ width: 280, flexShrink: 0, position: "relative", zIndex: 2, alignSelf: "flex-start", minHeight: 600 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+                        <UsersIcon size={20} color="var(--muted-fg)" />
+                        <h2 className="font-semibold">Agent Teams</h2>
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                        {hadrTeams.map(team => {
+                          const isSelected = team.id === hadrSelectedTeamId;
+                          const runtime = Math.floor((Date.now() - team.startTime) / 1000);
+                          return (
+                            <div key={team.id}
+                              ref={el => { if (el) hadrCardRefs.current[team.id] = el; }}
+                              className="animate-fade-in-left"
+                              style={{
+                                padding: 16, cursor: "pointer",
+                                background: isSelected ? "transparent" : "var(--card)",
+                                border: isSelected ? "none" : "1px solid var(--border)",
+                                borderRadius: isSelected ? 0 : "var(--radius)",
+                                transition: "border-color 0.2s, background 0.2s",
+                              }}
+                              onClick={() => setHadrSelectedTeamId(isSelected ? null : team.id)}
+                              onMouseEnter={e => { if (!isSelected) e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.4)"; }}
+                              onMouseLeave={e => { if (!isSelected) e.currentTarget.style.boxShadow = "none"; }}
+                            >
+                              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                                  <div>
+                                    <h3 className="font-medium" style={{ fontSize: 14 }}>{team.name}</h3>
+                                    <p className="text-xs text-muted" style={{ marginTop: 4 }}>Runtime: {Math.floor(runtime / 60)}m {runtime % 60}s</p>
+                                  </div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                    <span className={`badge ${team.status === 'running' ? 'badge-default' : 'badge-secondary'}`}>{team.status}</span>
+                                    <button style={{
+                                      background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", cursor: "pointer",
+                                      padding: 3, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center",
+                                      transition: "all 0.15s",
+                                    }}
+                                      onMouseEnter={e => { e.currentTarget.style.background = "rgba(215,0,35,0.3)"; e.currentTarget.style.borderColor = "#d70023"; }}
+                                      onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; }}
+                                      onClick={e => { e.stopPropagation(); deleteHadrTeam(team.id); }}
+                                      title="Delete team"
+                                    >
+                                      <XIcon size={14} color="var(--muted-fg)" />
+                                    </button>
+                                  </div>
+                                </div>
+                                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 6 }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                    <GlobeIcon size={13} color="#72d35b" />
+                                    <span className="text-xs">2 regions</span>
+                                  </div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                    <BotIcon size={13} color="#d2a8ff" />
+                                    <span className="text-xs">{team.tokens.toLocaleString()}</span>
+                                  </div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                    <ReadIcon size={13} color="#00d8dd" />
+                                    <span className="text-xs">{team.avgReadLatency}ms</span>
+                                  </div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                    <WriteIcon size={13} color="#ffce4a" />
+                                    <span className="text-xs">{team.avgWriteLatency}ms</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Right column: region grid — height constrained to left column */}
+                    {hadrSelectedTeam && (
+                      <div style={{
+                        flex: 1, minWidth: 0, position: "relative", zIndex: 2,
+                        padding: "8px 24px 21px 32px",
+                        display: "flex", flexDirection: "column",
+                        maxHeight: hadrLeftColHeight || "none",
+                        overflow: "hidden",
+                      }}>
+                        <HADRRegionGrid team={hadrSelectedTeam} regions={hadrRegions} txLog={hadrSelectedTeam ? (hadrTxLogs[hadrSelectedTeam.id] || []) : []} replicationLatency={hadrReplLatency} replicationBytes={formatBytes(hadrReplBytesTotal)} />
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+            </div>)}
+
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+  </script>
+</body>
+</html>
