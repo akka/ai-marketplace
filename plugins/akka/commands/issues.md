@@ -11,6 +11,18 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Before anything else
+
+Run `akka specify mode --allows issues`. Add `--as-engine` when you are carrying
+this command out as part of a sequence `/akka:specify` is driving, rather than
+because a person invoked it. It exits non-zero when the project's mode does not
+permit the command. On a non-zero exit, print its message verbatim and stop. Do
+not continue, and do not work around it.
+
+Enforced mode gives the sequence to the engine, so a step it sequences is refused
+to a person and permitted to the engine. A refusal with a reason of its own, such
+as re-running setup, stands either way. The message names the remedy.
+
 ## Outline
 
 1. **Locate the feature**: Call the `akka_sdd_list_specs` MCP tool to find features. Verify that `tasks.md` exists for the target feature (`has_tasks` must be true). If `tasks.md` is missing, instruct the user to run `/akka:tasks` first. Read the `tasks.md` content from FEATURE_DIR.
