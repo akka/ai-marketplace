@@ -52,7 +52,7 @@ ship-gating differs.
    MUST NOT modify the CSS, the layout, the fonts, the colors, or any other
    design detail. Customers do not override the design; the template is the
    design. The palette is enumerated in
-   `plugins/akka/templates/akka-style-guide.md`, and step 9 checks the
+   `plugins/akka/templates/akka-style-guide.md`, and step 10 checks the
    generated page against it, so this rule is enforced rather than trusted.
 
 3. **Fill the placeholders and paste the fragments.** The template contains
@@ -81,7 +81,7 @@ ship-gating differs.
    automatically.
 
 4. **Draw the diagrams to the rules the template states.** The template's
-   header comment carries five rules that step 9 verifies. They are not style
+   header comment carries five rules that step 10 verifies. They are not style
    advice, and a page that breaks one reds the language check:
 
    - **Accessibility.** Every diagram `<svg>` carries `role="img"` and
@@ -175,7 +175,44 @@ ship-gating differs.
    the complexity budget is recorded here with its reason — an omission is a
    waiver, never a silent drop.
 
-9. **Verify against the content-governance family.** Run the three conditions and
+9. **Describe the app's UI in `.akka/app.yaml`.** When the project serves a UI
+   from an endpoint — an `HttpEndpoint` that returns
+   `HttpResponses.staticResource`, or files under
+   `src/main/resources/static-resources/` — write or refresh `.akka/app.yaml`.
+   The local console reads it and draws that UI as System › App with its own
+   components, so the file says what the UI shows and does in terms of the
+   service's HTTP endpoints, and holds no code, markup or styles.
+
+   Read the static HTML and JavaScript and the endpoint classes they call, and
+   map the UI in its own order:
+
+   | The UI has… | The descriptor gets… |
+   |---|---|
+   | tabs or pages | `views`, 1–8, the first is where App lands: `id` (`[a-z0-9-]+`, unique), `label`, an optional one-sentence `description` |
+   | a form that submits | a page action, 0–2 per view: `id`, `label`, `method`, `path`, and `form` fields with `key`, `label`, `input` (`text`, `textarea`, `select`, `email`, `number`) and `required`; a select filled by a GET gets `options: { read, items, value, text }` |
+   | a list filled by a GET | `list`: `read`, `items` (dotted path to the array; omit for a top-level array), `key`, `title`, 1–6 `fields` with `key`, `label` and `as` (`text`, `mono`, `status`, `badge`, `time`, `list`), and optional `facets`, `detail` (the GET for the expanded row) and `empty` |
+   | buttons on each row | list `actions`: `id`, `label`, `method`, `path`, fixed `body` fields, a `form` for what the user types, and `when: { key, in: [...] }` for the rows the UI offers them on; at most one `primary: true` |
+   | counters or stat cards | `summary`: `read`, `items`, `count_by`; at most 4 cards |
+
+   At the top: `version: 1`; `title`, the app's name as its UI shows it;
+   `service`, the name in `~/.akka/local/<service>.conf`; `brand` with `name`
+   and `logo`, the app's own logo as a project-relative `.svg` or `.png` — when
+   the logo is only inline in the HTML, write it verbatim to
+   `.akka/app-logo.svg` and point at that; and `generated_from`, every file
+   read, which the console uses to flag the descriptor stale. Every view has a
+   `list`, a `summary`, or both.
+
+   **Never invent an endpoint.** Every path is one the UI calls and an endpoint
+   class declares. Paths are absolute on the service: they start with `/` and
+   carry no host, scheme, `..` or query, except a literal `?k=v` on a `read`. A
+   `{name}` placeholder fills exactly one segment from the item's field. A view
+   never names a colour. What the UI does that the descriptor cannot carry —
+   charts, uploads, streaming, a custom layout — is left out, not approximated.
+
+   When the project serves no UI, remove `.akka/app.yaml` only if it carries
+   `generated_from`, and say so; a descriptor without it was not written here.
+
+10. **Verify against the content-governance family.** Run the three conditions and
    report each. Each has a default ship tier:
 
    - **CONTENT-LANGUAGE (deterministic, ship tier: author).** Two introspective
@@ -228,7 +265,7 @@ ship-gating differs.
      verified before the change is opened for team review, not on every commit —
      re-attesting every time a source file changes would be excessive.
 
-10. **Report.** Call `akka_ec_conform`, then present `akka_ec_summary` to the user
+11. **Report.** Call `akka_ec_conform`, then present `akka_ec_summary` to the user
    **verbatim** — the plain outcome. Do NOT restate internal condition ids or the
    words "auditor" / "coverage gate". Offer *"say 'show details' for the full
    checklist"* for the manifest.
@@ -248,6 +285,9 @@ ship-gating differs.
   three conditions exist in À la carte and Enforced mode alike; only ship-gating
   differs, advisory in À la carte and blocking in Enforced. Where the set is
   dormant the pages are still generated and no conditions are recorded.
+- The app descriptor names only real endpoints. Every path in `.akka/app.yaml`
+  is one the UI calls and an endpoint class declares; the console relays only
+  the calls the descriptor names, so an invented path is an action that fails.
 
 ## Done When
 
@@ -263,4 +303,5 @@ ship-gating differs.
 - [ ] CONTENT-LANGUAGE ran Vale **and** `harnesses/content/diagram_check.py` over `docs/` and reported `green`/`red` (or `open` with reason `blocked-outside-project` where a tool is unavailable — never a false `red`).
 - [ ] Completeness was checked as the documentation surface class of the coverage gate; any undocumented thing reds the gate or was recorded as a waiver with a reason.
 - [ ] CONTENT-TONE applied the decomposed adversarial rubric as pass/fail predicates and, on pass, was attested via `akka_harness_attest` with the condition key and a receipt reference — never left as a numeric score.
+- [ ] When the project serves a UI, `.akka/app.yaml` was written or refreshed, listing the files read in `generated_from` and naming only endpoints the UI calls; when it serves none, a generated descriptor was removed and the user told.
 - [ ] `akka_ec_conform` was called and the plain `akka_ec_summary` (never internal ids or the word "auditor") was shown to the user.
