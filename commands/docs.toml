@@ -169,46 +169,26 @@ ship-gating differs.
    the complexity budget is recorded here with its reason — an omission is a
    waiver, never a silent drop.
 
-9. **Describe the app's UI in `.akka/app.yaml`.** When the project serves a UI
-   from an endpoint — an `HttpEndpoint` that returns
+9. **Point the console at the app's UI in `.akka/app.yaml`.** When the project
+   serves a UI from an endpoint — an `HttpEndpoint` that returns
    `HttpResponses.staticResource`, or files under
    `src/main/resources/static-resources/` — write or refresh `.akka/app.yaml`.
-   The local console reads it and draws that UI as System › App with its own
-   components, so the file says what the UI shows and does in terms of the
-   service's HTTP endpoints, and holds no code, markup or styles.
+   The local console frames that UI, as the running service serves it, as
+   System › App:
 
-   Read the static HTML and JavaScript and the endpoint classes they call, and
-   map the UI in its own order:
+   ```yaml
+   version: 2
+   title: Engineering Change Intelligence   # the UI's <title>, or its main heading
+   service: bae                             # the service's local name: the Maven artifactId, as ~/.akka/local/<service>.conf names it
+   ui: /ui/                                 # the path the endpoint serves the UI's page at
+   generated_from:                          # every file read, for staleness
+     - src/main/resources/static-resources/index.html
+     - src/main/java/com/example/bae/api/UiEndpoint.java
+   ```
 
-   | The UI has… | The descriptor gets… |
-   |---|---|
-   | tabs or pages | `views`, 1–8, the first is where App lands: `id` (`[a-z0-9-]+`, unique), `label`, an optional one-sentence `description` |
-   | a form that submits | a page action, 0–2 per view: `id`, `label`, `method`, `path`, and `form` fields with `key`, `label`, `input` (`text`, `textarea`, `select`, `email`, `number`) and `required`; a select filled by a GET gets `options: { read, items, value, text }` |
-   | a list filled by a GET | `list`: `read`, `items` (dotted path to the array; omit for a top-level array), `key`, `title`, an optional `title_label` (the heading the UI gives the title column), 1–6 `fields` with `key`, `label`, `as` (`text`, `mono`, `status`, `badge`, `time`, `list`) and optional `labels`, and optional `facets`, `detail` (the GET for the expanded row) and `empty` |
-   | buttons on each row | list `actions`, at most 4: `id`, `label`, `method`, `path`, fixed `body` fields, a `form` for what the user types, and `when: { key, in: [...] }` for the rows the UI offers them on; at most one `primary: true` |
-   | counters or stat cards | `summary`: `read`, `items`, `count_by`; at most 4 cards |
-
-   At the top: `version: 1`; `title`, the app's name as its UI shows it;
-   `service`, the name in `~/.akka/local/<service>.conf`; `brand` with `name`
-   and `logo`, the app's own logo as a project-relative `.svg` or `.png` — when
-   the logo is only inline in the HTML, write it verbatim to
-   `.akka/app-logo.svg` and point at that; and `generated_from`, every file
-   read, which the console uses to flag the descriptor stale. Every view has a
-   `list`, a `summary`, or both.
-
-   **Use the UI's own words.** Where the UI shows a field's enum values in its
-   own words, give that field `labels`, value to words as the UI writes them:
-   `labels: { AWAITING_ITALY_REVIEW: Awaiting Italy review, APPROVED: Approved }`.
-   Without labels the console capitalises an all-caps value word by word.
-   Where the UI's table heads the title column, put that heading in
-   `title_label`; without it the console heads the column with `title` in words.
-
-   **Never invent an endpoint.** Every path is one the UI calls and an endpoint
-   class declares. Paths are absolute on the service: they start with `/` and
-   carry no host, scheme, `..` or query, except a literal `?k=v` on a `read`. A
-   `{name}` placeholder fills exactly one segment from the item's field. A view
-   never names a colour. What the UI does that the descriptor cannot carry —
-   charts, uploads, streaming, a custom layout — is left out, not approximated.
+   `ui` is an absolute path on the service with no scheme, host, `..`, query or
+   fragment, taken from the endpoint class that serves the page; never invent
+   one.
 
    When the project serves no UI, remove `.akka/app.yaml` only if it carries
    `generated_from`, and say so; a descriptor without it was not written here.
@@ -286,9 +266,9 @@ ship-gating differs.
   three conditions exist in À la carte and Enforced mode alike; only ship-gating
   differs, advisory in À la carte and blocking in Enforced. Where the set is
   dormant the pages are still generated and no conditions are recorded.
-- The app descriptor names only real endpoints. Every path in `.akka/app.yaml`
-  is one the UI calls and an endpoint class declares; the console relays only
-  the calls the descriptor names, so an invented path is an action that fails.
+- The app descriptor names only the UI the service serves. `ui` is the path an
+  endpoint class serves the page at; the console frames that address, so an
+  invented path is a frame that fails to load.
 
 ## Done When
 
@@ -304,6 +284,6 @@ ship-gating differs.
 - [ ] CONTENT-LANGUAGE ran Vale **and** `harnesses/content/diagram_check.py` over `docs/` and reported `green`/`red` (or `open` with reason `blocked-outside-project` where a tool is unavailable — never a false `red`).
 - [ ] Completeness was checked as the documentation surface class of the coverage gate; any undocumented thing reds the gate or was recorded as a waiver with a reason.
 - [ ] CONTENT-TONE applied the decomposed adversarial rubric as pass/fail predicates and, on pass, was attested via `akka_harness_attest` with the condition key and a receipt reference — never left as a numeric score.
-- [ ] When the project serves a UI, `.akka/app.yaml` was written or refreshed, listing the files read in `generated_from` and naming only endpoints the UI calls; when it serves none, a generated descriptor was removed and the user told.
+- [ ] When the project serves a UI, `.akka/app.yaml` was written or refreshed with its title, the service and the path the UI is served at, listing the files read in `generated_from`; when it serves none, a generated descriptor was removed and the user told.
 - [ ] `akka_ec_conform` was called and the plain `akka_ec_summary` (never internal ids or the word "auditor") was shown to the user.
 """
