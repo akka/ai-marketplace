@@ -182,8 +182,8 @@ ship-gating differs.
    |---|---|
    | tabs or pages | `views`, 1–8, the first is where App lands: `id` (`[a-z0-9-]+`, unique), `label`, an optional one-sentence `description` |
    | a form that submits | a page action, 0–2 per view: `id`, `label`, `method`, `path`, and `form` fields with `key`, `label`, `input` (`text`, `textarea`, `select`, `email`, `number`) and `required`; a select filled by a GET gets `options: { read, items, value, text }` |
-   | a list filled by a GET | `list`: `read`, `items` (dotted path to the array; omit for a top-level array), `key`, `title`, 1–6 `fields` with `key`, `label` and `as` (`text`, `mono`, `status`, `badge`, `time`, `list`), and optional `facets`, `detail` (the GET for the expanded row) and `empty` |
-   | buttons on each row | list `actions`: `id`, `label`, `method`, `path`, fixed `body` fields, a `form` for what the user types, and `when: { key, in: [...] }` for the rows the UI offers them on; at most one `primary: true` |
+   | a list filled by a GET | `list`: `read`, `items` (dotted path to the array; omit for a top-level array), `key`, `title`, an optional `title_label` (the heading the UI gives the title column), 1–6 `fields` with `key`, `label`, `as` (`text`, `mono`, `status`, `badge`, `time`, `list`) and optional `labels`, and optional `facets`, `detail` (the GET for the expanded row) and `empty` |
+   | buttons on each row | list `actions`, at most 4: `id`, `label`, `method`, `path`, fixed `body` fields, a `form` for what the user types, and `when: { key, in: [...] }` for the rows the UI offers them on; at most one `primary: true` |
    | counters or stat cards | `summary`: `read`, `items`, `count_by`; at most 4 cards |
 
    At the top: `version: 1`; `title`, the app's name as its UI shows it;
@@ -193,6 +193,13 @@ ship-gating differs.
    `.akka/app-logo.svg` and point at that; and `generated_from`, every file
    read, which the console uses to flag the descriptor stale. Every view has a
    `list`, a `summary`, or both.
+
+   **Use the UI's own words.** Where the UI shows a field's enum values in its
+   own words, give that field `labels`, value to words as the UI writes them:
+   `labels: { AWAITING_ITALY_REVIEW: Awaiting Italy review, APPROVED: Approved }`.
+   Without labels the console capitalises an all-caps value word by word.
+   Where the UI's table heads the title column, put that heading in
+   `title_label`; without it the console heads the column with `title` in words.
 
    **Never invent an endpoint.** Every path is one the UI calls and an endpoint
    class declares. Paths are absolute on the service: they start with `/` and
