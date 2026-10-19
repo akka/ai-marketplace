@@ -61,13 +61,14 @@ Given that feature description, do this:
        If empty: ERROR "No feature description provided"
     2. Extract key concepts from description
        Identify: actors, actions, data, constraints
+       For agent features, apply the conditional "Agent behavior, protection, and evaluation requirements" guidance below.
     3. For unclear aspects:
        - Make informed guesses based on context and industry standards
        - Only mark with [NEEDS CLARIFICATION: specific question] if:
          - The choice significantly impacts feature scope or user experience
          - Multiple reasonable interpretations exist with different implications
          - No reasonable default exists
-       - **LIMIT: Maximum 3 [NEEDS CLARIFICATION] markers total**
+       - **LIMIT: Maximum 3 [NEEDS CLARIFICATION] markers in the spec**; list any further unresolved policy decisions under "Open policy decisions" in the checklist notes, to be resolved with `/akka:clarify`.
        - Prioritize clarifications by impact: scope > security/privacy > user experience > technical details
     4. Fill User Scenarios & Testing section
        If no clear user flow: ERROR "Cannot determine user scenarios"
@@ -119,20 +120,27 @@ Given that feature description, do this:
       - [ ] Feature meets measurable outcomes defined in Success Criteria
       - [ ] No implementation details leak into specification
 
+      ## Open policy decisions
+
+      - [ ] OPD-1: <decision to obtain> (affects: <requirement or area>).
+
       ## Notes
 
-      - Items marked incomplete require spec updates before `/akka:clarify` or `/akka:plan`
+      - Open policy decisions are tracked separately from quality-check pass/fail results. Resolve them with `/akka:clarify` before declaring readiness for `/akka:plan`.
+      - Other incomplete quality items require spec updates; clarification markers and open policy decisions do not prevent invoking `/akka:clarify`.
       ```
 
-   b. **Run Validation Check**: Review the spec against each checklist item:
+   **Open policy decision format**: Use the exact `## Open policy decisions` heading in `FEATURE_DIR/checklists/requirements.md`. Each unresolved entry is `- [ ] OPD-1: <decision> (affects: <requirement or area>).` Allocate stable, unique `OPD-<number>` IDs within the feature; preserve them across runs and do not reuse or renumber them. On resolution, retain the entry as `- [x] OPD-1: <decision> (affects: <requirement or area>). → resolved in spec: [<section>](../spec.md#<section-anchor>)`. Record the answer in that spec section before checking the entry. Omit the example placeholder entry when there are no decisions; never remove real unresolved entries when regenerating the checklist. Other skills use this same format. If an existing entry has no checkbox or an invalid resolution reference, preserve it as unresolved until reconciled; do not silently treat it as resolved.
+
+   b. **Run Validation Check**: Review the spec against each quality checklist item outside `## Open policy decisions`:
       - For each item, determine if it passes or fails
       - Document specific issues found (quote relevant spec sections)
 
    c. **Handle Validation Results**:
 
-      - **If all items pass**: Mark checklist complete and proceed to step 6
+      - **If all quality items pass**: Mark those quality items complete. Check open policy decisions separately: if any remain unchecked, preserve them and recommend `/akka:clarify`, not readiness for planning.
 
-      - **If items fail (excluding [NEEDS CLARIFICATION])**:
+      - **If quality items fail (excluding [NEEDS CLARIFICATION] and the entire Open policy decisions section)**:
         1. List the failing items and specific issues
         2. Update the spec to address each issue
         3. Re-run validation until all items pass (max 3 iterations)
@@ -140,7 +148,7 @@ Given that feature description, do this:
 
       - **If [NEEDS CLARIFICATION] markers remain**:
         1. Extract all [NEEDS CLARIFICATION: ...] markers from the spec
-        2. **LIMIT CHECK**: If more than 3 markers exist, keep only the 3 most critical (by scope/security/UX impact) and make informed guesses for the rest
+        2. **LIMIT CHECK**: If more than 3 markers exist, keep markers only for the 3 most critical (by scope/security/UX impact). Resolve routine details with documented assumptions. Do not guess unresolved policy decisions: list them under "Open policy decisions" in `checklists/requirements.md` and recommend `/akka:clarify`, not `/akka:plan`; do not declare the spec ready while any remain open.
         3. For each clarification needed (max 3), present options to user in this format:
 
            ```markdown
@@ -200,7 +208,7 @@ When creating this spec from a user prompt:
 
 1. **Make informed guesses**: Use context, industry standards, and common patterns to fill gaps
 2. **Document assumptions**: Record reasonable defaults in the Assumptions section
-3. **Limit clarifications**: Maximum 3 [NEEDS CLARIFICATION] markers - use only for critical decisions that:
+3. **Limit clarifications**: Maximum 3 [NEEDS CLARIFICATION] markers; list further unresolved policy decisions under "Open policy decisions" in the checklist notes for `/akka:clarify`. Use markers only for critical decisions that:
    - Significantly impact feature scope or user experience
    - Have multiple reasonable interpretations with different implications
    - Lack any reasonable default
@@ -213,11 +221,26 @@ When creating this spec from a user prompt:
 
 **Examples of reasonable defaults** (don't ask about these):
 
-- Data retention: Industry-standard practices for the domain
 - Performance targets: Standard web/mobile app expectations unless specified
 - Error handling: User-friendly messages with appropriate fallbacks
 - Authentication method: Standard session-based or OAuth2 for web apps
 - Integration patterns: Use project-appropriate patterns (REST/GraphQL for web services, function calls for libraries, CLI args for tools, etc.)
+
+### Agent behavior, protection, and evaluation requirements
+
+Apply this guidance only when the feature involves agents or model-generated behavior. Use the description, existing service requirements, policies, and configuration to answer these questions first; ask only where a missing decision affects scope or acceptance. Do not add controls or a governance workflow merely because an agent exists.
+
+- **Enforcement boundaries**: Identify what must be checked before sending input to a model, executing a tool, or delivering a reply. State whether a violation blocks the operation, transforms data, or is recorded for review. Define behavior when the check fails to run or cannot reach a decision.
+- **Streaming**: Establish whether replies must stream immediately or pass a complete-response check before delivery. Surface conflicting requirements: a check after delivery cannot prevent disclosure of content already streamed.
+- **Sensitive data**: Identify the data to protect, the agents in scope, and the relevant destinations: model input, tool results, logs, or external responses. Specify the required transformation or restriction for each; do not assume one sanitizer covers every boundary or historical records.
+- **Retrospective evaluation**: Define the quality criteria, which interactions to assess, whether failed interactions are included, the required coverage or sampling, and the expected response to adverse findings. An assessment after completion cannot prevent the action it assesses.
+- **Decision policy**: Where classification informs behavior, define the meaning of labels or scores, the decision criteria, and handling of uncertainty, invalid output, or classifier failure. Distinguish the classification signal from the action taken on it.
+- **Access control**: Establish which users, services, and components may invoke each operation. Distinguish component identity, end-user permissions, and tool authorization, including resource and purpose restrictions where required.
+- **Evidence**: Define which decisions and assessments must be traceable and which identifiers, policy/model versions, and outcomes are needed for investigation, subject to the data-handling requirements.
+
+Keep requirements focused on observable behavior and free of Akka SDK interfaces or component names. Record constraints stated by the user (existing implementations, required Akka SDK version) under Assumptions; `/akka:plan` selects the mechanisms.
+
+**Policy decisions are not reasonable defaults.** Do not invent consequential classification thresholds, access permissions, retention periods, sensitive-data rules, or approval requirements. Reuse established requirements when available; otherwise obtain the missing decision. The three-marker limit does not cap the number of unresolved policy decisions; track the rest as open policy decisions. Do not mark readiness while such decisions remain open.
 
 ### Success Criteria Guidelines
 
@@ -228,12 +251,15 @@ Success criteria must be:
 3. **User-focused**: Describe outcomes from user/business perspective, not system internals
 4. **Verifiable**: Can be tested/validated without knowing implementation details
 
+For probabilistic model behavior, define acceptance over an agreed, representative dataset with repeated trials, measurable error limits, and a stated aggregation rule. Include adverse and uncertain cases where relevant. Use stakeholder-approved targets; one passing example or a model's self-reported confidence does not establish quality. Leave the choice of verification tooling to Plan.
+
 **Good examples**:
 
 - "Users can complete checkout in under 3 minutes"
 - "System supports 10,000 concurrent users"
 - "95% of searches return results in under 1 second"
 - "Task completion rate improves by 40%"
+- "Across the approved support dataset and repeated trials, the rate of harmful replies remains below the agreed limit while benign requests meet the agreed acceptance rate."
 
 **Bad examples** (implementation-focused):
 
@@ -295,6 +321,7 @@ Generation runs in the assistant; the engine detects the surfaces, verifies dete
 - [ ] `akka_sdd_create_spec` created a numbered FEATURE_DIR and returned BRANCH_NAME and SPEC_FILE.
 - [ ] The specification was written to SPEC_FILE using the template structure, with all mandatory sections filled and section order preserved.
 - [ ] Success Criteria are measurable, technology-agnostic, user-focused, and verifiable.
-- [ ] No more than 3 `[NEEDS CLARIFICATION]` markers remain — any surplus was resolved by informed guesses documented in the Assumptions section.
-- [ ] `FEATURE_DIR/checklists/requirements.md` was created and every non-`[NEEDS CLARIFICATION]` item passes (or the user was warned after 3 failed iterations).
+- [ ] No more than 3 `[NEEDS CLARIFICATION]` markers remain; routine gaps are resolved by documented assumptions, and all other unresolved policy decisions are listed under "Open policy decisions" in the checklist.
+- [ ] `FEATURE_DIR/checklists/requirements.md` was created and every quality item outside `## Open policy decisions`, excluding `[NEEDS CLARIFICATION]`, passes (or the user was warned after 3 failed iterations). Open policy entries are excluded from pass/fail validation and retries; their unresolved status is checked separately for readiness.
+- [ ] For agent features, relevant protection, evaluation, and failure behavior is specified; open policy decisions prevent a readiness claim and the next-command recommendation is `/akka:clarify`.
 - [ ] Completion was reported to the user with branch name, spec file path, checklist results, and the next-command recommendation (`/akka:clarify` or `/akka:plan`).
