@@ -28,7 +28,7 @@ Execution steps:
    - (Optionally capture `IMPL_PLAN`, `TASKS` for future chained flows.)
    - If JSON parsing fails, abort and instruct user to re-run `/akka:specify` or verify feature branch environment.
 
-2. Load the current spec file and `FEATURE_DIR/checklists/requirements.md` if it exists. Use the shared "Open policy decision format" defined in the Specify instructions: under `## Open policy decisions`, unchecked `OPD-<number>` entries are unresolved; checked entries must link to the saved answer in `../spec.md#<section-anchor>`. Preserve IDs and treat malformed entries or invalid resolution references as unresolved. Include every unresolved item under "Open policy decisions" in the clarification queue, even when the spec has no `[NEEDS CLARIFICATION]` markers. Preserve unresolved items across question limits and subsequent runs; do not infer answers or discard them because they are outside the spec. Perform a structured ambiguity & coverage scan using this taxonomy. For each category, mark status: Clear / Partial / Missing. Produce an internal coverage map used for prioritization (do not output raw map unless no questions will be asked).
+2. Load the current spec file. Perform a structured ambiguity & coverage scan using this taxonomy. For each category, mark status: Clear / Partial / Missing. Produce an internal coverage map used for prioritization (do not output raw map unless no questions will be asked).
 
    Functional Scope & Behavior:
    - Core user goals & success criteria
@@ -145,8 +145,7 @@ Execution steps:
        - Edge case / negative flow → Add a new bullet under Edge Cases / Error Handling (or create such subsection if template provides placeholder for it).
        - Terminology conflict → Normalize term across spec; retain original only if necessary by adding `(formerly referred to as "X")` once.
     - If the clarification invalidates an earlier ambiguous statement, replace that statement instead of duplicating; leave no obsolete contradictory text.
-    - After integrating an answer that resolves an open policy decision, change its `[ ]` to `[x]` and append `→ resolved in spec: [<section>](../spec.md#<section-anchor>)`, preserving its OPD ID and decision text. Keep any unresolved portion open. Do not mark the entry resolved before the answer is saved in the spec.
-    - Save the spec file AFTER each integration to minimize risk of context loss (atomic overwrite), then save the corresponding checklist update.
+    - Save the spec file AFTER each integration to minimize risk of context loss (atomic overwrite).
     - Preserve formatting: do not reorder unrelated sections; keep heading hierarchy intact.
     - Keep each inserted clarification minimal and testable (avoid narrative drift).
 
@@ -170,14 +169,12 @@ Execution steps:
 
 Behavior rules:
 
-- Before recommending planning or reporting full coverage, re-read "Open policy decisions" in the requirements checklist. If any remain unresolved, list them and recommend `/akka:clarify` again. Question limits and user early termination leave those items open; they do not establish readiness. If the user explicitly requests exploratory planning despite them, carry each open item and its risk into the planning handoff without treating it as resolved.
-
-- If no meaningful ambiguities found (or all potential questions would be low-impact) **and no open policy decisions remain**, respond: "No critical ambiguities detected worth formal clarification." and suggest proceeding.
+- If no meaningful ambiguities found (or all potential questions would be low-impact), respond: "No critical ambiguities detected worth formal clarification." and suggest proceeding.
 - If spec file missing, instruct user to run `/akka:specify` first (do not create a new spec here).
 - Never exceed 5 total asked questions (clarification retries for a single question do not count as new questions).
 - Avoid speculative tech stack questions unless the absence blocks functional clarity.
 - Respect user early termination signals ("stop", "done", "proceed").
-- If no questions asked due to full coverage and no open policy decisions remain, output a compact coverage summary (all categories Clear) then suggest advancing.
+- If no questions asked due to full coverage, output a compact coverage summary (all categories Clear) then suggest advancing.
 - If quota reached with unresolved high-impact categories remaining, explicitly flag them under Deferred with rationale.
 
 Context for prioritization: $ARGUMENTS
@@ -190,5 +187,4 @@ Context for prioritization: $ARGUMENTS
 - [ ] Each accepted answer produced exactly one bullet under `## Clarifications` → `### Session YYYY-MM-DD` and was integrated into the correct target section (Functional Requirements, User Stories, Data Model, Non-Functional / Quality Attributes, Edge Cases, or terminology).
 - [ ] Any earlier statement invalidated by a clarification was replaced, not duplicated.
 - [ ] The spec file was saved to FEATURE_SPEC after each integration and passes validation (no lingering vague placeholders the new answer was meant to resolve; markdown structure valid; only allowed new headings added).
-- [ ] Open policy decisions from the requirements checklist were included; resolved entries reference saved spec answers, remaining entries are preserved, and no readiness recommendation overlooks them.
 - [ ] The final report listed questions asked/answered, sections touched, a coverage summary (Resolved / Deferred / Clear / Outstanding), and the suggested next command.
