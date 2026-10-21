@@ -220,7 +220,7 @@ When creating this spec from a user prompt:
 5. **Think like a tester**: Every vague requirement should fail the "testable and unambiguous" checklist item
 6. **Common areas needing clarification** (only if no reasonable default exists):
    - Feature scope and boundaries (include/exclude specific use cases)
-   - User types and permissions (if multiple conflicting interpretations possible)
+   - User types and roles (if multiple conflicting interpretations possible)
    - Security/compliance requirements (when legally/financially significant)
 
 **Examples of reasonable defaults** (don't ask about these):
@@ -230,7 +230,7 @@ When creating this spec from a user prompt:
 - Authentication method: Standard session-based or OAuth2 for web apps
 - Integration patterns: Use project-appropriate patterns (REST/GraphQL for web services, function calls for libraries, CLI args for tools, etc.)
 
-**Policy decisions are not reasonable defaults.** Do not invent consequential thresholds, access permissions, retention periods, sensitive-data rules, or approval requirements. Reuse established requirements when available; otherwise mark each with [NEEDS CLARIFICATION]. These markers are not capped at 3: ask up to 3 per round and leave the rest for `/akka:clarify`. A spec with open policy markers is not ready for `/akka:plan`.
+**Policy decisions are not reasonable defaults.** Do not invent consequential thresholds, access permissions, retention periods, sensitive-data rules, or approval requirements. Reuse established requirements when available; otherwise mark each with [NEEDS CLARIFICATION]. These markers are not capped at 3: ask up to 3 here and leave the rest for `/akka:clarify`. A spec with open policy markers is not ready for `/akka:plan`.
 
 ### Agent behavior, protection, and evaluation requirements
 
@@ -242,7 +242,7 @@ Apply this guidance only when the feature involves agents or model-generated beh
 - **Retrospective evaluation**: Define the quality criteria, which interactions to assess, whether failed interactions are included, the required coverage or sampling, and the expected response to adverse findings. An assessment after completion cannot prevent the action it assesses. Define which decisions and assessments must be traceable, with the identifiers, policy/model versions, and outcomes needed for investigation, subject to the data-handling requirements.
 - **Access control**: Establish which users, services, and components may invoke each operation. Distinguish component identity, end-user permissions, and tool authorization, including resource and purpose restrictions where required.
 
-Keep requirements focused on observable behavior and free of Akka SDK interfaces or component names. Record constraints stated by the user (existing implementations, required Akka SDK version) under Assumptions; `/akka:plan` selects the mechanisms.
+Keep requirements focused on observable behavior and free of Akka SDK interfaces or component names. Record constraints stated by the user (existing implementations, required Akka SDK version) under Assumptions (add the section if the template lacks one); `/akka:plan` selects the mechanisms.
 
 ### Success Criteria Guidelines
 
@@ -253,12 +253,15 @@ Success criteria must be:
 3. **User-focused**: Describe outcomes from user/business perspective, not system internals
 4. **Verifiable**: Can be tested/validated without knowing implementation details
 
+For probabilistic model behavior, define acceptance over an agreed, representative dataset with repeated trials, measurable error limits, and a stated aggregation rule. Include adverse and uncertain cases where relevant. Use stakeholder-approved targets; one passing example or a model's self-reported confidence does not establish quality. Leave the choice of verification tooling to Plan.
+
 **Good examples**:
 
 - "Users can complete checkout in under 3 minutes"
 - "System supports 10,000 concurrent users"
 - "95% of searches return results in under 1 second"
 - "Task completion rate improves by 40%"
+- "Across the 200-case approved support dataset, run 5 times each, fewer than 1% of replies are harmful and at least 95% of benign requests are answered"
 
 **Bad examples** (implementation-focused):
 
