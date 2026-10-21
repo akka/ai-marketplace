@@ -70,7 +70,7 @@ Given that feature description, do this:
          - The choice significantly impacts feature scope or user experience
          - Multiple reasonable interpretations exist with different implications
          - No reasonable default exists
-       - **LIMIT: Maximum 3 [NEEDS CLARIFICATION] markers in the spec**; list any further unresolved policy decisions under "Open policy decisions" in the checklist notes, to be resolved with `/akka:clarify`.
+       - **LIMIT: Maximum 3 [NEEDS CLARIFICATION] markers total**
        - Prioritize clarifications by impact: scope > security/privacy > user experience > technical details
     4. Fill User Scenarios & Testing section
        If no clear user flow: ERROR "Cannot determine user scenarios"
@@ -122,27 +122,20 @@ Given that feature description, do this:
       - [ ] Feature meets measurable outcomes defined in Success Criteria
       - [ ] No implementation details leak into specification
 
-      ## Open policy decisions
-
-      - [ ] OPD-1: <decision to obtain> (affects: <requirement or area>).
-
       ## Notes
 
-      - Open policy decisions are tracked separately from quality-check pass/fail results. Resolve them with `/akka:clarify` before declaring readiness for `/akka:plan`.
-      - Other incomplete quality items require spec updates; clarification markers and open policy decisions do not prevent invoking `/akka:clarify`.
+      - Items marked incomplete require spec updates before `/akka:clarify` or `/akka:plan`
       ```
 
-   **Open policy decision format**: Use the exact `## Open policy decisions` heading in `FEATURE_DIR/checklists/requirements.md`. Each unresolved entry is `- [ ] OPD-1: <decision> (affects: <requirement or area>).` Allocate stable, unique `OPD-<number>` IDs within the feature; preserve them across runs and do not reuse or renumber them. On resolution, retain the entry as `- [x] OPD-1: <decision> (affects: <requirement or area>). → resolved in spec: [<section>](../spec.md#<section-anchor>)`. Record the answer in that spec section before checking the entry. Omit the example placeholder entry when there are no decisions; never remove real unresolved entries when regenerating the checklist. Other skills use this same format. If an existing entry has no checkbox or an invalid resolution reference, preserve it as unresolved until reconciled; do not silently treat it as resolved.
-
-   b. **Run Validation Check**: Review the spec against each quality checklist item outside `## Open policy decisions`:
+   b. **Run Validation Check**: Review the spec against each checklist item:
       - For each item, determine if it passes or fails
       - Document specific issues found (quote relevant spec sections)
 
    c. **Handle Validation Results**:
 
-      - **If all quality items pass**: Mark those quality items complete. Check open policy decisions separately: if any remain unchecked, preserve them and recommend `/akka:clarify`, not readiness for planning.
+      - **If all items pass**: Mark checklist complete and proceed to step 6
 
-      - **If quality items fail (excluding [NEEDS CLARIFICATION] and the entire Open policy decisions section)**:
+      - **If items fail (excluding [NEEDS CLARIFICATION])**:
         1. List the failing items and specific issues
         2. Update the spec to address each issue
         3. Re-run validation until all items pass (max 3 iterations)
@@ -150,7 +143,7 @@ Given that feature description, do this:
 
       - **If [NEEDS CLARIFICATION] markers remain**:
         1. Extract all [NEEDS CLARIFICATION: ...] markers from the spec
-        2. **LIMIT CHECK**: If more than 3 markers exist, keep markers only for the 3 most critical (by scope/security/UX impact). Resolve routine details with documented assumptions. Do not guess unresolved policy decisions: list them under "Open policy decisions" in `checklists/requirements.md` and recommend `/akka:clarify`, not `/akka:plan`; do not declare the spec ready while any remain open.
+        2. **LIMIT CHECK**: If more than 3 markers exist, keep only the 3 most critical (by scope/security/UX impact) and make informed guesses only for routine details. Obtain consequential policy decisions through further clarification before declaring readiness for planning
         3. For each clarification needed (max 3), present options to user in this format:
 
            ```markdown
@@ -210,7 +203,7 @@ When creating this spec from a user prompt:
 
 1. **Make informed guesses**: Use context, industry standards, and common patterns to fill gaps
 2. **Document assumptions**: Record reasonable defaults in the Assumptions section
-3. **Limit clarifications**: Maximum 3 [NEEDS CLARIFICATION] markers; list further unresolved policy decisions under "Open policy decisions" in the checklist notes for `/akka:clarify`. Use markers only for critical decisions that:
+3. **Limit clarifications**: Maximum 3 [NEEDS CLARIFICATION] markers - use only for critical decisions that:
    - Significantly impact feature scope or user experience
    - Have multiple reasonable interpretations with different implications
    - Lack any reasonable default
@@ -242,7 +235,7 @@ Apply this guidance only when the feature involves agents or model-generated beh
 
 Keep requirements focused on observable behavior and free of Akka SDK interfaces or component names. Record constraints stated by the user (existing implementations, required Akka SDK version) under Assumptions; `/akka:plan` selects the mechanisms.
 
-**Policy decisions are not reasonable defaults.** Do not invent consequential classification thresholds, access permissions, retention periods, sensitive-data rules, or approval requirements. Reuse established requirements when available; otherwise obtain the missing decision. The three-marker limit does not cap the number of unresolved policy decisions; track the rest as open policy decisions. Do not mark readiness while such decisions remain open.
+**Policy decisions are not reasonable defaults.** Do not invent consequential classification thresholds, access permissions, retention periods, sensitive-data rules, or approval requirements. Reuse established requirements when available; otherwise ask for the missing decision. If more decisions remain than fit in one clarification round, continue with `/akka:clarify` rather than guessing or declaring readiness for `/akka:plan`.
 
 ### Success Criteria Guidelines
 
@@ -253,15 +246,12 @@ Success criteria must be:
 3. **User-focused**: Describe outcomes from user/business perspective, not system internals
 4. **Verifiable**: Can be tested/validated without knowing implementation details
 
-For probabilistic model behavior, define acceptance over an agreed, representative dataset with repeated trials, measurable error limits, and a stated aggregation rule. Include adverse and uncertain cases where relevant. Use stakeholder-approved targets; one passing example or a model's self-reported confidence does not establish quality. Leave the choice of verification tooling to Plan.
-
 **Good examples**:
 
 - "Users can complete checkout in under 3 minutes"
 - "System supports 10,000 concurrent users"
 - "95% of searches return results in under 1 second"
 - "Task completion rate improves by 40%"
-- "Across the approved support dataset and repeated trials, the rate of harmful replies remains below the agreed limit while benign requests meet the agreed acceptance rate."
 
 **Bad examples** (implementation-focused):
 
@@ -323,8 +313,7 @@ Generation runs in the assistant; the engine detects the surfaces, verifies dete
 - [ ] `akka_sdd_create_spec` created a numbered FEATURE_DIR and returned BRANCH_NAME and SPEC_FILE.
 - [ ] The specification was written to SPEC_FILE using the template structure, with all mandatory sections filled and section order preserved.
 - [ ] Success Criteria are measurable, technology-agnostic, user-focused, and verifiable.
-- [ ] No more than 3 `[NEEDS CLARIFICATION]` markers remain; routine gaps are resolved by documented assumptions, and all other unresolved policy decisions are listed under "Open policy decisions" in the checklist.
-- [ ] `FEATURE_DIR/checklists/requirements.md` was created and every quality item outside `## Open policy decisions`, excluding `[NEEDS CLARIFICATION]`, passes (or the user was warned after 3 failed iterations). Open policy entries are excluded from pass/fail validation and retries; their unresolved status is checked separately for readiness.
-- [ ] For agent features, relevant protection, evaluation, and failure behavior is specified; open policy decisions prevent a readiness claim and the next-command recommendation is `/akka:clarify`.
+- [ ] No more than 3 `[NEEDS CLARIFICATION]` markers remain — routine gaps were resolved by documented assumptions; consequential policy decisions were obtained from existing requirements or the user, or readiness was deferred to `/akka:clarify`.
+- [ ] `FEATURE_DIR/checklists/requirements.md` was created and every non-`[NEEDS CLARIFICATION]` item passes (or the user was warned after 3 failed iterations).
 - [ ] Completion was reported to the user with branch name, spec file path, checklist results, and the next-command recommendation (`/akka:clarify` or `/akka:plan`).
 """
