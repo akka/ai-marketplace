@@ -164,6 +164,7 @@ Execution steps:
 
 Behavior rules:
 
+- Policy-decision markers (thresholds, access permissions, retention, sensitive-data rules, approvals) are not subject to the specify marker limit: ask about every one, in order of impact, and never infer an answer.
 - If no meaningful ambiguities found (or all potential questions would be low-impact), respond: "No critical ambiguities detected worth formal clarification." and suggest proceeding.
 - If spec file missing, instruct user to run `/akka:specify` first (do not create a new spec here).
 - Never exceed 5 total asked questions (clarification retries for a single question do not count as new questions).

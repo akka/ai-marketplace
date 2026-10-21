@@ -22,10 +22,11 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 1. **Setup**: Call the `akka_sdd_list_specs` MCP tool to find the target feature. Then call `akka_sdd_get_template` with template_name="plan" to get the plan template. Identify the feature's spec path (FEATURE_SPEC) and plan destination (FEATURE_DIR/plan.md).
 
-2. **Load context**: Read FEATURE_SPEC and `akka_sdd_constitution`. Load IMPL_PLAN template (already copied).
+2. **Load context**: Read FEATURE_SPEC and `akka_sdd_constitution`. If the spec contains unresolved [NEEDS CLARIFICATION] markers for policy decisions (thresholds, access permissions, retention, sensitive-data rules, approvals), report them and recommend `/akka:clarify`; do not decide them through research. Load IMPL_PLAN template (already copied).
 
 3. **Execute plan workflow**: Follow the structure in IMPL_PLAN template to:
    - Fill Technical Context (mark unknowns as "NEEDS CLARIFICATION")
+   - If the spec involves agents or model-generated behavior: check the project's installed Akka SDK version and its local documentation before choosing guardrail, classifier, sanitizer, evaluator, or identity mechanisms. Do not assume features newer than that version and do not upgrade the Akka SDK implicitly; if a required feature needs a newer version, record the upgrade as an explicit decision in research.md.
    - Fill Constitution Check section from constitution
    - Evaluate gates (ERROR if violations unjustified)
    - Phase 0: Generate research.md (resolve all NEEDS CLARIFICATION)

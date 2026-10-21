@@ -79,7 +79,7 @@ Given that feature description, do this:
          - The choice significantly impacts feature scope or user experience
          - Multiple reasonable interpretations exist with different implications
          - No reasonable default exists
-       - **LIMIT: Maximum 3 [NEEDS CLARIFICATION] markers total**
+       - **LIMIT: Maximum 3 [NEEDS CLARIFICATION] markers for routine details; policy decisions always keep a marker and do not count toward the limit** (see "Policy decisions are not reasonable defaults")
        - Prioritize clarifications by impact: scope > security/privacy > user experience > technical details
     4. Fill User Scenarios & Testing section
        If no clear user flow: ERROR "Cannot determine user scenarios"
@@ -152,7 +152,7 @@ Given that feature description, do this:
 
       - **If [NEEDS CLARIFICATION] markers remain**:
         1. Extract all [NEEDS CLARIFICATION: ...] markers from the spec
-        2. **LIMIT CHECK**: If more than 3 markers exist, keep only the 3 most critical (by scope/security/UX impact) and make informed guesses only for routine details. Obtain consequential policy decisions through further clarification before declaring readiness for planning
+        2. **LIMIT CHECK**: If more than 3 non-policy markers exist, keep only the 3 most critical (by scope/security/UX impact) and make informed guesses for the rest. Never guess policy decisions: they keep their markers, and the spec is not ready until they are resolved
         3. For each clarification needed (max 3), present options to user in this format:
 
            ```markdown
@@ -212,7 +212,7 @@ When creating this spec from a user prompt:
 
 1. **Make informed guesses**: Use context, industry standards, and common patterns to fill gaps
 2. **Document assumptions**: Record reasonable defaults in the Assumptions section
-3. **Limit clarifications**: Maximum 3 [NEEDS CLARIFICATION] markers - use only for critical decisions that:
+3. **Limit clarifications**: Maximum 3 [NEEDS CLARIFICATION] markers for routine details, not counting policy decisions, which are never guessed - use only for critical decisions that:
    - Significantly impact feature scope or user experience
    - Have multiple reasonable interpretations with different implications
    - Lack any reasonable default
@@ -230,21 +230,19 @@ When creating this spec from a user prompt:
 - Authentication method: Standard session-based or OAuth2 for web apps
 - Integration patterns: Use project-appropriate patterns (REST/GraphQL for web services, function calls for libraries, CLI args for tools, etc.)
 
+**Policy decisions are not reasonable defaults.** Do not invent consequential thresholds, access permissions, retention periods, sensitive-data rules, or approval requirements. Reuse established requirements when available; otherwise mark each with [NEEDS CLARIFICATION]. These markers are not capped at 3: ask up to 3 per round and leave the rest for `/akka:clarify`. A spec with open policy markers is not ready for `/akka:plan`.
+
 ### Agent behavior, protection, and evaluation requirements
 
 Apply this guidance only when the feature involves agents or model-generated behavior. Use the description, existing service requirements, policies, and configuration to answer these questions first; ask only where a missing decision affects scope or acceptance. Do not add controls or a governance workflow merely because an agent exists.
 
-- **Enforcement boundaries**: Identify what must be checked before sending input to a model, executing a tool, or delivering a reply. State whether a violation blocks the operation, transforms data, or is recorded for review. Define behavior when the check fails to run or cannot reach a decision.
+- **Enforcement boundaries**: Identify what must be checked before sending input to a model, executing a tool, or delivering a reply. State whether a violation blocks the operation, transforms data, or is recorded for review. Define behavior when the check fails to run or cannot reach a decision. Where a classifier informs the check, define the meaning of labels or scores, the decision criteria, and handling of uncertainty, invalid output, or classifier failure; distinguish the classification signal from the action taken on it.
 - **Streaming**: Establish whether replies must stream immediately or pass a complete-response check before delivery. Surface conflicting requirements: a check after delivery cannot prevent disclosure of content already streamed.
 - **Sensitive data**: Identify the data to protect, the agents in scope, and the relevant destinations: model input, tool results, logs, or external responses. Specify the required transformation or restriction for each; do not assume one sanitizer covers every boundary or historical records.
-- **Retrospective evaluation**: Define the quality criteria, which interactions to assess, whether failed interactions are included, the required coverage or sampling, and the expected response to adverse findings. An assessment after completion cannot prevent the action it assesses.
-- **Decision policy**: Where classification informs behavior, define the meaning of labels or scores, the decision criteria, and handling of uncertainty, invalid output, or classifier failure. Distinguish the classification signal from the action taken on it.
+- **Retrospective evaluation**: Define the quality criteria, which interactions to assess, whether failed interactions are included, the required coverage or sampling, and the expected response to adverse findings. An assessment after completion cannot prevent the action it assesses. Define which decisions and assessments must be traceable, with the identifiers, policy/model versions, and outcomes needed for investigation, subject to the data-handling requirements.
 - **Access control**: Establish which users, services, and components may invoke each operation. Distinguish component identity, end-user permissions, and tool authorization, including resource and purpose restrictions where required.
-- **Evidence**: Define which decisions and assessments must be traceable and which identifiers, policy/model versions, and outcomes are needed for investigation, subject to the data-handling requirements.
 
 Keep requirements focused on observable behavior and free of Akka SDK interfaces or component names. Record constraints stated by the user (existing implementations, required Akka SDK version) under Assumptions; `/akka:plan` selects the mechanisms.
-
-**Policy decisions are not reasonable defaults.** Do not invent consequential classification thresholds, access permissions, retention periods, sensitive-data rules, or approval requirements. Reuse established requirements when available; otherwise ask for the missing decision. If more decisions remain than fit in one clarification round, continue with `/akka:clarify` rather than guessing or declaring readiness for `/akka:plan`.
 
 ### Success Criteria Guidelines
 
@@ -322,6 +320,6 @@ Generation runs in the assistant; the engine detects the surfaces, verifies dete
 - [ ] `akka_sdd_create_spec` created a numbered FEATURE_DIR and returned BRANCH_NAME and SPEC_FILE.
 - [ ] The specification was written to SPEC_FILE using the template structure, with all mandatory sections filled and section order preserved.
 - [ ] Success Criteria are measurable, technology-agnostic, user-focused, and verifiable.
-- [ ] No more than 3 `[NEEDS CLARIFICATION]` markers remain — routine gaps were resolved by documented assumptions; consequential policy decisions were obtained from existing requirements or the user, or readiness was deferred to `/akka:clarify`.
+- [ ] No more than 3 `[NEEDS CLARIFICATION]` markers for routine details remain (surplus resolved by informed guesses documented in Assumptions); no policy decision was guessed, and open ones remain as markers.
 - [ ] `FEATURE_DIR/checklists/requirements.md` was created and every non-`[NEEDS CLARIFICATION]` item passes (or the user was warned after 3 failed iterations).
 - [ ] Completion was reported to the user with branch name, spec file path, checklist results, and the next-command recommendation (`/akka:clarify` or `/akka:plan`).
