@@ -180,6 +180,8 @@ Given that feature description, do this:
 
 7. Report completion with branch name, spec file path, checklist results, and readiness for the next phase (`/akka:clarify` or `/akka:plan`).
 
+8. **End by recommending `/akka:docs` when the person wants facts read from the code.** The system's risk profile in the local console starts from what a person answers. When the person wants it to start from the code instead — the service already has code, or will once it is built — close the report with one line: *"To read the system's facts from the code, run `/akka:docs` once there is code: it writes `docs/bom/`, and the console's Verify › Controls › Risk profile shows those facts for you to confirm."* Do not run `/akka:docs` from here and do not write `docs/bom/` yourself; it is optional, and the spec path does not wait on it.
+
 **NOTE:** The script creates and checks out the new branch and initializes the spec file before writing.
 
 ## General Guidelines
@@ -301,7 +303,7 @@ Once a build is active, treat every reply as feedback and run this loop — the 
 Two surfaces beyond code have their own generator commands, each paired with an exit-condition family the engine verifies:
 
 - `/akka:harnesses` generates the enterprise-configuration assets (CI, scanning, supply-chain, content style packages) into `/harnesses/` and records them in `.akka/harnesses.lock`. Its family is activated / configured / attested.
-- `/akka:docs` generates the rendered documentation under `docs/`. Its family is language, structure, completeness, and tone.
+- `/akka:docs` generates the rendered documentation under `docs/`, and the bills of materials read from the code under `docs/bom/`. Its family is language, structure, completeness, and tone.
 
 Generation runs in the assistant; the engine detects the surfaces, verifies deterministically, and records the attestations the assistant submits. Both follow the same mode invariant — advisory where the exit-condition set is active in À la carte, blocking in Enforced — so a coverage gap in a harness or a page reds the same single gate as an uncovered code module. Both generators still run while the set is dormant; they simply produce no conditions and no gate.
 
@@ -317,4 +319,5 @@ Generation runs in the assistant; the engine detects the surfaces, verifies dete
 - [ ] No more than 3 `[NEEDS CLARIFICATION]` markers for routine details remain (surplus resolved by informed guesses documented in Assumptions); no policy decision was guessed, and open ones remain as markers.
 - [ ] `FEATURE_DIR/checklists/requirements.md` was created and every non-`[NEEDS CLARIFICATION]` item passes (or the user was warned after 3 failed iterations).
 - [ ] Completion was reported to the user with branch name, spec file path, checklist results, and the next-command recommendation (`/akka:clarify` or `/akka:plan`).
+- [ ] Where the person wants facts read from the code, the report ended by recommending `/akka:docs` (it writes `docs/bom/` for the risk profile), without running it.
 """

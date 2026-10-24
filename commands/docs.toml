@@ -1,4 +1,4 @@
-description = "Generate or refresh rendered project documentation, then verify it against the content-governance exit-condition family (language, completeness, tone)."
+description = "Generate or refresh rendered project documentation and the bills of materials read from the code (docs/bom/), then verify the documentation against the content-governance exit-condition family (language, completeness, tone)."
 
 prompt = """
 ## User Input
@@ -18,6 +18,11 @@ single coverage gate: every documentable thing needs a page, the same way every
 code module needs a covering check. Generation lives here in the assistant; the
 engine verifies the deterministic conditions and records the attestation for the
 one condition it cannot decide.
+
+`/akka:docs` also writes the system's bills of materials to `docs/bom/`: the
+AI-BOM read from the code, and four stubs. This is the one way facts read from
+the code reach the system's risk profile in the local console, which reads
+`docs/bom/` and asks a person to confirm what the code only suggests.
 
 ## When it runs
 
@@ -222,10 +227,32 @@ ship-gating differs.
      verified before the change is opened for team review, not on every commit —
      re-attesting every time a source file changes would be excessive.
 
-10. **Report.** Call `akka_ec_conform`, then present `akka_ec_summary` to the user
+10. **Write the bills of materials.** Call `akka_bom_generate` with the project
+   directory. It writes `docs/bom/`: `index.json`, which names each file with its
+   digest, the AI-BOM `ai-bom.cdx.json`, and four stubs with the status
+   `not-produced` (`sw-bom`, `sec-bom`, `priv-bom`, `mktg-bom`). The output is
+   deterministic, so an unchanged digest means the code the AI-BOM describes is
+   unchanged. Do not edit the files; regenerate them. If the tool is not
+   available, the `akka` CLI on the PATH does not have it yet: say so in the
+   report and continue — `docs/index.html` does not depend on it.
+
+11. **Report.** Call `akka_ec_conform`, then present `akka_ec_summary` to the user
    **verbatim** — the plain outcome. Do NOT restate internal condition ids or the
    words "auditor" / "coverage gate". Offer *"say 'show details' for the full
    checklist"* for the manifest.
+
+   Then say what `akka_bom_generate` wrote, in plain words, from its result:
+   - where `docs/bom/` is, and the AI-BOM's digest;
+   - what the code holds, from `components` (for example "5 agents, 7 tools, 3
+     models");
+   - the facts about the system read from the code, from `facts`, in two lists:
+     **observed** (certain from the code's structure) and **suggested** (read
+     from names or prompts). Name each fact with its value.
+
+   End with: *"Open the local console at Verify › Controls › Risk profile. It reads
+   `docs/bom/`; each fact from the code shows the file and line it came from.
+   Confirm the suggested facts there — they are not used until a person
+   confirms them."*
 
 ## Key rules
 
@@ -242,6 +269,9 @@ ship-gating differs.
   three conditions exist in À la carte and Enforced mode alike; only ship-gating
   differs, advisory in À la carte and blocking in Enforced. Where the set is
   dormant the pages are still generated and no conditions are recorded.
+- Facts from the code are evidence, not answers. The assistant never copies a
+  suggested fact into `governance/survey.yaml` or confirms it on the person's
+  behalf; a person confirms it in the risk profile.
 
 ## Done When
 
@@ -257,5 +287,7 @@ ship-gating differs.
 - [ ] CONTENT-LANGUAGE ran Vale **and** `harnesses/content/diagram_check.py` over `docs/` and reported `green`/`red` (or `open` with reason `blocked-outside-project` where a tool is unavailable — never a false `red`).
 - [ ] Completeness was checked as the documentation surface class of the coverage gate; any undocumented thing reds the gate or was recorded as a waiver with a reason.
 - [ ] CONTENT-TONE applied the decomposed adversarial rubric as pass/fail predicates and, on pass, was attested via `akka_harness_attest` with the condition key and a receipt reference — never left as a numeric score.
+- [ ] `akka_bom_generate` wrote `docs/bom/` (`index.json`, `ai-bom.cdx.json` and the four stubs), or the report says the installed CLI does not have it.
+- [ ] The report listed the observed and suggested facts and pointed the person to Verify › Controls › Risk profile to confirm the suggested ones.
 - [ ] `akka_ec_conform` was called and the plain `akka_ec_summary` (never internal ids or the word "auditor") was shown to the user.
 """
