@@ -19,10 +19,10 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Fill Constitution Check section from constitution
    - Evaluate gates (ERROR if violations unjustified)
    - Phase 0: Generate research.md (resolve all NEEDS CLARIFICATION)
-   - Phase 1: Map domain concepts to Akka components (Component Architecture table), then generate data-model.md, contracts/, quickstart.md
+   - Phase 1: Map domain concepts to Akka components (Component Architecture table), then generate data-model.md, contracts/, quickstart.md, plan-visualize.md
    - Re-evaluate Constitution Check post-design
 
-4. **Stop and report**: Command ends after Phase 2 planning. Report branch, IMPL_PLAN path, and generated artifacts.
+4. **Stop and report**: Command ends after Phase 2 planning. Report branch, IMPL_PLAN path, and generated artifacts, including the `plan-visualize.md` path and the diagrams it contains.
 
 ## Phases
 
@@ -70,10 +70,140 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Examples: public APIs for libraries, command schemas for CLI tools, endpoints for web services, grammars for parsers, UI contracts for applications
    - Skip if project is purely internal (build scripts, one-off tools, etc.)
 
-4. **Agent context update**:
+4. **Generate plan visualize** → `FEATURE_DIR/plan-visualize.md`, following the **Plan visualize** section below:
+   - Draw from the Component Architecture table, data-model.md, and contracts/. Do not draw from class names alone. Every component, call, and topic in a diagram must appear in the plan.
+   - If plan-visualize.md already exists, regenerate it so it matches the current plan. If the plan no longer supports diagram 1 (see below), mark the existing file stale instead of leaving its diagrams looking current, and say so in the report.
+
+5. **Agent context update**:
    - Agent context files are managed automatically by the Akka CLI when running `akka_sdd_init`. No manual agent context update is needed.
 
-**Output**: Component Architecture table in plan.md, data-model.md, /contracts/*, quickstart.md
+**Output**: Component Architecture table in plan.md, data-model.md, /contracts/*, quickstart.md, plan-visualize.md
+
+## Plan visualize
+
+`plan-visualize.md` is the technical picture of the plan, for developers and reviewers.
+
+| # | Diagram | Include when |
+|---|---------|--------------|
+| 1 | Component Dependencies | always |
+| 2 | Sequence Diagram | always. Show the happy path and at least one error path, plus a human-review (HITL) path when the feature has one |
+| 3 | Workflow State Machines | the plan uses one or more Workflows. Write **one numbered subsection per Workflow class** (3.1, 3.2, …), each titled with the class name. Never merge workflows into one diagram. Otherwise omit the section entirely |
+
+If the Component Architecture table does not yet have enough detail to draw diagram 1 accurately, do not write the file. If an earlier `plan-visualize.md` exists, leave its content untouched (it may hold reviewer notes) and insert this line directly under its `#` title: `> **STALE**: no longer matches plan.md. Rerun /akka:plan once the Component Architecture table has <what is missing>.` Report what is missing instead.
+
+**Colors.** Use only the colors whose flow types occur in this feature. Never invent a flow category to justify a color.
+
+| Flow type | Color | Hex |
+|-----------|-------|-----|
+| Submission / happy path / entry state | blue | `#2196F3` |
+| Validation / processing | amber | `#FF9800` |
+| Safety / blocking / rejection (including a REJECTED end state) | red | `#F44336` |
+| Human review / approval (HITL) | purple | `#9C27B0` |
+| Routing / delivery / success | green | `#4CAF50` |
+| Error / failure | crimson | `#B71C1C` |
+
+**External / out-of-scope systems.** Put them in a subgraph labelled "External / Out of Scope", style every external node `stroke-dasharray:5 5,stroke:#999,fill:#f5f5f5,color:#333`, and use dotted arrows (`-.->`) for every connection to or from them. Internal event-driven connections use solid arrows with a label, never dotted arrows, so dotted always means external.
+
+**Topics.** When the plan produces to or consumes from a topic (`@Produce.ToTopic` / `@Consume.FromTopic`), every topic must be an explicit node. Never collapse a topic into an arrow label.
+- Flowchart: cylinder `T1[("topic-name")]` inside a "Message Broker" subgraph, styled `fill:#FFF9C4,stroke:#F9A825,color:#333`. Producers connect with `-->|"publish"|` and consumers with `-->|"subscribe"|`.
+- Sequence: declare the topic as a participant. Producers send `->> T: publish(Payload)` and consumers receive `T -->> Consumer: message`.
+
+**Order and arrows.** Put ①②③… on flowchart edge labels to show runtime call order, and color edges by flow type with `linkStyle N stroke:#RRGGBB,stroke-width:2px`. Indices are 0-based in declaration order. In sequence diagrams use only `->>`, `-->>`, `->` and `-->`. `-.>>` is invalid Mermaid.
+
+**Labels.** Wrap every flowchart node label in double quotes, for example `EP["OrderEndpoint"]` or `DS[("Payment Service (v2)")]`. Unquoted parentheses, brackets, quotes, `#` or keywords such as `end` inside a label break the Mermaid parser. Inside a quoted label, write a literal double quote as `#quot;`.
+
+**Sequence blocks.** Color `rect` blocks with the flow color at low opacity, `rgba(R,G,B,0.15)`, so message text stays readable. Never use an opaque `rgb(...)` fill.
+
+Write the file in this structure, replacing every example node with real content from the plan:
+
+````markdown
+# Plan Visualize: [FEATURE]
+
+**Feature**: [FEATURE] | **Plan**: [link to plan.md]
+
+## 1. Component Dependencies
+
+<!-- One node per component (short names), grouped by layer in subgraphs. Numbered, colored edges in call order. -->
+
+```mermaid
+flowchart TD
+    subgraph ext["External / Out of Scope"]
+        Client(["Client"])
+        DS[("Downstream System")]
+    end
+    subgraph api["API Layer"]
+        EP["OrderEndpoint"]
+    end
+    subgraph application["Application Layer"]
+        WF["OrderWorkflow"]
+        AG["ReviewAgent"]
+        VW["OrdersView"]
+    end
+    Client -.->|"① POST /orders"| EP
+    EP     -->|"② start"| WF
+    WF     -->|"③ invoke"| AG
+    WF     -->|"④ projects to"| VW
+    WF    -.->|"⑤ deliver"| DS
+    linkStyle 0,1 stroke:#2196F3,stroke-width:2px
+    linkStyle 2,3 stroke:#FF9800,stroke-width:2px
+    linkStyle 4   stroke:#4CAF50,stroke-width:2px
+    style Client stroke-dasharray:5 5,stroke:#999,fill:#f5f5f5,color:#333
+    style DS     stroke-dasharray:5 5,stroke:#999,fill:#f5f5f5,color:#333
+```
+
+## 2. Sequence Diagram
+
+<!-- One rect block per flow, colored per the table at 0.15 opacity; a Note names the flow. -->
+
+```mermaid
+sequenceDiagram
+    participant C  as Client
+    participant EP as OrderEndpoint
+    participant WF as OrderWorkflow
+    participant AG as ReviewAgent
+    rect rgba(33,150,243,0.15)
+        Note over C,WF: Submission
+        C  ->> EP: POST /orders {payload}
+        EP ->> WF: start(request)
+        EP -->> C: 201 {orderId}
+    end
+    rect rgba(255,152,0,0.15)
+        Note over WF,AG: Processing
+        WF ->> AG: invoke(payload)
+        AG -->> WF: result
+    end
+    rect rgba(183,28,28,0.15)
+        Note over WF,AG: Error path
+        WF ->> AG: invoke(badPayload)
+        AG -->> WF: failure
+        WF -->> WF: status → FAILED
+    end
+```
+
+## 3. Workflow State Machines
+
+<!-- Only if the plan uses Workflows. One subsection per Workflow class. Every status is a node; label transitions with the step or command. Entry blue, processing amber, HITL purple, success green, rejection red, failure crimson. -->
+
+### 3.1 OrderWorkflow
+
+```mermaid
+flowchart TD
+    START(["START"]) --> VALIDATING
+    VALIDATING --> REVIEWING
+    REVIEWING -->|"low confidence"| AWAITING_REVIEW
+    REVIEWING -->|"high confidence"| COMPLETED(["COMPLETED"])
+    AWAITING_REVIEW -->|"APPROVE"| COMPLETED
+    AWAITING_REVIEW -->|"REJECT"| REJECTED(["REJECTED"])
+    VALIDATING --> FAILED(["FAILED"])
+    style START           fill:#2196F3,color:#fff
+    style VALIDATING      fill:#FF9800,color:#fff
+    style REVIEWING       fill:#FF9800,color:#fff
+    style AWAITING_REVIEW fill:#9C27B0,color:#fff
+    style COMPLETED       fill:#4CAF50,color:#fff
+    style REJECTED        fill:#F44336,color:#fff
+    style FAILED          fill:#B71C1C,color:#fff
+```
+````
 
 ## Key rules
 
@@ -89,4 +219,5 @@ You **MUST** consider the user input before proceeding (if not empty).
 - [ ] The Component Architecture table in `plan.md` maps every domain concept, process, and query to a component (or a plain domain class), with close-call rows naming the rejected alternative and why it was not chosen — informed by the "Choosing a component type" section of `akka-context/sdk/components/index.html.md`.
 - [ ] Phase 1 produced `data-model.md`, `quickstart.md`, and — if the project exposes external interfaces — `contracts/`.
 - [ ] `FEATURE_DIR/plan.md` was written using the template structure and no gate error was left unresolved.
+- [ ] `FEATURE_DIR/plan-visualize.md` was written (or regenerated) — or, if the Component Architecture table lacked the detail for diagram 1, no file was written, any earlier one was marked with the STALE line, and what was missing was reported. A written file has Component Dependencies and a Sequence Diagram (happy and error paths), one state machine per Workflow class where Workflows are used, every topic as an explicit node, quoted node labels, translucent `rect` fills, and no `-.>>` arrows. Every element is traceable to the Component Architecture table.
 - [ ] Completion was reported with the branch, plan path, generated artifacts, and the next-command recommendation (`/akka:tasks`).

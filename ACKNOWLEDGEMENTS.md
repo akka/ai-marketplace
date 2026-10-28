@@ -123,3 +123,30 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## akka-ext
+
+The [`akka`](plugins/akka/) plugin's Mermaid spec and plan diagrams are adapted
+from the `diagrams` skill of akka-ext
+(<https://github.com/aklikic/akka-ext-plugin>), an Akka extension plugin by
+Alan (GitHub `aklikic`).
+
+### Files derived from akka-ext
+
+Commands (`plugins/akka/commands/`):
+
+- `specify.md` — the "Spec visualize" section and the step that writes
+  `spec-visualize.md` are adapted from that skill's requirements mode and
+  `spec-diagrams.template.md`. They cover the diagram set and include rules,
+  the color conventions, external-system styling, and the Mermaid skeletons.
+- `plan.md` — the "Plan visualize" section and the Phase 1 step that writes
+  `plan-visualize.md` are adapted from that skill's technical mode and
+  `plan-diagrams.template.md`. They cover component dependencies, sequence
+  diagrams, per-Workflow state machines, the topic-node and sequence-number
+  rules, and the color conventions.
+- `clarify.md` — the step that redraws `spec-visualize.md` restates the same
+  requirements-mode conventions in condensed form.
+
+Original to this repository: generating the diagrams inside `/akka:specify`,
+`/akka:plan` and `/akka:clarify` rather than as a separate command, and the
+`## Gaps` handling for items with open `[NEEDS CLARIFICATION]` markers.

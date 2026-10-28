@@ -154,10 +154,22 @@ Execution steps:
 
 7. Write the updated spec back to `FEATURE_SPEC`.
 
-8. Report completion (after questioning loop ends or early termination):
+8. **Refresh spec visualize**: If any clarification was written into the spec, bring `FEATURE_DIR/spec-visualize.md` back in line with it. Skip this step if no answers were accepted.
+   - **File exists**: update it in place. Keep its structure, colors, and conventions, except that the label rule below wins: quote any unquoted label in a diagram you redraw. Redraw only the diagrams the answers affect: new or renamed stories, actors, entities, or statuses; changed dependencies or transitions; renamed terms (rename them everywhere). Move every item a clarification resolved out of `## Gaps` and into its diagram, and delete `## Gaps` once it is empty.
+   - **Include rules still apply**: add the Entity Relationship Map if the spec now has Key Entities, and the Status Lifecycle if it now describes one. Remove either section if the spec no longer supports it. Renumber the remaining diagrams consecutively.
+   - **File missing** (spec written by an older plugin version): create it with the diagrams `/akka:specify` produces, but only if the spec has the user stories and actors that diagrams 1 and 2 need; otherwise do not create it and report what is missing. Start the file with `# Spec Visualize: [FEATURE]` and a `**Feature**: [FEATURE] | **Spec**: [link to spec.md]` line, then write numbered `## N. <Diagram>` sections, each holding one `mermaid` code block:
+     - **User Journey Map** (`flowchart TD`): one rounded node per story, P1 at top, dependency arrows labelled with why. Fill P1 `#2196F3`, P2 `#FF9800`, P3+ `#4CAF50`.
+     - **Actor–Goal Overview** (`flowchart LR`): rounded actor nodes in an "Actors" subgraph (human actors `#4CAF50`) linked to rectangle goal nodes in a "System" subgraph (`#2196F3`).
+     - **Entity Relationship Map** (`flowchart TD`, include rules above): one rounded node per entity, unfilled, edges labelled with the relationship and any cardinality the spec states. No fields or types.
+     - **Status Lifecycle** (`flowchart TD`, include rules above): statuses exactly as named, transitions labelled with their trigger. Entry `#2196F3`, intermediate `#FF9800`, review/decision `#9C27B0`, terminal success `#4CAF50`, terminal failure `#F44336`, error `#B71C1C`.
+     - Use white text (`color:#fff`) on filled nodes, and only the colors whose categories occur in the feature. Show external systems in an "External / Out of Scope" subgraph styled `stroke-dasharray:5 5,stroke:#999,fill:#f5f5f5,color:#333`, connected with `-.->`. List items whose markers are still open under a final `## Gaps` section.
+   - Diagrams stay non-technical and use the spec's own terms. Wrap every node label in double quotes (`S1(["P1: Checkout (guest)"])`) so parentheses, brackets or `#` in spec terms do not break the Mermaid parser. Never draw an item (story, actor, goal, entity, relationship, status or transition) whose [NEEDS CLARIFICATION] marker is still open; it stays under `## Gaps`.
+
+9. Report completion (after questioning loop ends or early termination):
    - Number of questions asked & answered.
    - Path to updated spec.
    - Sections touched (list names).
+   - Path to `spec-visualize.md` and the diagrams redrawn, added, or removed (or "unchanged").
    - Coverage summary table listing each taxonomy category with Status: Resolved (was Partial/Missing and addressed), Deferred (exceeds question quota or better suited for planning), Clear (already sufficient), Outstanding (still Partial/Missing but low impact).
    - If any Outstanding or Deferred remain, recommend whether to proceed to `/akka:plan` or run `/akka:clarify` again later post-plan.
    - Suggested next command. If policy-decision markers remain, recommend `/akka:clarify` again, not `/akka:plan`.
@@ -183,5 +195,6 @@ Context for prioritization: {{args}}
 - [ ] Each accepted answer produced exactly one bullet under `## Clarifications` → `### Session YYYY-MM-DD` and was integrated into the correct target section (Functional Requirements, User Stories, Data Model, Non-Functional / Quality Attributes, Edge Cases, or terminology).
 - [ ] Any earlier statement invalidated by a clarification was replaced, not duplicated.
 - [ ] The spec file was saved to FEATURE_SPEC after each integration and passes validation (no lingering vague placeholders the new answer was meant to resolve; markdown structure valid; only allowed new headings added).
-- [ ] The final report listed questions asked/answered, sections touched, a coverage summary (Resolved / Deferred / Clear / Outstanding), and the suggested next command.
+- [ ] If any clarification was integrated, `FEATURE_DIR/spec-visualize.md` was updated (or created if missing) to match the spec — or, if it was missing and the spec lacked the stories and actors for diagrams 1 and 2, it was not created and what was missing was reported. In a written file, resolved items were moved out of Gaps into their diagrams, the optional diagrams follow the include rules, and no item with an open marker is drawn.
+- [ ] The final report listed questions asked/answered, sections touched, the spec-visualize.md changes, a coverage summary (Resolved / Deferred / Clear / Outstanding), and the suggested next command.
 """
