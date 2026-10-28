@@ -7,6 +7,20 @@ description: "Set up a complete Akka SDK development environment from scratch. I
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Before anything else
+
+Run `akka specify mode --allows setup`, but only if the `akka` CLI is on PATH.
+This command is what installs it, so its absence is the ordinary case rather than
+a refusal. Where the CLI is present and exits non-zero, print its message
+verbatim and stop. Do not continue, and do not work around it.
+
+Re-running setup would change the ground the conditions were verified against, so
+under enforcement it is refused to the engine as well. `--as-engine` does not
+lift this one.
+
+Enforced mode gives the sequence to the engine, so the steps it sequences are
+refused when a person invokes them. The message names the remedy.
+
 ## Purpose
 
 `/akka:setup` detects the user's environment, installs all missing dependencies,
