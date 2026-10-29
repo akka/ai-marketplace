@@ -40,14 +40,21 @@ It is not the `docs/index.html` SVG skin that `/akka:docs` produces.
    - Both exist → run both modes and write two files.
    - Neither exists → report what is missing, recommend `/akka:specify`, and stop.
 
-3. **Load the templates.** For each selected mode, read
-   `plugins/akka/templates/spec-diagrams-template.md` (Requirements) or
-   `plugins/akka/templates/plan-diagrams-template.md` (Technical) from
-   the akka plugin. If a template is not there, read the same file name from
-   `.akka/templates/` in the project. Do not call `akka_sdd_get_template` for
-   these; the CLI does not know them. If neither location has the template,
-   report it and stop that mode. The template is the structure of the output
-   file: its color table, external-system rules, topic-node rules, sequence
+3. **Load the templates.** For each selected mode, load
+   `spec-diagrams-template.md` (Requirements) or `plan-diagrams-template.md`
+   (Technical) from the first of these locations that has it:
+   1. The akka plugin: `plugins/akka/templates/<name>`.
+   2. The project: `.akka/templates/`. The Akka CLI installs templates there
+      without the `-template` suffix (`spec-diagrams.md`, `plan-diagrams.md`);
+      accept either name.
+   3. The released marketplace, which is what the Akka CLI installs from:
+      `https://raw.githubusercontent.com/akka/ai-marketplace/stable/plugins/akka/templates/<name>`.
+      Read it; do not save it into the project.
+
+   Do not call `akka_sdd_get_template` for these; the CLI does not know them.
+   If no location has the template, report the locations tried and stop that
+   mode; never reconstruct a template from memory. The template is the
+   structure of the output file: its color table, external-system rules, topic-node rules, sequence
    numbers, section order, and the guidance comment in each section all apply.
 
 4. **Check freshness.** Compute the SHA-256 of the exact bytes of each source
@@ -179,7 +186,7 @@ It is not the `docs/index.html` SVG skin that `/akka:docs` produces.
 
 - [ ] FEATURE_DIR was resolved via `akka_sdd_list_specs`, using `the user's request` to pick the feature when it named one.
 - [ ] Every mode whose source exists was run; with neither `spec.md` nor `plan.md`, the missing files were reported and `/akka:specify` recommended.
-- [ ] The templates were read from the akka plugin's `templates/`, or from `.akka/templates/` when absent there; `akka_sdd_get_template` was not called for them.
+- [ ] The templates were loaded from the akka plugin, then `.akka/templates/`, then the `stable` marketplace, in that order; `akka_sdd_get_template` was not called for them.
 - [ ] Each existing diagram file's stamp was compared with the current source hashes; a matching mode was skipped as up to date unless `--force` was given, and a changed source was named.
 - [ ] Requirements mode produced the User Journey Map and Actor–Goal Overview, plus the Entity Relationship Map and Status Lifecycle only where the spec defines them, all in the spec's own non-technical wording.
 - [ ] Technical mode produced Component Dependencies grouped by layer, a Sequence Diagram with a happy path, at least one error path and a HITL path where applicable, and one state machine per Workflow class where Workflows are used.
