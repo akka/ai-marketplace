@@ -44,7 +44,6 @@ specs/[###-feature]/
 ├── data-model.md        # Phase 1 output (/akka:plan command)
 ├── quickstart.md        # Phase 1 output (/akka:plan command)
 ├── contracts/           # Phase 1 output (/akka:plan command)
-├── plan-visualize.md    # Phase 1 output (/akka:plan command)
 └── tasks.md             # Phase 2 output (/akka:tasks command - NOT created by /akka:plan)
 ```
 

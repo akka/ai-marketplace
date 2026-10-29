@@ -25,15 +25,15 @@ Before using an Akka SDD workflow, verify the MCP server is available by listing
 
 ## Claude Command Mapping
 
-- `/akka.specify`: create or update a feature specification. Use Akka MCP spec tools first, then create or update `specs/<number>-<short-name>/spec.md` and its Mermaid diagrams in `spec-visualize.md`.
-- `/akka.plan`: create the technical plan from the selected spec. Use Akka MCP template/spec tools, then produce `plan.md`, `research.md`, `data-model.md`, contracts, quickstart artifacts as needed, and the Mermaid diagrams in `plan-visualize.md`.
+- `/akka.specify`: create or update a feature specification. Use Akka MCP spec tools first, then create or update `specs/<number>-<short-name>/spec.md`.
+- `/akka.plan`: create the technical plan from the selected spec. Use Akka MCP template/spec tools, then produce `plan.md`, `research.md`, `data-model.md`, contracts, and quickstart artifacts as needed.
 - `/akka.tasks`: derive actionable tasks from the plan and write `tasks.md`.
 - `/akka.implement`: execute `tasks.md` on the feature branch, preserving user changes and verifying with Maven tests.
 - `/akka.review`: review implementation against the spec, plan, tasks, and Akka SDK rules.
 - `/akka.build`: build, test, and run the Akka service locally.
 - `/akka.deploy`: use Akka CLI deployment commands only after confirming target project, region, service name, and credentials.
 - `/akka.analyze`: inspect an existing Akka project and report architecture, components, gaps, and risks.
-- `/akka.clarify`: identify unresolved requirements and update the spec only after user answers, then refresh `spec-visualize.md` to match.
+- `/akka.clarify`: identify unresolved requirements and update the spec only after user answers.
 - `/akka.checklist`: create or update quality checklists for the active spec.
 - `/akka.issues`: summarize open spec, plan, task, build, and review issues.
 

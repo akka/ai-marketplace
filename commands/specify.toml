@@ -133,7 +133,7 @@ Given that feature description, do this:
 
    c. **Handle Validation Results**:
 
-      - **If all items pass**: Mark checklist complete and proceed to step 7
+      - **If all items pass**: Mark checklist complete and proceed to step 6
 
       - **If items fail (excluding [NEEDS CLARIFICATION])**:
         1. List the failing items and specific issues
@@ -178,9 +178,7 @@ Given that feature description, do this:
 
    d. **Update Checklist**: After each validation iteration, update the checklist file with current pass/fail status
 
-7. **Generate spec visualize**: Once validation is done, write `FEATURE_DIR/spec-visualize.md` following the **Spec visualize** section below. Build it from the final spec, after the user's clarification answers have been applied. If `spec-visualize.md` already exists, regenerate it so it matches the updated spec. Draw only what the spec states: where any item (story, actor, goal, entity, relationship, status or transition) still carries a [NEEDS CLARIFICATION] marker, leave it out and list it under the file's `## Gaps` heading. Do not guess it into a diagram.
-
-8. Report completion with branch name, spec file path, checklist results, the generated `spec-visualize.md` path with the list of diagrams it contains, and readiness for the next phase (`/akka:clarify` or `/akka:plan`).
+7. Report completion with branch name, spec file path, checklist results, and readiness for the next phase (`/akka:clarify` or `/akka:plan`).
 
 **NOTE:** The script creates and checks out the new branch and initializes the spec file before writing.
 
@@ -263,113 +261,6 @@ For probabilistic model behavior, define acceptance over an agreed, representati
 - "React components render efficiently" (framework-specific)
 - "Redis cache hit rate above 80%" (technology-specific)
 
-## Spec visualize
-
-`spec-visualize.md` gives stakeholders a picture of the requirements. Diagrams stay **non-technical**, like the spec: no class names, component types, API paths, or storage details. Use the spec's own words (story titles, actor names, entity names, status names). Do not rename or translate them.
-
-| # | Diagram | Include when |
-|---|---------|--------------|
-| 1 | User Journey Map | always |
-| 2 | Actor–Goal Overview | always |
-| 3 | Entity Relationship Map | the spec has a Key Entities section; otherwise omit the section entirely |
-| 4 | Status Lifecycle | the spec describes a status lifecycle or state progression; otherwise omit the section entirely |
-
-Number the diagrams that are included consecutively. If the spec does not yet have the user stories and actors that diagrams 1 and 2 need, do not write the file. If an earlier `spec-visualize.md` exists, leave its content untouched (it may hold reviewer notes) and insert this line directly under its `#` title: `> **STALE**: no longer matches spec.md. Rerun /akka:specify once the spec has <what is missing>.` Report what is missing instead.
-
-**Colors.** Use only the colors whose categories occur in this feature. Never invent a category to justify a color.
-
-| Category | Color | Hex |
-|----------|-------|-----|
-| P1 stories / primary | blue | `#2196F3` |
-| P2 stories / intermediate states | amber | `#FF9800` |
-| P3+ stories, human actors, terminal success | green | `#4CAF50` |
-| Review / decision point | purple | `#9C27B0` |
-| Terminal failure | red | `#F44336` |
-| Error | crimson | `#B71C1C` |
-
-**External / out-of-scope systems.** Put them in a subgraph labelled "External / Out of Scope", style every external node `stroke-dasharray:5 5,stroke:#999,fill:#f5f5f5,color:#333`, and use dotted arrows (`-.->`) for every connection to or from them.
-
-**Labels.** Wrap every node label in double quotes, for example `S1(["P1: Checkout (guest)"])`. Spec titles often contain parentheses, brackets, quotes or `#`, and unquoted they break the Mermaid parser. Inside a quoted label, write a literal double quote as `#quot;`.
-
-Write the file in this structure, replacing every example node with real content from the spec:
-
-````markdown
-# Spec Visualize: [FEATURE]
-
-**Feature**: [FEATURE] | **Spec**: [link to spec.md]
-
-## 1. User Journey Map
-
-<!-- One rounded node per user story, P1 at top. Arrows show story dependencies, with a short label saying why. Color by priority. -->
-
-```mermaid
-flowchart TD
-    S1(["P1: Story Title"])
-    S2(["P2: Story Title"])
-    S3(["P3: Story Title"])
-    S1 -->|"enables"| S2
-    S1 -->|"enables"| S3
-    style S1 fill:#2196F3,color:#fff
-    style S2 fill:#FF9800,color:#fff
-    style S3 fill:#4CAF50,color:#fff
-```
-
-## 2. Actor–Goal Overview
-
-<!-- Actors (rounded) connect to the goals (rectangles) they pursue, derived from the user stories. Use-case level only. -->
-
-```mermaid
-flowchart LR
-    subgraph actors["Actors"]
-        A1(["Actor 1"])
-    end
-    subgraph system["System"]
-        G1["Goal 1"]
-        G2["Goal 2"]
-    end
-    subgraph ext["External / Out of Scope"]
-        E1(["External System"])
-    end
-    A1 -->|"action"| G1
-    A1 -->|"action"| G2
-    G2 -.->|"notifies"| E1
-    style A1 fill:#4CAF50,color:#fff
-    style G1 fill:#2196F3,color:#fff
-    style G2 fill:#2196F3,color:#fff
-    style E1 stroke-dasharray:5 5,stroke:#999,fill:#f5f5f5,color:#333
-```
-
-## 3. Entity Relationship Map
-
-<!-- Only if Key Entities exist. One stadium node per entity; simple relationship labels (has, belongs to, produces, triggers) and cardinality where the spec states it. No columns or types. -->
-
-```mermaid
-flowchart TD
-    E1(["Entity 1"])
-    E2(["Entity 2"])
-    E1 -->|"has many"| E2
-```
-
-## 4. Status Lifecycle
-
-<!-- Only if the spec describes one. Statuses exactly as named; label transitions with their trigger. Start/end nodes ([text]), intermediate [text]. -->
-
-```mermaid
-flowchart TD
-    START(["Initial"]) --> A["State A"]
-    A -->|"condition met"| DONE(["Success"])
-    A -->|"condition failed"| FAILED(["Failed"])
-    style START fill:#2196F3,color:#fff
-    style A fill:#FF9800,color:#fff
-    style DONE fill:#4CAF50,color:#fff
-    style FAILED fill:#F44336,color:#fff
-```
-
-## Gaps
-
-<!-- Only if something was left out because it is unresolved in the spec: list each item with its [NEEDS CLARIFICATION] question. Otherwise omit this section. -->
-````
-
 ## Exit conditions and the feedback loop
 
 Akka Specify turns requirements into machine-checked **exit conditions**, each backed by a **check** that delegates to the ecosystem's own tooling. In Enforced mode the engine will not let the build advance until every check passes and has been reviewed. In À la carte mode every check is advisory — the user always sees the full picture and the run never blocks on a failing condition.
@@ -425,6 +316,5 @@ Generation runs in the assistant; the engine detects the surfaces, verifies dete
 - [ ] Success Criteria are measurable, technology-agnostic, user-focused, and verifiable.
 - [ ] No more than 3 `[NEEDS CLARIFICATION]` markers for routine details remain (surplus resolved by informed guesses documented in Assumptions); no policy decision was guessed, and open ones remain as markers.
 - [ ] `FEATURE_DIR/checklists/requirements.md` was created and every non-`[NEEDS CLARIFICATION]` item passes (or the user was warned after 3 failed iterations).
-- [ ] `FEATURE_DIR/spec-visualize.md` was written (or regenerated) — or, if the spec lacked the stories and actors for diagrams 1 and 2, no file was written, any earlier one was marked with the STALE line, and what was missing was reported. A written file was built from the final spec with diagrams 1 and 2, diagrams 3 and 4 only where the spec has Key Entities or a status lifecycle, quoted node labels, no implementation details, and unresolved items listed under Gaps rather than drawn.
-- [ ] Completion was reported to the user with branch name, spec file path, checklist results, the `spec-visualize.md` path and its diagrams, and the next-command recommendation (`/akka:clarify` or `/akka:plan`).
+- [ ] Completion was reported to the user with branch name, spec file path, checklist results, and the next-command recommendation (`/akka:clarify` or `/akka:plan`).
 """
