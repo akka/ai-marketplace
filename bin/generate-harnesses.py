@@ -66,6 +66,13 @@ def reset_dir(path):
         shutil.rmtree(path)
 
 
+def plugin_paths(body):
+    """Claude Code substitutes ${CLAUDE_PLUGIN_ROOT} (plugins/akka/) in command
+    bodies. The other harnesses install the repo root as the plugin, so the same
+    files sit under plugins/akka/ there."""
+    return body.replace("${CLAUDE_PLUGIN_ROOT}", "plugins/akka")
+
+
 def gen_gemini(cmds):
     """Gemini CLI extension: gemini-extension.json + commands/*.toml."""
     manifest = {
@@ -79,7 +86,7 @@ def gen_gemini(cmds):
     reset_dir(os.path.join(ROOT, "commands"))
     for name, desc, body in cmds:
         # $ARGUMENTS (Claude) -> {{args}} (Gemini)
-        prompt = body.replace("$ARGUMENTS", "{{args}}")
+        prompt = plugin_paths(body).replace("$ARGUMENTS", "{{args}}")
         # TOML triple-quoted basic string: escape backslashes first (so regexes
         # like \bT\d{3}\b and sed's \(...\1 survive), then guard against a """
         # terminating the string early.
@@ -124,7 +131,7 @@ def gen_codex(cmds):
         skill += f"name: {name}\n"
         if desc:
             skill += f"description: {json.dumps(desc, ensure_ascii=False)}\n"
-        skill += "---\n\n" + codex_body(body) + "\n"
+        skill += "---\n\n" + codex_body(plugin_paths(body)) + "\n"
         write(os.path.join(ROOT, "skills", name, "SKILL.md"), skill)
     write(os.path.join(ROOT, ".agents", "plugins", "marketplace.json"), json.dumps({
         "name": "ai-marketplace",
