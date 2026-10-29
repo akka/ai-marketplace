@@ -85,9 +85,9 @@ publish a license file.
 - `plugins/akka/commands/visualize.md` (derived from `skills/diagrams/SKILL.md`;
   extended with source-hash staleness detection, a Mermaid self-check, and the
   rule against drawing calls inferred from class names)
-- `plugins/akka/templates/spec-diagrams-template.md` (derived from
+- `plugins/akka/templates/spec-visualize-template.md` (derived from
   `skills/diagrams/spec-diagrams.template.md`; adds the source-hash stamp)
-- `plugins/akka/templates/plan-diagrams-template.md` (derived from
+- `plugins/akka/templates/plan-visualize-template.md` (derived from
   `skills/diagrams/plan-diagrams.template.md`; adds the source-hash stamp)
 
 ### Diagram Design MIT License

@@ -11,15 +11,15 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 `/akka:visualize` draws Mermaid diagrams for one feature from the artifacts the
 workflow has already written. `spec.md` yields non-technical requirement
-diagrams in `spec-diagrams.md`; `plan.md` yields technical component diagrams
-in `plan-diagrams.md`. The two files are independent: each is written whenever
+diagrams in `spec-visualize.md`; `plan.md` yields technical component diagrams
+in `plan-visualize.md`. The two files are independent: each is written whenever
 its source exists.
 
-Every diagram file records, directly under its H1, the SHA-256 of the source
+Every visualize file records, directly under its H1, the SHA-256 of the source
 files it was drawn from. A re-run regenerates only the files whose sources have
 changed, so a hand edit to `spec.md` or `plan.md` is detected. `/akka:specify`,
 `/akka:clarify` and `/akka:plan` follow the Requirements or Technical mode below
-to refresh a diagram file that already exists after they write; they never
+to refresh a visualize file that already exists after they write; they never
 create one.
 
 The output is Markdown Mermaid that any Mermaid-aware Markdown viewer renders.
@@ -35,24 +35,24 @@ It is not the `docs/index.html` SVG skin that `/akka:docs` produces.
    `FEATURE_DIR/spec.md` and `FEATURE_DIR/plan.md` exist.
 
 2. **Select modes.** The modes are independent; run every one that applies:
-   - `spec.md` exists → **Requirements mode** writes `FEATURE_DIR/spec-diagrams.md`.
-   - `plan.md` exists → **Technical mode** writes `FEATURE_DIR/plan-diagrams.md`.
+   - `spec.md` exists → **Requirements mode** writes `FEATURE_DIR/spec-visualize.md`.
+   - `plan.md` exists → **Technical mode** writes `FEATURE_DIR/plan-visualize.md`.
    - Both exist → run both modes and write two files.
    - Neither exists → report what is missing, recommend `/akka:specify`, and stop.
 
 3. **Load the templates.** For each selected mode, load
-   `spec-diagrams-template.md` (Requirements) or `plan-diagrams-template.md`
+   `spec-visualize-template.md` (Requirements) or `plan-visualize-template.md`
    (Technical) from the first of these locations that has it:
    1. The akka plugin: `plugins/akka/templates/<name>`.
    2. The project: `.akka/templates/`. The Akka CLI installs templates there
-      without the `-template` suffix (`spec-diagrams.md`, `plan-diagrams.md`);
+      without the `-template` suffix (`spec-visualize.md`, `plan-visualize.md`);
       accept either name.
    3. The released marketplace, which is what the Akka CLI installs from:
       `https://raw.githubusercontent.com/akka/ai-marketplace/stable/plugins/akka/templates/<name>`.
       Read it; do not save it into the project.
 
    Do not call `akka_sdd_get_template` for these; Akka CLI releases before the
-   diagram templates do not know them, and step 2 reads the same files.
+   visualize templates do not know them, and step 2 reads the same files.
    If no location has the template, report the locations tried and stop that
    mode; never reconstruct a template from memory. The template is the
    structure of the output file: its color table, external-system rules,
@@ -136,8 +136,8 @@ It is not the `docs/index.html` SVG skin that `/akka:docs` produces.
    If the Mermaid CLI (`mmdc`) is on the PATH, render each block as a final
    check; a parse error means the block is not done.
 
-8. **Write the files.** Write `FEATURE_DIR/spec-diagrams.md` and/or
-   `FEATURE_DIR/plan-diagrams.md` from the template structure: fill
+8. **Write the files.** Write `FEATURE_DIR/spec-visualize.md` and/or
+   `FEATURE_DIR/plan-visualize.md` from the template structure: fill
    `[FEATURE]` and the source link, fill the stamp line with the hashes from
    step 4, replace each example diagram with the real one, and delete every
    section that was omitted, heading included.
@@ -158,13 +158,13 @@ It is not the `docs/index.html` SVG skin that `/akka:docs` produces.
   that exists may have no caller, and a diagram showing a call that does not
   happen is worse than no diagram, because it is believed.
 - Run the step 7 self-check on every block before writing.
-- This command writes only `spec-diagrams.md` and `plan-diagrams.md`. It runs
+- This command writes only `spec-visualize.md` and `plan-visualize.md`. It runs
   no auditors, calls no `akka_ec_*` tools, and never changes `spec.md`,
   `plan.md` or any other artifact.
 - These are Markdown Mermaid diagrams, not the `docs/index.html` SVG skin. Use
-  the palette in the diagram templates; `akka-style-guide.md` and
+  the palette in the visualize templates; `akka-style-guide.md` and
   `diagram_check.py` do not apply to them.
-- When a mode stops, leave any existing diagram file for it untouched. Its old
+- When a mode stops, leave any existing visualize file for it untouched. Its old
   stamp marks it as stale. When another command runs a mode as a refresh, a
   stopped mode is reported and the other command's own result stands.
 
@@ -189,11 +189,11 @@ It is not the `docs/index.html` SVG skin that `/akka:docs` produces.
 - [ ] FEATURE_DIR was resolved via `akka_sdd_list_specs`, using `the user's request` to pick the feature when it named one.
 - [ ] Every mode whose source exists was run; with neither `spec.md` nor `plan.md`, the missing files were reported and `/akka:specify` recommended.
 - [ ] The templates were loaded from the akka plugin, then `.akka/templates/`, then the `stable` marketplace, in that order; `akka_sdd_get_template` was not called for them.
-- [ ] Each existing diagram file's stamp was compared with the current source hashes; a matching mode was skipped as up to date unless `--force` was given, and a changed source was named.
+- [ ] Each existing visualize file's stamp was compared with the current source hashes; a matching mode was skipped as up to date unless `--force` was given, and a changed source was named.
 - [ ] Requirements mode produced the User Journey Map and Actor–Goal Overview, plus the Entity Relationship Map and Status Lifecycle only where the spec defines them, all in the spec's own non-technical wording.
 - [ ] Technical mode produced Component Dependencies grouped by layer, a Sequence Diagram with a happy path, at least one error path and a HITL path where applicable, and one state machine per Workflow class where Workflows are used.
 - [ ] Topics are cylinder nodes, no sequence diagram uses `-.>>`, and no node or call was inferred from a class name.
 - [ ] Every block passed the self-check: `linkStyle` indices exist, special-character labels are quoted, `style` targets are declared.
 - [ ] Each written file carries a `visualize-source` stamp with the SHA-256 of every source it was drawn from.
-- [ ] Only `spec-diagrams.md` and `plan-diagrams.md` were written; no spec, plan or exit condition was changed.
+- [ ] Only `spec-visualize.md` and `plan-visualize.md` were written; no spec, plan or exit condition was changed.
 - [ ] The report listed the paths written and each diagram generated or omitted, with the reason for every omission.

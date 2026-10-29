@@ -1,4 +1,4 @@
-# Spec Diagrams: [FEATURE]
+# Spec Visualize: [FEATURE]
 <!-- visualize-source: spec.md sha256=[SPEC_SHA256] -->
 
 **Feature**: [FEATURE] | **Spec**: [link to spec.md]

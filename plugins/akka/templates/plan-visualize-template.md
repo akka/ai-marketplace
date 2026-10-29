@@ -1,4 +1,4 @@
-# Diagrams: [FEATURE]
+# Plan Visualize: [FEATURE]
 <!-- visualize-source: plan.md sha256=[PLAN_SHA256] spec.md sha256=[SPEC_SHA256] -->
 
 **Feature**: [FEATURE] | **Plan**: [link to plan.md]
