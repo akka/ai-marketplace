@@ -67,7 +67,8 @@ It is not the `docs/index.html` SVG skin that `/akka:docs` produces.
       `https://raw.githubusercontent.com/akka/ai-marketplace/stable/plugins/akka/templates/<name>`.
       Read it; do not save it into the project.
 
-   Do not call `akka_sdd_get_template` for these; the CLI does not know them.
+   Do not call `akka_sdd_get_template` for these; Akka CLI releases before the
+   diagram templates do not know them, and step 2 reads the same files.
    If no location has the template, report the locations tried and stop that
    mode; never reconstruct a template from memory. The template is the
    structure of the output file: its color table, external-system rules,
