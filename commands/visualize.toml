@@ -56,8 +56,9 @@ It is not the `docs/index.html` SVG skin that `/akka:docs` produces.
    Do not call `akka_sdd_get_template` for these; the CLI does not know them.
    If no location has the template, report the locations tried and stop that
    mode; never reconstruct a template from memory. The template is the
-   structure of the output file: its color table, external-system rules, topic-node rules, sequence
-   numbers, section order, and the guidance comment in each section all apply.
+   structure of the output file: its color table, external-system rules,
+   topic-node rules, sequence numbers, section order, and the guidance comment
+   in each section all apply.
 
 4. **Check freshness.** Compute the SHA-256 of the exact bytes of each source
    with `sha256sum <file>` (or `shasum -a 256 <file>` on macOS):
