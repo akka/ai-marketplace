@@ -24,7 +24,9 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Phase 1: Map domain concepts to Akka components (Component Architecture table), then generate data-model.md, contracts/, quickstart.md
    - Re-evaluate Constitution Check post-design
 
-4. **Stop and report**: Command ends after Phase 2 planning. Report branch, IMPL_PLAN path, and generated artifacts.
+4. **Refresh diagrams.** If `FEATURE_DIR/plan-diagrams.md` exists, regenerate it by following Technical mode in `plugins/akka/commands/visualize.md` (the `/akka:visualize` command). If it does not exist, do nothing. If the refresh fails, for example because the plan lacks the component detail a diagram needs, report it and leave the plan as written.
+
+5. **Stop and report**: Command ends after Phase 2 planning. Report branch, IMPL_PLAN path, generated artifacts, and any diagram refresh.
 
 ## Phases
 
@@ -91,5 +93,6 @@ You **MUST** consider the user input before proceeding (if not empty).
 - [ ] The Component Architecture table in `plan.md` maps every domain concept, process, and query to a component (or a plain domain class), with close-call rows naming the rejected alternative and why it was not chosen — informed by the "Choosing a component type" section of `akka-context/sdk/components/index.html.md`.
 - [ ] Phase 1 produced `data-model.md`, `quickstart.md`, and — if the project exposes external interfaces — `contracts/`.
 - [ ] `FEATURE_DIR/plan.md` was written using the template structure and no gate error was left unresolved.
+- [ ] An existing `plan-diagrams.md` was regenerated via Technical mode of `/akka:visualize`; no diagram file was created where none existed.
 - [ ] Completion was reported with the branch, plan path, generated artifacts, and the next-command recommendation (`/akka:tasks`).
 """

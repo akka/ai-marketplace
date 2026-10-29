@@ -65,6 +65,9 @@ so the two do not collide.
 Claude-specific `handoffs` frontmatter is dropped for the other harnesses.
 `$ARGUMENTS` becomes `{{args}}` for Gemini; Codex has no argument substitution,
 so the `$ARGUMENTS` placeholder block is dropped from the generated skills.
+`${CLAUDE_PLUGIN_ROOT}`, which Claude Code expands to the installed
+`plugins/akka/` directory, becomes `plugins/akka` for the other harnesses,
+which install the repo root as the plugin.
 
 ## Regenerating
 

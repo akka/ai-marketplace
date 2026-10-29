@@ -17,6 +17,7 @@ This single command handles everything: dependency installation, project scaffol
 /akka:specify   → Design your feature (spec)
 /akka:clarify   → Resolve open questions
 /akka:plan      → Create implementation plan
+/akka:visualize → Mermaid diagrams from spec and plan
 /akka:tasks     → Break plan into tasks
 /akka:implement → Execute tasks
 /akka:converge  → Re-check code against spec/plan/tasks; append remaining work

@@ -8,6 +8,10 @@ handoffs:
     agent: akka.clarify
     prompt: Clarify specification requirements
     send: true
+  - label: Generate Diagrams
+    agent: akka.visualize
+    prompt: Generate diagrams for the feature
+    send: true
 ---
 
 ## User Input
@@ -187,7 +191,9 @@ Given that feature description, do this:
 
    d. **Update Checklist**: After each validation iteration, update the checklist file with current pass/fail status
 
-7. Report completion with branch name, spec file path, checklist results, and readiness for the next phase (`/akka:clarify` or `/akka:plan`).
+7. **Refresh diagrams.** If `FEATURE_DIR/spec-diagrams.md` exists, regenerate it by following Requirements mode in `${CLAUDE_PLUGIN_ROOT}/commands/visualize.md` (the `/akka:visualize` command). If `FEATURE_DIR/plan-diagrams.md` exists, do not regenerate it. Tell the user it was built from an earlier spec and that `/akka:plan` will refresh it. If neither file exists, do nothing. If the refresh fails, for example because the spec lacks the detail a diagram needs, report it and leave the spec as written.
+
+8. Report completion with branch name, spec file path, checklist results, any diagram refresh, and readiness for the next phase (`/akka:clarify` or `/akka:plan`).
 
 **NOTE:** The script creates and checks out the new branch and initializes the spec file before writing.
 
@@ -325,4 +331,5 @@ Generation runs in the assistant; the engine detects the surfaces, verifies dete
 - [ ] Success Criteria are measurable, technology-agnostic, user-focused, and verifiable.
 - [ ] No more than 3 `[NEEDS CLARIFICATION]` markers for routine details remain (surplus resolved by informed guesses documented in Assumptions); no policy decision was guessed, and open ones remain as markers.
 - [ ] `FEATURE_DIR/checklists/requirements.md` was created and every non-`[NEEDS CLARIFICATION]` item passes (or the user was warned after 3 failed iterations).
+- [ ] An existing `spec-diagrams.md` was regenerated via Requirements mode of `/akka:visualize`; an existing `plan-diagrams.md` was left alone and the user was told `/akka:plan` will refresh it; no diagram file was created where none existed.
 - [ ] Completion was reported to the user with branch name, spec file path, checklist results, and the next-command recommendation (`/akka:clarify` or `/akka:plan`).
