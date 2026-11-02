@@ -142,9 +142,11 @@ It is not the `docs/index.html` SVG skin that `/akka:docs` produces.
    - Every `linkStyle` index exists in that diagram's edge list. Indices are
      0-based in declaration order, and a chained `A --> B --> C` declares two
      edges.
-   - Every label containing special characters (`( ) [ ] { } < > : ; , / | # &`
-     or a quote) is wrapped in double quotes; a literal double quote inside a
-     label is written `#quot;`.
+   - In flowcharts, every node or edge label containing
+     special characters (`( ) [ ] { } < > : ; , / | # &` or a quote) is wrapped
+     in double quotes; a literal double quote inside a label is written
+     `#quot;`. Sequence diagram message text is not quoted: write
+     `AG -->> WF: AgentResult(passed=true)` as is, and avoid `;` and `#` in it.
    - Every `style` target is a node or subgraph id declared in that diagram.
    - Sequence diagrams use no `-.>>`, and every `rect`, `alt`, `opt` and `loop`
      block is closed with `end`.

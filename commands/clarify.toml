@@ -154,7 +154,7 @@ Execution steps:
 
 7. Write the updated spec back to `FEATURE_SPEC`.
 
-8. **Refresh visualize files.** Run this once, after the final write in step 7, not after each per-answer save in step 5. If `FEATURE_DIR/spec-visualize.md` exists, regenerate it by following Requirements mode in `plugins/akka/commands/visualize.md` (the `/akka:visualize` command). If `FEATURE_DIR/plan-visualize.md` exists, do not regenerate it. Tell the user it was built from an earlier spec and that `/akka:plan` will refresh it. If neither file exists, do nothing. If the refresh fails, for example because the spec lacks the detail a diagram needs, report it and leave the spec as written.
+8. **Refresh visualize files.** Run this once, after the final write in step 7, not after each per-answer save in step 5. If `FEATURE_DIR/spec-visualize.md` exists, regenerate it by running the `/akka:visualize` command for Requirements mode only (its steps 3 to 9, so the template, source hash stamp and Mermaid self-check apply). If `FEATURE_DIR/plan-visualize.md` exists, do not regenerate it. Tell the user it was built from an earlier spec and that `/akka:plan` will refresh it. If neither file exists, do nothing. If the refresh fails, for example because the spec lacks the detail a diagram needs, report it and leave the spec as written.
 
 9. Report completion (after questioning loop ends or early termination):
    - Number of questions asked & answered.

@@ -191,7 +191,7 @@ Given that feature description, do this:
 
    d. **Update Checklist**: After each validation iteration, update the checklist file with current pass/fail status
 
-7. **Refresh visualize files.** If `FEATURE_DIR/spec-visualize.md` exists, regenerate it by following Requirements mode in `${CLAUDE_PLUGIN_ROOT}/commands/visualize.md` (the `/akka:visualize` command). If `FEATURE_DIR/plan-visualize.md` exists, do not regenerate it. Tell the user it was built from an earlier spec and that `/akka:plan` will refresh it. If neither file exists, do nothing. If the refresh fails, for example because the spec lacks the detail a diagram needs, report it and leave the spec as written.
+7. **Refresh visualize files.** If `FEATURE_DIR/spec-visualize.md` exists, regenerate it by running the `/akka:visualize` command for Requirements mode only (its steps 3 to 9, so the template, source hash stamp and Mermaid self-check apply). If `FEATURE_DIR/plan-visualize.md` exists, do not regenerate it. Tell the user it was built from an earlier spec and that `/akka:plan` will refresh it. If neither file exists, do nothing. If the refresh fails, for example because the spec lacks the detail a diagram needs, report it and leave the spec as written.
 
 8. Report completion with branch name, spec file path, checklist results, any visualize refresh, and readiness for the next phase (`/akka:clarify` or `/akka:plan`).
 

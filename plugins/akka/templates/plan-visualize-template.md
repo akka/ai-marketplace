@@ -12,10 +12,9 @@ flow categories to justify using a color.
 |-----------|-------|-----|
 | Submission / happy-path | blue | `#2196F3` |
 | Validation / processing | amber | `#FF9800` |
-| Safety / blocking / rejection | red | `#F44336` |
+| Failure / blocking / rejection | red | `#F44336` |
 | Human-review / approval (HITL) | purple | `#9C27B0` |
 | Routing / delivery / success | green | `#4CAF50` |
-| Error / failure | crimson | `#B71C1C` |
 
 ## External / Out-of-Scope Systems
 
@@ -53,7 +52,8 @@ Use `linkStyle N stroke:#RRGGBB,stroke-width:2px` to color edges by flow.
 <!--
   Flowchart showing every component and how they depend on / call each other.
   - One node per class/component (use short names)
-  - Group by package with subgraph blocks
+  - Group by layer with subgraph blocks (Endpoint, Workflow, Agent, View, Entity,
+    Consumer); draw a subgraph only for the layers the plan uses
   - Color edges by flow type (see Color Conventions above)
   - Sequence numbers ①②… on connections show runtime call order
   - External / out-of-scope: dashed border node + dotted arrow (-.->)
@@ -69,13 +69,19 @@ flowchart TD
         DS[(Downstream System)]
     end
 
-    subgraph api["API Layer"]
+    subgraph endpoint["Endpoint"]
         EP[YourEndpoint]
     end
 
-    subgraph application["Application Layer"]
+    subgraph workflow["Workflow"]
         WF[YourWorkflow]
+    end
+
+    subgraph agent["Agent"]
         AG[YourAgent]
+    end
+
+    subgraph view["View"]
         VW[YourView]
     end
 
@@ -99,7 +105,8 @@ flowchart TD
 
 <!--
   End-to-end sequence diagram showing the primary flows.
-  - Use `rect rgb(R,G,B)` blocks to color each flow section.
+  - Use translucent `rect rgba(R,G,B,0.15)` blocks to color each flow section.
+    Opaque `rgb(...)` fills hide the message text.
   - Match colors to Color Conventions above.
   - Include at least: happy path, HITL / review flow (if applicable), and one error path.
   - Label participants with short role names.
@@ -117,7 +124,7 @@ sequenceDiagram
     participant AG as YourAgent
     participant DS as Downstream
 
-    rect rgb(33,150,243)
+    rect rgba(33,150,243,0.15)
         Note over C,WF: Submission Flow
         C  ->> EP: POST /resource {payload}
         EP ->> WF: start(request)
@@ -125,20 +132,20 @@ sequenceDiagram
         EP -->> C: 201 {resourceId, SUBMITTED}
     end
 
-    rect rgb(255,152,0)
+    rect rgba(255,152,0,0.15)
         Note over WF,AG: Processing Flow
         WF ->> AG: invoke(payload)
         AG -->> WF: AgentResult(passed=true, confidence=0.92)
     end
 
-    rect rgb(76,175,80)
+    rect rgba(76,175,80,0.15)
         Note over WF,DS: Delivery Flow
         WF ->> DS: deliver(payload, target)
         DS -->> WF: deliveryConfirmation
         WF -->> WF: status → COMPLETED
     end
 
-    rect rgb(183,28,28)
+    rect rgba(244,67,54,0.15)
         Note over WF,C: Error Path
         WF ->> AG: invoke(badPayload)
         AG -->> WF: GuardrailException
@@ -164,7 +171,7 @@ sequenceDiagram
       Processing states       → amber
       HITL / review states    → purple
       Terminal success        → green
-      Terminal failure        → red/crimson
+      Terminal failure        → red
   - Label transitions with the trigger (step name or command).
   - Use ([text]) for start/end nodes, [text] for intermediate states.
 -->
@@ -198,6 +205,6 @@ flowchart TD
     style AWAITING_REVIEW fill:#9C27B0,color:#fff
     style STATE_D         fill:#FF9800,color:#fff
     style COMPLETED       fill:#4CAF50,color:#fff
-    style REJECTED        fill:#B71C1C,color:#fff
-    style FAILED          fill:#B71C1C,color:#fff
+    style REJECTED        fill:#F44336,color:#fff
+    style FAILED          fill:#F44336,color:#fff
 ```

@@ -16,7 +16,6 @@ categories to justify using a color.
 | Human actor | green | `#4CAF50` |
 | External / out-of-scope system | grey dashed | `#f5f5f5` + `stroke-dasharray:5 5,stroke:#999` |
 | Terminal / failure state | red | `#F44336` |
-| Error / failure state | crimson | `#B71C1C` |
 | Review / decision point | purple | `#9C27B0` |
 
 ## External / Out-of-Scope Systems

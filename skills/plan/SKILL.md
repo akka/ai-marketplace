@@ -22,7 +22,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Phase 1: Map domain concepts to Akka components (Component Architecture table), then generate data-model.md, contracts/, quickstart.md
    - Re-evaluate Constitution Check post-design
 
-4. **Refresh visualize files.** If `FEATURE_DIR/plan-visualize.md` exists, regenerate it by following Technical mode in `plugins/akka/commands/visualize.md` (the `/akka:visualize` command). If it does not exist, do nothing. If the refresh fails, for example because the plan lacks the component detail a diagram needs, report it and leave the plan as written.
+4. **Refresh visualize files.** If `FEATURE_DIR/plan-visualize.md` exists, regenerate it by running the `/akka:visualize` command for Technical mode only (its steps 3 to 9, so the template, source hash stamp and Mermaid self-check apply). If it does not exist, do nothing. If the refresh fails, for example because the plan lacks the component detail a diagram needs, report it and leave the plan as written.
 
 5. **Stop and report**: Command ends after Phase 2 planning. Report branch, IMPL_PLAN path, generated artifacts, and any visualize refresh.
 
