@@ -66,11 +66,41 @@ def reset_dir(path):
         shutil.rmtree(path)
 
 
-def plugin_paths(body):
-    """Claude Code substitutes ${CLAUDE_PLUGIN_ROOT} (plugins/akka/) in command
-    bodies. The other harnesses install the repo root as the plugin, so the same
-    files sit under plugins/akka/ there."""
-    return body.replace("${CLAUDE_PLUGIN_ROOT}", "plugins/akka")
+def bundle_templates(name, body, harness):
+    """Package visualize resources beside each installed command or skill.
+
+    Gemini's extensionPath substitution is limited to manifests and hooks;
+    command prompts need an explicit instruction for locating their base path.
+    """
+    if name != "visualize":
+        return body
+    if harness == "gemini":
+        root = "visualize-templates"
+        destination = os.path.join(ROOT, "commands", root)
+        base = "the directory containing this installed command's TOML file"
+        locate = (
+            "Locate the installed akka extension directory with `gemini extensions list`; "
+            "the command file is in its `commands/` directory. "
+        )
+    else:
+        root = "templates"
+        destination = os.path.join(ROOT, "skills", name, root)
+        base = "the directory containing this installed `SKILL.md` file"
+        locate = ""
+    os.makedirs(destination, exist_ok=True)
+    for template in ("spec-visualize-template.md", "plan-visualize-template.md"):
+        shutil.copyfile(
+            os.path.join(SRC, "..", "templates", template),
+            os.path.join(destination, template),
+        )
+    return (
+        f"Resolve bundled paths beginning with `{root}/` relative to {base}, "
+        "never relative to the project working directory. "
+        + locate
+        + "Convert them to absolute "
+        "paths before reading.\n\n"
+        + body.replace("${CLAUDE_PLUGIN_ROOT}/templates", root)
+    )
 
 
 def gen_gemini(cmds):
@@ -86,7 +116,7 @@ def gen_gemini(cmds):
     reset_dir(os.path.join(ROOT, "commands"))
     for name, desc, body in cmds:
         # $ARGUMENTS (Claude) -> {{args}} (Gemini)
-        prompt = plugin_paths(body).replace("$ARGUMENTS", "{{args}}")
+        prompt = bundle_templates(name, body, "gemini").replace("$ARGUMENTS", "{{args}}")
         # TOML triple-quoted basic string: escape backslashes first (so regexes
         # like \bT\d{3}\b and sed's \(...\1 survive), then guard against a """
         # terminating the string early.
@@ -131,7 +161,7 @@ def gen_codex(cmds):
         skill += f"name: {name}\n"
         if desc:
             skill += f"description: {json.dumps(desc, ensure_ascii=False)}\n"
-        skill += "---\n\n" + codex_body(plugin_paths(body)) + "\n"
+        skill += "---\n\n" + codex_body(bundle_templates(name, body, "skills")) + "\n"
         write(os.path.join(ROOT, "skills", name, "SKILL.md"), skill)
     write(os.path.join(ROOT, ".agents", "plugins", "marketplace.json"), json.dumps({
         "name": "ai-marketplace",

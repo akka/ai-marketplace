@@ -1,6 +1,8 @@
 description = "Generate Mermaid diagrams for a feature from its spec.md (requirement-level views) and plan.md (technical component diagrams)."
 
 prompt = """
+Resolve bundled paths beginning with `visualize-templates/` relative to the directory containing this installed command's TOML file, never relative to the project working directory. Locate the installed akka extension directory with `gemini extensions list`; the command file is in its `commands/` directory. Convert them to absolute paths before reading.
+
 ## User Input
 
 ```text
@@ -45,7 +47,7 @@ It is not the `docs/index.html` SVG skin that `/akka:docs` produces.
 3. **Load the templates.** For each selected mode, load
    `spec-visualize-template.md` (Requirements) or `plan-visualize-template.md`
    (Technical) from the first of these locations that has it:
-   1. The akka plugin: `plugins/akka/templates/<name>`.
+   1. The akka plugin: `visualize-templates/<name>`.
    2. The project: `.akka/templates/`. The Akka CLI installs templates there
       without the `-template` suffix (`spec-visualize.md`, `plan-visualize.md`);
       accept either name.

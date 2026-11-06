@@ -3,6 +3,8 @@ name: visualize
 description: "Generate Mermaid diagrams for a feature from its spec.md (requirement-level views) and plan.md (technical component diagrams)."
 ---
 
+Resolve bundled paths beginning with `templates/` relative to the directory containing this installed `SKILL.md` file, never relative to the project working directory. Convert them to absolute paths before reading.
+
 ## User Input
 
 You **MUST** consider the user input before proceeding (if not empty).
@@ -43,7 +45,7 @@ It is not the `docs/index.html` SVG skin that `/akka:docs` produces.
 3. **Load the templates.** For each selected mode, load
    `spec-visualize-template.md` (Requirements) or `plan-visualize-template.md`
    (Technical) from the first of these locations that has it:
-   1. The akka plugin: `plugins/akka/templates/<name>`.
+   1. The akka plugin: `templates/<name>`.
    2. The project: `.akka/templates/`. The Akka CLI installs templates there
       without the `-template` suffix (`spec-visualize.md`, `plan-visualize.md`);
       accept either name.
