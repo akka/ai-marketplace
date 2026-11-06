@@ -103,6 +103,10 @@ Zero prerequisites beyond having a supported AI coding agent installed.
 | `/akka:docs`         | `/akka.docs`         | Generate rendered project documentation into `docs/`     |
 | `/akka:visualize`    | `/akka.visualize`    | Generate Mermaid diagrams from a feature's spec and plan |
 
+Visualization is optional. Run `/akka:visualize` explicitly to generate or
+refresh diagrams. Spec and plan commands leave diagrams untouched and mention
+existing diagrams that may be stale; visualize checks source hashes on its next run.
+
 > **Migrating from `akka-specify`?** The `akka-specify` plugin is still available but deprecated. Uninstall it and install `akka` instead.
 
 ## Repository layout — one repo, multiple manifests

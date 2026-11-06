@@ -20,9 +20,9 @@ its source exists.
 Every visualize file records, directly under its H1, the SHA-256 of the source
 files it was drawn from. A re-run regenerates only the files whose sources have
 changed, so a hand edit to `spec.md` or `plan.md` is detected. `/akka:specify`,
-`/akka:clarify` and `/akka:plan` follow the Requirements or Technical mode below
-to refresh a visualize file that already exists after they write; they never
-create one.
+`/akka:clarify` and `/akka:plan` leave diagram files untouched and mention
+existing diagrams that may be stale after a source update. Visualization is
+optional: run `/akka:visualize` explicitly to generate or refresh diagrams.
 
 The output is Markdown Mermaid that any Mermaid-aware Markdown viewer renders.
 It is not the `docs/index.html` SVG skin that `/akka:docs` produces.
@@ -169,8 +169,7 @@ It is not the `docs/index.html` SVG skin that `/akka:docs` produces.
   the palette in the visualize templates; `akka-style-guide.md` and
   `diagram_check.py` do not apply to them.
 - When a mode stops, leave any existing visualize file for it untouched. Its old
-  stamp marks it as stale. When another command runs a mode as a refresh, a
-  stopped mode is reported and the other command's own result stands.
+  stamp marks it as stale. Report why the mode stopped.
 
 ### Requirements Mode
 

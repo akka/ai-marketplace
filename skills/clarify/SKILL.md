@@ -152,13 +152,13 @@ Execution steps:
 
 7. Write the updated spec back to `FEATURE_SPEC`.
 
-8. **Refresh visualize files.** Run this once, after the final write in step 7, not after each per-answer save in step 5. If `FEATURE_DIR/spec-visualize.md` exists, regenerate it by running the `/akka:visualize` command for Requirements mode only (its steps 3 to 9, so the template, source hash stamp and Mermaid self-check apply). If `FEATURE_DIR/plan-visualize.md` exists, do not regenerate it. Tell the user it was built from an earlier spec and that `/akka:plan` will refresh it. If neither file exists, do nothing. If the refresh fails, for example because the spec lacks the detail a diagram needs, report it and leave the spec as written.
+8. **Report existing diagrams.** If `FEATURE_DIR/spec-visualize.md` or `FEATURE_DIR/plan-visualize.md` exists, mention in the completion report that it may be stale and suggest running `/akka:visualize` for this feature when the user wants updated diagrams. Leave all diagram files untouched; visualization is optional.
 
 9. Report completion (after questioning loop ends or early termination):
    - Number of questions asked & answered.
    - Path to updated spec.
    - Sections touched (list names).
-   - Visualize refresh result, if step 8 ran.
+   - Potentially stale diagram paths and the optional `/akka:visualize` suggestion, if any were found in step 8.
    - Coverage summary table listing each taxonomy category with Status: Resolved (was Partial/Missing and addressed), Deferred (exceeds question quota or better suited for planning), Clear (already sufficient), Outstanding (still Partial/Missing but low impact).
    - If any Outstanding or Deferred remain, recommend whether to proceed to `/akka:plan` or run `/akka:clarify` again later post-plan.
    - Suggested next command. If policy-decision markers remain, recommend `/akka:clarify` again, not `/akka:plan`.
@@ -184,5 +184,5 @@ Context for prioritization: the user's request
 - [ ] Each accepted answer produced exactly one bullet under `## Clarifications` → `### Session YYYY-MM-DD` and was integrated into the correct target section (Functional Requirements, User Stories, Data Model, Non-Functional / Quality Attributes, Edge Cases, or terminology).
 - [ ] Any earlier statement invalidated by a clarification was replaced, not duplicated.
 - [ ] The spec file was saved to FEATURE_SPEC after each integration and passes validation (no lingering vague placeholders the new answer was meant to resolve; markdown structure valid; only allowed new headings added).
-- [ ] After the final write, an existing `spec-visualize.md` was regenerated once via Requirements mode of `/akka:visualize`; an existing `plan-visualize.md` was left alone and the user was told `/akka:plan` will refresh it; no visualize file was created where none existed.
+- [ ] Existing diagrams affected by the source update were reported as potentially stale, with `/akka:visualize` suggested as an optional next step; all diagram files were left untouched.
 - [ ] The final report listed questions asked/answered, sections touched, a coverage summary (Resolved / Deferred / Clear / Outstanding), and the suggested next command.
