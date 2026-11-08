@@ -308,11 +308,91 @@ explanation and thread as indented lines beneath it:
 ```text
 - [U-<CODE>-<n>] <restatement> | impact: high|normal | covers: F-<CODE>-<n>[, F-<CODE>-<n>] | response: agree|amend|rethink|disagree|open | version: <n> | reason: <reason> | by: <name or role> | date: <YYYY-MM-DD>
   - v1 (AI)
-    - What I think you mean: <explanation>
-    - Why I am asking: <what depends on the answer>
-    - An example: <one concrete case>
-    - What changes if I am wrong: <the consequence>
-    - My recommendation: <the option and why>
+    - What I think you mean: <one or two sentences>
+    - Why I am asking: <one sentence, including what depends on the answer>
+    - My suggestion: <one sentence, only when there is a choice>
+    - An example: <one sentence>
+    - What changes if I am wrong: <one or two sentences>
+  - comment (<name or role>, <YYYY-MM-DD>): <the person's words>
+  - v2 (AI)
+    - What I think you mean: ...
+```
+
+The indented lines are never items of their own. `version` is the version the response answers.
+
+### Every item has the same structure
+
+Each version the AI writes has up to five parts, in this order, in plain language for a reader
+who does not know the project's jargon. The first three are the default view, always shown when
+the item is open. The last two are shown only when the person asks for more.
+
+Default view:
+
+1. **What I think you mean**: the understanding, in one or two sentences. Any term the project uses is explained in the same sentence.
+2. **Why I am asking**: one sentence that also says what depends on the answer: which requirement, rule, test, gate or part of the design.
+3. **My suggestion**: only when there is a choice to make, one sentence naming the option you suggest. Leave this part out when there is nothing to choose.
+
+Behind one click ("More"):
+
+4. **An example**: one sentence with a concrete case, with real-looking values.
+5. **What changes if I am wrong**: one or two sentences on what would be built differently, or what would go wrong.
+
+Write complete, plain sentences. Never ask a question that needs earlier context: every item can
+be read on its own, without the conversation so far, another item or a finding the person has not
+seen. Say plainly when an item rests on reading the source alone (rung `inspected`) or on
+inference, so the person knows they are judging a guess.
+
+### Steps
+
+1. **See which probes can reach the system**. Run:
+
+   ```text
+   akka specify probes list --source <source path> --target <address> --study <read|run|diff>
+   ```
+
+   Leave out `--target` when nothing is running. Show the person, in plain words, which probes are available and which are not, with the reason for each (for example *"the timing probe needs a running copy"*). A probe that cannot run is reported, never silently skipped.
+
+2. **Approval of declared probes**. A probe a project or organization declared is a command that runs with the person's privileges. If one is selected and not yet approved, show its exact command and ask the person whether to approve it. Run `akka specify probes approve <probe>` only after they say yes to that command. Built-in probes need no approval.
+
+3. **Run the probes**. Run:
+
+   ```text
+   akka specify probes run --source <source path> --target <address> --study <level> [--probe +<name>,-<name>]
+   ```
+
+   `--probe` adds or removes probes against the study level's defaults. Report any probe that was withheld or failed, with its reason. A failed probe produced nothing, so no finding may cite it. To see one probe's raw exchange, use `akka specify probes test <probe>` with the same flags.
+
+4. **Bill of materials** (Akka services only). When the source is an Akka service, run `akka bom generate <source path> --out discovery/<topic>/bom`. Its AI bill of materials lists models, agents, prompts, tools, endpoints, flows and personal data, each with the file and line it was read from. Cite `discovery/<topic>/bom/<file>` as evidence.
+
+5. **Write `system-map.md`**: the system studied, the inventory with a count for every kind (`0` where none exists; counts come from a probe or the bill of materials, never from reading by hand), structure findings, reachability (code that exists but never runs does not need rebuilding), test coverage, and the probes table.
+
+6. **Write `behaviour.md`**: one finding per rule, grouped by capability, each with its rung. List every finding still at `inspected` under Read but Not Run with the probe that would settle it. List every `unresolvable` finding under Decisions to Force.
+
+7. **Climb**. For each high-impact finding still at `inspected`, propose the probe or document that would settle it and ask whether to run it now.
+
+Never start, stop or change a running system without asking. Never copy customer data out of it into discovery files.
+
+
+## confirm
+
+**Purpose**: Make sure the AI and the person understand the same thing. The AI explains what it
+has understood, one item at a time, in words a reader who does not know the project's jargon can
+follow, and the person agrees, amends, comments or disagrees. This is the only step that makes a
+finding `confirmed`.
+
+**Template**: `understanding`. **Writes**: `discovery/<topic>/understanding.md`, and updates the finding lines it confirms.
+
+An understanding item is one list line that starts at the beginning of the line, with its
+explanation and thread as indented lines beneath it:
+
+```text
+- [U-<CODE>-<n>] <restatement> | impact: high|normal | covers: F-<CODE>-<n>[, F-<CODE>-<n>] | response: agree|amend|rethink|disagree|open | version: <n> | reason: <reason> | by: <name or role> | date: <YYYY-MM-DD>
+  - v1 (AI)
+    - What I think you mean: <one or two sentences>
+    - Why I am asking: <one sentence, including what depends on the answer>
+    - My suggestion: <one sentence, only when there is a choice>
+    - An example: <one sentence>
+    - What changes if I am wrong: <one or two sentences>
   - comment (<name or role>, <YYYY-MM-DD>): <the person's words>
   - v2 (AI)
     - What I think you mean: ...
@@ -339,7 +419,7 @@ on a finding the person has not seen. Say plainly when an item rests on reading 
 
 1. **Build the items**. Group the topic's findings that are not yet confirmed into items. Each item is one plain sentence (the restatement) in your own words that a person can judge without opening the evidence, and lists the findings it covers. Give an item `impact: high` when a wrong answer would change the scope, the data, a rule, a gate or a test; otherwise `normal`. Add every Conflicting Usage term and every Decisions to Force finding as its own item. Number new items after the highest `U-<CODE>-<n>` in the file. Write every new item into `understanding.md`, with its `v1 (AI)` explanation, `response: open` and `version: 1`, before asking anything, so nothing is lost if the conversation stops.
 2. **Ask who is answering**: their name or role, recorded on each item they answer.
-3. **Present one item at a time**, high-impact first, starting with items whose response is open. Show its identifier, its restatement and the five parts of its newest version, in full. Never present a summary and wait to be asked for the explanation. Then ask for one of four answers:
+3. **Present one item at a time**, high-impact first, starting with items whose response is open. Show its identifier, its restatement and the three default parts of its newest version, and say that the example and the consequence of being wrong are available on request; show them when the person asks. Ask one question at a time, never a list. Do not present a summary and then offer to expand it: the default view is the item. Then ask for one of four answers:
    - **Agree**: the understanding is right. A reason is welcome.
    - **Amend**: the person rewrites the restatement in their own words.
    - **Comment**: the person says what is wrong or missing, and the item comes back to you.
@@ -347,7 +427,7 @@ on a finding the person has not seen. Say plainly when an item rests on reading 
 4. **Record each answer** on the item line, only from the person's own answer, and never fill a response the person did not give:
    - **Agree**: `response: agree`, `version` set to the version they answered, `reason`, `by`, `date`.
    - **Amend**: the person's wording replaces the restatement on the item line, and becomes the record. The AI's wording stays in the thread as its `v<n> (AI)` lines. Set `response: amend`, `version`, `reason`, `by`, `date`.
-   - **Comment**: set `response: rethink`, `by` and `date`, and add the thread line `comment (<who>, <date>): <their words>` under the newest version. Then write the next version, `v<n+1> (AI)`, with all five parts revised to answer the comment, raise `version` to it and set `response: open`. Present the revised version as the next question. The item keeps its identifier; nothing in the thread is deleted.
+   - **Comment**: set `response: rethink`, `by` and `date`, and add the thread line `comment (<who>, <date>): <their words>` under the newest version. Then write the next version, `v<n+1> (AI)`, with its parts revised to answer the comment, raise `version` to it and set `response: open`. Present the revised version as the next question. The item keeps its identifier; nothing in the thread is deleted.
    - **Disagree**: `response: disagree`, `reason` (ask for it if they gave none), `by`, `date`.
 5. **Apply each answer to the findings it covers**:
    - **Agree**: set each finding's status to `confirmed` and add `understanding.md U-<CODE>-<n>` to its evidence.
@@ -422,7 +502,7 @@ customer, product or person; it uses placeholders the owner fills in.
 - [ ] No more than three questions were asked at a time and five in the step; every "don't know" became an Unknowns line.
 - [ ] `system`: probe availability was shown with reasons, declared probes ran only after the person approved their exact command, `.akka/discovery/run.json` was written by `akka specify probes run`, and no finding cites a probe that failed.
 - [ ] `concepts`: every concept is defined once, in its topic; a promoted concept has one `- see: <CODE>/C-<CODE>-<n> | shared` line in `discovery/concepts.md` and was promoted on the person's yes; every concept name defined differently by two topics has a conflict item in each topic's `understanding.md`.
-- [ ] `confirm`: items were presented one at a time, each with all five parts in plain language and readable on its own; every item is one `[U-<CODE>-<n>]` line with impact, covers, response and version, and its versions and comments as indented thread lines; every response, reason, comment, name and date came from the person; agreed and amended findings are `confirmed` with `understanding.md U-<CODE>-<n>` in their evidence.
+- [ ] `confirm`: items were presented one at a time, each showing the three default parts in plain language, readable on its own, with the example and the consequence given on request; every item is one `[U-<CODE>-<n>]` line with impact, covers, response and version, and its versions and comments as indented thread lines; every response, reason, comment, name and date came from the person; agreed and amended findings are `confirmed` with `understanding.md U-<CODE>-<n>` in their evidence.
 - [ ] `mock`: every entry is one `[M-<CODE>-<n>]` line; every approval or change request came from the reviewer and is in Review History.
 - [ ] `--prework`: the pack has how to use, the request list first, the strongest-model note, Prompt 0, numbered prompts each naming its output file, the kickoff brief last, and a specification seed, with no customer, product or person named.
 - [ ] The report gave the files written, the findings added by status, and one recommended next step.
