@@ -18,6 +18,7 @@
         - An example: <one sentence>
         - What changes if I am wrong: <one or two sentences>
       - comment (<name or role>, <YYYY-MM-DD>): <the person's words>
+      - answer (<name or role>, <YYYY-MM-DD>): agree|amend|disagree
       - v2 (AI)
         - What I think you mean: ...
 
@@ -47,7 +48,8 @@
       open      nobody has answered the newest version yet.
     A high-impact item blocks the specification while its response is open, rethink
     or disagree, while its thread holds a version newer than the one answered, or
-    while a comment follows the newest version.
+    while a comment follows the newest version with no answer line after it. An
+    answer line records a response given after a comment, without a new version.
   - by and date name who answered and when. They are filled only from the person's
     answer.
   - A conflict item, written by `/akka:discover <topic> concepts` when two topics define the
