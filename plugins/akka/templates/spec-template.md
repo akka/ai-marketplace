@@ -86,6 +86,14 @@
 
 ### Functional Requirements
 
+<!--
+  A requirement that is not simply our own choice says where it came from in brackets after its
+  identifier: (decided), (constrained, documented) or (observed, inspected), where observed and
+  constrained also name how they were established: inspected, documented, or exercised: <probe>.
+  In a project with a discovery/ folder, each requirement cites the confirmed findings it rests on,
+  such as [F-PAY-3], anywhere on its line.
+-->
+
 - **FR-001**: System MUST [specific capability, e.g., "allow users to create accounts"]
 - **FR-002**: System MUST [specific capability, e.g., "validate email addresses"]
 - **FR-003**: Users MUST be able to [key interaction, e.g., "reset their password"]
@@ -115,3 +123,23 @@
 - **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
 - **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
 - **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
+
+## Traceability *(mandatory)*
+
+<!--
+  One row for every FR and SC above, and no other rows. Source is where the requirement comes from:
+  the findings it cites, or the user story or input it was taken from. Test is the acceptance
+  scenario or the named test that verifies it. Neither cell is left empty.
+-->
+
+| Requirement | Source | Test |
+|-------------|--------|------|
+| FR-001 | [Findings cited, or the user story, e.g., "F-PAY-3" or "User Story 1"] | [Scenario or test that verifies it, e.g., "User Story 1, scenario 1"] |
+| FR-002 | [Source] | [Test] |
+| FR-003 | [Source] | [Test] |
+| FR-004 | [Source] | [Test] |
+| FR-005 | [Source] | [Test] |
+| SC-001 | [Source] | [Test] |
+| SC-002 | [Source] | [Test] |
+| SC-003 | [Source] | [Test] |
+| SC-004 | [Source] | [Test] |

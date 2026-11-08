@@ -103,10 +103,15 @@ person, by name or role) and today's date, and write `discovery/<topic>/topic.md
 the answer to question 3 as a material in `materials.md`, with `status: not-read`. Then read the
 inputs as below, and run the requested step, or recommend the first one.
 
+A topic the console created from an idea has the goal `Shape the idea in note N-<CODE>-1.` in
+its `topic.md`. Before the first step, propose a one-sentence goal drawn from the idea and ask
+the person to accept or reword it; on their answer, replace that goal in `topic.md` and change
+nothing else in the header.
+
 ## Setup (every step)
 
 1. **Prerequisite check**: Call `akka_sdd_list_specs`. If this MCP tool is not available, stop and tell the user: *"The Akka MCP server is not running. Run `/akka:setup` first, or run `akka specify init .` from the terminal."* The tool also tells you which specs exist, which the status check reports.
-2. **Constitution**: Call `akka_sdd_constitution` and keep its principles in mind. A principle that limits what may be examined or shared (for example, no customer data in development) applies to discovery too.
+2. **Constitution**: Call `akka_sdd_constitution` and keep its principles in mind. A principle that limits what may be examined or shared (for example, no customer data in development) applies to discovery too. An idea-stage project (`.akka/project.yaml` with `stage: idea`) has no constitution until `/akka:setup` adds one: when the tool reports none, continue without it, do not run `akka specify init` in the project, and ask the person once whether any rule limits what may be examined or shared.
 3. **Folders**: PROJECT_ROOT is the directory holding `.akka/` (or `pom.xml`). DISCOVERY_DIR is `PROJECT_ROOT/discovery/`. TOPIC_DIR is `DISCOVERY_DIR/<topic>/`. Create a folder the first time a step writes into it.
 4. **Read what exists**: Read the topic's `topic.md` and every `.md` file in TOPIC_DIR, the project-level files at the DISCOVERY_DIR root, and the `topic.md` of every other topic, before asking anything. Read another topic's files when this one depends on them. Never ask a question a discovery file already answers.
 5. **Read the inputs first**: before any other step's work, read the topic's `notes.md` and `materials.md` as described in *Reading the inputs* below. Every run of `/akka:discover <topic>`, with or without a sub-command, does this.
@@ -176,7 +181,7 @@ has nothing to record, its only line is `none: <what was checked>`, so a reader 
 - When the person answers "don't know", record it under Unknowns with who might know, and move on.
 - Never ask the person to paste credentials, personal data, customer records or anything a constitution principle forbids. Ask them to describe it instead.
 - Record what the person tells you as findings with evidence `stated: <their name or role>, <date>`. Ask for their name or role once per session.
-- Each step ends by telling the person, in two or three sentences, what was written, how many findings were added by status, and the recommended next step.
+- Each step ends by telling the person, in two or three sentences, what was written, how many findings were added by status, and the recommended next step. It also rewrites the two sections of `topic.md` it keeps: Where It Stands, in one or two sentences, and Files, one line per file of the topic with its findings counted by status.
 
 ## No arguments: the topic list
 
@@ -208,7 +213,7 @@ success looks like, what constrains it, and what was tried before.
 
 **Template**: `research`. **Writes**: `discovery/<topic>/research.md`.
 
-1. Collect sources before asking anything: documents and links the person gave, files in the project (README, docs, prior specs), the pre-work outputs in `discovery/prework/` if they exist, and, if you have a web search tool and the person agrees to its use, public sources. List each source once under Sources as `S-<n>` with its owner, date and whether it looks current.
+1. Collect sources before asking anything: documents and links the person gave, files in the project (README, docs, prior specs), the pre-work outputs in `discovery/prework/` if they exist, and, if you have a web search tool and the person agrees to its use, public sources. List each source once under Sources as `S-<n>` with its owner, date and whether it looks current. A material from `materials.md` is not listed again: findings cite it by its own `S-<CODE>-<n>`.
 2. Ask only for what the sources and the topic's goal do not answer, chosen from:
    - What are we making or replacing, in one or two sentences?
    - Who will use it, and what do they need to get done?
@@ -319,13 +324,15 @@ Rules that apply on every rung:
 
    `--probe` adds or removes probes against the study level's defaults. `--database-var` takes the **name** of the environment variable that holds a database material's address, as recorded in `materials.md` (for example `CLAIMS_DB_URL`), never the address itself; the `schema` probe then reads the database's catalogue as well as the source. The database counts as available only when that variable is set in the environment the command runs in; if it is not, ask the person to set it in their own terminal, and never ask for its value. `run.json` records the name only. Report any probe that was withheld or failed, with its reason. A failed probe produced nothing, so no finding may cite it. To see one probe's raw exchange, use `akka specify probes test <probe>` with the same flags.
 
-4. **Bill of materials** (Akka services only). When the source is an Akka service, run `akka bom generate <source path> --out discovery/<topic>/bom`. Its AI bill of materials lists models, agents, prompts, tools, endpoints, flows and personal data, each with the file and line it was read from. Cite `discovery/<topic>/bom/<file>` as evidence.
+4. **Draft the findings the probes support**. Run `akka specify probes findings --topic <topic>`. It prints one finding line for each count a probe established (routes, tables, libraries, outside services called, tests and reachability), numbered after the highest `F-<CODE>-<n>` in the topic, and an Unknowns line for each gap a probe reported. Its numbers continue from the files as they are when it runs, so run it after this run's other findings are written, and copy each line into the right section of `system-map.md` or `behaviour.md` as written. `--write system-map` appends the lines under a `## Draft Findings` heading instead, which is not a template section: move them into place before the step ends.
 
-5. **Write `system-map.md`**: the system studied, the inventory with a count for every kind (`0` where none exists; counts come from a probe or the bill of materials, never from reading by hand), structure findings, reachability (code that exists but never runs does not need rebuilding), test coverage, and the probes table.
+5. **Bill of materials** (Akka services only). When the source is an Akka service, run `akka bom generate <source path> --out discovery/<topic>/bom`. Its AI bill of materials lists models, agents, prompts, tools, endpoints, flows and personal data, each with the file and line it was read from. Cite `discovery/<topic>/bom/<file>` as evidence.
 
-6. **Write `behaviour.md`**: one finding per rule, grouped by capability, each with its rung. List every finding still at `inspected` under Read but Not Run with the probe that would settle it. List every `unresolvable` finding under Decisions to Force.
+6. **Write `system-map.md`**: the system studied, the inventory with a count for every kind (`0` where none exists; counts come from a probe or the bill of materials, never from reading by hand), structure findings, reachability (code that exists but never runs does not need rebuilding), test coverage, and the probes table.
 
-7. **Climb**. For each high-impact finding still at `inspected`, propose the probe or document that would settle it and ask whether to run it now.
+7. **Write `behaviour.md`**: one finding per rule, grouped by capability, each with its rung. List every finding still at `inspected` under Read but Not Run with the probe that would settle it. List every `unresolvable` finding under Decisions to Force.
+
+8. **Climb**. For each high-impact finding still at `inspected`, propose the probe or document that would settle it and ask whether to run it now.
 
 Never start, stop or change a running system without asking. Never copy customer data out of it into discovery files.
 
@@ -399,7 +406,7 @@ inference, so the person knows they are judging a guess.
    - **Disagree**: `response: disagree`, `reason` (ask for it if they gave none), `by`, `date`.
 5. **Apply each answer to the findings it covers**:
    - **Agree**: set each finding's status to `confirmed` and add `understanding.md U-<CODE>-<n>` to its evidence.
-   - **Amend**: rewrite the finding's claim to the amended wording, set it to `confirmed`, and add `understanding.md U-<CODE>-<n>` to its evidence. If the amendment contradicts an observed or exercised finding, say so plainly with the evidence before recording it, and add a Decisions Raised row: the specification must choose between what the system does and what the person wants.
+   - **Amend**: rewrite the finding's claim to the amended wording, set it to `confirmed`, and add `understanding.md U-<CODE>-<n>` to its evidence. When the item covers several findings, rewrite only the claims the amendment changes and confirm the others as they stand; a fact the amendment adds that no covered finding states becomes a new finding, with evidence `stated: <who>, <date>; understanding.md U-<CODE>-<n>` and status `confirmed`. If the amendment contradicts an observed or exercised finding, say so plainly with the evidence before recording it, and add a Decisions Raised row: the specification must choose between what the system does and what the person wants.
    - **Comment**: change no finding until the person agrees or amends.
    - **Disagree**: leave the finding's status as it was, add `understanding.md U-<CODE>-<n> (disagreed)` to its evidence, and add a Follow-ups line with the next step (probe it, ask someone, or record a decision). A disagreed high-impact item blocks the specification until it is settled.
    - **A conflict item**: apply the reconciliation the person chose to the concept blocks of both topics, and record it in both topics' `understanding.md`.
