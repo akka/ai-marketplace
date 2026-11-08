@@ -18,7 +18,8 @@
     confirmed = a person agreed to it in `/akka:discover <topic> confirm`. Only confirmed
     findings may be cited by a specification.
   - A source is one of: a file path (with :line when it helps), S-<n> from the Sources
-    section below (with a page or section), a URL, `stated: <role or name>, <YYYY-MM-DD>`
+    section below (with a page or section), S-<CODE>-<n> from the topic's materials.md
+    (with a page or section), a URL, `stated: <role or name>, <YYYY-MM-DD>`
     for something a person said, `reasoning: <what it was reasoned from>` (inferred
     findings only), or `understanding.md U-<CODE>-<n>` once confirmed.
 

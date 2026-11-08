@@ -8,7 +8,8 @@
   RECORD FORMATS (read by the console and the exit conditions; keep them exact)
 
   This file is discovery/<topic>/topic.md, the header of one discovery topic. The
-  topic's other files (research.md, landscape.md, concepts.md, system-map.md,
+  topic's inputs (notes.md, materials.md and the attached files in materials/) and
+  its other files (research.md, landscape.md, concepts.md, system-map.md,
   behaviour.md, understanding.md, mocks/index.md) sit beside it in the same folder.
 
   - The folder name is the topic name: lower case, words joined by "-". It is never
