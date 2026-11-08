@@ -1,20 +1,22 @@
 # Concepts: [PROJECT]
 
-**Project**: [project name] | **Track**: [ideation | modernization] | **Updated**: [DATE]
-**Scope**: [project | the name of the area] | **Status**: [active | settled | parked]
-**Written by**: `/akka:discover concepts`
+**Project**: [project name] | **Topic**: [topic name] ([CODE]) | **Track**: [ideation | modernization] | **Updated**: [DATE]
+**Written by**: `/akka:discover <topic> concepts`
 
 <!--
   RECORD FORMATS (read by the console and the exit conditions; keep them exact)
 
   A finding is one list line:
-    - [F-<n>] <claim> | evidence: <source>[; <source>] | status: observed|inferred|confirmed
+    - [F-<CODE>-<n>] <claim> | evidence: <source>[; <source>] | status: observed|inferred|confirmed
 
-  - <n> is unique across every file in discovery/; continue from the highest F-<n> there.
+  - This file is discovery/<topic>/concepts.md, in the topic's folder. <CODE> is the
+    topic's code from its topic.md (PAY in the examples below). <n> is unique within
+    the topic: continue from the highest F-<CODE>-<n> (or C-<CODE>-<n> for a concept)
+    in discovery/<topic>/, never reuse a number.
   - The claim and the evidence never contain "|".
-  - Sources: a file path, S-<n> from discovery/research.md, a URL,
+  - Sources: a file path, S-<n> from the topic's research.md, a URL,
     `stated: <role or name>, <YYYY-MM-DD>`, `reasoning: <from what>` (inferred only),
-    or `understanding.md U-<n>` once confirmed.
+    or `understanding.md U-<CODE>-<n>` once confirmed.
 
   A section marked "required, or none" is never deleted; when empty its only line is
   `none: <what was checked>`.
@@ -41,10 +43,21 @@
   labels at most 10; notes at most 20; comparison text at most 28. A concept
   whose findings are all confirmed must have a valid block (STORY-CONCEPTS-VISUAL).
 
-  Scope and Status say where the Story draws these concepts: a project-scoped
-  topic in the Story's overview, an area in its own chapter once the topic is
-  settled. When the topic has a topic.md, its header is read instead; a missing
-  Scope reads as project and a missing Status as settled.
+  The topic's Scope and Status, in its topic.md, say where the Story draws these
+  concepts: a project-scoped topic in the Story's overview, an area in its own
+  chapter once the topic is settled.
+
+  A concept is defined once, in its topic, and stays there. Promoting it to the
+  project's shared list adds one reference line to the project-level
+  discovery/concepts.md, never a copy of the block:
+    - see: <CODE>/C-<CODE>-<n> | shared
+  The Story then draws the concept in its overview and counts it once. The
+  project-level discovery/concepts.md holds these references and the concepts of
+  project-scoped material, whose identifiers carry no code (C-<n>, F-<n>).
+
+  When two topics define the same concept name differently, neither definition is
+  changed here. /akka:discover <topic> concepts writes a conflict item into the
+  understanding.md of each topic involved, for a person to reconcile.
 -->
 
 
@@ -55,13 +68,13 @@ the domain can follow.
 
 | Term | Definition | Words to avoid | Finding |
 |------|------------|----------------|---------|
-| [term] | [one sentence] | [synonyms that mean something else here, or none] | [F-n] |
+| [term] | [one sentence] | [synonyms that mean something else here, or none] | [F-PAY-n] |
 
 ## Concepts *(required)*
 
 One block per concept that has identity, state or rules.
 
-### C-1: [Concept name]
+### C-PAY-1: [Concept name]
 
 - **What it is**: [one sentence]
 - **Identified by**: [what makes one distinct from another]
@@ -77,13 +90,27 @@ link: [Claimant] | [made by]
 link: [Policy] | [covered by]
 ```
 
-- [F-20] [Claim about this concept] | evidence: [source] | status: [observed]
+- [F-PAY-20] [Claim about this concept] | evidence: [source] | status: [observed]
 
 ## Conflicting Usage *(required, or none)*
 
 Terms that different people or documents use differently.
 
-- [F-21] [Term] means [A] to [role] and [B] to [role] | evidence: [source]; [source] | status: observed
+- [F-PAY-21] [Term] means [A] to [role] and [B] to [role] | evidence: [source]; [source] | status: observed
+
+## Shared with the Project *(required, or none)*
+
+Concepts of this topic promoted to the project's shared list. Each has a reference line in
+discovery/concepts.md; the definition stays above.
+
+- C-PAY-[n]: promoted on [YYYY-MM-DD] by [name or role]
+
+## Conflicts with Other Topics *(required, or none)*
+
+Concept names another topic defines differently. Each has a conflict item in this topic's
+understanding.md; the definitions are not changed until a person reconciles them.
+
+- C-PAY-[n] [name] and [CODE]/C-[CODE]-[n]: [how they differ] | understanding: U-PAY-[n]
 
 ## Unknowns *(required, or none)*
 

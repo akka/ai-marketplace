@@ -216,7 +216,10 @@ S1. **Find the topics.** Discovery is organised in topics, one folder each,
     modernization), scope (`project` or the name of an area such as the cost
     views), status (active, settled or parked), owner and start date. Several
     topics can be active at once. A `discovery/concepts.md` outside any topic
-    folder is a project-scoped topic.
+    folder is a project-scoped topic. A concept stays defined in its topic; a
+    `- see: <CODE>/C-<CODE>-<n> | shared` line in `discovery/concepts.md` promotes
+    it to the project's shared list, and the overview then draws it instead of
+    its chapter.
 
     | Page | Written from | Template |
     |---|---|---|
@@ -267,7 +270,7 @@ S5. **Draw from data.** Every picture is one of five kinds: relationship, flow,
     block, with the kind the block names, on the page its topic belongs to; a
     concept without a valid block is reported, not drawn from imagination. Write
     the block into the topic's `concepts.md` first if it is missing, and say so.
-    The figure tag carries `data-concept="C-<n>" data-kind="<kind>"` in that
+    The figure tag carries `data-concept="C-<CODE>-<n>" data-kind="<kind>"` in that
     order. Step 4's rules apply: accessible SVG with `{{SLUG}}-<name>-` ids, the
     4px grid, masked labels, the budget; Story diagrams are narrative, so grey
     with at most two accented elements.
@@ -288,7 +291,9 @@ S7. **Write the pages.** Self-contained, as in step 7.
    - **STORY-CONCEPTS-VISUAL (deterministic).** Every concept of a settled topic
      whose findings are all confirmed has a valid `visual` block and a figure of
      the kind it names on its own part of the Story: the overview for a
-     project-scoped topic, the topic's chapter for an area. A settled area topic
+     project-scoped topic or a shared concept, the topic's chapter for an area;
+     a shared concept is counted once. A reference to a concept no topic defines
+     reds it. A settled area topic
      with no chapter reds it. Active and parked topics are not checked.
    - **STORY-CITES-CONFIRMED (deterministic).** Every finding identifier on each
      Story page names a finding in `discovery/` whose status is `confirmed`; each

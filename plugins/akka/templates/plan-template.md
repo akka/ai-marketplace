@@ -140,7 +140,7 @@ name their phase with a `[P<n>]` tag.*
 ## Review Gates *(required, or none)*
 
 Artifacts a person approves before a phase starts. Each artifact is registered in
-`discovery/mocks/index.md` with `/akka:discover mock`.
+`discovery/<topic>/mocks/index.md` with `/akka:discover <topic> mock`.
 
 | Gate | Before phase | What is reviewed | Artifact | Approver |
 |------|--------------|------------------|----------|----------|

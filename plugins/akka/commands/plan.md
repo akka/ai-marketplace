@@ -22,7 +22,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 1. **Setup**: Call the `akka_sdd_list_specs` MCP tool to find the target feature. Then call `akka_sdd_get_template` with template_name="plan" to get the plan template. Identify the feature's spec path (FEATURE_SPEC) and plan destination (FEATURE_DIR/plan.md).
 
-2. **Load context**: Read FEATURE_SPEC and `akka_sdd_constitution`. Load IMPL_PLAN template (already copied). If the project has a `discovery/` folder, read `understanding.md` (its Decisions Raised), `behaviour.md` and `system-map.md` (measured figures and Decisions to Force) and `mocks/index.md` (review artifacts), and list the files read on the plan's **Discovery** line. If `.akka/models.md` exists, read it.
+2. **Load context**: Read FEATURE_SPEC and `akka_sdd_constitution`. Load IMPL_PLAN template (already copied). If the project has a `discovery/` folder, read, in each topic folder `discovery/<topic>/` and at the `discovery/` root, `understanding.md` (its Decisions Raised), `behaviour.md` and `system-map.md` (measured figures and Decisions to Force) and `mocks/index.md` (review artifacts), and list the files read on the plan's **Discovery** line. If `.akka/models.md` exists, read it.
 
 3. **Execute plan workflow**: Follow the structure in IMPL_PLAN template to:
    - Fill Technical Context (mark unknowns as "NEEDS CLARIFICATION")
@@ -98,11 +98,11 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Write the critical path, and which phases can run at the same time.
    - Only delivery phases use headings that begin with "Phase". The model plan and the exit conditions read every such heading in plan.md as a phase.
 
-2. **Review Gates** → for each phase that must not start until a person has seen something (screens, a storyboard, a data model, a cutover plan), add a gate row naming the artifact. If the spec header reads `**User Interface**: yes`, at least one gate reviews a mock before the first phase that builds the interface. The artifact is registered with `/akka:discover mock`; if it does not exist yet, say so in the report.
+2. **Review Gates** → for each phase that must not start until a person has seen something (screens, a storyboard, a data model, a cutover plan), add a gate row naming the artifact. If the spec header reads `**User Interface**: yes`, at least one gate reviews a mock before the first phase that builds the interface. The artifact is registered with `/akka:discover <topic> mock`; if it does not exist yet, say so in the report.
 
 3. **Baseline** → measured values of what is true today, one bullet per metric: `- <metric>: <value> | method: <how measured> | source: <finding or probe result>`.
    - Take values from discovery findings or `.akka/discovery/timing.json`. Never write a value nobody measured; put it under Metrics and Targets with how and before which phase it will be measured.
-   - If the spec header reads `**Modernization**: yes`, the Baseline section needs at least one measured value before the plan is complete. If none exists, stop and ask the user how the current system can be measured (`/akka:discover system` with the timing probe is one way).
+   - If the spec header reads `**Modernization**: yes`, the Baseline section needs at least one measured value before the plan is complete. If none exists, stop and ask the user how the current system can be measured (`/akka:discover <topic> system` with the timing probe is one way).
    - Otherwise write `none: <what was checked>` when there is nothing to compare against.
 
 4. **Metrics and Targets** → each target names the success criterion (SC-nnn) or finding it serves, and how it will be measured.
@@ -116,7 +116,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - No subheadings inside this section.
    - If `.akka/models.md` does not exist, ask the user whether to create it from this plan's choices. If yes, call `akka_sdd_get_template` with template_name="models" and write `.akka/models.md`.
 
-6. **Decisions Log** → one row for every choice that changes the plan: every Decisions Raised item in `discovery/understanding.md`, every Decisions to Force finding in `discovery/behaviour.md`, and every close call made in this plan. Each row has a recommendation with its reason, an owner (a role), and a status of open, decided with the date, or dropped. Never mark a decision decided unless the user made it.
+6. **Decisions Log** → one row for every choice that changes the plan: every Decisions Raised item in each `understanding.md` under `discovery/`, every Decisions to Force finding in each `behaviour.md` under `discovery/`, and every close call made in this plan. Each row has a recommendation with its reason, an owner (a role), and a status of open, decided with the date, or dropped. Never mark a decision decided unless the user made it.
 
 **Output**: Delivery Phases, Review Gates, Baseline, Metrics and Targets, Model Plan and Decisions Log in plan.md
 

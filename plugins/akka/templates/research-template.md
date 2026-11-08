@@ -1,24 +1,26 @@
 # Research: [PROJECT]
 
-**Project**: [project name] | **Track**: [ideation | modernization] | **Updated**: [DATE]
-**Written by**: `/akka:discover research`
+**Project**: [project name] | **Topic**: [topic name] ([CODE]) | **Track**: [ideation | modernization] | **Updated**: [DATE]
+**Written by**: `/akka:discover <topic> research`
 
 <!--
   RECORD FORMATS (read by the console and the exit conditions; keep them exact)
 
   A finding is one list line:
-    - [F-<n>] <claim> | evidence: <source>[; <source>] | status: observed|inferred|confirmed
+    - [F-<CODE>-<n>] <claim> | evidence: <source>[; <source>] | status: observed|inferred|confirmed
 
-  - <n> is a number unique across every file in discovery/. Before adding a finding,
-    find the highest F-<n> in discovery/ and continue from it. Never reuse a number.
+  - This file is discovery/<topic>/research.md, in the topic's folder. <CODE> is the topic's
+    code from its topic.md (PAY in the examples below). <n> is unique within the
+    topic: continue from the highest F-<CODE>-<n> in discovery/<topic>/, never reuse a
+    number. Project-level files at the discovery/ root write F-<n> without a code.
   - The claim and the evidence never contain the character "|".
   - status: observed = seen in a source a reader can open; inferred = reasoned, not seen;
-    confirmed = a person agreed to it in `/akka:discover confirm`. Only confirmed
+    confirmed = a person agreed to it in `/akka:discover <topic> confirm`. Only confirmed
     findings may be cited by a specification.
   - A source is one of: a file path (with :line when it helps), S-<n> from the Sources
     section below (with a page or section), a URL, `stated: <role or name>, <YYYY-MM-DD>`
     for something a person said, `reasoning: <what it was reasoned from>` (inferred
-    findings only), or `understanding.md U-<n>` once confirmed.
+    findings only), or `understanding.md U-<CODE>-<n>` once confirmed.
 
   A section marked "required, or none" is never deleted. When it has nothing to record,
   its only line is `none: <what was checked>`. An empty section means "checked", never
@@ -38,23 +40,23 @@ One line per source used, so findings can cite it by its number.
 
 ## Users and Needs *(required, or none)*
 
-- [F-1] [Who uses it, and what they need from it] | evidence: [source] | status: [observed]
+- [F-PAY-1] [Who uses it, and what they need from it] | evidence: [source] | status: [observed]
 
 ## Outcomes and Measures *(required, or none)*
 
-- [F-2] [The outcome that would count as success, with a number where one is known] | evidence: [source] | status: [inferred]
+- [F-PAY-2] [The outcome that would count as success, with a number where one is known] | evidence: [source] | status: [inferred]
 
 ## Constraints and Regulation *(required, or none)*
 
 Rules, approvals, standards and dates that limit what can be built.
 
-- [F-3] [Constraint] | evidence: [source] | status: [observed]
+- [F-PAY-3] [Constraint] | evidence: [source] | status: [observed]
 
 ## Prior Work *(required, or none)*
 
 Earlier attempts, internal documents and existing decisions that bear on this work.
 
-- [F-4] [What was tried or decided before] | evidence: [source] | status: [observed]
+- [F-PAY-4] [What was tried or decided before] | evidence: [source] | status: [observed]
 
 ## Unknowns *(required, or none)*
 

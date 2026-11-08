@@ -119,7 +119,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - **Follow TDD approach**: Execute test tasks before their corresponding implementation tasks
    - **File-based coordination**: Tasks affecting the same files must run sequentially
    - **Validation checkpoints**: Verify each phase completion before proceeding
-   - **Delivery phases**: When tasks carry [P<n>] tags, run the phase's acceptance test from plan.md before starting tasks of a later phase. If a phase has a gate, check `discovery/mocks/index.md`: the gate's artifact must read `approval: approved by ...`. If it does not, stop and ask the user to review it with `/akka:discover mock`
+   - **Delivery phases**: When tasks carry [P<n>] tags, run the phase's acceptance test from plan.md before starting tasks of a later phase. If a phase has a gate, check the topic's `discovery/<topic>/mocks/index.md`: the gate's artifact must read `approval: approved by ...`. If it does not, stop and ask the user to review it with `/akka:discover <topic> mock`
 
 8. Implementation execution rules:
    - **Component fidelity**: Implement components as mapped in plan.md's Component Architecture table. If a task needs a component not in the table, consult the "Choosing a component type" section of `akka-context/sdk/components/index.html.md`, then record the addition (with the rejected alternative) in plan.md before coding

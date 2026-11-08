@@ -1,22 +1,55 @@
 # Shared Understanding: [PROJECT]
 
-**Project**: [project name] | **Track**: [ideation | modernization] | **Updated**: [DATE]
-**Written by**: `/akka:discover confirm`
+**Project**: [project name] | **Topic**: [topic name] ([CODE]) | **Track**: [ideation | modernization] | **Updated**: [DATE]
+**Written by**: `/akka:discover <topic> confirm`
 
 <!--
   RECORD FORMATS (read by the console and the exit conditions; keep them exact)
 
-  An understanding item is one list line:
-    - [U-<n>] <restatement> | impact: high|normal | covers: F-<n>[, F-<n>] | response: agree|amend|disagree|open | reason: <reason> | by: <name or role> | date: <YYYY-MM-DD>
+  This file is discovery/<topic>/understanding.md. An understanding item is one list
+  line that starts at the beginning of the line, followed by indented lines that
+  explain it:
 
-  - <n> is unique in this file; continue from the highest U-<n>.
-  - The restatement is the AI's own plain-language sentence. It never contains "|".
+    - [U-<CODE>-<n>] <restatement> | impact: high|normal | covers: F-<CODE>-<n>[, F-<CODE>-<n>] | response: agree|amend|rethink|disagree|open | version: <n> | reason: <reason> | by: <name or role> | date: <YYYY-MM-DD>
+      - v1 (AI)
+        - What I think you mean: <plain-language explanation>
+        - Why I am asking: <what depends on the answer>
+        - An example: <one concrete case>
+        - What changes if I am wrong: <the consequence>
+        - My recommendation: <the option and why, when there is a choice>
+      - comment (<name or role>, <YYYY-MM-DD>): <the person's words>
+      - v2 (AI)
+        - What I think you mean: ...
+
+  - <CODE> is the topic's code from its topic.md (PAY in the examples below). <n> is
+    unique within the topic; continue from the highest U-<CODE>-<n>. An item keeps its
+    identifier through every version.
+  - The restatement is one plain sentence a reader new to the project can judge. It
+    never contains "|".
   - impact is high when a wrong answer would change scope, data, a rule, a gate or a
     test. Everything else is normal.
-  - response is what the person answered. An item nobody has answered is open.
-    A high-impact item that is open or disagree blocks the specification.
-  - An amend adds `| amended: <the person's wording>`.
-  - by and date name who answered and when. They are filled only from the person's answer.
+  - The indented lines are the item's thread, oldest first, and are never items of
+    their own. Each version the AI writes is a `v<n> (AI)` line with the five parts
+    beneath it, in that order; My recommendation is left out only when there is no
+    choice to make. Each comment is a `comment (<who>, <date>)` line. Nothing in the
+    thread is deleted.
+  - version is the version the response answers. A new item is version 1.
+  - response is what the person answered:
+      agree     the restatement is right.
+      amend     the person rewrote it; their wording replaces the restatement on the
+                item line, and the AI's wording stays in the thread.
+      rethink   the person commented; the item goes back to the AI. The AI adds the
+                next `v<n> (AI)` to the thread, raises version to it and sets the
+                response to open.
+      disagree  the restatement is wrong; reason is required.
+      open      nobody has answered the newest version yet.
+    A high-impact item blocks the specification while its response is open, rethink
+    or disagree, while its thread holds a version newer than the one answered, or
+    while a comment follows the newest version.
+  - by and date name who answered and when. They are filled only from the person's
+    answer.
+  - A conflict item, written by `/akka:discover <topic> concepts` when two topics define the
+    same concept name differently, adds `| conflict: <CODE>/C-<CODE>-<n>, <CODE>/C-<CODE>-<n>`.
 
   A section marked "required, or none" is never deleted; when empty its only line is
   `none: <what was checked>`.
@@ -24,21 +57,45 @@
 
 ## Outcome *(required)*
 
-- **Items**: [n] | **Agreed**: [n] | **Amended**: [n] | **Disagreed**: [n] | **Open**: [n]
+- **Items**: [n] | **Agreed**: [n] | **Amended**: [n] | **Rethinking**: [n] | **Disagreed**: [n] | **Open**: [n]
 - **Open high-impact items**: [n]
 - **Last session**: [YYYY-MM-DD], with [names or roles]
 
 ## Items *(required)*
 
-- [U-1] [The AI's restatement of what it understands] | impact: high | covers: F-3, F-7 | response: agree | reason: [why, in the person's words] | by: [name or role] | date: [YYYY-MM-DD]
-- [U-2] [Restatement] | impact: normal | covers: F-12 | response: amend | amended: [the person's wording] | reason: [why] | by: [name or role] | date: [YYYY-MM-DD]
-- [U-3] [Restatement] | impact: high | covers: F-20 | response: open
+- [U-PAY-1] [The restatement] | impact: high | covers: F-PAY-3, F-PAY-7 | response: agree | version: 2 | reason: [why, in the person's words] | by: [name or role] | date: [YYYY-MM-DD]
+  - v1 (AI)
+    - What I think you mean: [the AI's understanding, in plain words]
+    - Why I am asking: [what depends on the answer]
+    - An example: [one concrete case]
+    - What changes if I am wrong: [the consequence]
+    - My recommendation: [the option and why]
+  - comment ([name or role], [YYYY-MM-DD]): [the person's words]
+  - v2 (AI)
+    - What I think you mean: [the revised understanding]
+    - Why I am asking: [what depends on the answer]
+    - An example: [one concrete case]
+    - What changes if I am wrong: [the consequence]
+    - My recommendation: [the option and why]
+- [U-PAY-2] [The person's wording] | impact: normal | covers: F-PAY-12 | response: amend | version: 1 | reason: [why] | by: [name or role] | date: [YYYY-MM-DD]
+  - v1 (AI)
+    - What I think you mean: [the AI's original wording and explanation]
+    - Why I am asking: [what depends on the answer]
+    - An example: [one concrete case]
+    - What changes if I am wrong: [the consequence]
+- [U-PAY-3] [Restatement] | impact: high | covers: F-PAY-20 | response: open | version: 1
+  - v1 (AI)
+    - What I think you mean: [explanation]
+    - Why I am asking: [what depends on the answer]
+    - An example: [one concrete case]
+    - What changes if I am wrong: [the consequence]
+    - My recommendation: [the option and why]
 
 ## Follow-ups *(required, or none)*
 
 What happens next for each item answered disagree, or amended against observed evidence.
 
-- U-[n]: [next step: probe, ask someone, or record a decision] | owner: [role]
+- U-PAY-[n]: [next step: probe, ask someone, or record a decision] | owner: [role]
 
 ## Decisions Raised *(required, or none)*
 
