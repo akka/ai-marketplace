@@ -91,9 +91,9 @@
   - v1 (AI)
     - What I think you mean: [explanation]
     - Why I am asking: [what depends on the answer]
+    - My suggestion: [one sentence, only when there is a choice]
     - An example: [one concrete case]
     - What changes if I am wrong: [the consequence]
-    - My recommendation: [the option and why]
 
 ## Follow-ups *(required, or none)*
 
