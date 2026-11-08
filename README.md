@@ -101,7 +101,7 @@ Zero prerequisites beyond having a supported AI coding agent installed.
 | `/akka:conform`      | `/akka.conform`      | Run the auditors and return the ship-readiness verdict |
 | `/akka:ship`         | `/akka.ship`         | Run the auditors and, on pass, run the ship steps      |
 | `/akka:mode`         | `/akka.mode`         | Switch between Enforced and À la carte modes           |
-| `/akka:docs`         | `/akka.docs`         | Generate rendered project documentation into `docs/`   |
+| `/akka:docs`         | `/akka.docs`         | Generate the implementation docs and the project Story into `docs/` |
 
 > **Migrating from `akka-specify`?** The `akka-specify` plugin is still available but deprecated. Uninstall it and install `akka` instead.
 

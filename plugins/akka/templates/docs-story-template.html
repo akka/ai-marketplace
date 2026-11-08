@@ -1,0 +1,381 @@
+<!doctype html>
+<!--
+  /akka:docs Story OVERVIEW template. DO NOT edit the CSS, the layout, the fonts, or the
+  colors when generating a project's Story. This template is the fixed design
+  contract, the companion of docs-template.html: the assistant fills the
+  {{placeholders}} and copies the fragments below into the placeholder regions
+  verbatim, changing only text and the slot coordinates the tables give.
+
+  The Story explains what the project is for and how it was approached, for a
+  reader meeting it for the first time. Its source is the confirmed findings in
+  discovery/ and the plan, never the code. Written to docs/story/index.html.
+
+  Discovery is organised in topics, discovery/<topic>/, each with a header
+  giving its goal, track, scope (`project` or the name of an area), status
+  (active, settled or parked), owner and start date. The Story has this
+  overview, and one CHAPTER per settled area topic, written from
+  docs-story-chapter-template.html to docs/story/<topic>/index.html. A project
+  with no discovery/ folder gets this page alone, with no chapters.
+
+  Placeholders (single-value):
+    {{TITLE}}            project name, for <title> and <h1>
+    {{LEAD}}             one sentence: who the project is for
+    {{SLUG}}             short kebab-case project slug; prefixes every SVG id
+    {{ESSENCE}}          one sentence: the problem, who it is for, what changes,
+                         from the project-scoped topic, or from the spec's
+                         user scenarios and key entities when there is none
+    {{APPROACH}}         one or two sentences: the chosen approach and its phases
+    {{APPROACH_WHY}}     two or three sentences: why it was chosen over the
+                         options in landscape.md and the decisions log
+    {{SOURCES}}          the files the Story was written from, comma separated
+    {{FOOTER_TARGET}}    right-side footer text (typically "Akka SDK")
+
+  Placeholder regions:
+    {{ESSENCE_FIGURE}}   one COMPARISON figure: before and after
+    {{CHAPTERS}}         one CHAPTER CARD per area topic, any status
+    {{CONCEPTS}}         one CONCEPT fragment per confirmed concept of a settled
+                         project-scoped topic, in C-number order
+    {{CHAPTER_CONCEPTS}} one CHAPTER CONCEPTS line per chapter, linking to its
+                         concepts; nothing when there are no chapters
+    {{APPROACH_FIGURE}}  one TIMELINE figure (the phases), or a FLOW figure when
+                         the plan has no phases
+    {{SYSTEM_SECTION}}   the SYSTEM fragment for a modernization (spec marker
+                         **Modernization**: yes); otherwise nothing
+    {{NEXT_LINKS}}       one NEXT LINK per destination
+    {{NOTES}}            one NOTE per finding cited on the page, in F-number order
+
+  ============================================================================
+  RULES THAT ARE VERIFIED. /akka:docs runs harnesses/content/diagram_check.py
+  over this page exactly as over docs/index.html (accessible SVG, no diagonal
+  <line>, the 4px grid on <rect> and <line>, masked labels, budgets, every class
+  has a rule, the Akka palette, no remote assets, no scripts, encoding). Two
+  more conditions read this page:
+
+    STORY-CONCEPTS-VISUAL  every confirmed concept of a settled project-scoped
+                           topic (or of discovery/concepts.md) has a valid
+                           ```visual block and a figure on this page carrying
+                           data-concept="C-<n>" data-kind="<its kind>", in that
+                           order, on the <figure> tag
+    STORY-CITES-CONFIRMED  every finding identifier on the page names a finding
+                           in discovery/ whose status is confirmed
+
+  HTML comments are not read by either condition, so the fragments below are
+  not drawings or citations. Keep real finding identifiers out of comments.
+
+  DIAGRAMS come from a fixed set of five kinds: relationship, flow, state,
+  comparison, timeline. A concept's figure is drawn from its visual block in
+  discovery/concepts.md; the other figures are drawn from the same fragments
+  with data the assistant takes from the discovery files and the plan. Each
+  fragment fixes the viewBox, the slots and the coordinates; the assistant
+  picks the slot table for the number of items and fills the text. Story
+  diagrams are NARRATIVE graphics: muted grey, with at most two accented
+  (yellow) elements, the ones the caption is about.
+
+  TEXT FITS ITS SLOT: a node name of at most 14 characters, a connector label
+  of at most 10 (relationship sides) or 14 (state moves), a note of at most 20,
+  a timeline label of at most 10. Shorten the words; never shrink the type.
+
+  CAPTIONS: every <figcaption> is one complete sentence that ends with the
+  footnote references of the findings it rests on.
+  ============================================================================
+-->
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}} — Project Story</title>
+<style>
+:root{--yellow:#F5C518;--white:#F5F5F5;}
+*{margin:0;box-sizing:border-box}
+body{background:#070707;color:#B8B8B8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.6}
+a{color:#F5C518}
+.wrap{max-width:1080px;margin:0 auto;padding:48px 40px 80px;position:relative}
+.bg{position:fixed;inset:0;background-image:radial-gradient(circle,rgba(245,197,24,0.035) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+.wrap>*{position:relative;z-index:1}
+.mono{font-family:'SF Mono','Cascadia Code','Consolas',monospace}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.brand-mark{font-weight:800;letter-spacing:1px;color:#0A0A0A;background:var(--yellow);padding:3px 9px;border-radius:5px;font-size:14px}
+.brand-sub{font-size:11px;text-transform:uppercase;letter-spacing:3px;color:#666;font-weight:600}
+h1{font-size:40px;font-weight:700;letter-spacing:-0.03em;color:var(--white);margin:14px 0 6px}
+.lead{font-size:15px;color:#999;max-width:720px;margin-bottom:34px}
+.section-label{font-size:11px;text-transform:uppercase;letter-spacing:3px;color:var(--yellow);font-weight:600;margin:48px 0 16px}
+/* one idea per panel: the sentences, then the picture */
+.idea{display:grid;grid-template-columns:minmax(0,1fr) 440px;gap:24px;align-items:start;background:#0A0A0A;border:1px solid #1C1C1C;border-radius:10px;padding:20px 22px;margin-bottom:12px}
+.idea h3{font-size:16px;font-weight:700;color:var(--white);margin-bottom:8px}
+.idea-text{min-width:0}
+.say{font-size:15px;color:#ccc;margin-bottom:10px;max-width:640px}
+.ex{font-size:13.5px;color:#999;margin-bottom:10px;max-width:640px}
+.why{font-size:13.5px;color:#999;max-width:640px}
+.fig{border:1px solid #1C1C1C;border-radius:8px;padding:12px;min-width:0}
+.cap{font-size:12px;color:#888;margin-top:8px}
+.fr{font-size:10px;margin-left:2px;font-family:'SF Mono','Cascadia Code','Consolas',monospace}
+.fr a{color:#F5C518;text-decoration:none}
+.fr+.fr{margin-left:6px}
+/* keeps, changes, drops: a modernization only */
+.kcd{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.kcd-col{border:1px solid #1C1C1C;border-radius:8px;padding:12px 14px}
+.kcd-h{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#888;font-weight:700;margin-bottom:6px}
+.kcd-col ul{padding-left:16px;font-size:13px;color:#B8B8B8}
+.next{list-style:none;padding:0;display:grid;gap:8px;font-size:14px}
+/* the map of chapters on the overview, and the way back from a chapter */
+.chapters{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:12px}
+.chap{display:block;background:#0A0A0A;border:1px solid #1C1C1C;border-radius:10px;padding:14px 16px;color:#B8B8B8;text-decoration:none}
+.chap-area{display:block;font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#888;font-weight:700}
+.chap-title{display:block;font-size:14px;font-weight:700;color:#F5F5F5;margin:4px 0}
+.chap-status{display:block;font-size:12px;color:#999}
+.crumb{font-size:12px;color:#888;margin-bottom:6px}
+.notes{font-size:12px;color:#888;padding-left:20px;display:grid;gap:4px}
+.fid{color:#F5C518;margin-right:6px}
+.src{color:#666}
+/* story diagrams: narrative, so muted grey with at most two accented elements */
+.sd{display:block;width:100%;height:auto}
+.sd .nd rect{fill:#141414;stroke:#666;stroke-width:1}
+.sd .nd.focus rect,.sd .nd.new rect{fill:#1A1600;stroke:#F5C518}
+.sd .nd.gone rect{fill:#0A0A0A;stroke:#555;stroke-dasharray:4 3}
+.sd .nd.end rect{fill:#0A0A0A;stroke:#333}
+.sd .nn{font-size:12px;font-weight:700;fill:#fff}
+.sd .nd.gone .nn{fill:#888}
+.sd .sub{font-size:8px;fill:#999;font-family:'SF Mono','Consolas',monospace}
+.sd .hd{font-size:8px;letter-spacing:2px;font-weight:700;fill:#F5C518}
+.sd .edge{stroke:#8a8a8a;stroke-width:1;fill:none}
+.sd .rule{stroke:#1C1C1C;stroke-width:1}
+.sd .rail{stroke:#2a2a2a;stroke-width:1}
+.sd .elbl{font-size:8px;letter-spacing:.06em;fill:#aaa}
+.sd .emask{fill:#0A0A0A}
+.sd .pt{fill:#0A0A0A;stroke:#666;stroke-width:1}
+.sd .pt.done{fill:#888;stroke:#888}
+.sd .pt.now{fill:#F5C518;stroke:#F5C518}
+.foot{margin-top:56px;padding-top:20px;border-top:1px solid #1C1C1C;font-size:11px;color:#555;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.foot .cmd{color:#F5C518}
+@media (max-width:860px){.idea{grid-template-columns:minmax(0,1fr)}.kcd{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:600px){.wrap{padding:32px 16px 56px}h1{font-size:32px}.idea{padding:16px}}
+</style></head>
+<body><div class="bg"></div><div class="wrap">
+
+<div class="brand"><span class="brand-mark">AKKA</span><span class="brand-sub">Project Story</span></div>
+<h1>{{TITLE}}</h1>
+<p class="lead">{{LEAD}}</p>
+
+<div class="section-label">Essence</div>
+<section class="idea">
+  <div class="idea-text">
+    <p class="say">{{ESSENCE}}</p>
+  </div>
+  <!--
+    {{ESSENCE_FIGURE}}: one COMPARISON figure, name "essence", without
+    data-concept. BEFORE is how the job is done today (the status quo in
+    landscape.md, or behaviour.md for a modernization); AFTER is what changes.
+  -->
+  {{ESSENCE_FIGURE}}
+</section>
+
+<div class="section-label">Chapters</div>
+<!--
+  {{CHAPTERS}}: one card per area topic, in the order the topics started. A
+  settled topic's card links to its chapter; an active or parked topic's card
+  is a <div> with the same classes and no link. With no area topics, replace the
+  whole Chapters label and grid with nothing.
+
+  CHAPTER CARD:
+    <a class="chap" href="cost-views/index.html"><span class="chap-area">Area name</span><span class="chap-title">The topic's goal, as a sentence.</span><span class="chap-status">Settled</span></a>
+    <div class="chap"><span class="chap-area">Area name</span><span class="chap-title">The topic's goal, as a sentence.</span><span class="chap-status">Active</span></div>
+-->
+<div class="chapters">
+{{CHAPTERS}}
+</div>
+
+<div class="section-label">Concepts</div>
+<!--
+  {{CONCEPTS}}: one fragment per concept of a settled project-scoped topic
+  (or of discovery/concepts.md) whose findings are all confirmed. The same
+  fragment, and the five diagram kinds below, are used in every chapter. The figure is drawn from the concept's visual
+  block, with the kind it names. Without a discovery/ folder, write one
+  fragment per Key Entity in the spec, with no data-concept attribute, and
+  choose the kind the entity's description supports.
+
+  CONCEPT FRAGMENT (<n> is the concept number, <kind> the visual block's kind):
+    <section class="idea" id="concept-C-<n>">
+      <div class="idea-text">
+        <h3>Concept name</h3>
+        <p class="say">What it means, in two or three plain sentences.<sup class="fr"><a href="#fn-F-<n>">F-<n></a></sup></p>
+        <p class="ex">An example a newcomer would recognise.</p>
+      </div>
+      <figure class="fig" data-concept="C-<n>" data-kind="<kind>">
+        ...the SVG for the kind, name "c-<n>"...
+        <figcaption class="cap">One sentence on what the picture shows.<sup class="fr"><a href="#fn-F-<n>">F-<n></a></sup></figcaption>
+      </figure>
+    </section>
+
+  EVERY FIGURE'S SVG OPENS THE SAME WAY (<name> is unique on the page:
+  essence, c-<n>, approach, system). H is the kind's height below.
+    <svg class="sd" viewBox="0 0 480 H" width="100%" role="img"
+         aria-labelledby="{{SLUG}}-<name>-title {{SLUG}}-<name>-desc"
+         font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
+      <title id="{{SLUG}}-<name>-title">the visual block's title</title>
+      <desc id="{{SLUG}}-<name>-desc">One sentence on what it shows, never its geometry.</desc>
+      <defs>
+        <marker id="{{SLUG}}-<name>-a" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#8a8a8a"/>
+        </marker>
+      </defs>
+      ...connectors first, then nodes, then label masks and labels...
+    </svg>
+
+  ==== RELATIONSHIP (H=208) ====  focus: <name>, link: <name> | <label> (1-4)
+  The focus sits in the centre, accented. Links fill the slots in this order:
+  left, right, top, bottom. Draw only the slots in use.
+    connectors:
+      left    <line class="edge" x1="120" y1="104" x2="180" y2="104"/>
+      right   <line class="edge" x1="300" y1="104" x2="360" y2="104"/>
+      top     <line class="edge" x1="240" y1="48" x2="240" y2="80"/>
+      bottom  <line class="edge" x1="240" y1="128" x2="240" y2="160"/>
+    focus:
+      <g class="nd focus"><rect x="180" y="80" width="120" height="48" rx="6"/><text class="nn" x="240" y="108" text-anchor="middle">Claim</text></g>
+    links:
+      left    <g class="nd"><rect x="8" y="80" width="112" height="48" rx="6"/><text class="nn" x="64" y="108" text-anchor="middle">Name</text></g>
+      right   <g class="nd"><rect x="360" y="80" width="112" height="48" rx="6"/><text class="nn" x="416" y="108" text-anchor="middle">Name</text></g>
+      top     <g class="nd"><rect x="180" y="8" width="120" height="40" rx="6"/><text class="nn" x="240" y="32" text-anchor="middle">Name</text></g>
+      bottom  <g class="nd"><rect x="180" y="160" width="120" height="40" rx="6"/><text class="nn" x="240" y="184" text-anchor="middle">Name</text></g>
+    labels (only for a link with a label):
+      left    <rect class="emask" x="124" y="84" width="52" height="12" rx="2"/><text class="elbl" x="150" y="93" text-anchor="middle">made by</text>
+      right   <rect class="emask" x="304" y="84" width="52" height="12" rx="2"/><text class="elbl" x="330" y="93" text-anchor="middle">covers</text>
+      top     <rect class="emask" x="248" y="56" width="64" height="12" rx="2"/><text class="elbl" x="252" y="65">belongs to</text>
+      bottom  <rect class="emask" x="248" y="136" width="64" height="12" rx="2"/><text class="elbl" x="252" y="145">holds</text>
+
+  ==== FLOW (H=96) ====  step: <name> | <note> (2-4)
+  Steps left to right, joined by arrows. Slot table, x of each step and width w:
+      2 steps  x = 56, 264            w=160   arrows 216->260
+      3 steps  x = 16, 176, 336       w=128   arrows 144->172, 304->332
+      4 steps  x = 8, 128, 248, 368   w=96    arrows 104->124, 224->244, 344->364
+    arrow (y is always 48):
+      <line class="edge" x1="104" y1="48" x2="124" y2="48" marker-end="url(#{{SLUG}}-<name>-a)"/>
+    step with a note (name at y=44, note at y=60; text x is the step x + 12):
+      <g class="nd"><rect x="8" y="24" width="96" height="48" rx="6"/><text class="nn" x="20" y="44">Intake</text><text class="sub" x="20" y="60">three channels</text></g>
+    step without a note: the name alone at y=52.
+
+  ==== STATE (H=168) ====  state: <name> | focus|end (2-4), move: <a> -> <b> | <guard>
+  States in one row. Slot table, x of each state, width w, and centre c:
+      2 states  x = 72, 280              w=128   c = 136, 344
+      3 states  x = 24, 184, 344         w=112   c = 80, 240, 400
+      4 states  x = 8, 128, 248, 368     w=96    c = 56, 176, 296, 416
+    state (class "nd", plus "focus" or "end" from its mark; name centred at y=100):
+      <g class="nd"><rect x="8" y="72" width="96" height="48" rx="6"/><text class="nn" x="56" y="100" text-anchor="middle">Received</text></g>
+    forward move a->b, where b is the next state, drawn as an arch above the row,
+    leaving at ca+12 and entering at cb-12 (example: c 56 to c 176):
+      <path class="edge" d="M 68 72 V 44 Q 68 36 76 36 H 156 Q 164 36 164 44 V 68" marker-end="url(#{{SLUG}}-<name>-a)"/>
+      general form: M (ca+12) 72 V 44 Q (ca+12) 36 (ca+20) 36 H (cb-20) Q (cb-12) 36 (cb-12) 44 V 68
+    its guard, centred at m=(ca+cb)/2, 8px above the arch:
+      <rect class="emask" x="(m-36)" y="16" width="72" height="12" rx="2"/><text class="elbl" x="m" y="25" text-anchor="middle">fraud score</text>
+    the one other move (backwards, or skipping a state), an arch below the row,
+    s = +1 when b is right of a, -1 when left (example: c 296 back to c 56):
+      <path class="edge" d="M 296 120 V 144 Q 296 152 288 152 H 64 Q 56 152 56 144 V 124" marker-end="url(#{{SLUG}}-<name>-a)"/>
+      general form: M ca 120 V 144 Q ca 152 (ca+8s) 152 H (cb-8s) Q cb 152 cb 144 V 124
+      <rect class="emask" x="(m-36)" y="132" width="72" height="12" rx="2"/><text class="elbl" x="m" y="141" text-anchor="middle">reopened</text>
+
+  ==== COMPARISON (H = 28 + 40n, n = the larger of the before and after counts, 1-4) ====
+  before: <text> | dropped, after: <text> | new. Row i (from 0) sits at y = 28 + 40i.
+    headings and divider (y2 = 20 + 40n):
+      <line class="rule" x1="240" y1="24" x2="240" y2="180"/>
+      <text class="hd" x="8" y="16">BEFORE</text><text class="hd" x="264" y="16">AFTER</text>
+    before row (add "gone" for dropped; text at y = row y + 20):
+      <g class="nd"><rect x="8" y="28" width="208" height="32" rx="6"/><text class="nn" x="20" y="48">Four records per claim</text></g>
+    after row (add "new" for new, at most two):
+      <g class="nd new"><rect x="264" y="28" width="208" height="32" rx="6"/><text class="nn" x="276" y="48">One claim record</text></g>
+    Comparison rows hold up to 28 characters.
+
+  ==== TIMELINE (H=112) ====  point: <label> | done|now|next (2-6)
+  A rail with one point per item; labels alternate above (even index, y=36) and
+  below (odd index, y=88). Slot table, cx of each point:
+      2 points  48, 432
+      3 points  48, 240, 432
+      4 points  48, 176, 304, 432
+      5 points  48, 144, 240, 336, 432
+      6 points  40, 120, 200, 280, 360, 440
+    rail, then points ("done" or "now" from the mark; nothing for next):
+      <line class="rail" x1="40" y1="56" x2="440" y2="56"/>
+      <circle class="pt done" cx="48" cy="56" r="6"/><text class="nn" x="48" y="36" text-anchor="middle">Phase 1</text>
+      <circle class="pt now" cx="240" cy="56" r="6"/><text class="nn" x="240" y="88" text-anchor="middle">Phase 2</text>
+-->
+{{CONCEPTS}}
+<!--
+  {{CHAPTER_CONCEPTS}}: the concepts of each chapter, as links. Nothing when
+  there are no chapters.
+
+  CHAPTER CONCEPTS (one <li> per chapter):
+    <section class="idea"><div class="idea-text"><h3>Concepts in the chapters</h3><ul class="next">
+      <li><a href="cost-views/index.html#concepts">Area name</a>: Concept, Concept, Concept.</li>
+    </ul></div></section>
+-->
+{{CHAPTER_CONCEPTS}}
+
+<div class="section-label">Approach</div>
+<section class="idea">
+  <div class="idea-text">
+    <p class="say">{{APPROACH}}</p>
+    <p class="why">{{APPROACH_WHY}}</p>
+  </div>
+  <!--
+    {{APPROACH_FIGURE}}: one TIMELINE figure, name "approach", without
+    data-concept: one point per delivery phase in plan.md, marked done, now or
+    next from the plan. More than six phases: draw the first five and a sixth
+    point labelled with the count of the rest. No phases yet: a FLOW of the
+    approach's steps.
+  -->
+  {{APPROACH_FIGURE}}
+</section>
+
+<!--
+  {{SYSTEM_SECTION}}: a modernization only. Nothing at all otherwise.
+
+  SYSTEM FRAGMENT:
+    <div class="section-label">The system, before and after</div>
+    <section class="idea">
+      <div class="idea-text">
+        <p class="say">One or two sentences on what the new system is, from system-map.md and behaviour.md.<sup class="fr"><a href="#fn-F-<n>">F-<n></a></sup></p>
+        <p class="ex">Parity: the parity status from the plan in one sentence, or that it is not measured yet and which phase measures it.</p>
+      </div>
+      <figure class="fig" data-kind="comparison">
+        ...COMPARISON SVG, name "system": dropped parts marked dropped, new parts new...
+        <figcaption class="cap">One sentence.<sup class="fr"><a href="#fn-F-<n>">F-<n></a></sup></figcaption>
+      </figure>
+      <div class="kcd">
+        <div class="kcd-col"><div class="kcd-h">Keeps</div><ul><li>One line per thing kept.</li></ul></div>
+        <div class="kcd-col"><div class="kcd-h">Changes</div><ul><li>One line per thing changed.</li></ul></div>
+        <div class="kcd-col"><div class="kcd-h">Drops</div><ul><li>One line per thing dropped, with the reason.</li></ul></div>
+      </div>
+    </section>
+-->
+{{SYSTEM_SECTION}}
+
+<div class="section-label">Where to look next</div>
+<section class="idea">
+  <div class="idea-text">
+    <ul class="next">
+      <!--
+        {{NEXT_LINKS}}: one line per destination, the implementation docs first.
+        Paths are relative to docs/story/index.html.
+
+        NEXT LINK:
+          <li><a href="../index.html">Implementation docs</a>: each component, event and endpoint as built.</li>
+          <li><a href="../../discovery/concepts.md">Concepts</a>: the full vocabulary and its findings.</li>
+          <li><a href="../../specs/001-feature/plan.md">Plan</a>: the phases, gates and decisions.</li>
+      -->
+      {{NEXT_LINKS}}
+    </ul>
+  </div>
+</section>
+
+<div class="section-label">Notes</div>
+<ol class="notes">
+  <!--
+    {{NOTES}}: one line per finding cited on this page, in F-number order, with
+    its claim as discovery/ records it and its evidence. A Story built without
+    a discovery/ folder cites the spec instead (User Story 1, FR-003) and its
+    notes name those items.
+
+    NOTE:
+      <li id="fn-F-<n>"><span class="fid mono">F-<n></span>The claim. <span class="src">evidence: the source</span></li>
+  -->
+  {{NOTES}}
+</ol>
+
+<div class="foot"><span>Generated by <span class="cmd mono">/akka:docs story</span> &middot; docs/story/index.html &middot; from {{SOURCES}}</span><span>{{FOOTER_TARGET}}</span></div>
+</div></body></html>

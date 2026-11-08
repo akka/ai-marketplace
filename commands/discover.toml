@@ -149,7 +149,7 @@ the specification's Key Entities and the console glossary.
 1. Gather candidate terms from every discovery file, the sources and, for a modernization, the names in `system-map.md`.
 2. Ask the person for the words their people use, and for any term that means different things to different groups. Ask about states only where a concept clearly moves through some (an application is submitted, reviewed, decided).
 3. Write the Glossary: one row per term, a one-sentence plain definition, words to avoid, and the finding behind it.
-4. Write one block per concept with identity, states, relationships and rules. Each rule is a finding.
+4. Write one block per concept with identity, states, relationships and rules. Each rule is a finding. Give each concept a `visual` block in the template's format: choose the one kind of the five that shows the concept best (a lifecycle is a state, a sequence of steps a flow, what it connects to a relationship) and fill only its lines. `/akka:docs` draws it in the project Story.
 5. Record every disagreement about a term under Conflicting Usage, naming who uses which meaning. Do not pick a winner here; `confirm` asks the person.
 
 ## system

@@ -1,6 +1,7 @@
 # Concepts: [PROJECT]
 
 **Project**: [project name] | **Track**: [ideation | modernization] | **Updated**: [DATE]
+**Scope**: [project | the name of the area] | **Status**: [active | settled | parked]
 **Written by**: `/akka:discover concepts`
 
 <!--
@@ -19,7 +20,33 @@
   `none: <what was checked>`.
 
   This file feeds the specification's Key Entities and the console glossary.
+
+  A concept's picture is one fenced block, opened with ```visual and closed with ```,
+  inside the concept's block. /akka:docs draws it in the project Story from fixed
+  shapes, so it holds data only. The first two lines are always:
+    kind: relationship | flow | state | comparison | timeline
+    title: <short name, at most 60 characters>
+  then the lines for the kind (an optional field follows " | "):
+    relationship  focus: <name>                       exactly one
+                  link: <name> | <label>              one to four
+    flow          step: <name> | <note>               two to four, in order
+    state         state: <name> | focus|end           two to four, in order
+                  move: <from> -> <to> | <guard>      one to four; every move goes to the
+                                                      next state, except at most one
+    comparison    before: <text> | dropped            one to four
+                  after: <text> | new                 one to four
+    timeline      point: <label> | done|now|next      two to six, at most one now
+  focus, new and now are drawn in the accent colour: at most two per block.
+  Names fit their box: at most 14 characters; labels, guards and timeline
+  labels at most 10; notes at most 20; comparison text at most 28. A concept
+  whose findings are all confirmed must have a valid block (STORY-CONCEPTS-VISUAL).
+
+  Scope and Status say where the Story draws these concepts: a project-scoped
+  topic in the Story's overview, an area in its own chapter once the topic is
+  settled. When the topic has a topic.md, its header is read instead; a missing
+  Scope reads as project and a missing Status as settled.
 -->
+
 
 ## Glossary *(required)*
 
@@ -41,6 +68,14 @@ One block per concept that has identity, state or rules.
 - **States**: [the states it moves through, in order, or none]
 - **Related to**: [other concepts and how]
 - **Rules**: [the rules attached to it, each a finding]
+
+```visual
+kind: [relationship]
+title: [What a claim holds]
+focus: [Claim]
+link: [Claimant] | [made by]
+link: [Policy] | [covered by]
+```
 
 - [F-20] [Claim about this concept] | evidence: [source] | status: [observed]
 
