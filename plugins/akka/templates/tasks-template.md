@@ -49,7 +49,7 @@ Example: `- [ ] T012 [P] [P2] [US1] [model: sonnet] Create Order record in src/m
   ============================================================================
 -->
 
-## Phase 1: Setup (Shared Infrastructure)
+## Group 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
@@ -59,11 +59,11 @@ Example: `- [ ] T012 [P] [P2] [US1] [model: sonnet] Create Order record in src/m
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Group 2: Foundational (Blocking Prerequisites)
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+**⚠️ CRITICAL**: No user story work can begin until this group is complete
 
 Examples of foundational tasks (adjust based on your project):
 
@@ -78,7 +78,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ---
 
-## Phase 3: User Story 1 - [Title] (Priority: P1) 🎯 MVP
+## Group 3: User Story 1 - [Title] (Priority: P1) 🎯 MVP
 
 **Goal**: [Brief description of what this story delivers]
 
@@ -104,7 +104,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ---
 
-## Phase 4: User Story 2 - [Title] (Priority: P2)
+## Group 4: User Story 2 - [Title] (Priority: P2)
 
 **Goal**: [Brief description of what this story delivers]
 
@@ -126,7 +126,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ---
 
-## Phase 5: User Story 3 - [Title] (Priority: P3)
+## Group 5: User Story 3 - [Title] (Priority: P3)
 
 **Goal**: [Brief description of what this story delivers]
 
@@ -147,11 +147,11 @@ Examples of foundational tasks (adjust based on your project):
 
 ---
 
-[Add more user story phases as needed, following the same pattern]
+[Add more user story groups as needed, following the same pattern]
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Group N: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
@@ -166,20 +166,20 @@ Examples of foundational tasks (adjust based on your project):
 
 ## Dependencies & Execution Order
 
-### Phase Dependencies
+### Group Dependencies
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+- **Setup (Group 1)**: No dependencies - can start immediately
+- **Foundational (Group 2)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Group 3+)**: All depend on Foundational group completion
   - User stories can then proceed in parallel (if staffed)
   - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Polish (Final Group)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
+- **User Story 1 (P1)**: Can start after Foundational (Group 2) - No dependencies on other stories
+- **User Story 2 (P2)**: Can start after Foundational (Group 2) - May integrate with US1 but should be independently testable
+- **User Story 3 (P3)**: Can start after Foundational (Group 2) - May integrate with US1/US2 but should be independently testable
 
 ### Within Each User Story
 
@@ -193,8 +193,8 @@ Examples of foundational tasks (adjust based on your project):
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- All Foundational tasks marked [P] can run in parallel (within Group 2)
+- Once Foundational group completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
@@ -219,9 +219,9 @@ Task: "Create [Domain2] record in src/main/java/{org}/{app}/domain/"
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
+1. Complete Group 1: Setup
+2. Complete Group 2: Foundational (CRITICAL - blocks all stories)
+3. Complete Group 3: User Story 1
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 

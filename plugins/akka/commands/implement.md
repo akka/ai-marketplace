@@ -109,7 +109,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - **Kubernetes/k8s**: `*.secret.yaml`, `secrets/`, `.kube/`, `kubeconfig*`, `*.key`, `*.crt`
 
 6. Parse tasks.md structure and extract:
-   - **Task phases**: Setup, Tests, Core, Integration, Polish
+   - **Task groups**: Setup, Tests, Core, Integration, Polish
    - **Task dependencies**: Sequential vs parallel execution rules
    - **Task details**: ID, description, file paths, parallel markers [P], delivery-phase tags [P<n>], model tags [model: <name>]
    - **Execution flow**: Order and dependency requirements
@@ -124,11 +124,11 @@ You **MUST** consider the user input before proceeding (if not empty).
    Then apply the downgrade rule: when usage has reached 85% of the plan's allowance (the harness reports it, or the user says so), move the chosen model one tier down the tier list in `.akka/models.md` (the last tier stays), unless the policy's Exceptions name that purpose or phase. Do not change the main session's model; tell the user once that the rule is in effect and suggest they switch the main session themselves. Without a policy file, the tiers are, most capable first: opus, sonnet, haiku. Name the model used in the progress report for each task.
 
 7. Execute implementation following the task plan:
-   - **Phase-by-phase execution**: Complete each phase before moving to the next
+   - **Group-by-group execution**: Complete each group before moving to the next
    - **Respect dependencies**: Run sequential tasks in order, parallel tasks [P] can run together
    - **Follow TDD approach**: Execute test tasks before their corresponding implementation tasks
    - **File-based coordination**: Tasks affecting the same files must run sequentially
-   - **Validation checkpoints**: Verify each phase completion before proceeding
+   - **Validation checkpoints**: Verify each group completion before proceeding
    - **Delivery phases**: When tasks carry [P<n>] tags, run the phase's acceptance test from plan.md before starting tasks of a later phase. If a phase has a gate, check the topic's `discovery/<topic>/mocks/index.md`: the gate's artifact must read `approval: approved by ...`. If it does not, stop and ask the user to review it with `/akka:discover <topic> mock`
 
 8. Implementation execution rules:
@@ -171,7 +171,7 @@ Note: This command assumes a complete task breakdown exists in tasks.md. If task
 - [ ] The current git branch is the feature branch from spec.md (created via `akka_git_create_branch` if needed) — no implementation work happened on `main`.
 - [ ] The checklists status table was displayed; if any checklist had incomplete items, the user explicitly approved proceeding.
 - [ ] Every applicable ignore file (`.gitignore`, `.dockerignore`, `.eslintignore`/eslint config, `.prettierignore`, `.npmignore`, `.terraformignore`, `.helmignore`) was created or verified with the correct patterns for the detected tech stack.
-- [ ] Tasks were executed phase-by-phase, respecting sequential dependencies and running `[P]` tasks in parallel where safe.
+- [ ] Tasks were executed group-by-group, respecting sequential dependencies and running `[P]` tasks in parallel where safe.
 - [ ] When tasks carry `[P<n>]` tags, each delivery phase's acceptance test passed and its gate was approved before a later phase's tasks started.
 - [ ] Each sub-agent's model and effort came from the task's `[model: …]` tag, the plan's Model Plan, `.akka/models.md` or the harness default, in that order, with the 85% downgrade rule applied; the model used was reported per task.
 - [ ] Every completed task in `tasks.md` was marked `[X]`; any failed task halted execution (or, for `[P]` tasks, was reported while continuing successful siblings).
