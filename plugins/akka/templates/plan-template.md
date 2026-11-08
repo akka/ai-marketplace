@@ -2,6 +2,7 @@
 
 **Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
 **Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+**Discovery**: [the discovery/ files read, or none]
 
 **Note**: This template is filled in by the `/akka:plan` command. See `.akka/templates/plan-template.md` for the execution workflow.
 
@@ -105,6 +106,84 @@ alternative and why it was not chosen (constitution: "Right component for the
 job"). For obvious choices the last column may stay empty. Pure logic with no
 state, subscription, schedule, or API surface is a plain domain class and does
 not appear in this table.
+
+## Delivery Phases
+
+*Filled during Phase 2 (delivery plan). Only delivery phases use headings that begin with
+"Phase": the Model Plan and the exit conditions read every such heading as a phase. Tasks
+name their phase with a `[P<n>]` tag.*
+
+**Critical path**: [Phase 1 → Phase 2 → Phase 4; Phase 3 runs beside Phase 2]
+
+### Phase 1: [Name]
+
+- **Goal**: [what is true when this phase is done, in one sentence]
+- **Steps**: [the main steps, in order]
+- **Parallel with**: [other phases that can run at the same time, or none]
+- **Acceptance test**: [a check that can fail, and how it is run]
+- **Gate**: [review gate that must be approved before this phase starts, or none]
+- **Risk**: [what is most likely to go wrong, and how early it would show]
+- **Rollback**: [how to undo this phase without losing earlier phases]
+- **Size**: [S (hours) | M (one to three days) | L (a week or more; consider splitting)]
+
+### Phase 2: [Name]
+
+- **Goal**: [...]
+- **Steps**: [...]
+- **Parallel with**: [...]
+- **Acceptance test**: [...]
+- **Gate**: [...]
+- **Risk**: [...]
+- **Rollback**: [...]
+- **Size**: [...]
+
+## Review Gates *(required, or none)*
+
+Artifacts a person approves before a phase starts. Each artifact is registered in
+`discovery/mocks/index.md` with `/akka:discover mock`.
+
+| Gate | Before phase | What is reviewed | Artifact | Approver |
+|------|--------------|------------------|----------|----------|
+| G-1 | Phase 2 | [screens of the checkout flow] | [M-1] | [role] |
+
+## Baseline *(required for a modernization, otherwise required or none)*
+
+What is true today, measured, so the result can be compared with it. Only measured values
+go in this section, one bullet per metric, in the form `- <metric>: <value> | method: ... |
+source: ...`. The metric name contains no colon. A value not yet measured goes under
+Metrics and Targets.
+
+- [p95 quote latency]: [840 ms] | method: [timing probe, 200 requests] | source: [F-n or .akka/discovery/timing.json]
+
+## Metrics and Targets *(required, or none)*
+
+- [metric] | target: [value] | method: [how it will be measured] | serves: [SC-001 or F-n] | measured before: [Phase n, or already in Baseline]
+
+## Model Plan
+
+*One row per phase and purpose. Every phase heading above needs at least one row with a
+model and an effort. Start from `.akka/models.md` when it exists and say why a row differs.
+No subheadings in this section.*
+
+| Phase | Purpose | Model | Effort | Cost | Speed | Accuracy | Why |
+|-------|---------|-------|--------|------|-------|----------|-----|
+| Phase 1 | [design] | [opus] | [high] | [highest] | [slowest] | [highest] | [The data model is fixed here and everything builds on it.] |
+| Phase 2 | [implementation] | [sonnet] | [medium] | [medium] | [medium] | [high] | [Follows the design closely.] |
+| Phase 2 | [visual checks] | [haiku] | [low] | [lowest] | [fastest] | [adequate] | [Many simple screenshot checks.] |
+
+**Downgrade rule**: [When usage reaches 85% of the plan's allowance, every sub-agent moves
+one tier down, as `.akka/models.md` defines. Exceptions: none.]
+
+**Estimate**: [rough total effort and cost by phase, in relative terms unless prices were given]
+
+## Decisions Log *(required, or none)*
+
+Every choice that changes the plan, including the open decisions carried from
+`discovery/understanding.md`. When a decision is made, the Decision cell states the answer.
+
+| ID | Decision | Recommendation | Owner | Status |
+|----|----------|----------------|-------|--------|
+| D-1 | [Which storage holds the audit log?] | [Event Sourced Entity: the log is the event journal] | [role] | [open \| decided YYYY-MM-DD \| dropped] |
 
 ## Complexity Tracking
 

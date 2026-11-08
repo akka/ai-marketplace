@@ -81,6 +81,7 @@ Zero prerequisites beyond having a supported AI coding agent installed.
 | -------------------- | -------------------- | ------------------------------------------------------ |
 | `/akka:setup`        | `/akka.setup`        | Set up a complete Akka development environment         |
 | `/akka:constitution` | `/akka.constitution` | Create or update the project constitution              |
+| `/akka:discover`     | `/akka.discover`     | Gather and confirm the findings a specification rests on |
 | `/akka:specify`      | `/akka.specify`      | Create or update a feature specification               |
 | `/akka:clarify`      | `/akka.clarify`      | Resolve open questions in specs or plans               |
 | `/akka:plan`         | `/akka.plan`         | Generate an implementation plan from a spec            |
@@ -175,7 +176,7 @@ pinning.
 
 The spec-driven development workflow (specify, plan, tasks, clarify, analyze, checklist,
 issues) is built on [SpecKit](https://github.com/github/spec-kit), adapted for the
-Akka SDK with MCP tool integration. The build, conform, constitution, converge, deploy,
+Akka SDK with MCP tool integration. The build, conform, constitution, converge, deploy, discover,
 docs, harnesses, implement, inspect, mode, reliability, review, setup, ship, and status
 skills are original to Akka.
 

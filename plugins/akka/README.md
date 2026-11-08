@@ -14,6 +14,7 @@ This single command handles everything: dependency installation, project scaffol
 
 ```
 /akka:setup     → Environment + project setup (one-time, re-runnable)
+/akka:discover  → Research, landscape, concepts, existing system; confirm the understanding
 /akka:specify   → Design your feature (spec)
 /akka:clarify   → Resolve open questions
 /akka:plan      → Create implementation plan
@@ -37,6 +38,7 @@ The Codex variant includes:
 Use the canonical `akka-sdd` skill when you want the full workflow guidance,
 or one of the alias skills when you want a task-specific entry point:
 
+- `akka-discover`
 - `akka-specify`
 - `akka-plan`
 - `akka-tasks`

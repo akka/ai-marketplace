@@ -1,0 +1,321 @@
+description = "Discover what a feature or an existing system needs before it is specified, record every claim as a finding with its evidence, and confirm the understanding with a person."
+
+prompt = """
+## User Input
+
+```text
+{{args}}
+```
+
+You **MUST** consider the user input before proceeding (if not empty).
+
+## Outline
+
+Discovery is the work that comes before a specification: learning what is already known, what
+else exists, what the words mean, how an existing system behaves, and whether the person agrees
+with what the AI has understood. Every claim it makes is written down as a **finding**, with the
+evidence a reader can open and a status that says how far to trust it. A specification may rest
+only on findings a person has confirmed.
+
+Discovery works on one project at a time, not one feature. Everything it writes goes in a
+`discovery/` folder at the project root, shared by every spec in `specs/`.
+
+The first word of the user input chooses what to do:
+
+| Input | What it does | Writes |
+|-------|--------------|--------|
+| *(nothing)* | Shows which discovery files exist and recommends the next step | nothing |
+| `research` | Gathers what is already known about the problem | `discovery/research.md` |
+| `landscape` | Compares the competitors, alternatives and substitutes | `discovery/landscape.md` |
+| `concepts` | Agrees the vocabulary and the domain concepts | `discovery/concepts.md` |
+| `system` | Examines an existing system: its structure and its behaviour | `discovery/system-map.md`, `discovery/behaviour.md` |
+| `confirm` | Restates the understanding item by item for a person to agree, amend or disagree | `discovery/understanding.md` |
+| `mock` | Registers storyboards, mocks and animatics and records their review | `discovery/mocks/index.md` |
+| `--prework <engagement>` | Writes a pre-work prompt pack for someone to run before the first session | `discovery/prework/prompts.md` |
+
+Any text after the first word is context for that step (for example `system ../legacy-app` or
+`mock mocks/checkout.html`). If the first word is none of these, treat the whole input as a
+description of the work and run the no-argument status check with it as context.
+
+## Setup (every step)
+
+1. **Prerequisite check**: Call `akka_sdd_list_specs`. If this MCP tool is not available, stop and tell the user: *"The Akka MCP server is not running. Run `/akka:setup` first, or run `akka specify init .` from the terminal."* The tool also tells you which specs exist, which the status check reports.
+2. **Constitution**: Call `akka_sdd_constitution` and keep its principles in mind. A principle that limits what may be examined or shared (for example, no customer data in development) applies to discovery too.
+3. **Folder**: PROJECT_ROOT is the directory holding `.akka/` (or `pom.xml`). DISCOVERY_DIR is `PROJECT_ROOT/discovery/`. Create it the first time a step writes a file.
+4. **Read what exists**: Read every `.md` file in DISCOVERY_DIR before asking anything. Never ask a question a discovery file already answers.
+5. **Track**: Each discovery file's header records the track. If no file has one yet, ask once: *"Is this a new idea, or a rebuild of a system that already exists?"* A new idea is the **ideation** track; a rebuild is the **modernization** track. Record the answer in every file this run writes.
+6. **Template**: Before writing a file for the first time, call `akka_sdd_get_template` with the template name in the step below, and follow its sections and record formats exactly. When the file already exists, add to it and keep what is there.
+
+## Findings
+
+A finding is one claim, the evidence for it, and how far to trust it. It is always one list line
+in this exact form, so the console and the exit conditions can read it:
+
+```text
+- [F-<n>] <claim> | evidence: <source>[; <source>] | status: observed|inferred|confirmed
+```
+
+Findings about an existing system add the rung that established them:
+
+```text
+- [F-<n>] <claim> | evidence: <source> | status: observed | rung: exercised: <probe>
+```
+
+Rules for every finding:
+
+- **Number**: `<n>` is unique across every file in DISCOVERY_DIR. Before adding findings, find the highest `F-<n>` in the folder and continue from it. Never renumber or reuse a number; a finding that turns out wrong is corrected in place, keeping its number.
+- **Claim**: one plain sentence a reader new to the subject can follow. It never contains the character `|`.
+- **Evidence**: one or more sources, separated by `; `, each something a reader can open or check:
+  - a file path, with `:line` when it helps;
+  - `S-<n>` from the Sources list in `research.md`, with a page or section;
+  - a URL;
+  - a probe result, `.akka/discovery/<probe>.json`;
+  - `stated: <role or name>, <YYYY-MM-DD>` for something a person said in this conversation;
+  - `reasoning: <what it was reasoned from>`, for inferred findings only;
+  - `understanding.md U-<n>`, added when a person confirms it.
+- **Status**:
+  - `observed`: seen directly in a source that addresses it. At least one source is not `reasoning:`.
+  - `inferred`: reasoned rather than seen. Say what it was reasoned from.
+  - `confirmed`: a person agreed to it, or to an amended wording, in `/akka:discover confirm`. Only that step sets this status, and the evidence then includes `understanding.md U-<n>`.
+- **Never invent**. If you do not know, write the question under the file's Unknowns section, with the role most likely to know. An unknown is not a finding.
+- **Lines that mention a finding** without defining it write the identifier without square brackets (`F-12`), because a line that starts with `[F-<n>]` defines that finding.
+
+Every template marks some sections *required, or none*. Such a section is never deleted. When it
+has nothing to record, its only line is `none: <what was checked>`, so a reader can tell
+"checked and empty" from "not looked at".
+
+## Talking with the person
+
+- Ask at most three questions at a time and no more than five in a step, most important first. The items `confirm` presents and the reviews `mock` asks for are not counted as questions. Before asking, read the discovery files and anything the person pointed you to.
+- For each question, offer your suggested answer and why, so the person can reply "yes".
+- Write for someone who has never configured Akka. The first time you use a technical term, say what it means in a few plain words.
+- When the person answers "don't know", record it under Unknowns with who might know, and move on.
+- Never ask the person to paste credentials, personal data, customer records or anything a constitution principle forbids. Ask them to describe it instead.
+- Record what the person tells you as findings with evidence `stated: <their name or role>, <date>`. Ask for their name or role once per session.
+- Each step ends by telling the person, in two or three sentences, what was written, how many findings were added by status, and the recommended next step.
+
+## No sub-command: where discovery stands
+
+1. List each discovery file and whether it exists: `research.md`, `landscape.md`, `concepts.md`, `system-map.md`, `behaviour.md`, `understanding.md`, `mocks/index.md`, `prework/prompts.md`.
+2. Count findings across DISCOVERY_DIR by status (observed, inferred, confirmed), understanding items by response (agree, amend, disagree, open) and how many open or disagreed items are high-impact, and mocks by approval (approved, changes-requested, pending).
+3. Count findings that no spec cites, and spec requirements that cite a finding that is not confirmed or does not exist. A spec cites a finding by writing `[F-<n>]` on a functional requirement bullet.
+4. Recommend one next step, the first that applies:
+   1. Nothing exists, and the people who know the subject are not in this conversation: `/akka:discover --prework <engagement>`.
+   2. The first missing file in the track's order:
+      - ideation: research, landscape, concepts;
+      - modernization: research, system, concepts, then landscape if the person wants alternatives compared.
+   3. A UI is part of the work and `mocks/index.md` has nothing approved: `/akka:discover mock`.
+   4. There are findings that are not confirmed, or high-impact items still open or disagreed: `/akka:discover confirm`.
+   5. Otherwise: `/akka:specify`, which cites the confirmed findings.
+5. Show the result as a short table of files and counts, then the one recommendation with its reason. Write nothing.
+
+## research
+
+**Purpose**: Gather what is already known about the problem: who it is for, what they need, what
+success looks like, what constrains it, and what was tried before.
+
+**Template**: `research`. **Writes**: `discovery/research.md`.
+
+1. Collect sources before asking anything: documents and links the person gave, files in the project (README, docs, prior specs), the pre-work outputs in `discovery/prework/` if they exist, and, if you have a web search tool and the person agrees to its use, public sources. List each source once under Sources as `S-<n>` with its owner, date and whether it looks current.
+2. Ask only for what the sources do not answer, chosen from:
+   - What are we making or replacing, in one or two sentences?
+   - Who will use it, and what do they need to get done?
+   - What would make this a success, with a number if there is one?
+   - What must it respect: rules, approvals, dates, systems it must work with?
+   - What has already been tried or decided?
+3. Write findings into the sections Users and Needs, Outcomes and Measures, Constraints and Regulation, and Prior Work. A pre-work output marked `[KNOWN]` becomes an observed finding citing that file; `[INFERRED]` becomes inferred; `[UNKNOWN]` goes under Unknowns.
+4. Write Unknowns and Requests for Other People: what to ask of which role, each with one sentence on why it matters.
+
+## landscape
+
+**Purpose**: Set out every way the job is done today or could be done, so the specification knows
+what it competes with and what it must be better than.
+
+**Template**: `landscape`. **Writes**: `discovery/landscape.md`.
+
+1. State the job being compared in one sentence, taken from `research.md` when it exists.
+2. List the options: competitors (sell the same thing), alternatives (a different product for the same job), substitutes (a spreadsheet, a manual step, an in-house tool) and the status quo (what happens if nothing is built). Always include the status quo.
+3. Ask the person which dimensions matter to them. Suggest four to six that fit the job (for example cost to run, time to a result, accuracy, who can change it, how it is audited) and let them add, drop or rename.
+4. Fill the comparison. Every cell either names the finding that supports it or reads `unknown`. Do not fill a cell from general impressions.
+5. Under What This Means for the Specification, write the implications as inferred findings with `reasoning:` naming the findings they come from.
+
+## concepts
+
+**Purpose**: Agree what the words mean and which things have identity, state and rules. This feeds
+the specification's Key Entities and the console glossary.
+
+**Template**: `concepts`. **Writes**: `discovery/concepts.md`.
+
+1. Gather candidate terms from every discovery file, the sources and, for a modernization, the names in `system-map.md`.
+2. Ask the person for the words their people use, and for any term that means different things to different groups. Ask about states only where a concept clearly moves through some (an application is submitted, reviewed, decided).
+3. Write the Glossary: one row per term, a one-sentence plain definition, words to avoid, and the finding behind it.
+4. Write one block per concept with identity, states, relationships and rules. Each rule is a finding.
+5. Record every disagreement about a term under Conflicting Usage, naming who uses which meaning. Do not pick a winner here; `confirm` asks the person.
+
+## system
+
+**Purpose**: Find out what an existing system is made of and how it actually behaves, by reading it
+and, wherever possible, by running it. This is the heart of the modernization track: the old
+system's behaviour is the answer key for the new one.
+
+**Templates**: `system-map` and `behaviour`. **Writes**: `discovery/system-map.md`, `discovery/behaviour.md`. The probes record their results in `.akka/discovery/run.json` and `.akka/discovery/<probe>.json`.
+
+### What to ask
+
+Ask only what you cannot find out:
+
+- Where is a readable copy of the system's source? (A folder path or a clone.)
+- Is a copy of it running that we may send requests to? If so, at what address? Never send requests to a production system unless the person says it is safe.
+- How deep should we go? Explain the three study levels in plain words:
+  - **read**: look at the source only. Quick, but everything about behaviour stays a guess.
+  - **run**: also send requests to a running copy and watch what it does. This is what turns a guess into an observation.
+  - **diff**: also compare it with a running rebuild, request by request.
+- Is a rebuild already running (only for diff)?
+
+### The escalation ladder
+
+Every claim about behaviour climbs this ladder until something authoritative settles it. Record the
+rung that settled it in the finding's `rung:` field. These are the same words a specification's
+requirement annotation uses.
+
+| Rung | Action | `rung:` | Status it gives |
+|------|--------|---------|-----------------|
+| 1 | Read the source | `inspected` | `inferred`: reading produces a hypothesis, never a specification |
+| 2 | Read documentation that addresses this exact case | `documented` | `observed` |
+| 3 | Probe: run the system and observe | `exercised: <probe>` | `observed` |
+| 4 | Docs are silent and running it shows no defined behaviour | `unresolvable` | `observed`, and listed under Decisions to Force |
+
+Use the cheapest probe that answers the question. Before suggesting anything that needs new
+infrastructure (a database, an account, an API key), say which cheaper rung you ruled out and why;
+the old system's dependencies are not the investigation's dependencies.
+
+Rules that apply on every rung:
+
+- A claim with "every", "all", "none" or "only" cites something that enumerated the whole set (a probe result or a bill of materials), never a few examples.
+- A name is not evidence. A claim about what something does cites its body or a run, never its identifier.
+- A constant's meaning is where it is used, not where it is defined.
+- A threshold, length or size rule is probed below, at and above the boundary, and recorded in Boundaries Probed.
+- "Not found in what I read" is not "does not exist". Write it as an unknown with the next rung, not as a finding.
+- Describe what the old system does. Never call it a bug or an accident; that is a claim about someone's intent.
+
+### Steps
+
+1. **See which probes can reach the system**. Run:
+
+   ```text
+   akka specify probes list --source <source path> --target <address> --study <read|run|diff>
+   ```
+
+   Leave out `--target` when nothing is running. Show the person, in plain words, which probes are available and which are not, with the reason for each (for example *"the timing probe needs a running copy"*). A probe that cannot run is reported, never silently skipped.
+
+2. **Approval of declared probes**. A probe a project or organization declared is a command that runs with the person's privileges. If one is selected and not yet approved, show its exact command and ask the person whether to approve it. Run `akka specify probes approve <probe>` only after they say yes to that command. Built-in probes need no approval.
+
+3. **Run the probes**. Run:
+
+   ```text
+   akka specify probes run --source <source path> --target <address> --study <level> [--probe +<name>,-<name>]
+   ```
+
+   `--probe` adds or removes probes against the study level's defaults. Report any probe that was withheld or failed, with its reason. A failed probe produced nothing, so no finding may cite it. To see one probe's raw exchange, use `akka specify probes test <probe>` with the same flags.
+
+4. **Bill of materials** (Akka services only). When the source is an Akka service, run `akka bom generate <source path> --out discovery/bom`. Its AI bill of materials lists models, agents, prompts, tools, endpoints, flows and personal data, each with the file and line it was read from. Cite `discovery/bom/<file>` as evidence.
+
+5. **Write `system-map.md`**: the system studied, the inventory with a count for every kind (`0` where none exists; counts come from a probe or the bill of materials, never from reading by hand), structure findings, reachability (code that exists but never runs does not need rebuilding), test coverage, and the probes table.
+
+6. **Write `behaviour.md`**: one finding per rule, grouped by capability, each with its rung. List every finding still at `inspected` under Read but Not Run with the probe that would settle it. List every `unresolvable` finding under Decisions to Force.
+
+7. **Climb**. For each high-impact finding still at `inspected`, propose the probe or document that would settle it and ask whether to run it now.
+
+Never start, stop or change a running system without asking. Never copy customer data out of it into discovery files.
+
+## confirm
+
+**Purpose**: Make sure the AI and the person understand the same thing. The AI restates what it
+has understood, one item at a time, and the person agrees, amends or disagrees, with a reason.
+This is the only step that makes a finding `confirmed`.
+
+**Template**: `understanding`. **Writes**: `discovery/understanding.md`, and updates the finding lines it confirms.
+
+An understanding item is one list line in this exact form:
+
+```text
+- [U-<n>] <restatement> | impact: high|normal | covers: F-<n>[, F-<n>] | response: agree|amend|disagree|open | reason: <reason> | by: <name or role> | date: <YYYY-MM-DD>
+```
+
+1. **Build the items**. Group the findings that are not yet confirmed into items. Each item is one plain sentence in your own words that a person can judge without opening the evidence, and lists the findings it covers. Give an item `impact: high` when a wrong answer would change the scope, the data, a rule, a gate or a test; otherwise `normal`. Add every Conflicting Usage term and every Decisions to Force finding as its own item. Write all new items into `understanding.md` with `response: open` before asking anything, so nothing is lost if the conversation stops.
+2. **Ask who is answering**: their name or role, recorded on each item they answer.
+3. **Present the items**, high-impact first, at most five at a time, numbered by their U-numbers. For each, say in a few words what it rests on, and say plainly when it rests on reading alone (rung `inspected`) or on inference, so the person knows they are agreeing to a guess. Ask them to answer each with **Agree**, **Amend** (with their wording) or **Disagree**, and a reason. A reason is required for Amend and Disagree, and welcome for Agree.
+4. **Record each answer** on its item line: `response`, `reason` in the person's words, `by`, `date`, and for an amend `| amended: <their wording>`. Never fill a response the person did not give.
+5. **Apply each answer to the findings it covers**:
+   - **Agree**: set each finding's status to `confirmed` and add `understanding.md U-<n>` to its evidence.
+   - **Amend**: rewrite the finding's claim to the amended wording, set it to `confirmed`, and add `understanding.md U-<n>` to its evidence. If the amendment contradicts an observed or exercised finding, say so plainly with the evidence before recording it, and add a Decisions Raised row: the specification must choose between what the system does and what the person wants.
+   - **Disagree**: leave the finding's status as it was, add `understanding.md U-<n> (disagreed)` to its evidence, and add a Follow-ups line with the next step (probe it, ask someone, or record a decision). A disagreed high-impact item blocks the specification until it is settled.
+6. **Update Outcome**: counts by response, open high-impact items, and the session's date and participants.
+7. **Report** which findings are now confirmed and citable, and which high-impact items remain open or disagreed.
+
+## mock
+
+**Purpose**: Treat storyboards, mocks, animatics and prototypes as review artifacts, so that a
+person's approval, or the changes they asked for, is recorded and a plan can gate on it.
+
+**Template**: `mock-index`. **Writes**: `discovery/mocks/index.md`.
+
+A mock entry is one list line in this exact form:
+
+```text
+- [M-<n>] <title> | file: <path> | kind: storyboard|mock|animatic|prototype | version: <n> | shows: <what it illustrates> | approval: pending|approved by <who> on <YYYY-MM-DD>|changes-requested by <who> on <YYYY-MM-DD>
+```
+
+- **With a file path** in the input: register it. If the file is outside `discovery/mocks/`, ask whether to copy it there; the index records the path relative to `discovery/mocks/`. Ask what it is meant to show and which user stories, requirements or findings it illustrates, if that is not clear from the file. Add an entry with `version: 1` and `approval: pending`. A revised file of an existing entry updates that entry's `file`, raises its `version` and sets `approval: pending` again.
+- **Without a file path**: list the entries that are pending or have changes requested, and ask the person to review them. Tell them where each file is; do not open a browser unless they ask. For each, ask: **approve**, or **request changes**, with a reason.
+- **Record each review** only from the reviewer's own answer: set the entry's `approval` to `approved by <who> on <date>` or `changes-requested by <who> on <date>`, and add a Review History line `- M-<n> v<n>: <approved|changes-requested> by <who> on <date>: <reason>`. Never approve on someone's behalf.
+- Report which entries are approved, which wait for changes, and which plan gates they unblock.
+
+## --prework: the pre-work prompt pack
+
+**Purpose**: Before the first working session, the person who owns the problem (and often their
+colleagues) gathers what is known, what is guessed and what nobody knows yet, using their own AI
+assistant. This option writes the prompts they will run. The pack is neutral: it names no
+customer, product or person; it uses placeholders the owner fills in.
+
+**Writes**: `discovery/prework/prompts.md`. The files the prompts produce are brought back into `discovery/prework/`, where `/akka:discover research` reads them.
+
+1. **Ask** (at most five questions, with suggested answers):
+   - In a sentence, what is the engagement? (the `<engagement>` text, if given, may already answer this)
+   - Is it a new idea or a rebuild of an existing system?
+   - What is the role of the person who will run the prompts, and what do they know best?
+   - Which AI assistant will they use, and can it search their documents and email?
+   - What must never be pasted into the assistant (personal data, customer records, source code, credentials)?
+2. **Write the pack** with these parts, in this order:
+   1. **How to use**: run Prompt 0 at the start of every conversation; run one numbered prompt per conversation; save each output as a separate file, named exactly as shown, in one shared folder in the organization's approved storage; bring all files to the first session. Long conversations lose detail.
+   2. **Request list first**: the prompts that need other people or exports, listed at the top with the role to ask and what to ask for, so those conversations start in parallel while the owner runs the rest.
+   3. **Strongest model**: name the prompts that need the most careful reading and reasoning (the rules, tests and ground truth, the stakeholders, and the final brief), and say that the strongest model the assistant offers should be chosen for those. Any model is fine for the others.
+   4. **Prompt 0: ground rules**, pasted first every time. It tells the assistant: who the owner is and what they know; never invent facts, write UNKNOWN and name the role who would know; label every statement [KNOWN] (the owner or a document said so), [INFERRED] (reasoned from general knowledge) or [UNKNOWN]; ask questions in one batch of at most seven, most important first; never ask for personal data, customer records, credentials or source code, and describe rather than paste; search the documents the owner can access before asking, and list every source used with title, owner, date and how current it seems; define technical terms in plain language the first time; finish each task with a Markdown document ending in Open questions; keep a running list of things the owner should find out.
+   5. **Numbered prompts**, each with a "Save as `NN-name.md`" line, a request to ask up to seven questions first, and the sections the document must contain, always ending with Open questions. Start from the catalogue for the track, then drop, merge or add prompts to fit the engagement:
+      - **ideation**: 01 problem and users; 02 how the job is done today (alternatives, substitutes, status quo); 03 vocabulary and concepts; 04 constraints, regulation and approvals; 05 stakeholders and what each wants; 06 pain, urgency and success measures with today's baseline; 07 kickoff brief.
+      - **modernization**: 01 what the system is for; 02 the surrounding systems and the hand-offs between them; 03 the rules and calculations, with a request list for the people who maintain them; 04 tests and what "correct" means, including keeping the old system's results as the answer key; 05 constraints, regulation and approvals; 06 overlapping systems and any consolidation goal; 07 stakeholders and unstated ambitions, with an interview guide; 08 pain, urgency and success measures with today's baseline; 09 kickoff brief.
+      - The **kickoff brief** is always last: run in the conversation that has seen the others, or with the other documents pasted in after confirming they hold nothing sensitive. It asks for the project in one paragraph; known, inferred and unknown as three lists; the ten open questions that could most change the plan, each with who can answer; the five biggest risks and how early each would show; contradictions between documents or stakeholders; decisions needed before design starts; three possible first-release scopes (small, medium, ambitious); a plain-language glossary; and a data and access request list with who must approve each item.
+   6. **A seed for the specification**: a short paragraph with placeholders, describing what and why and not the technology, to refine after the pre-work.
+3. **Report** the file path, the number of prompts, and which ones need other people first.
+
+## Key rules
+
+- Use absolute paths when reading and writing files.
+- Findings, understanding items and mock entries use the exact line forms above. A line that starts with `[F-<n>]`, `[U-<n>]` or `[M-<n>]` and lacks a required field is an error, not an ignored line.
+- Only `confirm` sets a finding to `confirmed`, and only from a person's answer. Only `mock` records an approval, and only from the reviewer's answer.
+- A step adds to an existing file; it never deletes another step's findings.
+- Discovery never writes a specification. `/akka:specify` does, citing confirmed findings as `[F-<n>]`.
+
+## Done When
+
+- [ ] `akka_sdd_list_specs` and `akka_sdd_constitution` were called, and every existing discovery file was read before any question was asked.
+- [ ] The step was chosen from the first word of the input (or the status check ran when there was none), and the track is recorded in every file written.
+- [ ] Each file written follows the template returned by `akka_sdd_get_template` for its step, and every *required, or none* section has content or a `none: <what was checked>` line.
+- [ ] Every finding added is one line `- [F-<n>] <claim> | evidence: <source> | status: observed|inferred|confirmed`, numbered after the highest existing F-number in DISCOVERY_DIR, with evidence a reader can open; behaviour and structure findings carry a `rung:`.
+- [ ] No more than three questions were asked at a time and five in the step; every "don't know" became an Unknowns line.
+- [ ] `system`: probe availability was shown with reasons, declared probes ran only after the person approved their exact command, `.akka/discovery/run.json` was written by `akka specify probes run`, and no finding cites a probe that failed.
+- [ ] `confirm`: every item is one `[U-<n>]` line with impact, covers and response; every response, reason, name and date came from the person; agreed and amended findings are `confirmed` with `understanding.md U-<n>` in their evidence.
+- [ ] `mock`: every entry is one `[M-<n>]` line; every approval or change request came from the reviewer and is in Review History.
+- [ ] `--prework`: the pack has how to use, the request list first, the strongest-model note, Prompt 0, numbered prompts each naming its output file, the kickoff brief last, and a specification seed, with no customer, product or person named.
+- [ ] The report gave the files written, the findings added by status, and one recommended next step.
+"""

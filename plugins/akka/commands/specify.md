@@ -90,7 +90,14 @@ Given that feature description, do this:
        Include both quantitative metrics (time, performance, volume) and qualitative measures (user satisfaction, task completion)
        Each criterion must be verifiable without implementation details
     7. Identify Key Entities (if data involved)
-    8. Return: SUCCESS (spec ready for planning)
+    8. Set the header markers. Write `**User Interface**: yes` if the feature adds or changes screens a person uses, and `**Modernization**: yes` if it replaces or rebuilds a system that already exists; otherwise leave each as `no`. A user interface needs approved mocks (`/akka:discover mock`) and a modernization needs a measured baseline in plan.md before the feature can ship.
+    9. If the project has a `discovery/` folder, ground each requirement in it:
+       - Read every finding line under `discovery/` (`- [F-<n>] <claim> | evidence: ... | status: ...`) and use them as the source for requirements, Key Entities (from `discovery/concepts.md`) and success criteria (from research outcomes and the baseline).
+       - Every functional requirement bullet cites at least one finding by its identifier in square brackets, anywhere on the bullet: `- **FR-003**: System MUST mark a subscriber unconfirmed after three soft bounces within 24 hours [F-40]`.
+       - Cite only findings whose status is `confirmed`. If a requirement needs a finding that is not yet confirmed, mark it `[NEEDS CLARIFICATION: confirm F-<n> with /akka:discover confirm]` instead of citing it. If more than three requirements wait on unconfirmed findings, stop before writing the spec and recommend `/akka:discover confirm` first.
+       - A requirement built on a finding with a rung copies it into its annotation: `- **FR-003** (observed, exercised: sequence): ... [F-40]`.
+       - A requirement that is purely the user's own choice still cites the confirmed finding that records the choice (a finding with evidence `stated: <who>, <date>`).
+    10. Return: SUCCESS (spec ready for planning)
 
 5. Write the specification to SPEC_FILE using the template structure, replacing placeholders with concrete details derived from the feature description (arguments) while preserving section order and headings.
 
@@ -306,6 +313,8 @@ Generation runs in the assistant; the engine detects the surfaces, verifies dete
 - [ ] `akka_sdd_create_spec` created a numbered FEATURE_DIR and returned BRANCH_NAME and SPEC_FILE.
 - [ ] The specification was written to SPEC_FILE using the template structure, with all mandatory sections filled and section order preserved.
 - [ ] Success Criteria are measurable, technology-agnostic, user-focused, and verifiable.
+- [ ] The `**User Interface**` and `**Modernization**` header markers are set to yes or no.
+- [ ] Where the project has a `discovery/` folder, every functional requirement bullet cites at least one confirmed finding as `[F-<n>]`.
 - [ ] No more than 3 `[NEEDS CLARIFICATION]` markers remain — any surplus was resolved by informed guesses documented in the Assumptions section.
 - [ ] `FEATURE_DIR/checklists/requirements.md` was created and every non-`[NEEDS CLARIFICATION]` item passes (or the user was warned after 3 failed iterations).
 - [ ] Completion was reported to the user with branch name, spec file path, checklist results, and the next-command recommendation (`/akka:clarify` or `/akka:plan`).

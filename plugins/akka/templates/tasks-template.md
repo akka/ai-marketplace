@@ -12,11 +12,15 @@ description: "Task list template for feature implementation"
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
-## Format: `[ID] [P?] [Story] Description`
+## Format: `[ID] [P?] [P<phase>?] [Story] [model: <name>?] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
+- **[P<phase>]**: The delivery phase in plan.md this task belongs to (e.g., P1 for `### Phase 1`). Present when plan.md has Delivery Phases. This is the plan's delivery phase, not the numbered section of this file the task sits in.
 - **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[model: <name>]**: The model a sub-agent uses for this task, when plan.md's Model Plan names one for the task's phase and purpose. Omitted otherwise; `/akka:implement` then uses `.akka/models.md`.
 - Include exact file paths in descriptions
+
+Example: `- [ ] T012 [P] [P2] [US1] [model: sonnet] Create Order record in src/main/java/{org}/{app}/domain/Order.java`
 
 ## Path Conventions
 
@@ -245,6 +249,8 @@ With multiple developers:
 ## Notes
 
 - [P] tasks = different files, no dependencies
+- [P<phase>] tag maps a task to a delivery phase in plan.md; a phase's acceptance test passes before the next phase's tasks start
+- [model: <name>] tag fixes the sub-agent model for that task
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
