@@ -81,7 +81,7 @@ Zero prerequisites beyond having a supported AI coding agent installed.
 | -------------------- | -------------------- | ------------------------------------------------------ |
 | `/akka:setup`        | `/akka.setup`        | Set up a complete Akka development environment         |
 | `/akka:constitution` | `/akka.constitution` | Create or update the project constitution              |
-| `/akka:discover`     | `/akka.discover`     | Gather and confirm the findings a specification rests on |
+| `/akka:discover`     | `/akka.discover`     | Gather and confirm the findings a spec rests on        |
 | `/akka:specify`      | `/akka.specify`      | Create or update a feature specification               |
 | `/akka:clarify`      | `/akka.clarify`      | Resolve open questions in specs or plans               |
 | `/akka:plan`         | `/akka.plan`         | Generate an implementation plan from a spec            |
