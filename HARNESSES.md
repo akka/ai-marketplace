@@ -65,6 +65,14 @@ so the two do not collide.
 Claude-specific `handoffs` frontmatter is dropped for the other harnesses.
 `$ARGUMENTS` becomes `{{args}}` for Gemini; Codex has no argument substitution,
 so the `$ARGUMENTS` placeholder block is dropped from the generated skills.
+Claude Code loads visualize templates from `${CLAUDE_PLUGIN_ROOT}/templates/`.
+The generator copies those same templates into `skills/visualize/templates/`
+for skill-based harnesses and `commands/visualize-templates/` for Gemini.
+Generated prompts resolve these local resources relative to their installed
+`SKILL.md` or command TOML file, never the project's working directory. Gemini
+locates its installed extension directory via `gemini extensions list`.
+`plugins/akka/templates/` remains the source of truth; edit templates there and
+regenerate the harness artifacts to keep the bundled copies in sync.
 
 ## Regenerating
 
