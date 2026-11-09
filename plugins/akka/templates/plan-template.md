@@ -111,7 +111,7 @@ not appear in this table.
 
 *Filled during Phase 2 (delivery plan). Only delivery phases use headings that begin with
 "Phase": the Model Plan and the exit conditions read every such heading as a phase. Tasks
-name their phase with a `[P<n>]` tag.*
+name their phase with a `[Ph<n>]` tag.*
 
 **Critical path**: [Phase 1 → Phase 2 → Phase 4; Phase 3 runs beside Phase 2]
 

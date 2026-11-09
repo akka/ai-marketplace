@@ -20,7 +20,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 3. **Execute task generation workflow**:
    - Load plan.md and extract tech stack, libraries, project structure
-   - If plan.md has Delivery Phases and a Model Plan: extract each phase (its `### Phase <n>` heading, goal and acceptance test) and the model for each phase and purpose, to tag tasks with `[P<n>]` and `[model: <name>]`
+   - If plan.md has Delivery Phases and a Model Plan: extract each phase (its `### Phase <n>` heading, goal and acceptance test) and the model for each phase and purpose, to tag tasks with `[Ph<n>]` and `[model: <name>]`
    - Load spec.md and extract user stories with their priorities (P1, P2, P3, etc.)
    - If data-model.md exists: Extract entities and map to user stories
    - If contracts/ exists: Map interface contracts to user stories
@@ -66,7 +66,7 @@ The tasks.md should be immediately executable - each task must be specific enoug
 Every task MUST strictly follow this format:
 
 ```text
-- [ ] [TaskID] [P?] [P<phase>?] [Story?] [model: <name>?] Description with file path
+- [ ] [TaskID] [P?] [Ph<phase>?] [Story?] [model: <name>?] Description with file path
 ```
 
 **Format Components**:
@@ -80,10 +80,10 @@ Every task MUST strictly follow this format:
    - Foundational group: NO story label
    - User Story groups: MUST have story label
    - Polish group: NO story label
-5. **[P<phase>] tag**: REQUIRED when plan.md has a Delivery Phases section, otherwise omitted
-   - Format: [P1], [P2], ... naming the plan's `### Phase <n>` heading the task delivers
+5. **[Ph<phase>] tag**: REQUIRED when plan.md has a Delivery Phases section, otherwise omitted
+   - Format: [Ph1], [Ph2], ... naming the plan's `### Phase <n>` heading the task delivers
    - Every phase in plan.md has at least one task, and no task names a phase plan.md does not have
-   - This is the plan's delivery phase. It is independent of this file's own numbered groups (Setup, Foundational, one per user story), so a task in "Group 3: User Story 1" may carry [P2]
+   - This is the plan's delivery phase. It is independent of this file's own numbered groups (Setup, Foundational, one per user story), so a task in "Group 3: User Story 1" may carry [Ph2]
 6. **[model: <name>] tag**: OPTIONAL
    - Include it when plan.md's Model Plan has a row for the task's phase and purpose (design, implementation, review, tests, research, visual checks, documentation); use that row's model
    - Omit it when there is no Model Plan; `/akka:implement` then chooses from `.akka/models.md`
@@ -95,8 +95,8 @@ Every task MUST strictly follow this format:
 - CORRECT: `- [ ] T005 [P] Implement authentication middleware in src/middleware/auth.py`
 - CORRECT: `- [ ] T012 [P] [US1] Create User model in src/models/user.py`
 - CORRECT: `- [ ] T014 [US1] Implement UserService in src/services/user_service.py`
-- CORRECT: `- [ ] T015 [P] [P2] [US1] [model: sonnet] Create Order record in src/main/java/com/example/domain/Order.java`
-- WRONG: `- [ ] T016 [US1] [P2] Create model in src/models/order.py` (phase tag after the story label)
+- CORRECT: `- [ ] T015 [P] [Ph2] [US1] [model: sonnet] Create Order record in src/main/java/com/example/domain/Order.java`
+- WRONG: `- [ ] T016 [US1] [Ph2] Create model in src/models/order.py` (phase tag after the story label)
 - WRONG: `- [ ] Create User model` (missing ID and Story label)
 - WRONG: `T001 [US1] Create model` (missing checkbox)
 - WRONG: `- [ ] [US1] Create User model` (missing Task ID)
@@ -140,8 +140,8 @@ Every task MUST strictly follow this format:
 
 - [ ] `FEATURE_DIR/tasks.md` was written using the template returned by `akka_sdd_get_template` (or the built-in fallback if the template call returned empty).
 - [ ] Group structure is Group 1 Setup, Group 2 Foundational, Group 3+ one group per user story in priority order, and a Final Polish group.
-- [ ] Every task line strictly matches `- [ ] TXXX [P?] [P<phase>?] [Story?] [model: <name>?] <description with file path>` — task ID, optional `[P]` parallel marker, `[P<n>]` delivery-phase tag on every task when plan.md has Delivery Phases, `[US#]` label on user-story-group tasks only, `[model: <name>]` only where the Model Plan names one, and an exact file path.
-- [ ] When plan.md has Delivery Phases, every phase has at least one task and every `[P<n>]` names a phase that exists.
+- [ ] Every task line strictly matches `- [ ] TXXX [P?] [Ph<phase>?] [Story?] [model: <name>?] <description with file path>` — task ID, optional `[P]` parallel marker, `[Ph<n>]` delivery-phase tag on every task when plan.md has Delivery Phases, `[US#]` label on user-story-group tasks only, `[model: <name>]` only where the Model Plan names one, and an exact file path.
+- [ ] When plan.md has Delivery Phases, every phase has at least one task and every `[Ph<n>]` names a phase that exists.
 - [ ] Task IDs are sequential (`T001, T002, …`) and unique across the file.
 - [ ] Every user story from spec.md has all needed tasks and is independently testable per the story goal and independent test criteria in its group header.
 - [ ] A Dependencies section lists user-story completion order, and a Parallel Execution Examples subsection is provided per story.

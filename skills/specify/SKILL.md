@@ -7,6 +7,8 @@ description: "Create or update the feature specification from a natural language
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+This command runs `akka specify` subcommands (`probes`, `conform`) and, for discovery, `akka bom generate`. They need the akka CLI release that includes the discovery gates and probes. If a subcommand is reported as unknown, tell the person their CLI is older than this plugin, name the missing subcommand, skip the step that needs it and say it was skipped.
+
 ## Outline
 
 The text the user typed after `/akka:specify` in the triggering message **is** the feature description. Assume you always have it available in this conversation even if `the user's request` appears literally below. Do not ask the user to repeat it unless they provided an empty command.
