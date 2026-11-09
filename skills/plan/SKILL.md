@@ -11,10 +11,11 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 1. **Setup**: Call the `akka_sdd_list_specs` MCP tool to find the target feature. Then call `akka_sdd_get_template` with template_name="plan" to get the plan template. Identify the feature's spec path (FEATURE_SPEC) and plan destination (FEATURE_DIR/plan.md).
 
-2. **Load context**: Read FEATURE_SPEC and `akka_sdd_constitution`. Load IMPL_PLAN template (already copied). If the project has a `discovery/` folder, read, in each topic folder `discovery/<topic>/` and at the `discovery/` root, `understanding.md` (its Decisions Raised), `behaviour.md` and `system-map.md` (measured figures and Decisions to Force) and `mocks/index.md` (review artifacts), and list the files read on the plan's **Discovery** line. If `.akka/models.md` exists, read it.
+2. **Load context**: Read FEATURE_SPEC and `akka_sdd_constitution`. If the spec contains unresolved [NEEDS CLARIFICATION] markers for policy decisions (thresholds, access permissions, retention, sensitive-data rules, approvals), report them, recommend `/akka:clarify`, and stop; do not decide them through research. Load IMPL_PLAN template (already copied). If the project has a `discovery/` folder, read, in each topic folder `discovery/<topic>/` and at the `discovery/` root, `understanding.md` (its Decisions Raised), `behaviour.md` and `system-map.md` (measured figures and Decisions to Force) and `mocks/index.md` (review artifacts), and list the files read on the plan's **Discovery** line. If `.akka/models.md` exists, read it.
 
 3. **Execute plan workflow**: Follow the structure in IMPL_PLAN template to:
    - Fill Technical Context (mark unknowns as "NEEDS CLARIFICATION")
+   - If the spec involves agents or model-generated behavior: check the project's installed Akka SDK version and its local documentation before choosing guardrail, classifier, sanitizer, evaluator, or identity mechanisms. Do not assume features newer than that version and do not upgrade the Akka SDK implicitly; if a required feature needs a newer version, record the upgrade as an explicit decision in research.md.
    - Fill Constitution Check section from constitution
    - Evaluate gates (ERROR if violations unjustified)
    - Phase 0: Generate research.md (resolve all NEEDS CLARIFICATION)
@@ -22,7 +23,9 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Re-evaluate Constitution Check post-design
    - Phase 2: Fill Delivery Phases, Review Gates, Baseline, Metrics and Targets, Model Plan and Decisions Log
 
-4. **Stop and report**: Command ends after Phase 2 planning. Report branch, IMPL_PLAN path, and generated artifacts.
+4. **Report existing diagrams.** If `FEATURE_DIR/plan-visualize.md` exists, mention in the completion report that it may be stale and suggest running `/akka:visualize` for this feature when the user wants updated diagrams. Leave all diagram files untouched; visualization is optional.
+
+5. **Stop and report**: Command ends after Phase 2 planning. Report branch, IMPL_PLAN path, generated artifacts, and any potentially stale diagram paths.
 
 ## Phases
 
@@ -125,4 +128,5 @@ You **MUST** consider the user input before proceeding (if not empty).
 - [ ] Phase 2 filled Delivery Phases (`### Phase <n>: <name>` blocks with goal, steps, parallel with, acceptance test, gate, risk, rollback and size), Review Gates, Baseline (measured values only; at least one for a modernization), Metrics and Targets, the Model Plan table (a model and an effort for every phase, the downgrade rule beneath it) and the Decisions Log.
 - [ ] No heading other than a delivery phase begins with "Phase", and the Model Plan section has no subheadings.
 - [ ] `FEATURE_DIR/plan.md` was written using the template structure and no gate error was left unresolved.
+- [ ] Existing diagrams affected by the source update were reported as potentially stale, with `/akka:visualize` suggested as an optional next step; all diagram files were left untouched.
 - [ ] Completion was reported with the branch, plan path, generated artifacts, and the next-command recommendation (`/akka:tasks`).

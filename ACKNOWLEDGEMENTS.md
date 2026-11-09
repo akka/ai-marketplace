@@ -72,6 +72,24 @@ that project's `references/style-guide.md` with Akka's dark palette, and the
 editorial-versus-categorical color split resolves a conflict between the two
 systems rather than adopting either wholesale.
 
+## akka-ext plugin
+
+The [`akka`](plugins/akka/) plugin's `/akka:visualize` command is adapted from
+the `diagrams` skill in akka-ext-plugin
+(<https://github.com/aklikic/akka-ext-plugin>), a Claude Code plugin of Akka
+workflow extensions by Alan Klikic (Akka). The upstream repository does not
+publish a license file.
+
+### Files derived from akka-ext-plugin
+
+- `plugins/akka/commands/visualize.md` (derived from `skills/diagrams/SKILL.md`;
+  extended with source-hash staleness detection, a Mermaid self-check, and the
+  rule against drawing calls inferred from class names)
+- `plugins/akka/templates/spec-visualize-template.md` (derived from
+  `skills/diagrams/spec-diagrams.template.md`; adds the source-hash stamp)
+- `plugins/akka/templates/plan-visualize-template.md` (derived from
+  `skills/diagrams/plan-diagrams.template.md`; adds the source-hash stamp)
+
 ### Diagram Design MIT License
 
 ```
