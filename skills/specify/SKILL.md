@@ -7,7 +7,7 @@ description: "Create or update the feature specification from a natural language
 
 You **MUST** consider the user input before proceeding (if not empty).
 
-This command runs `akka specify` subcommands (`probes`, `conform`) and, for discovery, `akka bom generate`. They need the akka CLI release that includes the discovery gates and probes. If a subcommand is reported as unknown, tell the person their CLI is older than this plugin, name the missing subcommand, if the project has a `discovery/` folder, stop and say the discovery gates cannot be checked with this CLI, because a spec may rely only on confirmed findings; otherwise skip the step that needs it and say it was skipped.
+This command runs `akka specify` subcommands (`probes`, `conform`) and, for discovery, `akka bom generate`. They need the akka CLI release that includes the discovery gates and probes. If a subcommand is reported as unknown, tell the person their CLI is older than this plugin, name the missing subcommand. If the project has a `discovery/` folder, stop and say the discovery gates cannot be checked with this CLI, because a spec may rely only on confirmed findings. Otherwise skip the step that needs it and say it was skipped.
 
 ## Outline
 
@@ -70,7 +70,7 @@ Given that feature description, do this:
          - The choice significantly impacts feature scope or user experience
          - Multiple reasonable interpretations exist with different implications
          - No reasonable default exists
-       - **LIMIT: Maximum 3 [NEEDS CLARIFICATION] markers for routine details; policy decisions always keep a marker and do not count toward the limit** (see "Policy decisions are not reasonable defaults")
+       - **LIMIT: Maximum 3 [NEEDS CLARIFICATION] markers for routine details; policy decisions and `confirm F-...` markers always keep their marker and do not count toward the limit** (see "Policy decisions are not reasonable defaults")
        - Prioritize clarifications by impact: scope > security/privacy > user experience > technical details
     4. Fill User Scenarios & Testing section
        If no clear user flow: ERROR "Cannot determine user scenarios"
@@ -151,7 +151,7 @@ Given that feature description, do this:
 
       - **If [NEEDS CLARIFICATION] markers remain**:
         1. Extract all [NEEDS CLARIFICATION: ...] markers from the spec
-        2. **LIMIT CHECK**: If more than 3 non-policy markers exist, keep only the 3 most critical (by scope/security/UX impact) and make informed guesses for the rest. Never guess policy decisions: they keep their markers, and the spec is not ready until they are resolved
+        2. **LIMIT CHECK**: If more than 3 routine markers exist (policy decisions and `confirm F-...` markers are not routine), keep only the 3 most critical (by scope/security/UX impact) and make informed guesses for the rest. Never guess policy decisions or the confirmation of a finding: they keep their markers, and the spec is not ready until they are resolved
         3. For each clarification needed (max 3), present options to user in this format:
 
            ```markdown
@@ -213,7 +213,7 @@ When creating this spec from a user prompt:
 
 1. **Make informed guesses**: Use context, industry standards, and common patterns to fill gaps
 2. **Document assumptions**: Record reasonable defaults in the Assumptions section
-3. **Limit clarifications**: Maximum 3 [NEEDS CLARIFICATION] markers for routine details, not counting policy decisions, which are never guessed - use only for critical decisions that:
+3. **Limit clarifications**: Maximum 3 [NEEDS CLARIFICATION] markers for routine details, not counting policy decisions or `confirm F-...` markers, which are never guessed - use only for critical decisions that:
    - Significantly impact feature scope or user experience
    - Have multiple reasonable interpretations with different implications
    - Lack any reasonable default
@@ -329,7 +329,7 @@ Generation runs in the assistant; the engine detects the surfaces, verifies dete
 - [ ] The `**User Interface**` and `**Modernization**` header markers are set to yes or no.
 - [ ] Where the project has a `discovery/` folder, every functional requirement bullet cites at least one confirmed finding by its identifier, such as `[F-PAY-3]`, and `akka specify conform` shows no discovery gate red.
 - [ ] The Traceability table has one row for every FR and SC, each with a source and a test.
-- [ ] No more than 3 `[NEEDS CLARIFICATION]` markers for routine details remain (surplus resolved by informed guesses documented in Assumptions); no policy decision was guessed, and open ones remain as markers.
+- [ ] No more than 3 `[NEEDS CLARIFICATION]` markers for routine details remain (surplus resolved by informed guesses documented in Assumptions); no policy decision or finding confirmation was guessed, and open ones remain as markers.
 - [ ] `FEATURE_DIR/checklists/requirements.md` was created and every non-`[NEEDS CLARIFICATION]` item passes (or the user was warned after 3 failed iterations).
 - [ ] Existing diagrams affected by the source update were reported as potentially stale, with `/akka:visualize` suggested as an optional next step; all diagram files were left untouched.
 - [ ] Completion was reported to the user with branch name, spec file path, checklist results, and the next-command recommendation (`/akka:clarify` or `/akka:plan`).
