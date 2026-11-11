@@ -25,7 +25,7 @@ tools. The slash-command invocation, however, depends on what each harness suppo
 | Claude Code | `/akka:specify` (plugin slash commands) |
 | Antigravity CLI (`agy`) | as **skills** (e.g., slash commands / progressive disclosure) |
 | Gemini CLI | `/akka:specify` (colon-namespaced custom commands) |
-| Codex CLI | as **skills** — `@akka` / model-selected / natural language (no `/akka:` slash) |
+| Codex CLI | as **skills** — `$akka:specify`, `$akka:setup`, `$akka:plan` |
 | Cursor | rules + MCP / `@`-mentions (no `/akka:` slash) |
 
 So `/akka:specify` parity holds for Claude Code and Gemini; Codex and Cursor reach

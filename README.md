@@ -38,6 +38,10 @@ That plugin package includes a Codex manifest, an Akka MCP config using
 `akka mcp serve --disable-prompt`, and Codex skill aliases for the Akka
 workflows.
 
+Invoke Codex skills with `$akka:specify`, `$akka:setup`, or `$akka:plan`.
+Where this README shows a Claude Code command such as `/akka:specify`,
+use `$akka:specify` in Codex.
+
 ### Akka CLI (any AI agent)
 
 If you're using Cursor, Windsurf, VS Code Copilot, or another AI coding agent — or
