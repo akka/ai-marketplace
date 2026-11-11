@@ -164,7 +164,7 @@ def gen_codex(cmds):
         skill += "---\n\n" + codex_body(bundle_templates(name, body, "skills")) + "\n"
         write(os.path.join(ROOT, "skills", name, "SKILL.md"), skill)
     write(os.path.join(ROOT, ".agents", "plugins", "marketplace.json"), json.dumps({
-        "name": "ai-marketplace",
+        "name": "akka-ai-marketplace",
         "interface": {"displayName": "Akka AI Marketplace"},
         "plugins": [{
             "name": "akka",

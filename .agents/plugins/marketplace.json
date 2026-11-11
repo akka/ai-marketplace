@@ -1,5 +1,5 @@
 {
-  "name": "ai-marketplace",
+  "name": "akka-ai-marketplace",
   "interface": {
     "displayName": "Akka AI Marketplace"
   },

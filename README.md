@@ -25,6 +25,14 @@ for the gap this introduces and how to work around it.
 
 ### Codex
 
+```bash
+codex plugin marketplace add akka/ai-marketplace@stable
+codex plugin add akka@akka-ai-marketplace
+```
+
+The Codex marketplace is named `akka-ai-marketplace`; the plugin is `akka`.
+The `stable` tag must contain this marketplace name. 
+
 Codex can use the same Akka workflow from the `plugins/akka` directory.
 That plugin package includes a Codex manifest, an Akka MCP config using
 `akka mcp serve --disable-prompt`, and Codex skill aliases for the Akka
@@ -167,14 +175,9 @@ consumes them (`akka specify init --channel stable` vs `--channel edge`)
 is documented in the Akka CLI docs.
 
 **Harnesses whose installers do not yet support git-ref pinning.**
-`agy plugin install` accepts a URL but
-not a `@ref`, so both install from the default branch today.
-`codex plugin marketplace add` may accept a `@ref` — the syntax is not
-verified from public docs — so its install commands are left unpinned
-until confirmed. Until git-ref pinning is available (or verified) for
-each of these harnesses, treat those installs as a "when `main` is
-safe" path — release cadence is the mitigation, not per-install
-pinning.
+`agy plugin install` accepts a URL but not a `@ref`, so it installs from the
+default branch today. Treat that install as a "when `main` is safe" path —
+release cadence is the mitigation, not per-install pinning.
 
 ## Attribution
 
