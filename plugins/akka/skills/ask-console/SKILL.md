@@ -1,6 +1,6 @@
 ---
 name: ask-console
-description: Answer a question from the Akka local console's Ask page by rendering a screen into the console with the akka_canvas_* tools, instead of replying in text. Covers what Akka Optimize serves to the console's login (spend, prices, models, routing policies, use cases, incidents, training, and evaluation datasets and experiments) and the files of the system the console is scoped to. Use when the console starts an ask, when the user follows up on a canvas session, or when the user asks to see something in the console and the akka_canvas_* tools are available.
+description: Answer a question from the Akka local console's Ask page by rendering a screen into the console with the akka_canvas_* tools, instead of replying in text. Covers what Akka Optimize serves to the console's login (spend, prices, models, routing policies, use cases, incidents, training, and evaluation datasets and experiments), the governance of the system the console is scoped to (its controls, risk survey, signed bundles, compliance and verdicts), its redkit red-team campaigns, and its files. Use when the console starts an ask, when the user follows up on a canvas session, or when the user asks to see something in the console and the akka_canvas_* tools are available.
 ---
 
 # Ask the console
@@ -17,7 +17,8 @@ An ask has these tools and no others:
   empty folder when no system is chosen) and below this skill's folder.
 - `akka_canvas_catalog`: the block vocabulary, value shapes, templates, the source contract
   and the screen rules.
-- `akka_canvas_query`: runs one allowlisted read-only command and returns its JSON.
+- `akka_canvas_query`: runs one allowlisted read, a read-only command (`cmd`) or one of the
+  console's governance and red-team read routes (`get`), and returns its JSON.
 - `akka_canvas_render`: renders a complete screen into a session and returns its URL.
 - `akka_canvas_session`: a session's questions, screen titles and block outlines, and the
   notes the user pinned to blocks.
@@ -79,6 +80,10 @@ scope unless the question names another system, and say the scope in the summary
      [references/optimize.md](references/optimize.md).
    - Evaluation datasets, evaluators and experiments:
      [references/evals.md](references/evals.md).
+   - The system's controls, risk survey, signed bundles, compliance and verdicts:
+     [references/governance.md](references/governance.md).
+   - The system's redkit corpora and red-team campaigns:
+     [references/redteam.md](references/redteam.md).
    - The system's own files (its code, configuration and documents): `Read`, `Grep` and
      `Glob`. Blocks built from files carry inline data, not a `source`.
 5. **Gather with `akka_canvas_query`.** Run each command first without `--jq` to see the
@@ -106,6 +111,11 @@ shell, as the daemon's login. Only read commands are allowed. A command is refus
 names a flag that changes where it connects or what it reads from disk: `--context`, `--url`
 and any flag ending in `-url`, `--host`, `--region`, `--config`, `--file`, `--dir`,
 `--lineage`, `--force` and their short forms. Every command takes `-o json` and `--jq`.
+
+A `get` read is a GET of one of the console's read routes that
+[references/governance.md](references/governance.md) and
+[references/redteam.md](references/redteam.md) list, with only the query parameters they
+name. Every other path, and every write, is refused. A `get` read takes no `--jq`.
 
 Placeholders resolve at each run to ISO-8601 UTC instants: `{{now}}`, `{{hour}}` (start of
 the current UTC hour) and `{{today}}` (start of the UTC day), each with an optional offset
