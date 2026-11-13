@@ -52,6 +52,13 @@ or one of the alias skills when you want a task-specific entry point:
 - `akka-checklist`
 - `akka-issues`
 
+## Console Ask
+
+The `ask-console` skill answers questions typed on the Akka local console's Ask page. The
+Akka CLI runs Claude Code with this skill and the CLI's canvas tools
+(`akka mcp serve --toolsets canvas`), and the answer is rendered as a screen in the console.
+The CLI finds the skill in the `akka` plugin enabled in the user's Claude Code settings.
+
 ## Enterprise Support
 
 Place an `enterprise.yaml` manifest at `.akka/enterprise.yaml` (project-level), `~/.akka/enterprise.yaml` (user-level), or set `AKKA_ENTERPRISE_CONFIG_URL` to customize:
