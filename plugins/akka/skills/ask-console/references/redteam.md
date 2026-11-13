@@ -23,8 +23,9 @@ names the run in `source.ref` (`redteam/<campaign>/<file>`).
 
 - **Inventory** ("Which red-team campaigns have we run?"): a table of the runs, newest
   first, with each campaign as a link, and a table of the corpora.
-- **Health** ("Did the last campaign break through?"): stats from the run's panels
-  (attempts, break-throughs and the break-through rate), and a table of its rules.
+- **Health** ("Did the last campaign break through?"): stats from the run's panels, and a
+  table of its rules. Panels have no fixed fields; read a run's panels before naming a
+  figure, and show only the figures they hold.
 - **Drilldown** ("Why did rule R break through?"): a kv of the rule's figures, and a table of
   the attempts that broke through.
 - **Compare** ("Is the new model more robust?"): an outcome grid of rules by run.

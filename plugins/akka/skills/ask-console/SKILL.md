@@ -88,9 +88,10 @@ scope unless the question names another system, and say the scope in the summary
      `Glob`. Blocks built from files carry inline data, not a `source`.
 5. **Gather with `akka_canvas_query`.** Run each command first without `--jq` to see the
    fields it answers, then test the exact command and `--jq` filter that will be the block's
-   source. A filter is written against output that has been read, never from memory.
+   source. A filter is written against output that has been read, never from memory. A `get`
+   read takes no filter: run it once and read the fields it answers.
 6. **Compose.** Call `akka_canvas_catalog` once per conversation. Give every block whose data
-   comes from one command a `source` whose stdout is the block's fields. Inline data only for
+   comes from one command or one `get` read a `source` whose output is the block's fields. Inline data only for
    joins across commands or data from files. Two to eight blocks. Send the complete screen,
    never a diff, and reuse block ids across follow-ups when a block means the same thing.
 7. **Render** with `akka_canvas_render`. When it returns errors, fix them and render again.
@@ -124,3 +125,9 @@ such as `{{hour-7d}}` or `{{now-30m}}`.
 A query fails with "not enabled" when Optimize is not enabled for the daemon's login. Every
 Optimize read then has no data: render the screen with empty blocks carrying inline data and
 no `source`.
+
+A governance or red-team read that cannot answer gets the same treatment: its blocks are
+empty, with inline data and no `source`, and the reply names the reason in one sentence.
+This holds when the ask has no system in scope (every `get` names a system, so none is run),
+when a module is switched off (`404 module-disabled`), when two bundles cannot be compared
+(422), and for the runs a red-team list reports as `unreadable` or behind a `gitError`.
