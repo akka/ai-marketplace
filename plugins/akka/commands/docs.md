@@ -266,12 +266,10 @@ S4. **Write the sections, one idea each.** Plain language for a newcomer,
     | Concepts | one fragment per confirmed concept of a settled project-scoped topic, then a line per chapter linking to its concepts | the concept's `visual` block, drawn as its kind |
     | Approach | the chosen approach and its phases; why it was chosen over the options in `landscape.md` and the decisions in the log | a timeline of the plan's phases (a flow when there are none) |
     | The system, before and after | modernization only (spec marker `**Modernization**: yes`): what the new system keeps, changes and drops, from `system-map.md` and `behaviour.md`, and the parity status | a comparison |
-    | Where to look next | links to the implementation docs, the discovery files and the plan | none |
 
     Chapter: the topic's goal; Concepts (one fragment per confirmed concept of
     the topic); Approach and alternatives (from the topic's landscape and
-    decisions); The system, before and after for a modernization topic; Where to
-    look next, starting with the overview; Notes.
+    decisions); The system, before and after for a modernization topic.
 
 S5. **Draw from data.** Every picture is one of five kinds: relationship, flow,
     state, comparison, timeline. A concept's picture is drawn from its `visual`
@@ -284,9 +282,10 @@ S5. **Draw from data.** Every picture is one of five kinds: relationship, flow,
     with at most two accented elements.
 
 S6. **Cite every caption.** Each `<figcaption>` and each claim taken from
-    discovery ends with footnote references to the confirmed findings it rests
-    on, and each page's Notes list gives every finding it cites, with claim and
-    evidence. A finding is cited by the identifier discovery gives it.
+    discovery carries the confirmed findings it rests on in a `data-findings`
+    attribute, space separated (`data-findings="F-<CODE>-<n> F-<CODE>-<n>"`).
+    The page shows no footnotes, no notes list and no list of further links.
+    A finding is cited by the identifier discovery gives it.
 
 S7. **Write the pages.** Self-contained, as in step 7.
 
@@ -402,7 +401,7 @@ S7. **Write the pages.** Self-contained, as in step 7.
 - [ ] CONTENT-TONE applied the decomposed adversarial rubric as pass/fail predicates and, on pass, was attested via `akka_harness_attest` with the condition key and a receipt reference — never left as a numeric score.
 - [ ] When the project serves a UI, `.akka/app.yaml` was written or refreshed with its title, the service and the path the UI is served at, listing the files read in `generated_from`; when it serves none, a generated descriptor was removed and the user told.
 - [ ] The Story was written from its fixed templates with CSS and layout unchanged: the overview at `docs/story/index.html` and one chapter per settled area topic at `docs/story/<topic>/index.html` (with `story <topic>`, that chapter alone), from the confirmed findings and the plan, or the overview alone from the spec's User Scenarios and Key Entities when there is no `discovery/` folder.
-- [ ] The overview has Essence, Chapters, Concepts, Approach, Where to look next, and for a modernization The system, before and after; each chapter has its goal, Concepts, Approach and alternatives and a link back; each section holds one idea in complete plain sentences.
-- [ ] Every concept whose findings are all confirmed is drawn from its `visual` block, its figure carrying `data-concept` and `data-kind`; every picture is one of the five kinds; every caption cites its findings, and each cited finding is in the Notes.
+- [ ] The overview has Essence, Chapters, Concepts, Approach, and for a modernization The system, before and after; each chapter has its goal, Concepts, Approach and alternatives and a link back; each section holds one idea in complete plain sentences.
+- [ ] Every concept whose findings are all confirmed is drawn from its `visual` block, its figure carrying `data-concept` and `data-kind`; every picture is one of the five kinds; every caption carries the findings it rests on in its `data-findings` attribute.
 - [ ] STORY-CONCEPTS-VISUAL and STORY-CITES-CONFIRMED were reported with the other content-governance conditions.
 - [ ] `akka_ec_conform` was called and the plain `akka_ec_summary` (never internal ids or the word "auditor") was shown to the user.

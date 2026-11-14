@@ -75,8 +75,9 @@
   of at most 10 (relationship sides) or 14 (state moves), a note of at most 20,
   a timeline label of at most 10. Shorten the words; never shrink the type.
 
-  CAPTIONS: every <figcaption> is one complete sentence that ends with the
-  footnote references of the findings it rests on.
+  CAPTIONS: every <figcaption> is one complete sentence. The findings it rests on
+  are in its data-findings attribute, space separated; the page shows no
+  footnotes.
   ============================================================================
 -->
 <html lang="en"><head><meta charset="utf-8">
@@ -106,9 +107,6 @@ h1{font-size:40px;font-weight:700;letter-spacing:-0.03em;color:var(--white);marg
 .why{font-size:13.5px;color:#999;max-width:640px}
 .fig{border:1px solid #1C1C1C;border-radius:8px;padding:12px;min-width:0}
 .cap{font-size:12px;color:#888;margin-top:8px}
-.fr{font-size:10px;margin-left:2px;font-family:'SF Mono','Cascadia Code','Consolas',monospace}
-.fr a{color:#F5C518;text-decoration:none}
-.fr+.fr{margin-left:6px}
 /* keeps, changes, drops: a modernization only */
 .kcd{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .kcd-col{border:1px solid #1C1C1C;border-radius:8px;padding:12px 14px}
@@ -122,9 +120,6 @@ h1{font-size:40px;font-weight:700;letter-spacing:-0.03em;color:var(--white);marg
 .chap-title{display:block;font-size:14px;font-weight:700;color:#F5F5F5;margin:4px 0}
 .chap-status{display:block;font-size:12px;color:#999}
 .crumb{font-size:12px;color:#888;margin-bottom:6px}
-.notes{font-size:12px;color:#888;padding-left:20px;display:grid;gap:4px}
-.fid{color:#F5C518;margin-right:6px}
-.src{color:#666}
 /* story diagrams: narrative, so muted grey with at most two accented elements */
 .sd{display:block;width:100%;height:auto}
 .sd .nd rect{fill:#141414;stroke:#666;stroke-width:1}
@@ -195,12 +190,12 @@ h1{font-size:40px;font-weight:700;letter-spacing:-0.03em;color:var(--white);marg
     <section class="idea" id="concept-C-<n>">
       <div class="idea-text">
         <h3>Concept name</h3>
-        <p class="say">What it means, in two or three plain sentences.<sup class="fr"><a href="#fn-F-<n>">F-<n></a></sup></p>
+        <p class="say" data-findings="F-<n>">What it means, in two or three plain sentences.</p>
         <p class="ex">An example a newcomer would recognise.</p>
       </div>
       <figure class="fig" data-concept="C-<n>" data-kind="<kind>">
         ...the SVG for the kind, name "c-<n>"...
-        <figcaption class="cap">One sentence on what the picture shows.<sup class="fr"><a href="#fn-F-<n>">F-<n></a></sup></figcaption>
+        <figcaption class="cap" data-findings="F-<n>">One sentence on what the picture shows.</figcaption>
       </figure>
     </section>
 
@@ -329,12 +324,12 @@ h1{font-size:40px;font-weight:700;letter-spacing:-0.03em;color:var(--white);marg
     <div class="section-label">The system, before and after</div>
     <section class="idea">
       <div class="idea-text">
-        <p class="say">One or two sentences on what the new system is, from system-map.md and behaviour.md.<sup class="fr"><a href="#fn-F-<n>">F-<n></a></sup></p>
+        <p class="say" data-findings="F-<n>">One or two sentences on what the new system is, from system-map.md and behaviour.md.</p>
         <p class="ex">Parity: the parity status from the plan in one sentence, or that it is not measured yet and which phase measures it.</p>
       </div>
       <figure class="fig" data-kind="comparison">
         ...COMPARISON SVG, name "system": dropped parts marked dropped, new parts new...
-        <figcaption class="cap">One sentence.<sup class="fr"><a href="#fn-F-<n>">F-<n></a></sup></figcaption>
+        <figcaption class="cap" data-findings="F-<n>">One sentence.</figcaption>
       </figure>
       <div class="kcd">
         <div class="kcd-col"><div class="kcd-h">Keeps</div><ul><li>One line per thing kept.</li></ul></div>
@@ -344,38 +339,6 @@ h1{font-size:40px;font-weight:700;letter-spacing:-0.03em;color:var(--white);marg
     </section>
 -->
 {{SYSTEM_SECTION}}
-
-<div class="section-label">Where to look next</div>
-<section class="idea">
-  <div class="idea-text">
-    <ul class="next">
-      <!--
-        {{NEXT_LINKS}}: one line per destination, the implementation docs first.
-        Paths are relative to docs/story/index.html.
-
-        NEXT LINK:
-          <li><a href="../index.html">Implementation docs</a>: each component, event and endpoint as built.</li>
-          <li><a href="../../discovery/concepts.md">Concepts</a>: the full vocabulary and its findings.</li>
-          <li><a href="../../specs/001-feature/plan.md">Plan</a>: the phases, gates and decisions.</li>
-      -->
-      {{NEXT_LINKS}}
-    </ul>
-  </div>
-</section>
-
-<div class="section-label">Notes</div>
-<ol class="notes">
-  <!--
-    {{NOTES}}: one line per finding cited on this page, in F-number order, with
-    its claim as discovery/ records it and its evidence. A Story built without
-    a discovery/ folder cites the spec instead (User Story 1, FR-003) and its
-    notes name those items.
-
-    NOTE:
-      <li id="fn-F-<n>"><span class="fid mono">F-<n></span>The claim. <span class="src">evidence: the source</span></li>
-  -->
-  {{NOTES}}
-</ol>
 
 <div class="foot"><span>Generated by <span class="cmd mono">/akka:docs story</span> &middot; docs/story/index.html &middot; from {{SOURCES}}</span><span>{{FOOTER_TARGET}}</span></div>
 </div></body></html>
