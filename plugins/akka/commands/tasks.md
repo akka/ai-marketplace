@@ -21,7 +21,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Outline
 
-1. **Setup**: Call the `akka_sdd_list_specs` MCP tool to find features and their available documents. From the response, identify the target feature's FEATURE_DIR and which artifacts exist (AVAILABLE_DOCS: spec.md, plan.md, tasks.md, etc.). If no features exist, instruct the user to run `/akka:specify` first. Then start the run record: write `.akka/runs/build/.active.json` (create the folders) as JSON with `spec` (the name of FEATURE_DIR's folder), `command` (`tasks`), `startedAt` (the current UTC time as `YYYY-MM-DDTHH:MM:SSZ`, from a clock command such as `date -u +%Y-%m-%dT%H:%M:%SZ`, or `(Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')` in PowerShell), `tasksFile` (FEATURE_DIR/tasks.md, relative to the project root) and `tasksDone` (the ids of the tasks already ticked in tasks.md, or `[]` when tasks.md does not exist). The plugin's Stop and SessionEnd hooks read this file to record the session's model usage under `.akka/runs/build/<spec>/`. If the file cannot be written, continue without it.
+1. **Setup**: Call the `akka_sdd_list_specs` MCP tool to find features and their available documents. From the response, identify the target feature's FEATURE_DIR and which artifacts exist (AVAILABLE_DOCS: spec.md, plan.md, tasks.md, etc.). If no features exist, instruct the user to run `/akka:specify` first. Then, if you are running in Claude Code (the plugin's hooks run only there; skip the run record in any other harness), start the run record: write `.akka/runs/build/.active.json` (create the folders) as JSON with `spec` (the name of FEATURE_DIR's folder), `command` (`tasks`), `startedAt` (the current UTC time as `YYYY-MM-DDTHH:MM:SSZ`, from a clock command such as `date -u +%Y-%m-%dT%H:%M:%SZ`, or `(Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')` in PowerShell), `tasksFile` (FEATURE_DIR/tasks.md, relative to the project root) and `tasksDone` (the ids of the tasks already ticked in tasks.md, or `[]` when tasks.md does not exist). The plugin's Stop and SessionEnd hooks read this file to record the session's model usage under `.akka/runs/build/<spec>/`. Add `.akka/runs/build/.active.json` and `.akka/runs/build/.state.json` to the project's `.gitignore` if they are not listed, so no commit stages them. If the file cannot be written, continue without it.
 
 2. **Load design documents**: Read from FEATURE_DIR:
    - **Required**: plan.md (tech stack, libraries, structure), spec.md (user stories with priorities)
@@ -61,7 +61,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Suggested MVP scope (typically just User Story 1)
    - Format validation: Confirm ALL tasks follow the checklist format (checkbox, ID, labels, file paths)
 
-6. **Refresh the docs.** As the last step, in this session, run `/akka:docs` (the implementation docs and the Story) so they match what this command wrote. Add its outcome to the report.
+6. **Refresh the docs.** As the last step, in this session, run `/akka:docs` (the implementation docs and the Story) so they match what this command wrote. Add its outcome to the report. If you started a run record, then set `"closing": true` in `.akka/runs/build/.active.json` as the command's final action; the plugin's next Stop hook writes the record and removes the marker.
 
 Context for task generation: $ARGUMENTS
 
@@ -155,10 +155,10 @@ Every task MUST strictly follow this format:
 
 - [ ] `FEATURE_DIR/tasks.md` was written using the template returned by `akka_sdd_get_template` (or the built-in fallback if the template call returned empty).
 - [ ] Group structure is Group 1 Setup, Group 2 Foundational, Group 3+ one group per user story in priority order, and a Final Polish group.
-- [ ] Every task line strictly matches `- [ ] TXXX [P?] [Ph<phase>?] [Story?] [model: <name>?] <description with file path>` — task ID, optional `[P]` parallel marker, `[Ph<n>]` delivery-phase tag on every task when plan.md has Delivery Phases, `[US#]` label on user-story-group tasks only, `[model: <name>]` and `[effort: <level>]` only where the Model Plan names them, and an exact file path.
+- [ ] Every task line strictly matches `- [ ] TXXX [P?] [Ph<phase>?] [Story?] [model: <name>?] [effort: <level>?] <description with file path>` — task ID, optional `[P]` parallel marker, `[Ph<n>]` delivery-phase tag on every task when plan.md has Delivery Phases, `[US#]` label on user-story-group tasks only, `[model: <name>]` and `[effort: <level>]` only where the Model Plan names them, and an exact file path.
 - [ ] When plan.md has Delivery Phases, every phase has at least one task and every `[Ph<n>]` names a phase that exists.
 - [ ] Task IDs are sequential (`T001, T002, …`) and unique across the file.
 - [ ] Every user story from spec.md has all needed tasks and is independently testable per the story goal and independent test criteria in its group header.
 - [ ] A User Story Dependencies section has one `- **USn**: <stories it needs> (why)` line for every user story, and a Dependencies section lists user-story completion order, and a Parallel Execution Examples subsection is provided per story.
-- [ ] `/akka:docs` ran as the last step, and the run record marker was written first.
+- [ ] `/akka:docs` ran as the last step, the run record marker was written first when running in Claude Code, and it was then set to `"closing": true`.
 - [ ] The report includes total task count, per-story count, parallel opportunities, and the suggested MVP scope (typically User Story 1 only).

@@ -24,7 +24,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Outline
 
-1. **Setup**: Call the `akka_sdd_list_specs` MCP tool to find the target feature. Then call `akka_sdd_get_template` with template_name="plan" to get the plan template. Identify the feature's spec path (FEATURE_SPEC) and plan destination (FEATURE_DIR/plan.md). Then start the run record: write `.akka/runs/build/.active.json` (create the folders) as JSON with `spec` (the name of FEATURE_DIR's folder), `command` (`plan`), `startedAt` (the current UTC time as `YYYY-MM-DDTHH:MM:SSZ`, from a clock command such as `date -u +%Y-%m-%dT%H:%M:%SZ`, or `(Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')` in PowerShell), `tasksFile` (FEATURE_DIR/tasks.md, relative to the project root) and `tasksDone` (the ids of the tasks already ticked in tasks.md, or `[]` when tasks.md does not exist). The plugin's Stop and SessionEnd hooks read this file to record the session's model usage under `.akka/runs/build/<spec>/`. If the file cannot be written, continue without it.
+1. **Setup**: Call the `akka_sdd_list_specs` MCP tool to find the target feature. Then call `akka_sdd_get_template` with template_name="plan" to get the plan template. Identify the feature's spec path (FEATURE_SPEC) and plan destination (FEATURE_DIR/plan.md). Then, if you are running in Claude Code (the plugin's hooks run only there; skip the run record in any other harness), start the run record: write `.akka/runs/build/.active.json` (create the folders) as JSON with `spec` (the name of FEATURE_DIR's folder), `command` (`plan`), `startedAt` (the current UTC time as `YYYY-MM-DDTHH:MM:SSZ`, from a clock command such as `date -u +%Y-%m-%dT%H:%M:%SZ`, or `(Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')` in PowerShell), `tasksFile` (FEATURE_DIR/tasks.md, relative to the project root) and `tasksDone` (the ids of the tasks already ticked in tasks.md, or `[]` when tasks.md does not exist). The plugin's Stop and SessionEnd hooks read this file to record the session's model usage under `.akka/runs/build/<spec>/`. Add `.akka/runs/build/.active.json` and `.akka/runs/build/.state.json` to the project's `.gitignore` if they are not listed, so no commit stages them. If the file cannot be written, continue without it.
 
 2. **Load context**: Read FEATURE_SPEC and `akka_sdd_constitution`. If the spec contains unresolved [NEEDS CLARIFICATION] markers for policy decisions (thresholds, access permissions, retention, sensitive-data rules, approvals), report them, recommend `/akka:clarify`, and stop; do not decide them through research. Load IMPL_PLAN template (already copied). If the project has a `discovery/` folder, read, in each topic folder `discovery/<topic>/` and at the `discovery/` root, `understanding.md` (its Decisions Raised), `behaviour.md` and `system-map.md` (measured figures and Decisions to Force) and `mocks/index.md` (review artifacts), and list the files read on the plan's **Discovery** line. If `.akka/models.md` exists, read it.
 
@@ -42,7 +42,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 5. **Stop and report**: Command ends after Phase 2 planning. Report branch, IMPL_PLAN path, generated artifacts, and any potentially stale diagram paths.
 
-6. **Refresh the docs.** As the last step, in this session, run `/akka:docs` (the implementation docs and the Story) so they match what this command wrote. Add its outcome to the report.
+6. **Refresh the docs.** As the last step, in this session, run `/akka:docs` (the implementation docs and the Story) so they match what this command wrote. Add its outcome to the report. If you started a run record, then set `"closing": true` in `.akka/runs/build/.active.json` as the command's final action; the plugin's next Stop hook writes the record and removes the marker.
 
 ## Phases
 
@@ -147,4 +147,4 @@ You **MUST** consider the user input before proceeding (if not empty).
 - [ ] `FEATURE_DIR/plan.md` was written using the template structure and no gate error was left unresolved.
 - [ ] Existing diagrams affected by the source update were reported as potentially stale, with `/akka:visualize` suggested as an optional next step; all diagram files were left untouched.
 - [ ] Completion was reported with the branch, plan path, generated artifacts, and the next-command recommendation (`/akka:tasks`).
-- [ ] The run record marker `.akka/runs/build/.active.json` was written first, and `/akka:docs` ran as the last step.
+- [ ] The run record marker `.akka/runs/build/.active.json` was written first when running in Claude Code, `/akka:docs` ran as the last step, and the marker was then set to `"closing": true`.

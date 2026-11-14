@@ -21,7 +21,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Outline
 
-1. Call the `akka_sdd_list_specs` MCP tool to find features. Verify that tasks.md exists for the target feature (has_tasks must be true). If tasks.md is missing, instruct the user to run `/akka:tasks` first. Read the tasks.md content from FEATURE_DIR. Also note which other artifacts are available (AVAILABLE_DOCS). Then start the run record: write `.akka/runs/build/.active.json` (create the folders) as JSON with `spec` (the name of FEATURE_DIR's folder), `command` (`implement`), `startedAt` (the current UTC time as `YYYY-MM-DDTHH:MM:SSZ`, from a clock command such as `date -u +%Y-%m-%dT%H:%M:%SZ`, or `(Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')` in PowerShell), `tasksFile` (FEATURE_DIR/tasks.md, relative to the project root) and `tasksDone` (the ids of the tasks already ticked in tasks.md). The plugin's Stop and SessionEnd hooks read this file to record the session's model usage under `.akka/runs/build/<spec>/`. If the file cannot be written, continue without it.
+1. Call the `akka_sdd_list_specs` MCP tool to find features. Verify that tasks.md exists for the target feature (has_tasks must be true). If tasks.md is missing, instruct the user to run `/akka:tasks` first. Read the tasks.md content from FEATURE_DIR. Also note which other artifacts are available (AVAILABLE_DOCS). Then, if you are running in Claude Code (the plugin's hooks run only there; skip the run record in any other harness), start the run record: write `.akka/runs/build/.active.json` (create the folders) as JSON with `spec` (the name of FEATURE_DIR's folder), `command` (`implement`), `startedAt` (the current UTC time as `YYYY-MM-DDTHH:MM:SSZ`, from a clock command such as `date -u +%Y-%m-%dT%H:%M:%SZ`, or `(Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')` in PowerShell), `tasksFile` (FEATURE_DIR/tasks.md, relative to the project root) and `tasksDone` (the ids of the tasks already ticked in tasks.md). The plugin's Stop and SessionEnd hooks read this file to record the session's model usage under `.akka/runs/build/<spec>/`. Add `.akka/runs/build/.active.json` and `.akka/runs/build/.state.json` to the project's `.gitignore` if they are not listed, so no commit stages them. If the file cannot be written, continue without it.
 
 2. **Create or check out the feature branch**:
    - Read the spec.md from FEATURE_DIR and find the **Feature Branch** field (e.g. `001-counter-service`)
@@ -163,7 +163,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Confirm the implementation follows the technical plan
    - Report final status with summary of completed work
 
-13. **Refresh the docs.** As the last step, in this session, run `/akka:docs` (the implementation docs and the Story) so they match what this command built. Add its outcome to the report.
+13. **Refresh the docs.** As the last step, in this session, run `/akka:docs` (the implementation docs and the Story) so they match what this command built. Add its outcome to the report. If you started a run record, then set `"closing": true` in `.akka/runs/build/.active.json` as the command's final action; the plugin's next Stop hook writes the record and removes the marker.
 
 Note: This command assumes a complete task breakdown exists in tasks.md. If tasks are incomplete or missing, suggest running `/akka:tasks` first to regenerate the task list.
 
@@ -180,4 +180,4 @@ Note: This command assumes a complete task breakdown exists in tasks.md. If task
 - [ ] All changes were staged via `akka_git_add` and committed via `akka_git_commit` with a descriptive message.
 - [ ] The user was asked whether to merge the feature branch to `main`; the answer was acted on (`akka_git_checkout` + `akka_git_merge` on yes, stay on feature branch on no).
 - [ ] The final report validates that implemented features match the spec, tests pass, and the implementation follows the plan.
-- [ ] The run record marker `.akka/runs/build/.active.json` was written first, and `/akka:docs` ran as the last step.
+- [ ] The run record marker `.akka/runs/build/.active.json` was written first when running in Claude Code, `/akka:docs` ran as the last step, and the marker was then set to `"closing": true`.
