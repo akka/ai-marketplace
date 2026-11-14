@@ -55,6 +55,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - **IF EXISTS**: Read contracts/ for API specifications and test requirements
    - **IF EXISTS**: Read research.md for technical decisions and constraints
    - **IF EXISTS**: Read quickstart.md for integration scenarios
+   - **IF EXISTS**: Read `.akka/models.md`, the project's model policy: the model and effort for each purpose (design, implementation, review, tests, research, visual checks, documentation), the tier order, the downgrade rule and its exceptions
 
 5. **Project Setup Verification**:
    - **REQUIRED**: Create/verify ignore files based on actual project setup:
@@ -96,17 +97,27 @@ You **MUST** consider the user input before proceeding (if not empty).
    - **Kubernetes/k8s**: `*.secret.yaml`, `secrets/`, `.kube/`, `kubeconfig*`, `*.key`, `*.crt`
 
 6. Parse tasks.md structure and extract:
-   - **Task phases**: Setup, Tests, Core, Integration, Polish
+   - **Task groups**: Setup, Tests, Core, Integration, Polish
    - **Task dependencies**: Sequential vs parallel execution rules
-   - **Task details**: ID, description, file paths, parallel markers [P]
+   - **Task details**: ID, description, file paths, parallel markers [P], delivery-phase tags [Ph<n>], model tags [model: <name>], effort tags [effort: low|medium|high]
    - **Execution flow**: Order and dependency requirements
+   - **Delivery phases** (when tasks carry [Ph<n>] tags): each phase's acceptance test and gate from plan.md's Delivery Phases and Review Gates
+
+   **Choosing the model for a sub-agent**: when a task is handed to a sub-agent (for example parallel [P] tasks), choose its model and effort in this order, and use the first that applies:
+   1. The task's `[model: <name>]` and `[effort: <level>]` tags.
+   2. The row in plan.md's Model Plan for the task's [Ph<n>] phase and purpose.
+   3. The row in `.akka/models.md` for the task's purpose.
+   4. The harness default.
+
+   Then apply the downgrade rule: when usage has reached 85% of the plan's allowance (the harness reports it, or the user says so), move the chosen model one tier down the tier list in `.akka/models.md` (the last tier stays), unless the policy's Exceptions name that purpose or phase. Do not change the main session's model; tell the user once that the rule is in effect and suggest they switch the main session themselves. Without a policy file, the tiers are, most capable first: opus, sonnet, haiku. Name the model used in the progress report for each task.
 
 7. Execute implementation following the task plan:
-   - **Phase-by-phase execution**: Complete each phase before moving to the next
+   - **Group-by-group execution**: Complete each group before moving to the next
    - **Respect dependencies**: Run sequential tasks in order, parallel tasks [P] can run together
    - **Follow TDD approach**: Execute test tasks before their corresponding implementation tasks
    - **File-based coordination**: Tasks affecting the same files must run sequentially
-   - **Validation checkpoints**: Verify each phase completion before proceeding
+   - **Validation checkpoints**: Verify each group completion before proceeding
+   - **Delivery phases**: When tasks carry [Ph<n>] tags, run the phase's acceptance test from plan.md before starting tasks of a later phase. If a phase has a gate, check the topic's `discovery/<topic>/mocks/index.md`: the gate's artifact must read `approval: approved by ...`. If it does not, stop and ask the user to review it with `/akka:discover <topic> mock`
 
 8. Implementation execution rules:
    - **Component fidelity**: Implement components as mapped in plan.md's Component Architecture table. If a task needs a component not in the table, consult the "Choosing a component type" section of `akka-context/sdk/components/index.html.md`, then record the addition (with the rejected alternative) in plan.md before coding
@@ -124,16 +135,18 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Suggest next steps if implementation cannot proceed
    - **IMPORTANT** For completed tasks, make sure to mark the task off as [X] in the tasks file.
 
-10. **Commit the implementation**:
+10. **Refresh the docs.** Before the commit, in this session, run `/akka:docs` (the implementation docs and the Story) so they match what this command built. Add its outcome to the report, and leave the refreshed docs for the commit in the next step.
+
+11. **Commit the implementation**:
    - Call `akka_git_add` to stage all changes
    - Call `akka_git_commit` with a descriptive message summarizing the implemented feature
 
-11. **Ask about merging to main**:
+12. **Ask about merging to main**:
    - Ask the user: "Would you like to merge the feature branch back to main?"
    - If yes: call `akka_git_checkout` to switch to `main`, then `akka_git_merge` with the feature branch name
    - If no: stay on the feature branch — the user may want to create a PR or continue iterating
 
-12. Completion validation:
+13. Completion validation:
    - Verify all required tasks are completed
    - Check that implemented features match the original specification
    - Validate that tests pass and coverage meets requirements
@@ -148,8 +161,11 @@ Note: This command assumes a complete task breakdown exists in tasks.md. If task
 - [ ] The current git branch is the feature branch from spec.md (created via `akka_git_create_branch` if needed) — no implementation work happened on `main`.
 - [ ] The checklists status table was displayed; if any checklist had incomplete items, the user explicitly approved proceeding.
 - [ ] Every applicable ignore file (`.gitignore`, `.dockerignore`, `.eslintignore`/eslint config, `.prettierignore`, `.npmignore`, `.terraformignore`, `.helmignore`) was created or verified with the correct patterns for the detected tech stack.
-- [ ] Tasks were executed phase-by-phase, respecting sequential dependencies and running `[P]` tasks in parallel where safe.
+- [ ] Tasks were executed group-by-group, respecting sequential dependencies and running `[P]` tasks in parallel where safe.
+- [ ] When tasks carry `[Ph<n>]` tags, each delivery phase's acceptance test passed and its gate was approved before a later phase's tasks started.
+- [ ] Each sub-agent's model and effort came from the task's `[model: …]` tag, the plan's Model Plan, `.akka/models.md` or the harness default, in that order, with the 85% downgrade rule applied; the model used was reported per task.
 - [ ] Every completed task in `tasks.md` was marked `[X]`; any failed task halted execution (or, for `[P]` tasks, was reported while continuing successful siblings).
 - [ ] All changes were staged via `akka_git_add` and committed via `akka_git_commit` with a descriptive message.
 - [ ] The user was asked whether to merge the feature branch to `main`; the answer was acted on (`akka_git_checkout` + `akka_git_merge` on yes, stay on feature branch on no).
 - [ ] The final report validates that implemented features match the spec, tests pass, and the implementation follows the plan.
+- [ ] `/akka:docs` ran before the commit.

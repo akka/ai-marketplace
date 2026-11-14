@@ -1,5 +1,5 @@
 ---
-description: Generate or refresh rendered project documentation, then verify it against the content-governance exit-condition family (language, completeness, tone).
+description: Generate or refresh rendered project documentation (the implementation docs and the project Story; `story` for the Story alone), then verify it against the content-governance exit-condition family (language, completeness, tone, Story).
 handoffs:
   - label: Re-run Conformance
     agent: akka.specify
@@ -25,11 +25,26 @@ code module needs a covering check. Generation lives here in the assistant; the
 engine verifies the deterministic conditions and records the attestation for the
 one condition it cannot decide.
 
+It writes two sets of pages:
+
+- **Implementation docs**, `docs/index.html`: what was built, from the code
+  (steps 1–9).
+- **The Story**, `docs/story/`: what the project is for and how it was
+  approached, from the confirmed discovery files and the plan, never the code
+  (the Story section below). It has an overview, `docs/story/index.html`, and
+  one chapter per settled area topic, `docs/story/<topic>/index.html`.
+
+`/akka:docs` writes both. `/akka:docs story` writes the whole Story (overview
+and every chapter) and `/akka:docs story <topic>` writes that topic's chapter
+alone; both then run steps 10 and 11. There is no other option.
+
 ## When it runs
 
-`/akka:docs` is primarily an À la carte command. The developer invokes it
-directly when they want to (re)generate the project's rendered documentation
-and see how the content-governance exit conditions decided. In Enforced mode
+`/akka:docs` runs by itself as the last step of `/akka:plan`, `/akka:tasks` and
+`/akka:implement` (before implement's commit), and `/akka:discover` runs
+`/akka:docs story` when a topic settles. A developer can also invoke it directly
+to regenerate the rendered documentation and see how the content-governance
+exit conditions decided. In Enforced mode
 the assistant runs the same activity autonomously as part of its build loop,
 whenever CONTENT-LANGUAGE, Completeness, or CONTENT-TONE is `open` and the
 assistant can act on it. In both modes the behavior is identical; only
@@ -52,7 +67,7 @@ ship-gating differs.
    MUST NOT modify the CSS, the layout, the fonts, the colors, or any other
    design detail. Customers do not override the design; the template is the
    design. The palette is enumerated in
-   `plugins/akka/templates/akka-style-guide.md`, and step 9 checks the
+   `plugins/akka/templates/akka-style-guide.md`, and step 10 checks the
    generated page against it, so this rule is enforced rather than trusted.
 
 3. **Fill the placeholders and paste the fragments.** The template contains
@@ -81,7 +96,7 @@ ship-gating differs.
    automatically.
 
 4. **Draw the diagrams to the rules the template states.** The template's
-   header comment carries five rules that step 9 verifies. They are not style
+   header comment carries five rules that step 10 verifies. They are not style
    advice, and a page that breaks one reds the language check:
 
    - **Accessibility.** Every diagram `<svg>` carries `role="img"` and
@@ -175,8 +190,125 @@ ship-gating differs.
    the complexity budget is recorded here with its reason — an omission is a
    waiver, never a silent drop.
 
-9. **Verify against the content-governance family.** Run the three conditions and
-   report each. Each has a default ship tier:
+9. **Point the console at the app's UI in `.akka/app.yaml`.** When the project
+   serves a UI from an endpoint — an `HttpEndpoint` that returns
+   `HttpResponses.staticResource`, or files under
+   `src/main/resources/static-resources/` — write or refresh `.akka/app.yaml`.
+   The local console frames that UI, as the running service serves it, as
+   System › App:
+
+   ```yaml
+   version: 2
+   title: Engineering Change Intelligence   # the UI's <title>, or its main heading
+   service: bae                             # the service's local name: the Maven artifactId, as ~/.akka/local/<service>.conf names it
+   ui: /ui/                                 # the path the endpoint serves the UI's page at
+   generated_from:                          # every file read, for staleness
+     - src/main/resources/static-resources/index.html
+     - src/main/java/com/example/bae/api/UiEndpoint.java
+   ```
+
+   `ui` is an absolute path on the service with no scheme, host, `..`, query or
+   fragment, taken from the endpoint class that serves the page; never invent
+   one.
+
+   When the project serves no UI, remove `.akka/app.yaml` only if it carries
+   `generated_from`, and say so; a descriptor without it was not written here.
+
+### The Story
+
+The Story is for a reader meeting the project for the first time. It follows the
+same contract as the implementation docs: a fixed template, placeholders filled,
+fragments pasted, the same checks.
+
+S1. **Find the topics.** Discovery is organised in topics, one folder each,
+    `discovery/<topic>/`. Each topic's header (in its `topic.md`, or else at the
+    top of its files) gives its goal or question, track (ideation or
+    modernization), scope (`project` or the name of an area such as the cost
+    views), status (active, settled or parked), owner and start date. Several
+    topics can be active at once. A `discovery/concepts.md` outside any topic
+    folder is a project-scoped topic. A concept stays defined in its topic; a
+    `- see: <CODE>/C-<CODE>-<n> | shared` line in `discovery/concepts.md` promotes
+    it to the project's shared list, and the overview then draws it instead of
+    its chapter.
+
+    | Page | Written from | Template |
+    |---|---|---|
+    | Overview, `docs/story/index.html` | the project-scoped topic (or the spec's User Scenarios and Key Entities when there is none), the plan, and every topic's header | `docs-story-template.html` |
+    | One chapter per settled area topic, `docs/story/<topic>/index.html` | that topic's files and the plan | `docs-story-chapter-template.html` |
+
+    `/akka:docs story <topic>` writes only that topic's chapter, and refreshes the
+    overview's chapter card and chapter-concepts line for it. A project with no
+    `discovery/` folder gets the overview alone, written from the spec.
+
+S2. **Load the fixed templates.** The rules of step 2 apply unchanged to both:
+    do not modify the CSS, the layout, the fonts or the colors; fill the
+    placeholders and paste the fragments the overview template's comments show,
+    changing only text and the coordinates its slot tables give. The chapter
+    template uses the same fragments and the same stylesheet.
+
+S3. **Read the sources, not the code.** The findings whose status is `confirmed`
+    in the topic's files, its `concepts.md` (concept blocks and their `visual`
+    blocks), `landscape.md`, `system-map.md` and `behaviour.md` for a
+    modernization, and each spec's `plan.md` (Delivery Phases, Decisions Log,
+    Baseline). A finding that is not confirmed is not used and not cited. Without
+    a `discovery/` folder: the spec's User Scenarios and Key Entities, and the
+    plan; captions and claims then name the spec's items they rest on (User
+    Story 1, FR-003) in a `data-sources` attribute instead of `data-findings`.
+
+S4. **Write the sections, one idea each.** Plain language for a newcomer,
+    complete declarative sentences, no selling language, every term explained
+    the first time it appears on that page; a chapter is read on its own.
+
+    Overview:
+
+    | Section | Holds | Picture |
+    |---|---|---|
+    | Essence | the problem, who it is for and what changes, in one sentence, from the project-scoped topic (or the spec) | a comparison: before and after |
+    | Chapters | one card per area topic: its area, its goal and its status; a settled topic's card links to its chapter | none |
+    | Concepts | one fragment per confirmed concept of a settled project-scoped topic, then a line per chapter linking to its concepts | the concept's `visual` block, drawn as its kind |
+    | Approach | the chosen approach and its phases; why it was chosen over the options in `landscape.md` and the decisions in the log | a timeline of the plan's phases (a flow when there are none) |
+    | The system, before and after | modernization only (spec marker `**Modernization**: yes`): what the new system keeps, changes and drops, from `system-map.md` and `behaviour.md`, and the parity status | a comparison |
+
+    Chapter: the topic's goal; Concepts (one fragment per confirmed concept of
+    the topic); Approach and alternatives (from the topic's landscape and
+    decisions); The system, before and after for a modernization topic.
+
+S5. **Draw from data.** Every picture is one of five kinds: relationship, flow,
+    state, comparison, timeline. A concept's picture is drawn from its `visual`
+    block, with the kind the block names, on the page its topic belongs to; a
+    concept without a valid block is reported, not drawn from imagination. Write
+    the block into the topic's `concepts.md` first if it is missing, and say so.
+    The figure tag carries `data-concept="C-<CODE>-<n>" data-kind="<kind>"` in that
+    order. Step 4's rules apply: accessible SVG with `{{SLUG}}-<name>-` ids, the
+    4px grid, masked labels, the budget; Story diagrams are narrative, so grey
+    with at most two accented elements.
+
+S6. **Cite every caption.** Each `<figcaption>` and each claim taken from
+    discovery carries the confirmed findings it rests on in a `data-findings`
+    attribute, space separated (`data-findings="F-<CODE>-<n> F-<CODE>-<n>"`).
+    The page shows no footnotes, no notes list and no list of further links.
+    A finding is cited by the identifier discovery gives it.
+
+S7. **Write the pages.** Self-contained, as in step 7.
+
+10. **Verify against the content-governance family.** Run the conditions and
+   report each. The deterministic checks run over both sets of pages,
+   `docs/*.html` and `docs/story/**/*.html`. Two conditions read the Story and
+   are `green` with "not applicable" when there is no `docs/story/` or no
+   `discovery/` folder. Both read findings and concepts from every topic:
+
+   - **STORY-CONCEPTS-VISUAL (deterministic).** Every concept of a settled topic
+     whose findings are all confirmed has a valid `visual` block and a figure of
+     the kind it names on its own part of the Story: the overview for a
+     project-scoped topic or a shared concept, the topic's chapter for an area;
+     a shared concept is counted once. A reference to a concept no topic defines
+     reds it. A settled area topic
+     with no chapter reds it. Active and parked topics are not checked.
+   - **STORY-CITES-CONFIRMED (deterministic).** Every finding identifier on each
+     Story page names a finding in `discovery/` whose status is `confirmed`; each
+     page is reported on its own.
+
+   The other three conditions each have a default ship tier:
 
    - **CONTENT-LANGUAGE (deterministic, ship tier: author).** Two introspective
      checks over `docs/`, both falsifiable, both reported under this condition:
@@ -187,7 +319,7 @@ ship-gating differs.
      the structural conventions — required sections present, heading conventions
      followed.
 
-     *Diagram structure.* `python harnesses/content/diagram_check.py docs/*.html`,
+     *Diagram structure.* `python harnesses/content/diagram_check.py docs/*.html docs/story/*.html docs/story/*/*.html`,
      which decides the falsifiable half of step 4: the accessible-SVG contract;
      diagonal connectors; every `<rect>` and `<line>` coordinate on the 4px grid;
      a label mask clipped by a node drawn after it; a connector label with no
@@ -228,7 +360,7 @@ ship-gating differs.
      verified before the change is opened for team review, not on every commit —
      re-attesting every time a source file changes would be excessive.
 
-10. **Report.** Call `akka_ec_conform`, then present `akka_ec_summary` to the user
+11. **Report.** Call `akka_ec_conform`, then present `akka_ec_summary` to the user
    **verbatim** — the plain outcome. Do NOT restate internal condition ids or the
    words "auditor" / "coverage gate". Offer *"say 'show details' for the full
    checklist"* for the manifest.
@@ -248,6 +380,12 @@ ship-gating differs.
   three conditions exist in À la carte and Enforced mode alike; only ship-gating
   differs, advisory in À la carte and blocking in Enforced. Where the set is
   dormant the pages are still generated and no conditions are recorded.
+- The Story rests only on what a person confirmed. It is written from the
+  confirmed findings and the plan, never from the code, and it cites nothing
+  that is not confirmed.
+- The app descriptor names only the UI the service serves. `ui` is the path an
+  endpoint class serves the page at; the console frames that address, so an
+  invented path is a frame that fails to load.
 
 ## Done When
 
@@ -260,7 +398,12 @@ ship-gating differs.
 - [ ] Every budget waiver has its detail diagram in `{{ADDITIONAL_DIAGRAMS}}`, or states why one cannot be drawn — a waiver alone advertises a hole without filling it.
 - [ ] Every additional diagram names, in its `sec-hint`, the thing no other diagram on the page shows.
 - [ ] Every call, step and participant drawn was verified against the step bodies and call sites, not inferred from class names.
-- [ ] CONTENT-LANGUAGE ran Vale **and** `harnesses/content/diagram_check.py` over `docs/` and reported `green`/`red` (or `open` with reason `blocked-outside-project` where a tool is unavailable — never a false `red`).
+- [ ] CONTENT-LANGUAGE ran Vale **and** `harnesses/content/diagram_check.py` over `docs/` and `docs/story/` and reported `green`/`red` (or `open` with reason `blocked-outside-project` where a tool is unavailable — never a false `red`).
 - [ ] Completeness was checked as the documentation surface class of the coverage gate; any undocumented thing reds the gate or was recorded as a waiver with a reason.
 - [ ] CONTENT-TONE applied the decomposed adversarial rubric as pass/fail predicates and, on pass, was attested via `akka_harness_attest` with the condition key and a receipt reference — never left as a numeric score.
+- [ ] When the project serves a UI, `.akka/app.yaml` was written or refreshed with its title, the service and the path the UI is served at, listing the files read in `generated_from`; when it serves none, a generated descriptor was removed and the user told.
+- [ ] The Story was written from its fixed templates with CSS and layout unchanged: the overview at `docs/story/index.html` and one chapter per settled area topic at `docs/story/<topic>/index.html` (with `story <topic>`, that chapter alone), from the confirmed findings and the plan, or the overview alone from the spec's User Scenarios and Key Entities when there is no `discovery/` folder.
+- [ ] The overview has Essence, Chapters, Concepts, Approach, and for a modernization The system, before and after; each chapter has its goal, Concepts, Approach and alternatives and a link back; each section holds one idea in complete plain sentences.
+- [ ] Every concept whose findings are all confirmed is drawn from its `visual` block, its figure carrying `data-concept` and `data-kind`; every picture is one of the five kinds; every caption carries the findings it rests on in its `data-findings` attribute.
+- [ ] STORY-CONCEPTS-VISUAL and STORY-CITES-CONFIRMED were reported with the other content-governance conditions.
 - [ ] `akka_ec_conform` was called and the plain `akka_ec_summary` (never internal ids or the word "auditor") was shown to the user.

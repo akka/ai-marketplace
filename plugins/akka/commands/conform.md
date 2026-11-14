@@ -19,6 +19,8 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+This command runs `akka specify` subcommands (`probes`, `conform`) and, for discovery, `akka bom generate`. They need the akka CLI release that includes the discovery gates and probes. If a subcommand is reported as unknown, tell the person their CLI is older than this plugin, name the missing subcommand. If the project has a `discovery/` folder, stop and say the discovery gates cannot be checked with this CLI, because a spec may rely only on confirmed findings. Otherwise skip the step that needs it and say it was skipped.
+
 ## Purpose
 
 `/akka:conform` runs the in-scope auditors and reports whether the feature is

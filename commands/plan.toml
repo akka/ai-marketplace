@@ -13,7 +13,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 1. **Setup**: Call the `akka_sdd_list_specs` MCP tool to find the target feature. Then call `akka_sdd_get_template` with template_name="plan" to get the plan template. Identify the feature's spec path (FEATURE_SPEC) and plan destination (FEATURE_DIR/plan.md).
 
-2. **Load context**: Read FEATURE_SPEC and `akka_sdd_constitution`. If the spec contains unresolved [NEEDS CLARIFICATION] markers for policy decisions (thresholds, access permissions, retention, sensitive-data rules, approvals), report them, recommend `/akka:clarify`, and stop; do not decide them through research. Load IMPL_PLAN template (already copied).
+2. **Load context**: Read FEATURE_SPEC and `akka_sdd_constitution`. If the spec contains unresolved [NEEDS CLARIFICATION] markers for policy decisions (thresholds, access permissions, retention, sensitive-data rules, approvals), report them, recommend `/akka:clarify`, and stop; do not decide them through research. Load IMPL_PLAN template (already copied). If the project has a `discovery/` folder, read, in each topic folder `discovery/<topic>/` and at the `discovery/` root, `understanding.md` (its Decisions Raised), `behaviour.md` and `system-map.md` (measured figures and Decisions to Force) and `mocks/index.md` (review artifacts), and list the files read on the plan's **Discovery** line. If `.akka/models.md` exists, read it.
 
 3. **Execute plan workflow**: Follow the structure in IMPL_PLAN template to:
    - Fill Technical Context (mark unknowns as "NEEDS CLARIFICATION")
@@ -23,10 +23,13 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Phase 0: Generate research.md (resolve all NEEDS CLARIFICATION)
    - Phase 1: Map domain concepts to Akka components (Component Architecture table), then generate data-model.md, contracts/, quickstart.md
    - Re-evaluate Constitution Check post-design
+   - Phase 2: Fill Delivery Phases, Review Gates, Baseline, Metrics and Targets, Model Plan and Decisions Log
 
 4. **Report existing diagrams.** If `FEATURE_DIR/plan-visualize.md` exists, mention in the completion report that it may be stale and suggest running `/akka:visualize` for this feature when the user wants updated diagrams. Leave all diagram files untouched; visualization is optional.
 
-5. **Stop and report**: Command ends after Phase 2 planning. Report branch, IMPL_PLAN path, generated artifacts, and any potentially stale diagram paths.
+5. **Refresh the docs.** Before reporting, in this session, run `/akka:docs` (the implementation docs and the Story) so they match what this command wrote. Keep its outcome for the report.
+
+6. **Stop and report**: The command ends here, after Phase 2 planning and the docs refresh. Report branch, IMPL_PLAN path, generated artifacts, and any potentially stale diagram paths.
 
 ## Phases
 
@@ -79,6 +82,40 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 **Output**: Component Architecture table in plan.md, data-model.md, /contracts/*, quickstart.md
 
+### Phase 2: Delivery plan
+
+**Prerequisites:** Phase 1 complete
+
+1. **Delivery Phases** → one `### Phase <n>: <name>` block per phase in plan.md:
+   - A phase delivers something a person can check: a working slice, a migrated capability, a reviewed design. Order phases so the riskiest assumption is tested earliest.
+   - Fill every field: goal, steps, parallel with, acceptance test, gate, risk, rollback, size.
+   - The acceptance test is a check that can fail (a test class, a probe re-run, a comparison against the baseline), never "works as expected".
+   - Rollback says how to undo the phase without losing earlier phases. For a modernization, name the cutover and how traffic returns to the old system.
+   - Write the critical path, and which phases can run at the same time.
+   - Only delivery phases use headings that begin with "Phase". The model plan and the exit conditions read every such heading in plan.md as a phase.
+
+2. **Review Gates** → for each phase that must not start until a person has seen something (screens, a storyboard, a data model, a cutover plan), add a gate row naming the artifact. If the spec header reads `**User Interface**: yes`, at least one gate reviews a mock before the first phase that builds the interface. The artifact is registered with `/akka:discover <topic> mock`; if it does not exist yet, say so in the report.
+
+3. **Baseline** → measured values of what is true today, one bullet per metric: `- <metric>: <value> | method: <how measured> | source: <finding or probe result>`.
+   - Take values from discovery findings or `.akka/discovery/timing.json`. Never write a value nobody measured; put it under Metrics and Targets with how and before which phase it will be measured.
+   - If the spec header reads `**Modernization**: yes`, the Baseline section needs at least one measured value before the plan is complete. If none exists, stop and ask the user how the current system can be measured (`/akka:discover <topic> system` with the timing probe is one way).
+   - Otherwise write `none: <what was checked>` when there is nothing to compare against.
+
+4. **Metrics and Targets** → each target names the success criterion (SC-nnn) or finding it serves, and how it will be measured.
+
+5. **Model Plan** → a single table with one row per phase and purpose (design, implementation, review, tests, research, visual checks, documentation), and columns Phase, Purpose, Model, Effort, Cost, Speed, Accuracy, Why:
+   - Every `### Phase <n>` heading has at least one row with a model and an effort. Write the Phase cell as `Phase <n>`.
+   - If `.akka/models.md` exists, start from its rows and explain any row that differs.
+   - Choose by what a mistake costs: work whose errors spread (design, data model, review, rules ported from an old system) gets the most accurate model and high effort; work that follows a fixed design (implementation, tests, documentation) gets the balanced model; many small, checkable tasks (screenshots, formatting) get the fastest model and low effort.
+   - Cost, speed and accuracy are stated relative to the other tiers (lowest, medium, highest). Do not quote prices unless the user gave them.
+   - Under the table, write the downgrade rule (at 85% of the plan's allowance every sub-agent moves one tier down; the main session is not changed by the AI) and its exceptions, then a rough estimate by phase.
+   - No subheadings inside this section.
+   - If `.akka/models.md` does not exist, ask the user whether to create it from this plan's choices. If yes, call `akka_sdd_get_template` with template_name="models" and write `.akka/models.md`.
+
+6. **Decisions Log** → one row for every choice that changes the plan: every Decisions Raised item in each `understanding.md` under `discovery/`, every Decisions to Force finding in each `behaviour.md` under `discovery/`, and every close call made in this plan. Each row has a recommendation with its reason, an owner (a role), and a status of open, decided with the date, or dropped. Never mark a decision decided unless the user made it.
+
+**Output**: Delivery Phases, Review Gates, Baseline, Metrics and Targets, Model Plan and Decisions Log in plan.md
+
 ## Key rules
 
 - Use absolute paths
@@ -92,7 +129,10 @@ You **MUST** consider the user input before proceeding (if not empty).
 - [ ] Phase 0 produced `research.md` with every `NEEDS CLARIFICATION` resolved (Decision / Rationale / Alternatives).
 - [ ] The Component Architecture table in `plan.md` maps every domain concept, process, and query to a component (or a plain domain class), with close-call rows naming the rejected alternative and why it was not chosen — informed by the "Choosing a component type" section of `akka-context/sdk/components/index.html.md`.
 - [ ] Phase 1 produced `data-model.md`, `quickstart.md`, and — if the project exposes external interfaces — `contracts/`.
+- [ ] Phase 2 filled Delivery Phases (`### Phase <n>: <name>` blocks with goal, steps, parallel with, acceptance test, gate, risk, rollback and size), Review Gates, Baseline (measured values only; at least one for a modernization), Metrics and Targets, the Model Plan table (a model and an effort for every phase, the downgrade rule beneath it) and the Decisions Log.
+- [ ] No heading other than a delivery phase begins with "Phase", and the Model Plan section has no subheadings.
 - [ ] `FEATURE_DIR/plan.md` was written using the template structure and no gate error was left unresolved.
 - [ ] Existing diagrams affected by the source update were reported as potentially stale, with `/akka:visualize` suggested as an optional next step; all diagram files were left untouched.
 - [ ] Completion was reported with the branch, plan path, generated artifacts, and the next-command recommendation (`/akka:tasks`).
+- [ ] `/akka:docs` ran before the report.
 """

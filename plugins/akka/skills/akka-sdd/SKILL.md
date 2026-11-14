@@ -1,6 +1,6 @@
 ---
 name: akka-sdd
-description: Use when working on Akka SDK projects, Akka Spec-Driven Development, or when the user asks for workflows equivalent to Claude commands such as /akka:specify, /akka:plan, /akka:tasks, /akka:implement, /akka:review, /akka:build, /akka:deploy, /akka:analyze, /akka:clarify, /akka:checklist, or /akka:issues.
+description: Use when working on Akka SDK projects, Akka Spec-Driven Development, or when the user asks for workflows equivalent to Claude commands such as /akka:discover, /akka:specify, /akka:plan, /akka:tasks, /akka:implement, /akka:review, /akka:build, /akka:deploy, /akka:analyze, /akka:clarify, /akka:checklist, or /akka:issues.
 ---
 
 # Akka Spec-Driven Development For Codex
@@ -25,6 +25,7 @@ Before using an Akka SDD workflow, verify the MCP server is available by listing
 
 ## Claude Command Mapping
 
+- `/akka.discover`: before a spec, research the problem, compare the landscape, agree the concepts, examine an existing system with `akka specify probes`, confirm the understanding with the user, and record mock reviews, all as findings in a topic folder `discovery/<topic>/` (`/akka.discover <topic> <sub-command>`; a new topic is created after two or three questions); `--prework` writes a pre-work prompt pack. Run with no arguments to list the topics and see where discovery stands.
 - `/akka.specify`: create or update a feature specification. Use Akka MCP spec tools first, then create or update `specs/<number>-<short-name>/spec.md`.
 - `/akka.plan`: create the technical plan from the selected spec. Use Akka MCP template/spec tools, then produce `plan.md`, `research.md`, `data-model.md`, contracts, and quickstart artifacts as needed.
 - `/akka.tasks`: derive actionable tasks from the plan and write `tasks.md`.

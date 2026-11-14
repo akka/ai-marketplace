@@ -93,6 +93,7 @@ Zero prerequisites beyond having a supported AI coding agent installed.
 | -------------------- | -------------------- | -------------------------------------------------------- |
 | `/akka:setup`        | `/akka.setup`        | Set up a complete Akka development environment           |
 | `/akka:constitution` | `/akka.constitution` | Create or update the project constitution                |
+| `/akka:discover`     | `/akka.discover`     | Gather and confirm the findings a spec rests on          |
 | `/akka:specify`      | `/akka.specify`      | Create or update a feature specification                 |
 | `/akka:clarify`      | `/akka.clarify`      | Resolve open questions in specs or plans                 |
 | `/akka:plan`         | `/akka.plan`         | Generate an implementation plan from a spec              |
@@ -112,7 +113,7 @@ Zero prerequisites beyond having a supported AI coding agent installed.
 | `/akka:conform`      | `/akka.conform`      | Run the auditors and return the ship-readiness verdict   |
 | `/akka:ship`         | `/akka.ship`         | Run the auditors and, on pass, run the ship steps        |
 | `/akka:mode`         | `/akka.mode`         | Switch between Enforced and À la carte modes             |
-| `/akka:docs`         | `/akka.docs`         | Generate rendered project documentation into `docs/`     |
+| `/akka:docs`         | `/akka.docs`         | Write the implementation docs and the Story              |
 | `/akka:visualize`    | `/akka.visualize`    | Generate Mermaid diagrams from a feature's spec and plan |
 
 Visualization is optional. Run `/akka:visualize` explicitly to generate or
@@ -150,7 +151,7 @@ filenames; both carry the same `mcpServers` payload.
 **Agent Plugins 1.0 posture.** The AP 1.0 files are additive: the
 `skills/<name>/SKILL.md` tree is the same one the Codex target emits,
 so there is no second copy. Commands are out of scope in AP 1.0 v1, so
-an AP 1.0 client that ships would reach the workflow through the 23
+an AP 1.0 client that ships would reach the workflow through the 24
 skills and the MCP toolset, not through `/akka:*` slash commands.
 
 ## `/akka:setup` skill — stable path for aliases
@@ -187,7 +188,7 @@ release cadence is the mitigation, not per-install pinning.
 
 The spec-driven development workflow (specify, plan, tasks, clarify, analyze, checklist,
 issues) is built on [SpecKit](https://github.com/github/spec-kit), adapted for the
-Akka SDK with MCP tool integration. The build, conform, constitution, converge, deploy,
+Akka SDK with MCP tool integration. The build, conform, constitution, converge, deploy, discover,
 docs, harnesses, implement, inspect, mode, reliability, review, setup, ship, and status
 skills are original to Akka. The visualize skill is adapted from the `diagrams` skill in the
 [akka-ext plugin](https://github.com/aklikic/akka-ext-plugin).
