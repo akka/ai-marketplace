@@ -99,12 +99,12 @@ You **MUST** consider the user input before proceeding (if not empty).
 6. Parse tasks.md structure and extract:
    - **Task groups**: Setup, Tests, Core, Integration, Polish
    - **Task dependencies**: Sequential vs parallel execution rules
-   - **Task details**: ID, description, file paths, parallel markers [P], delivery-phase tags [Ph<n>], model tags [model: <name>]
+   - **Task details**: ID, description, file paths, parallel markers [P], delivery-phase tags [Ph<n>], model tags [model: <name>], effort tags [effort: low|medium|high]
    - **Execution flow**: Order and dependency requirements
    - **Delivery phases** (when tasks carry [Ph<n>] tags): each phase's acceptance test and gate from plan.md's Delivery Phases and Review Gates
 
    **Choosing the model for a sub-agent**: when a task is handed to a sub-agent (for example parallel [P] tasks), choose its model and effort in this order, and use the first that applies:
-   1. The task's `[model: <name>]` tag.
+   1. The task's `[model: <name>]` and `[effort: <level>]` tags.
    2. The row in plan.md's Model Plan for the task's [Ph<n>] phase and purpose.
    3. The row in `.akka/models.md` for the task's purpose.
    4. The harness default.

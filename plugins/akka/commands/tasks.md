@@ -159,6 +159,6 @@ Every task MUST strictly follow this format:
 - [ ] When plan.md has Delivery Phases, every phase has at least one task and every `[Ph<n>]` names a phase that exists.
 - [ ] Task IDs are sequential (`T001, T002, …`) and unique across the file.
 - [ ] Every user story from spec.md has all needed tasks and is independently testable per the story goal and independent test criteria in its group header.
-- [ ] A User Story Dependencies section has one `- **USn**: <stories it needs> (why)` line for every user story, and a Dependencies section lists user-story completion order, and a Parallel Execution Examples subsection is provided per story.
+- [ ] The User Story Dependencies section has one `- **USn**: <stories it needs> (why)` line for every user story, which also sets the completion order, and a Parallel Execution Examples subsection is provided per story.
 - [ ] `/akka:docs` ran before the report.
 - [ ] The report includes total task count, per-story count, parallel opportunities, and the suggested MVP scope (typically User Story 1 only).

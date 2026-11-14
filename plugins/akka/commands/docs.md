@@ -40,9 +40,11 @@ alone; both then run steps 10 and 11. There is no other option.
 
 ## When it runs
 
-`/akka:docs` is primarily an À la carte command. The developer invokes it
-directly when they want to (re)generate the project's rendered documentation
-and see how the content-governance exit conditions decided. In Enforced mode
+`/akka:docs` runs by itself as the last step of `/akka:plan`, `/akka:tasks` and
+`/akka:implement` (before implement's commit), and `/akka:discover` runs
+`/akka:docs story` when a topic settles. A developer can also invoke it directly
+to regenerate the rendered documentation and see how the content-governance
+exit conditions decided. In Enforced mode
 the assistant runs the same activity autonomously as part of its build loop,
 whenever CONTENT-LANGUAGE, Completeness, or CONTENT-TONE is `open` and the
 assistant can act on it. In both modes the behavior is identical; only
@@ -250,8 +252,8 @@ S3. **Read the sources, not the code.** The findings whose status is `confirmed`
     modernization, and each spec's `plan.md` (Delivery Phases, Decisions Log,
     Baseline). A finding that is not confirmed is not used and not cited. Without
     a `discovery/` folder: the spec's User Scenarios and Key Entities, and the
-    plan; captions then cite the spec's items (User Story 1, FR-003) instead of
-    findings.
+    plan; captions and claims then name the spec's items they rest on (User
+    Story 1, FR-003) in a `data-sources` attribute instead of `data-findings`.
 
 S4. **Write the sections, one idea each.** Plain language for a newcomer,
     complete declarative sentences, no selling language, every term explained
