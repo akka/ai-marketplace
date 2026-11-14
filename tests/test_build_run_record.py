@@ -17,16 +17,22 @@ spec.loader.exec_module(hook)
 TASKS = "specs/001-x/tasks.md"
 
 
-def line(message_id, minute, model="opus", inp=1, out=1, edit=None, kind="text"):
+def line(message_id, minute, model="opus", inp=1, out=1, edit=None, kind="text", fail=False):
+    """An assistant line; an edit also yields the user line carrying the tool result."""
+    stamp = "2026-11-14T09:%02d:00Z" % minute
     block = {"type": "text", "text": "x"}
     if edit:
-        block = {"type": "tool_use", "name": "Edit", "input": {
+        block = {"type": "tool_use", "id": "tu-%s-%s" % (message_id, edit), "name": "Edit", "input": {
             "file_path": "/proj/" + TASKS, "old_string": "- [ ] %s a" % edit, "new_string": "- [x] %s a" % edit}}
     elif kind == "bash":
-        block = {"type": "tool_use", "name": "Bash", "input": {"command": "ls"}}
-    return json.dumps({"type": "assistant", "timestamp": "2026-11-14T09:%02d:00Z" % minute, "message": {
+        block = {"type": "tool_use", "id": "tu-%s-bash" % message_id, "name": "Bash", "input": {"command": "ls"}}
+    text = json.dumps({"type": "assistant", "timestamp": stamp, "message": {
         "id": message_id, "model": model, "content": [block],
         "usage": {"input_tokens": inp, "output_tokens": out}}})
+    if edit:
+        text += "\n" + json.dumps({"type": "user", "timestamp": stamp, "message": {"content": [{
+            "type": "tool_result", "tool_use_id": block["id"], "is_error": fail, "content": "ok"}]}})
+    return text
 
 
 MARKER_WRITE = json.dumps({"type": "user", "timestamp": "2026-11-14T09:10:00Z",
@@ -118,6 +124,36 @@ class RunRecordTest(Project):
         self.fire("SessionEnd")
         self.assertEqual(self.by_task(self.record()), {
             "T001": {"opus": (2, 2), "sonnet": (2, 2)}, None: {"opus": (1, 1)}})
+
+    def test_a_failed_tick_is_not_a_tick_and_its_retry_gives_one_entry(self):
+        self.append(line("a", 11), line("f", 12, edit="T003", fail=True), line("r", 13, edit="T003"),
+                    line("z", 14))
+        self.fire("SessionEnd")
+        record = self.record()
+        self.assertEqual([item["task"] for item in record["taskUsage"]], ["T003", None])
+        self.assertEqual(self.by_task(record), {"T003": {"opus": (3, 3)}, None: {"opus": (1, 1)}})
+
+    def test_a_tick_without_a_result_is_not_counted(self):
+        text = line("a", 11, edit="T001").split("\n")[0]
+        self.append(text, line("b", 12))
+        self.fire("SessionEnd")
+        self.assertEqual(self.by_task(self.record()), {None: {"opus": (2, 2)}})
+
+    def test_a_finished_subagent_does_not_hold_the_main_transcript_back(self):
+        sub = os.path.join(self.root, "session", "subagents", "agent-1.jsonl")
+        self.append(line("a", 11), line("b", 14))
+        self.append(line("s1", 12, model="sonnet"), line("s2", 13, model="sonnet"), path=sub)
+        self.fire()
+        state = hook.read_json(self.state)
+        self.assertEqual(list(state["open"]), [self.transcript])
+        self.assertEqual(state["pending"], [])
+        self.append(line("c", 15))
+        self.fire()
+        state = hook.read_json(self.state)
+        self.assertEqual(state["pending"], [])
+        self.assertEqual(state["totals"]["opus"]["requests"], 2)
+        self.fire("SessionEnd")
+        self.assertEqual(self.usage(self.record()), {"opus": (3, 3), "sonnet": (2, 2)})
 
     def test_lines_before_started_at_are_ignored(self):
         with open(self.transcript, "w") as handle:

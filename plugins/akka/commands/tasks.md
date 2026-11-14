@@ -53,15 +53,15 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Parallel execution examples per story
    - Implementation strategy section (MVP first, incremental delivery)
 
-5. **Report**: Output path to generated tasks.md and summary:
+5. **Refresh the docs.** Before reporting, in this session, run `/akka:docs` (the implementation docs and the Story) so they match what this command wrote. Keep its outcome for the report. If you started a run record, then set `"closing": true` in `.akka/runs/build/.active.json` now; the plugin's next Stop hook writes the record and removes the marker.
+
+6. **Report** (the last step, after the docs refresh): Output path to generated tasks.md and summary:
    - Total task count
    - Task count per user story
    - Parallel opportunities identified
    - Independent test criteria for each story
    - Suggested MVP scope (typically just User Story 1)
    - Format validation: Confirm ALL tasks follow the checklist format (checkbox, ID, labels, file paths)
-
-6. **Refresh the docs.** As the last step, in this session, run `/akka:docs` (the implementation docs and the Story) so they match what this command wrote. Add its outcome to the report. If you started a run record, then set `"closing": true` in `.akka/runs/build/.active.json` as the command's final action; the plugin's next Stop hook writes the record and removes the marker.
 
 Context for task generation: $ARGUMENTS
 
@@ -160,5 +160,5 @@ Every task MUST strictly follow this format:
 - [ ] Task IDs are sequential (`T001, T002, …`) and unique across the file.
 - [ ] Every user story from spec.md has all needed tasks and is independently testable per the story goal and independent test criteria in its group header.
 - [ ] A User Story Dependencies section has one `- **USn**: <stories it needs> (why)` line for every user story, and a Dependencies section lists user-story completion order, and a Parallel Execution Examples subsection is provided per story.
-- [ ] `/akka:docs` ran as the last step, the run record marker was written first when running in Claude Code, and it was then set to `"closing": true`.
+- [ ] `/akka:docs` ran before the report, the run record marker was written first when running in Claude Code, and it was then set to `"closing": true`.
 - [ ] The report includes total task count, per-story count, parallel opportunities, and the suggested MVP scope (typically User Story 1 only).

@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "d=\"${CLAUDE_PROJECT_DIR:-$PWD}\"; [ -f \"$d/.akka/runs/build/.active.json\" ] || [ -f \"$d/.akka/runs/build/.state.json\" ] || exit 0; case \"$OS\" in Windows_NT) set -- py;; *) set -- python3 python;; esac; for p in \"$@\"; do \"$p\" \"${CLAUDE_PLUGIN_ROOT}/hooks/build_run_record.py\" 2>/dev/null && exit 0; done; exit 0",
+            "command": "d=\"${CLAUDE_PROJECT_DIR:-$PWD}\"; [ -f \"$d/.akka/runs/build/.active.json\" ] || [ -f \"$d/.akka/runs/build/.state.json\" ] || exit 0; for p in py python3 python; do \"$p\" \"${CLAUDE_PLUGIN_ROOT}/hooks/build_run_record.py\" 2>/dev/null && exit 0; done; exit 0",
             "timeout": 15
           }
         ]
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "d=\"${CLAUDE_PROJECT_DIR:-$PWD}\"; [ -f \"$d/.akka/runs/build/.active.json\" ] || [ -f \"$d/.akka/runs/build/.state.json\" ] || exit 0; case \"$OS\" in Windows_NT) set -- py;; *) set -- python3 python;; esac; for p in \"$@\"; do \"$p\" \"${CLAUDE_PLUGIN_ROOT}/hooks/build_run_record.py\" 2>/dev/null && exit 0; done; exit 0",
+            "command": "d=\"${CLAUDE_PROJECT_DIR:-$PWD}\"; [ -f \"$d/.akka/runs/build/.active.json\" ] || [ -f \"$d/.akka/runs/build/.state.json\" ] || exit 0; for p in py python3 python; do \"$p\" \"${CLAUDE_PLUGIN_ROOT}/hooks/build_run_record.py\" 2>/dev/null && exit 0; done; exit 0",
             "timeout": 15
           }
         ]

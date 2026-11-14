@@ -137,7 +137,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Suggest next steps if implementation cannot proceed
    - **IMPORTANT** For completed tasks, make sure to mark the task off as [X] in the tasks file.
 
-10. **Refresh the docs.** Before the commit, in this session, run `/akka:docs` (the implementation docs and the Story) so they match what this command built. Add its outcome to the report, and leave the refreshed docs for the commit in the next step. If you started a run record, then set `"closing": true` in `.akka/runs/build/.active.json` now; the plugin's next Stop hook writes the record and removes the marker.
+10. **Refresh the docs.** Before the commit, in this session, run `/akka:docs` (the implementation docs and the Story) so they match what this command built. Add its outcome to the report, and leave the refreshed docs for the commit in the next step. If you started a run record, then set `"closing": true` in `.akka/runs/build/.active.json` now; the plugin's next Stop hook writes the record and removes the marker. The record is written after the commit, because it records the commit; it is committed with the next change.
 
 11. **Commit the implementation**:
    - Call `akka_git_add` to stage all changes

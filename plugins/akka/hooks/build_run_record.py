@@ -137,7 +137,7 @@ def seek_since(path, since):
 
 
 def tool_edits(message):
-    """Yields (file_path, old_text, new_text) for each edit tool call in an assistant message."""
+    """Yields (tool_use_id, file_path, old_text, new_text) for each edit tool call in an assistant message."""
     content = message.get("content")
     if not isinstance(content, list):
         return
@@ -148,14 +148,15 @@ def tool_edits(message):
         if not isinstance(args, dict):
             continue
         path = args.get("file_path")
+        use = block.get("id")
         if block.get("name") == "Edit":
-            yield path, args.get("old_string"), args.get("new_string")
+            yield use, path, args.get("old_string"), args.get("new_string")
         elif block.get("name") == "MultiEdit":
             for edit in args.get("edits") or []:
                 if isinstance(edit, dict):
-                    yield path, edit.get("old_string"), edit.get("new_string")
+                    yield use, path, edit.get("old_string"), edit.get("new_string")
         elif block.get("name") == "Write":
-            yield path, None, args.get("content")
+            yield use, path, None, args.get("content")
 
 
 def task_states(text):
@@ -168,19 +169,33 @@ def task_states(text):
 
 
 def ticks_in(message, tasks_file, already):
-    """Task ids a message ticks in tasks.md. A Write has no old text, so it ticks what is not in `already`."""
+    """(task id, tool_use id) for each task a message ticks in tasks.md.
+
+    The tick counts only once the tool call's result shows it succeeded. A Write has no old text,
+    so it ticks what is not in `already`.
+    """
     if not tasks_file:
         return []
     suffix = tasks_file.replace("\\", "/")
     ticked = []
-    for path, old, new in tool_edits(message):
+    for use, path, old, new in tool_edits(message):
         if not isinstance(path, str) or not path.replace("\\", "/").endswith(suffix):
             continue
         before = task_states(old)
         for task, done in task_states(new).items():
-            if done and not before.get(task, False) and task not in already and task not in ticked:
-                ticked.append(task)
+            if done and not before.get(task, False) and task not in already:
+                ticked.append((task, use))
     return ticked
+
+
+def tool_results(entry):
+    """Yields (tool_use_id, is_error) for each tool result in a user transcript line."""
+    message = entry.get("message")
+    content = message.get("content") if isinstance(message, dict) else None
+    if isinstance(content, list):
+        for block in content:
+            if isinstance(block, dict) and block.get("type") == "tool_result":
+                yield block.get("tool_use_id"), bool(block.get("is_error"))
 
 
 def add_usage(models, model, usage):
@@ -215,7 +230,8 @@ def fold(state, message):
     Messages must arrive in time order. A tick closes the window of the task it ticks: all usage
     since the previous tick, up to and including the ticking message, goes to that task.
     """
-    model, usage, ticks = message["model"], message["usage"], message["ticks"]
+    model, usage = message["model"], message["usage"]
+    ticks = [task for task in dict.fromkeys(message["ticks"]) if task not in state["ticked"]]
     add_usage(state["totals"], model, usage)
     add_usage(state["window"], model, usage)
     if message["stamp"] > (state["last"] or ""):
@@ -229,6 +245,8 @@ def fold(state, message):
 def close_open(state, path):
     message = state["open"].pop(path)
     if message["model"] and message["usage"]:
+        results = message.pop("results")
+        message["ticks"] = [task for task, use in message["ticks"] if results.get(use) is False]
         state["pending"].append(message)
 
 
@@ -244,12 +262,13 @@ def fold_pending(state, through):
     state["pending"] = rest
 
 
-def read_new(path, state, since):
+def read_new(path, state, since, complete=False):
     """Collects the complete lines written to `path` since the last read into `state`.
 
     A message whose last line may still be growing stays in `state["open"]`; finished messages
     wait in `state["pending"]` until `settle` folds them in time order across files. Returns
-    whether any line mentions the run marker.
+    whether any line mentions the run marker. With `complete`, the file's last message is
+    finished too (a sub-agent transcript), and only an unterminated final line is held back.
     """
     try:
         size = os.path.getsize(path)
@@ -270,6 +289,13 @@ def read_new(path, state, since):
     for number, line in enumerate(data[:end].split(b"\n")):
         if b".active.json" in line:
             mentioned = True
+        if b'"tool_result"' in line and path in state["open"]:
+            try:
+                for use, failed in tool_results(json.loads(line)):
+                    state["open"][path]["results"][use] = failed
+            except ValueError:
+                pass
+            continue
         if b'"assistant"' not in line:
             continue
         try:
@@ -289,14 +315,16 @@ def read_new(path, state, since):
             current = None
         if current is None:
             current = state["open"][path] = {
-                "id": key, "model": None, "usage": None, "stamp": "", "ticks": []}
+                "id": key, "model": None, "usage": None, "stamp": "", "ticks": [], "results": {}}
         current["stamp"] = stamp_key(stamp)
         if message.get("model"):
             current["model"] = message["model"]
         if isinstance(message.get("usage"), dict):
             current["usage"] = message["usage"]
-        already = set(state["ticked"]) | set(state["tasksDone"]) | set(current["ticks"])
+        already = set(state["ticked"]) | set(state["tasksDone"])
         current["ticks"].extend(ticks_in(message, state["tasksFile"], already))
+    if complete and path in state["open"]:
+        close_open(state, path)
     return mentioned
 
 
@@ -400,12 +428,13 @@ def run(event):
     if transcript and os.path.isfile(transcript):
         session_dir = os.path.splitext(transcript)[0]
         for path in sorted(glob.glob(os.path.join(session_dir, "subagents", "*.jsonl"))):
-            read_new(path, state, since)
+            read_new(path, state, since, complete=True)
         if read_new(transcript, state, since):
             owns = True
         settle(state)
-    # The session that wrote the marker has the marker's file name in its transcript; another
-    # session in the same project must not adopt the run.
+    # A transcript that names the marker file after `startedAt` is taken to be the session that
+    # wrote it. Another session that runs one of the commands also names it, but that session
+    # overwrites the marker itself, so a session that only works nearby does not adopt the run.
     if not owns:
         return
     if not state["sessionId"] and session:
