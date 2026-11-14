@@ -9,7 +9,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Outline
 
-1. If you are running in Claude Code (the plugin's hooks run only there; skip the run record in any other harness), start the run record as this command's first action, before any other tool call, so that `startedAt` is earlier than the command's first model request: get the current UTC time (`date -u +%Y-%m-%dT%H:%M:%SZ`, or `(Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')` in PowerShell) and write `.akka/runs/build/.active.json` (create the folders) as JSON with `command` (`implement`), `startedAt`, and `spec`, `tasksFile` and `tasksDone` as `null`, `null` and `[]`. Also write `.akka/runs/build/.gitignore` with the four lines `.active.json`, `.state.json`, `*.tmp` and `.gitignore`, unless it exists, so no commit stages the working files. As soon as FEATURE_DIR is known (below), and before changing any file, fill in `spec` (the name of FEATURE_DIR's folder), `tasksFile` (FEATURE_DIR/tasks.md, relative to the project root) and `tasksDone` (the ids already ticked in tasks.md, or `[]` when it does not exist). The plugin's Stop and SessionEnd hooks read this file to record the session's model usage under `.akka/runs/build/<spec>/`. If the files cannot be written, continue without them. Then call the `akka_sdd_list_specs` MCP tool to find features. Verify that tasks.md exists for the target feature (has_tasks must be true). If tasks.md is missing, instruct the user to run `/akka:tasks` first. Read the tasks.md content from FEATURE_DIR. Also note which other artifacts are available (AVAILABLE_DOCS).
+1. Call the `akka_sdd_list_specs` MCP tool to find features. Verify that tasks.md exists for the target feature (has_tasks must be true). If tasks.md is missing, instruct the user to run `/akka:tasks` first. Read the tasks.md content from FEATURE_DIR. Also note which other artifacts are available (AVAILABLE_DOCS).
 
 2. **Create or check out the feature branch**:
    - Read the spec.md from FEATURE_DIR and find the **Feature Branch** field (e.g. `001-counter-service`)
@@ -135,7 +135,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Suggest next steps if implementation cannot proceed
    - **IMPORTANT** For completed tasks, make sure to mark the task off as [X] in the tasks file.
 
-10. **Refresh the docs.** Before the commit, in this session, run `/akka:docs` (the implementation docs and the Story) so they match what this command built. Add its outcome to the report, and leave the refreshed docs for the commit in the next step. If you started a run record, then set `"closing": true` in `.akka/runs/build/.active.json` now; the plugin's next Stop hook writes the record and removes the marker. The record is written after the commit, because it records the commit; it is committed with the next change.
+10. **Refresh the docs.** Before the commit, in this session, run `/akka:docs` (the implementation docs and the Story) so they match what this command built. Add its outcome to the report, and leave the refreshed docs for the commit in the next step.
 
 11. **Commit the implementation**:
    - Call `akka_git_add` to stage all changes
@@ -168,4 +168,4 @@ Note: This command assumes a complete task breakdown exists in tasks.md. If task
 - [ ] All changes were staged via `akka_git_add` and committed via `akka_git_commit` with a descriptive message.
 - [ ] The user was asked whether to merge the feature branch to `main`; the answer was acted on (`akka_git_checkout` + `akka_git_merge` on yes, stay on feature branch on no).
 - [ ] The final report validates that implemented features match the spec, tests pass, and the implementation follows the plan.
-- [ ] The run record marker `.akka/runs/build/.active.json` was written first when running in Claude Code, `/akka:docs` ran before the commit, and the marker was then set to `"closing": true`.
+- [ ] `/akka:docs` ran before the commit.

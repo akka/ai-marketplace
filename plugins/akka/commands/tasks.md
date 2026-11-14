@@ -21,7 +21,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Outline
 
-1. **Setup**: If you are running in Claude Code (the plugin's hooks run only there; skip the run record in any other harness), start the run record as this command's first action, before any other tool call, so that `startedAt` is earlier than the command's first model request: get the current UTC time (`date -u +%Y-%m-%dT%H:%M:%SZ`, or `(Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')` in PowerShell) and write `.akka/runs/build/.active.json` (create the folders) as JSON with `command` (`tasks`), `startedAt`, and `spec`, `tasksFile` and `tasksDone` as `null`, `null` and `[]`. Also write `.akka/runs/build/.gitignore` with the four lines `.active.json`, `.state.json`, `*.tmp` and `.gitignore`, unless it exists, so no commit stages the working files. As soon as FEATURE_DIR is known (below), and before changing any file, fill in `spec` (the name of FEATURE_DIR's folder), `tasksFile` (FEATURE_DIR/tasks.md, relative to the project root) and `tasksDone` (the ids already ticked in tasks.md, or `[]` when it does not exist). The plugin's Stop and SessionEnd hooks read this file to record the session's model usage under `.akka/runs/build/<spec>/`. If the files cannot be written, continue without them. Then call the `akka_sdd_list_specs` MCP tool to find features and their available documents. From the response, identify the target feature's FEATURE_DIR and which artifacts exist (AVAILABLE_DOCS: spec.md, plan.md, tasks.md, etc.). If no features exist, instruct the user to run `/akka:specify` first.
+1. **Setup**: Call the `akka_sdd_list_specs` MCP tool to find features and their available documents. From the response, identify the target feature's FEATURE_DIR and which artifacts exist (AVAILABLE_DOCS: spec.md, plan.md, tasks.md, etc.). If no features exist, instruct the user to run `/akka:specify` first.
 
 2. **Load design documents**: Read from FEATURE_DIR:
    - **Required**: plan.md (tech stack, libraries, structure), spec.md (user stories with priorities)
@@ -53,7 +53,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Parallel execution examples per story
    - Implementation strategy section (MVP first, incremental delivery)
 
-5. **Refresh the docs.** Before reporting, in this session, run `/akka:docs` (the implementation docs and the Story) so they match what this command wrote. Keep its outcome for the report. If you started a run record, then set `"closing": true` in `.akka/runs/build/.active.json` now; the plugin's next Stop hook writes the record and removes the marker.
+5. **Refresh the docs.** Before reporting, in this session, run `/akka:docs` (the implementation docs and the Story) so they match what this command wrote. Keep its outcome for the report.
 
 6. **Report** (the last step, after the docs refresh): Output path to generated tasks.md and summary:
    - Total task count
@@ -160,5 +160,5 @@ Every task MUST strictly follow this format:
 - [ ] Task IDs are sequential (`T001, T002, …`) and unique across the file.
 - [ ] Every user story from spec.md has all needed tasks and is independently testable per the story goal and independent test criteria in its group header.
 - [ ] A User Story Dependencies section has one `- **USn**: <stories it needs> (why)` line for every user story, and a Dependencies section lists user-story completion order, and a Parallel Execution Examples subsection is provided per story.
-- [ ] `/akka:docs` ran before the report, the run record marker was written first when running in Claude Code, and it was then set to `"closing": true`.
+- [ ] `/akka:docs` ran before the report.
 - [ ] The report includes total task count, per-story count, parallel opportunities, and the suggested MVP scope (typically User Story 1 only).
