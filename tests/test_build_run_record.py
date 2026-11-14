@@ -7,6 +7,7 @@ import shutil
 import sys
 import tempfile
 import unittest
+from datetime import datetime, timezone
 from unittest import mock
 
 HOOK = os.path.join(os.path.dirname(__file__), "..", "plugins", "akka", "hooks", "build_run_record.py")
@@ -230,6 +231,73 @@ class RunRecordTest(Project):
         self.write_marker(startedAt="2026-11-14T10:00:00Z")
         self.fire()
         self.assertEqual(self.record()["models"][0]["inputTokens"], 3)
+
+    def test_a_background_subagent_message_that_grows_is_replaced_not_added(self):
+        sub = os.path.join(self.root, "session", "subagents", "agent-1.jsonl")
+        self.append(line("a", 11, inp=1))
+        self.append(line("s", 12, model="sonnet", inp=5, out=2), path=sub)
+        self.fire()
+        self.append(line("s", 12, model="sonnet", inp=10, out=7), path=sub)
+        self.fire("SessionEnd")
+        sonnet = [row for row in self.record()["models"] if row["model"] == "sonnet"][0]
+        self.assertEqual((sonnet["requests"], sonnet["inputTokens"], sonnet["outputTokens"]), (1, 10, 7))
+
+    def test_a_folded_subagent_message_that_grows_is_replaced_in_its_task(self):
+        sub = os.path.join(self.root, "session", "subagents", "agent-1.jsonl")
+        self.append(line("a", 13, inp=1), line("t", 14, edit="T001"), line("z", 15))
+        self.append(line("s", 12, model="sonnet", inp=5), path=sub)
+        self.fire()
+        self.assertEqual(hook.read_json(self.state)["closed"][sub]["id"], "s")
+        self.append(line("s", 12, model="sonnet", inp=10), path=sub)
+        self.fire("SessionEnd")
+        record = self.record()
+        self.assertEqual(self.usage(record)["sonnet"], (1, 10))
+        self.assertEqual(self.by_task(record)["T001"]["sonnet"], (1, 10))
+
+    def test_a_tick_whose_result_arrives_at_a_later_stop_still_counts(self):
+        sub = os.path.join(self.root, "session", "subagents", "agent-1.jsonl")
+        use, result = line("s", 12, model="sonnet", inp=5, edit="T001").split(chr(10))
+        self.append(line("a", 11), path=self.transcript)
+        self.append(use, path=sub)
+        self.fire()
+        self.append(result, path=sub)
+        self.append(line("b", 14), path=self.transcript)
+        self.fire("SessionEnd")
+        record = self.record()
+        self.assertEqual(self.by_task(record), {"T001": {"opus": (1, 1), "sonnet": (1, 5)}, None: {"opus": (1, 1)}})
+        self.assertEqual(record["tasks"], ["T001", "T002"])
+
+    def test_one_message_ticking_several_tasks_shares_its_window_equally(self):
+        blocks = [{"type": "tool_use", "id": "u" + task, "name": "Edit", "input": {
+            "file_path": "/proj/" + TASKS, "old_string": "- [ ] %s a" % task,
+            "new_string": "- [x] %s a" % task}} for task in ("T001", "T002")]
+        message = json.dumps({"type": "assistant", "timestamp": "2026-11-14T09:12:00Z", "message": {
+            "id": "m", "model": "opus", "content": blocks, "usage": {"input_tokens": 10, "output_tokens": 1}}})
+        results = json.dumps({"type": "user", "timestamp": "2026-11-14T09:12:00Z", "message": {"content": [
+            {"type": "tool_result", "tool_use_id": "u" + task, "is_error": False} for task in ("T001", "T002")]}})
+        self.append(line("a", 11, inp=1), message, results, line("z", 13, inp=100))
+        self.fire("SessionEnd")
+        self.assertEqual(self.by_task(self.record()), {
+            "T001": {"opus": (1, 6)}, "T002": {"opus": (1, 5)}, None: {"opus": (1, 100)}})
+
+    def test_the_folder_ignores_the_working_files_and_itself(self):
+        self.fire()
+        path = os.path.join(self.root, ".akka", "runs", "build", ".gitignore")
+        with open(path) as handle:
+            self.assertEqual(handle.read().split(), [".active.json", ".state.json", "*.tmp", ".gitignore"])
+
+    def test_an_unparseable_started_at_is_replaced_from_the_marker_time_and_reads_stay_incremental(self):
+        self.write_marker(startedAt="garbage")
+        stamp = datetime(2026, 11, 14, 9, 10, tzinfo=timezone.utc).timestamp()
+        os.utime(self.marker, (stamp, stamp))
+        self.append(line("a", 11, inp=2))
+        self.fire()
+        self.assertEqual(hook.read_json(self.marker)["startedAt"], "2026-11-14T09:10:00Z")
+        self.append(line("b", 12, inp=3))
+        self.fire()
+        self.assertEqual(hook.read_json(self.state)["totals"]["opus"]["requests"], 1)
+        self.fire("SessionEnd")
+        self.assertEqual(self.record()["models"][0]["inputTokens"], 5)
 
 
 class NeverBreaksTest(Project):
