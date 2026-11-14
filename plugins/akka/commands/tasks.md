@@ -21,7 +21,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Outline
 
-1. **Setup**: Call the `akka_sdd_list_specs` MCP tool to find features and their available documents. From the response, identify the target feature's FEATURE_DIR and which artifacts exist (AVAILABLE_DOCS: spec.md, plan.md, tasks.md, etc.). If no features exist, instruct the user to run `/akka:specify` first.
+1. **Setup**: Call the `akka_sdd_list_specs` MCP tool to find features and their available documents. From the response, identify the target feature's FEATURE_DIR and which artifacts exist (AVAILABLE_DOCS: spec.md, plan.md, tasks.md, etc.). If no features exist, instruct the user to run `/akka:specify` first. Then start the run record: write `.akka/runs/build/.active.json` (create the folders) as JSON with `spec` (the name of FEATURE_DIR's folder), `command` (`tasks`), `startedAt` (the current UTC time as `YYYY-MM-DDTHH:MM:SSZ`, from a clock command such as `date -u +%Y-%m-%dT%H:%M:%SZ`, or `(Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')` in PowerShell), `tasksFile` (FEATURE_DIR/tasks.md, relative to the project root) and `tasksDone` (the ids of the tasks already ticked in tasks.md, or `[]` when tasks.md does not exist). The plugin's Stop and SessionEnd hooks read this file to record the session's model usage under `.akka/runs/build/<spec>/`. If the file cannot be written, continue without it.
 
 2. **Load design documents**: Read from FEATURE_DIR:
    - **Required**: plan.md (tech stack, libraries, structure), spec.md (user stories with priorities)
@@ -49,7 +49,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Final Group: Polish & cross-cutting concerns
    - All tasks must follow the strict checklist format (see Task Generation Rules below)
    - Clear file paths for each task
-   - Dependencies section showing story completion order
+   - A User Story Dependencies section with one line per user story, `- **USn**: <stories it needs> (why)`, or `- **USn**: none (why)` for a story that needs no other; every story has a line, and the console reads these lines
    - Parallel execution examples per story
    - Implementation strategy section (MVP first, incremental delivery)
 
@@ -60,6 +60,8 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Independent test criteria for each story
    - Suggested MVP scope (typically just User Story 1)
    - Format validation: Confirm ALL tasks follow the checklist format (checkbox, ID, labels, file paths)
+
+6. **Refresh the docs.** As the last step, in this session, run `/akka:docs` (the implementation docs and the Story) so they match what this command wrote. Add its outcome to the report.
 
 Context for task generation: $ARGUMENTS
 
@@ -76,7 +78,7 @@ The tasks.md should be immediately executable - each task must be specific enoug
 Every task MUST strictly follow this format:
 
 ```text
-- [ ] [TaskID] [P?] [Ph<phase>?] [Story?] [model: <name>?] Description with file path
+- [ ] [TaskID] [P?] [Ph<phase>?] [Story?] [model: <name>?] [effort: <level>?] Description with file path
 ```
 
 **Format Components**:
@@ -97,7 +99,10 @@ Every task MUST strictly follow this format:
 6. **[model: <name>] tag**: OPTIONAL
    - Include it when plan.md's Model Plan has a row for the task's phase and purpose (design, implementation, review, tests, research, visual checks, documentation); use that row's model
    - Omit it when there is no Model Plan; `/akka:implement` then chooses from `.akka/models.md`
-7. **Description**: Clear action with exact file path
+7. **[effort: low|medium|high] tag**: OPTIONAL
+   - Write it directly after the `[model: <name>]` tag, using the effort in the same Model Plan row
+   - Omit it whenever the `[model: <name>]` tag is omitted
+8. **Description**: Clear action with exact file path
 
 **Examples**:
 
@@ -105,7 +110,7 @@ Every task MUST strictly follow this format:
 - CORRECT: `- [ ] T005 [P] Implement authentication middleware in src/middleware/auth.py`
 - CORRECT: `- [ ] T012 [P] [US1] Create User model in src/models/user.py`
 - CORRECT: `- [ ] T014 [US1] Implement UserService in src/services/user_service.py`
-- CORRECT: `- [ ] T015 [P] [Ph2] [US1] [model: sonnet] Create Order record in src/main/java/com/example/domain/Order.java`
+- CORRECT: `- [ ] T015 [P] [Ph2] [US1] [model: sonnet] [effort: medium] Create Order record in src/main/java/com/example/domain/Order.java`
 - WRONG: `- [ ] T016 [US1] [Ph2] Create model in src/models/order.py` (phase tag after the story label)
 - WRONG: `- [ ] Create User model` (missing ID and Story label)
 - WRONG: `T001 [US1] Create model` (missing checkbox)
@@ -121,7 +126,7 @@ Every task MUST strictly follow this format:
      - Services needed for that story
      - Interfaces/UI needed for that story
      - If tests requested: Tests specific to that story
-   - Mark story dependencies (most stories should be independent)
+   - Mark story dependencies (most stories should be independent) as the User Story Dependencies lines
 
 2. **From Contracts**:
    - Map each interface contract → to the user story it serves
@@ -150,9 +155,10 @@ Every task MUST strictly follow this format:
 
 - [ ] `FEATURE_DIR/tasks.md` was written using the template returned by `akka_sdd_get_template` (or the built-in fallback if the template call returned empty).
 - [ ] Group structure is Group 1 Setup, Group 2 Foundational, Group 3+ one group per user story in priority order, and a Final Polish group.
-- [ ] Every task line strictly matches `- [ ] TXXX [P?] [Ph<phase>?] [Story?] [model: <name>?] <description with file path>` — task ID, optional `[P]` parallel marker, `[Ph<n>]` delivery-phase tag on every task when plan.md has Delivery Phases, `[US#]` label on user-story-group tasks only, `[model: <name>]` only where the Model Plan names one, and an exact file path.
+- [ ] Every task line strictly matches `- [ ] TXXX [P?] [Ph<phase>?] [Story?] [model: <name>?] <description with file path>` — task ID, optional `[P]` parallel marker, `[Ph<n>]` delivery-phase tag on every task when plan.md has Delivery Phases, `[US#]` label on user-story-group tasks only, `[model: <name>]` and `[effort: <level>]` only where the Model Plan names them, and an exact file path.
 - [ ] When plan.md has Delivery Phases, every phase has at least one task and every `[Ph<n>]` names a phase that exists.
 - [ ] Task IDs are sequential (`T001, T002, …`) and unique across the file.
 - [ ] Every user story from spec.md has all needed tasks and is independently testable per the story goal and independent test criteria in its group header.
-- [ ] A Dependencies section lists user-story completion order, and a Parallel Execution Examples subsection is provided per story.
+- [ ] A User Story Dependencies section has one `- **USn**: <stories it needs> (why)` line for every user story, and a Dependencies section lists user-story completion order, and a Parallel Execution Examples subsection is provided per story.
+- [ ] `/akka:docs` ran as the last step, and the run record marker was written first.
 - [ ] The report includes total task count, per-story count, parallel opportunities, and the suggested MVP scope (typically User Story 1 only).
