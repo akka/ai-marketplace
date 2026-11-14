@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Records the model usage of a /akka:plan, /akka:tasks or /akka:implement run.
 
 The command writes `.akka/runs/build/.active.json` before it starts:
@@ -6,14 +5,15 @@ The command writes `.akka/runs/build/.active.json` before it starts:
     {"spec": "001-orders", "command": "implement", "startedAt": "2026-11-14T09:30:00Z",
      "tasksFile": "specs/001-orders/tasks.md", "tasksDone": ["T001", "T002"]}
 
-`tasksDone` lists the task ids that were already ticked at that moment. As its last step the
+`tasksDone` lists the task ids that were already ticked at that moment. After the docs refresh the
 command adds `"closing": true`.
 
 The hook runs on Stop and SessionEnd. On each Stop it reads only the transcript lines written
-since the previous Stop and folds them into running totals kept in `.akka/runs/build/.state.json`.
-When the marker says `closing`, or the session ends, it writes
-`.akka/runs/build/<spec>/<startedAt>.json` and removes the marker and the state. A state whose
-marker has been replaced by another run is written out as that run's record.
+since the previous Stop and keeps running totals in `.akka/runs/build/.state.json`. When the
+marker says `closing`, or the session ends, it writes `.akka/runs/build/<spec>/<startedAt>.json`
+and removes the marker and the state. A state whose marker has been replaced by another run is
+written out as that run's record. Only the session whose transcript mentions the marker takes
+the run, so a second session in the same project leaves it alone.
 
 Usage is read from the last transcript line of each message id, because a streamed message
 repeats its id once per content block with growing usage. Tool calls are read from every line of
@@ -21,11 +21,13 @@ the id. The first read of a transcript starts at the first line written at or af
 found by bisection, so the cost of a run does not depend on the size of the session before it.
 
 `taskUsage` splits the usage by task. A tick is an Edit, MultiEdit or Write tool call on tasks.md
-that turns `- [ ]` into `- [x]` for a task id. The usage of the messages after the previous tick,
-up to and including the message that makes the tick, belongs to the first task ticked there.
-Usage before the first tick and after the last one belongs to `task: null`. Sub-agent transcripts
-are read before the main transcript on each Stop, so their usage falls into the window of the
-turn in which they ran.
+that turns `- [ ]` into `- [x]` for a task id. A tick closes its task's window: all usage since
+the previous tick, up to and including the message that makes the tick, belongs to the first task
+ticked there, and so the usage before the first tick belongs to the first task. Usage after the
+last tick belongs to `task: null`. The main transcript and the sub-agent transcripts are folded
+together in timestamp order, so a sub-agent's work lands in the window it ran in. A message that
+may still be growing is held back with the messages after it until the next read, which keeps
+that order across Stops.
 
 The hook prints nothing and always exits 0, so it can never block or break a session.
 """
@@ -192,12 +194,9 @@ def add_usage(models, model, usage):
     row["cacheWriteTokens"] += int(usage.get("cache_creation_input_tokens") or 0)
 
 
-def merge_models(target, source):
-    for name, row in source.items():
-        into = target.setdefault(name, {key: (name if key == "model" else 0) for key in row})
-        for key, value in row.items():
-            if key != "model":
-                into[key] += value
+def stamp_key(value):
+    """A time string that sorts in time order, to the microsecond."""
+    return value.astimezone(timezone.utc).isoformat(timespec="microseconds")
 
 
 def new_state(marker):
@@ -205,53 +204,72 @@ def new_state(marker):
         "spec": marker.get("spec"), "command": marker.get("command"),
         "startedAt": marker.get("startedAt"), "tasksFile": marker.get("tasksFile"),
         "tasksDone": list(marker.get("tasksDone") or []), "sessionId": None,
-        "files": {}, "open": {}, "totals": {}, "tasks": [], "null": {}, "window": {},
+        "files": {}, "open": {}, "pending": [], "totals": {}, "tasks": [], "window": {},
         "ticked": [], "last": None,
     }
 
 
 def fold(state, message):
-    """Adds a finished message to the totals and to the window it closes or extends."""
+    """Adds a message to the totals and to the window it belongs to.
+
+    Messages must arrive in time order. A tick closes the window of the task it ticks: all usage
+    since the previous tick, up to and including the ticking message, goes to that task.
+    """
     model, usage, ticks = message["model"], message["usage"], message["ticks"]
     add_usage(state["totals"], model, usage)
+    add_usage(state["window"], model, usage)
     if message["stamp"] > (state["last"] or ""):
         state["last"] = message["stamp"]
-    if not ticks:
-        add_usage(state["window"], model, usage)
-        return
-    if not state["ticked"]:
-        merge_models(state["null"], state["window"])
+    if ticks:
+        state["tasks"].append({"task": ticks[0], "models": state["window"]})
         state["window"] = {}
-    add_usage(state["window"], model, usage)
-    state["tasks"].append({"task": ticks[0], "models": state["window"]})
-    state["window"] = {}
-    state["ticked"].extend(ticks)
+        state["ticked"].extend(ticks)
 
 
-def fold_open(state, path):
+def close_open(state, path):
     message = state["open"].pop(path)
     if message["model"] and message["usage"]:
-        fold(state, message)
+        state["pending"].append(message)
+
+
+def fold_pending(state, through):
+    """Folds the pending messages stamped at or before `through` (all of them when None), in time order."""
+    state["pending"].sort(key=lambda message: (message["stamp"], message["id"]))
+    rest = []
+    for message in state["pending"]:
+        if through is None or message["stamp"] <= through:
+            fold(state, message)
+        else:
+            rest.append(message)
+    state["pending"] = rest
 
 
 def read_new(path, state, since):
-    """Folds the complete lines written to `path` since the last read into `state`."""
+    """Collects the complete lines written to `path` since the last read into `state`.
+
+    A message whose last line may still be growing stays in `state["open"]`; finished messages
+    wait in `state["pending"]` until `settle` folds them in time order across files. Returns
+    whether any line mentions the run marker.
+    """
     try:
         size = os.path.getsize(path)
     except OSError:
-        return
+        return False
     offset = state["files"].get(path)
     if offset is None:
         offset = seek_since(path, since)
     if offset >= size:
         state["files"][path] = offset
-        return
+        return False
     with open(path, "rb") as handle:
         handle.seek(offset)
         data = handle.read()
     end = data.rfind(b"\n") + 1
     state["files"][path] = offset + end
+    mentioned = False
     for number, line in enumerate(data[:end].split(b"\n")):
+        if b".active.json" in line:
+            mentioned = True
         if b'"assistant"' not in line:
             continue
         try:
@@ -267,25 +285,33 @@ def read_new(path, state, since):
         key = message.get("id") or "%s:%d:%d" % (path, offset, number)
         current = state["open"].get(path)
         if current is not None and current["id"] != key:
-            fold_open(state, path)
+            close_open(state, path)
             current = None
         if current is None:
             current = state["open"][path] = {
                 "id": key, "model": None, "usage": None, "stamp": "", "ticks": []}
-        current["stamp"] = format_time(stamp)
+        current["stamp"] = stamp_key(stamp)
         if message.get("model"):
             current["model"] = message["model"]
         if isinstance(message.get("usage"), dict):
             current["usage"] = message["usage"]
         already = set(state["ticked"]) | set(state["tasksDone"]) | set(current["ticks"])
         current["ticks"].extend(ticks_in(message, state["tasksFile"], already))
+    return mentioned
+
+
+def settle(state):
+    """Folds every pending message that no open message precedes, so a later read cannot arrive out of order."""
+    opened = [message["stamp"] for message in state["open"].values()]
+    fold_pending(state, min(opened) if opened else None)
 
 
 def snapshot(state):
-    """The state with its open messages folded in, leaving `state` as it was."""
+    """The state with every message folded in, leaving `state` as it was."""
     result = copy.deepcopy(state)
-    for path in sorted(result["open"], key=lambda p: result["open"][p]["stamp"]):
-        fold_open(result, path)
+    for path in list(result["open"]):
+        close_open(result, path)
+    fold_pending(result, None)
     return result
 
 
@@ -324,16 +350,13 @@ def write_record(root, state):
     done_now = ticked_tasks(os.path.join(root, tasks_file)) if tasks_file else set()
     task_usage = [{"task": item["task"], "models": [item["models"][n] for n in sorted(item["models"])]}
                   for item in final["tasks"]]
-    rest = {}
-    merge_models(rest, final["null"])
-    merge_models(rest, final["window"])
-    if rest:
-        task_usage.append({"task": None, "models": [rest[n] for n in sorted(rest)]})
+    if final["window"]:
+        task_usage.append({"task": None, "models": [final["window"][n] for n in sorted(final["window"])]})
     record = {
         "spec": final["spec"],
         "command": final["command"],
         "startedAt": final["startedAt"],
-        "endedAt": final["last"],
+        "endedAt": format_time(parse_time(final["last"])),
         "commit": head_commit(root),
         "tasks": sorted(done_now - set(final["tasksDone"])),
         "models": [final["totals"][n] for n in sorted(final["totals"])],
@@ -373,18 +396,26 @@ def run(event):
         since = datetime.fromtimestamp(os.path.getmtime(marker_path), timezone.utc)
         state["startedAt"] = marker["startedAt"] = format_time(since)
     transcript = event.get("transcript_path")
+    owns = bool(state["sessionId"])
     if transcript and os.path.isfile(transcript):
         session_dir = os.path.splitext(transcript)[0]
-        for path in sorted(glob.glob(os.path.join(session_dir, "subagents", "*.jsonl"))) + [transcript]:
+        for path in sorted(glob.glob(os.path.join(session_dir, "subagents", "*.jsonl"))):
             read_new(path, state, since)
-    if (state["totals"] or state["open"]) and session and not state["sessionId"]:
+        if read_new(transcript, state, since):
+            owns = True
+        settle(state)
+    # The session that wrote the marker has the marker's file name in its transcript; another
+    # session in the same project must not adopt the run.
+    if not owns:
+        return
+    if not state["sessionId"] and session:
         state["sessionId"] = session
 
     if ending or marker.get("closing") is True:
         write_record(root, state)
         remove(marker_path)
         remove(state_path)
-    elif state["totals"] or state["open"]:
+    else:
         write_json(state_path, state)
 
 
