@@ -480,6 +480,7 @@ customer, product or person; it uses placeholders the owner fills in.
 - Only `confirm` sets a finding to `confirmed`, and only from a person's answer. Only `mock` records an approval, and only from the reviewer's answer. Only the person sets a topic settled or parked.
 - A step adds to an existing file; it never deletes another step's findings or any line of an item's thread.
 - `notes.md` and `materials.md` are the person's. Discovery adds a note or a material only from what the person said, and changes nothing in them but a material's `status:`. A database's address, and any password, key or token, is never written to a discovery file.
+- Discovery refreshes the Story with `/akka:docs story` when the person settles a topic, and when a concept or a finding the Story cites changes, in the same session. A topic's chapter alone is `/akka:docs story <topic>`.
 - Discovery never writes a specification. `/akka:specify` does, citing confirmed findings by identifier, such as `[F-PAY-3]`, from any topic.
 
 ## Done When

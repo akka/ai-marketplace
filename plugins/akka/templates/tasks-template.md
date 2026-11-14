@@ -12,15 +12,16 @@ description: "Task list template for feature implementation"
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
-## Format: `[ID] [P?] [Ph<phase>?] [Story] [model: <name>?] Description`
+## Format: `[ID] [P?] [Ph<phase>?] [Story] [model: <name>?] [effort: <level>?] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
 - **[Ph<phase>]**: The delivery phase in plan.md this task belongs to (e.g., Ph1 for `### Phase 1`). Present when plan.md has Delivery Phases. This is the plan's delivery phase, not the numbered section of this file the task sits in.
 - **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
 - **[model: <name>]**: The model a sub-agent uses for this task, when plan.md's Model Plan names one for the task's phase and purpose. Omitted otherwise; `/akka:implement` then uses `.akka/models.md`.
+- **[effort: low|medium|high]**: The reasoning effort that sub-agent uses for this task, from the same Model Plan row. Written directly after the `[model: …]` tag; omitted when the tag is omitted.
 - Include exact file paths in descriptions
 
-Example: `- [ ] T012 [P] [Ph2] [US1] [model: sonnet] Create Order record in src/main/java/{org}/{app}/domain/Order.java`
+Example: `- [ ] T012 [P] [Ph2] [US1] [model: sonnet] [effort: medium] Create Order record in src/main/java/{org}/{app}/domain/Order.java`
 
 ## Path Conventions
 
@@ -177,9 +178,11 @@ Examples of foundational tasks (adjust based on your project):
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Group 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Group 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Group 2) - May integrate with US1/US2 but should be independently testable
+One line per user story, in the form `- **USn**: <stories it needs> (why)`. A story that needs no other story reads `none`. Every story in this file has a line.
+
+- **US1**: none (can start after Foundational, Group 2)
+- **US2**: US1 (reuses the Domain1 entity)
+- **US3**: US1, US2 (reads what both stories write)
 
 ### Within Each User Story
 
@@ -251,6 +254,7 @@ With multiple developers:
 - [P] tasks = different files, no dependencies
 - [Ph<phase>] tag maps a task to a delivery phase in plan.md; a phase's acceptance test passes before the next phase's tasks start
 - [model: <name>] tag fixes the sub-agent model for that task
+- [effort: <level>] tag fixes the reasoning effort for that task
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
