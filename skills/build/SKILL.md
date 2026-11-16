@@ -10,10 +10,9 @@ You **MUST** consider the user input before proceeding (if not empty).
 ## Before anything else
 
 Run `akka specify mode --allows build`. Add `--as-engine` when you are carrying
-this command out as a step another command runs, rather than because a person
-invoked it: the sequence `/akka:specify` drives in Enforced mode, or the Story
-refresh `/akka:discover` performs. It exits non-zero when the project's mode does not
-permit the command. On a non-zero exit, print its message verbatim and stop. Do
+this command out as a step of the sequence `/akka:specify` drives in Enforced
+mode, rather than because a person invoked it. It exits non-zero when the
+project's mode does not permit the command. On a non-zero exit, print its message verbatim and stop. Do
 not continue, and do not work around it. The one exception is a CLI that rejects
 `--allows` as an unknown flag: it predates the mode check (older than 3.0.74), so
 say so and continue without the check.

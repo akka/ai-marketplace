@@ -10,10 +10,9 @@ You **MUST** consider the user input before proceeding (if not empty).
 ## Before anything else
 
 Run `akka specify mode --allows plan`. Add `--as-engine` when you are carrying
-this command out as a step another command runs, rather than because a person
-invoked it: the sequence `/akka:specify` drives in Enforced mode, or the Story
-refresh `/akka:discover` performs. It exits non-zero when the project's mode does not
-permit the command. On a non-zero exit, print its message verbatim and stop. Do
+this command out as a step of the sequence `/akka:specify` drives in Enforced
+mode, rather than because a person invoked it. It exits non-zero when the
+project's mode does not permit the command. On a non-zero exit, print its message verbatim and stop. Do
 not continue, and do not work around it. The one exception is a CLI that rejects
 `--allows` as an unknown flag: it predates the mode check (older than 3.0.74), so
 say so and continue without the check.
@@ -42,7 +41,7 @@ as re-running setup, stands either way. The message names the remedy.
 
 5. **Refresh the docs.** If the project has a `discovery/` folder, run `/akka:docs` (the implementation docs and the Story) before reporting, in this session, so they match what this command wrote, and keep its outcome for the report. If the project has no `discovery/` folder, do not run `/akka:docs`; offer it in the report as an optional next step, and leave `docs/` untouched.
 
-6. **Stop and report**: The command ends here, after Phase 2 planning and the docs refresh. Report branch, IMPL_PLAN path, generated artifacts, and any potentially stale diagram paths.
+6. **Stop and report**: The command ends here, after Phase 2 planning and, in a project with a `discovery/` folder, the docs refresh. Report branch, IMPL_PLAN path, generated artifacts, and any potentially stale diagram paths; without a `discovery/` folder, offer `/akka:docs` as an optional next step.
 
 ## Phases
 

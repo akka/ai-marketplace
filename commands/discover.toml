@@ -9,22 +9,7 @@ prompt = """
 
 You **MUST** consider the user input before proceeding (if not empty).
 
-This command runs `akka specify probes` and `akka specify conform`, which need an akka CLI with discovery support. Check first: run `akka specify probes --help`. If its list of commands does not include `findings`, the CLI predates discovery. Tell the person so and name what is missing (`akka specify probes findings` and the discovery gates). Then skip the steps that need them, say which were skipped, and carry on with the steps that only read and write discovery files. Treat an `unknown command` or `unknown flag` error from any `akka specify` call the same way: name the subcommand or flag, skip that step, and say so. A `probes run` that fails only on `--database-var` is run again without it, and the report says the database's catalogue was not read.
-
-## Before anything else
-
-Run `akka specify mode --allows discover`. Add `--as-engine` when you are carrying
-this command out as a step another command runs, rather than because a person
-invoked it: the sequence `/akka:specify` drives in Enforced mode, or the Story
-refresh `/akka:discover` performs. It exits non-zero when the project's mode does not
-permit the command. On a non-zero exit, print its message verbatim and stop. Do
-not continue, and do not work around it. The one exception is a CLI that rejects
-`--allows` as an unknown flag: it predates the mode check (older than 3.0.74), so
-say so and continue without the check.
-
-Enforced mode gives the sequence to the engine, so a step it sequences is refused
-to a person and permitted to the engine. A refusal with a reason of its own, such
-as re-running setup, stands either way. The message names the remedy.
+This command runs `akka specify probes` and `akka specify conform`, which need an akka CLI with discovery support. Check first: run `akka specify probes --help`. If its list of commands does not include `findings`, the CLI predates discovery: akka CLI 3.0.81 and earlier lack the discovery probes and gates, and refuse the discovery templates as well. Tell the person that discovery cannot run with this CLI and needs a newer akka CLI, name what is missing (`akka specify probes findings`, the discovery gates and the discovery templates), and stop without writing any file. On a CLI that passes this check, treat an `unknown command` or `unknown flag` error from an `akka specify` call, or a template refused as unknown, the same way within one step: name what is missing, skip that step, and say so. A `probes run` that fails only on `--database-var` is run again without it, and the report says the database's catalogue was not read.
 
 ## Outline
 
@@ -484,7 +469,7 @@ customer, product or person; it uses placeholders the owner fills in.
 - Only `confirm` sets a finding to `confirmed`, and only from a person's answer. Only `mock` records an approval, and only from the reviewer's answer. Only the person sets a topic settled or parked.
 - A step adds to an existing file; it never deletes another step's findings or any line of an item's thread.
 - `notes.md` and `materials.md` are the person's. Discovery adds a note or a material only from what the person said, and changes nothing in them but a material's `status:`. A database's address, and any password, key or token, is never written to a discovery file.
-- Discovery refreshes the Story with `/akka:docs story` when the person settles a topic, and when a concept or a finding the Story cites changes, in the same session. The refresh is part of discovery's work, so run the docs command's mode check with `--as-engine`. A topic's chapter alone is `/akka:docs story <topic>`.
+- Discovery refreshes the Story with `/akka:docs story` when the person settles a topic, and when a concept or a finding the Story cites changes, in the same session. A topic's chapter alone is `/akka:docs story <topic>`.
 - Discovery never writes a specification. `/akka:specify` does, citing confirmed findings by identifier, such as `[F-PAY-3]`, from any topic.
 
 ## Done When

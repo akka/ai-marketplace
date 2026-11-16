@@ -11,21 +11,6 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 In a project with a `discovery/` folder this command relies on the discovery gates in `akka specify conform`, which need an akka CLI with discovery support. Check first: run `akka specify probes --help`. If its list of commands does not include `findings`, the CLI predates discovery. Tell the person so, name what is missing (the discovery gates and `akka specify probes findings`), and stop, because a spec may rely only on confirmed findings and this CLI cannot check them. Treat an `unknown command` or `unknown flag` error from any `akka specify` call the same way, naming the subcommand or flag. A project without `discovery/` needs neither and skips this check.
 
-## Before anything else
-
-Run `akka specify mode --allows specify`. Add `--as-engine` when you are carrying
-this command out as a step another command runs, rather than because a person
-invoked it: the sequence `/akka:specify` drives in Enforced mode, or the Story
-refresh `/akka:discover` performs. It exits non-zero when the project's mode does not
-permit the command. On a non-zero exit, print its message verbatim and stop. Do
-not continue, and do not work around it. The one exception is a CLI that rejects
-`--allows` as an unknown flag: it predates the mode check (older than 3.0.74), so
-say so and continue without the check.
-
-Enforced mode gives the sequence to the engine, so a step it sequences is refused
-to a person and permitted to the engine. A refusal with a reason of its own, such
-as re-running setup, stands either way. The message names the remedy.
-
 ## Outline
 
 The text the user typed after `/akka:specify` in the triggering message **is** the feature description. Assume you always have it available in this conversation even if `{{args}}` appears literally below. Do not ask the user to repeat it unless they provided an empty command.

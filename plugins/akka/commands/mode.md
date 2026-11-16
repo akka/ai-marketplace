@@ -19,21 +19,6 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
-## Before anything else
-
-Run `akka specify mode --allows mode`. Add `--as-engine` when you are carrying
-this command out as a step another command runs, rather than because a person
-invoked it: the sequence `/akka:specify` drives in Enforced mode, or the Story
-refresh `/akka:discover` performs. It exits non-zero when the project's mode does not
-permit the command. On a non-zero exit, print its message verbatim and stop. Do
-not continue, and do not work around it. The one exception is a CLI that rejects
-`--allows` as an unknown flag: it predates the mode check (older than 3.0.74), so
-say so and continue without the check.
-
-Enforced mode gives the sequence to the engine, so a step it sequences is refused
-to a person and permitted to the engine. A refusal with a reason of its own, such
-as re-running setup, stands either way. The message names the remedy.
-
 ## Purpose
 
 `/akka:mode` shows the project's conformance mode, or sets it. The mode is
@@ -53,12 +38,12 @@ conditions block shipping.
 The mode also decides which commands you may run. Enforced mode gives the
 sequence to the engine: `/akka:plan`, `/akka:tasks`, `/akka:implement`,
 `/akka:build` and `/akka:conform` are steps `/akka:specify` carries out, so they
-are refused when you invoke them yourself, with the remedy named. `/akka:clarify`
-and `/akka:setup` are refused to the engine as well: an open question is settled
-by `/akka:specify`, and re-running setup would change the ground the conditions
-were verified against. Every other command, `/akka:discover` included, stays
-available. An older akka CLI refuses more commands than this; its message names
-the remedy. In Enforced mode the process gates
+are refused when you invoke them yourself. `/akka:clarify` and `/akka:setup` are
+refused to the engine as well: an open question is settled by `/akka:specify`,
+and re-running setup would change the ground the conditions were verified
+against. Every other command, `/akka:discover` included, stays available to you.
+An older akka CLI may refuse more; its message names the remedy, which is to
+switch to À la carte with `/akka:mode a-la-carte`. In Enforced mode the process gates
 `PROC-AUDITOR-COVERAGE` and `PROC-ADEQUACY-REVIEWED` apply as usual. While the
 set is dormant they do not resolve at all — there is nothing yet to have
 covered or reviewed.
