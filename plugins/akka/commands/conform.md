@@ -21,6 +21,18 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command runs `akka specify` subcommands (`probes`, `conform`) and, for discovery, `akka bom generate`. They need the akka CLI release that includes the discovery gates and probes. If a subcommand is reported as unknown, tell the person their CLI is older than this plugin, name the missing subcommand. If the project has a `discovery/` folder, stop and say the discovery gates cannot be checked with this CLI, because a spec may rely only on confirmed findings. Otherwise skip the step that needs it and say it was skipped.
 
+## Before anything else
+
+Run `akka specify mode --allows conform`. Add `--as-engine` when you are carrying
+this command out as part of a sequence `/akka:specify` is driving, rather than
+because a person invoked it. It exits non-zero when the project's mode does not
+permit the command. On a non-zero exit, print its message verbatim and stop. Do
+not continue, and do not work around it.
+
+Enforced mode gives the sequence to the engine, so a step it sequences is refused
+to a person and permitted to the engine. A refusal with a reason of its own, such
+as re-running setup, stands either way. The message names the remedy.
+
 ## Purpose
 
 `/akka:conform` runs the in-scope auditors and reports whether the feature is

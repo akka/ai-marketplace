@@ -9,6 +9,18 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command runs `akka specify` subcommands (`probes`, `conform`) and, for discovery, `akka bom generate`. They need the akka CLI release that includes the discovery gates and probes. If a subcommand is reported as unknown, tell the person their CLI is older than this plugin, name the missing subcommand. If the project has a `discovery/` folder, stop and say the discovery gates cannot be checked with this CLI, because a spec may rely only on confirmed findings. Otherwise skip the step that needs it and say it was skipped.
 
+## Before anything else
+
+Run `akka specify mode --allows specify`. Add `--as-engine` when you are carrying
+this command out as part of a sequence `/akka:specify` is driving, rather than
+because a person invoked it. It exits non-zero when the project's mode does not
+permit the command. On a non-zero exit, print its message verbatim and stop. Do
+not continue, and do not work around it.
+
+Enforced mode gives the sequence to the engine, so a step it sequences is refused
+to a person and permitted to the engine. A refusal with a reason of its own, such
+as re-running setup, stands either way. The message names the remedy.
+
 ## Outline
 
 The text the user typed after `/akka:specify` in the triggering message **is** the feature description. Assume you always have it available in this conversation even if `the user's request` appears literally below. Do not ask the user to repeat it unless they provided an empty command.
@@ -188,7 +200,22 @@ Given that feature description, do this:
 
 7. **Report existing diagrams.** If `FEATURE_DIR/spec-visualize.md` or `FEATURE_DIR/plan-visualize.md` exists, mention in the completion report that it may be stale and suggest running `/akka:visualize` for this feature when the user wants updated diagrams. Leave all diagram files untouched; visualization is optional.
 
-8. Report completion with branch name, spec file path, checklist results, any potentially stale diagram paths, and readiness for the next phase (`/akka:clarify` or `/akka:plan`).
+8. Report completion with branch name, spec file path, checklist results, and any potentially stale diagram paths.
+
+   **The next step depends on the mode.** Run `akka specify mode` and read it.
+
+   - **À la carte** — recommend the next command (`/akka:clarify` or
+     `/akka:plan`) and stop. The developer drives.
+   - **Enforced** — do not name a command the engine sequences. Those steps are
+     refused when a person invokes them, so recommending one hands the developer
+     a dead end. Carry out the sequence yourself instead, in order, following each
+     command's own instructions from this same conversation: plan, tasks,
+     implement, build, conform. You are the engine while you do this, so each
+     step's opening gate check is run with `--as-engine`; without it the step
+     refuses itself and the sequence stops at its first line. Stop when a step
+     reports something only a person can settle, and say what it is. A finding
+     that needs confirming is settled with `/akka:discover <topic> confirm`, which
+     enforcement leaves to the person.
 
 **NOTE:** The script creates and checks out the new branch and initializes the spec file before writing.
 
@@ -332,4 +359,5 @@ Generation runs in the assistant; the engine detects the surfaces, verifies dete
 - [ ] No more than 3 `[NEEDS CLARIFICATION]` markers for routine details remain (surplus resolved by informed guesses documented in Assumptions); no policy decision or finding confirmation was guessed, and open ones remain as markers.
 - [ ] `FEATURE_DIR/checklists/requirements.md` was created and every non-`[NEEDS CLARIFICATION]` item passes (or the user was warned after 3 failed iterations).
 - [ ] Existing diagrams affected by the source update were reported as potentially stale, with `/akka:visualize` suggested as an optional next step; all diagram files were left untouched.
-- [ ] Completion was reported to the user with branch name, spec file path, checklist results, and the next-command recommendation (`/akka:clarify` or `/akka:plan`).
+- [ ] Completion was reported with branch name, spec file path, and checklist results.
+- [ ] The mode was read, and the next step matched it: a recommendation in À la carte, and the sequence carried out here in Enforced, with no command named that the gate would refuse.
