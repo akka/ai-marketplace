@@ -1,6 +1,6 @@
 ---
 name: ask-console
-description: Answer a question from the Akka local console's Ask page by rendering a screen into the console with the akka_canvas_* tools, instead of replying in text. Covers what Akka Optimize serves to the console's login (spend, prices, models, routing policies, use cases, incidents, training, and evaluation datasets and experiments), the governance of the system the console is scoped to (its controls, risk survey, signed bundles, compliance and verdicts), its redkit red-team campaigns, and its files. Use when the console starts an ask, when the user follows up on a canvas session, or when the user asks to see something in the console and the akka_canvas_* tools are available.
+description: Answer a question from the Akka local console's Ask page by rendering a screen into the console with the akka_canvas_* tools, instead of replying in text. Covers what Akka Optimize serves to the console's login (spend, prices, models, routing policies, use cases, incidents, training, and evaluation datasets and experiments), the governance of the system the console is scoped to (its controls, risk survey, signed bundles, compliance and verdicts), its redkit red-team campaigns, and its files. Use only when the prompt says it comes from the Akka local console's Ask page, or continues a canvas session that page started.
 ---
 
 # Ask the console
@@ -109,9 +109,11 @@ question, with the earlier ones as context, and render a new screen into the sam
 
 `akka_canvas_query` and block sources run `akka optimize …` or `akka-optimize …`, without a
 shell, as the daemon's login. Only read commands are allowed. A command is refused when it
-names a flag that changes where it connects or what it reads from disk: `--context`, `--url`
-and any flag ending in `-url`, `--host`, `--region`, `--config`, `--file`, `--dir`,
-`--lineage`, `--force` and their short forms. Every command takes `-o json` and `--jq`.
+names a flag that changes where it connects, how it authenticates or what it reads from disk:
+`--context`, `--url` and any flag ending in `-url`, `--host`, `--region`, `--config`,
+`--file`, `--dir`, `--lineage`, `--force`, `--target-override`, `--insecure`,
+`--unauthenticated`, `--kube-context`, `--cache-file`, `--overrides`, `--grid`, and the short
+forms `-H`, `-f` and `-g`. The CLI enforces the list, so a refusal names the flag. Every command takes `-o json` and `--jq`.
 
 A `get` read is a GET of one of the console's read routes that
 [references/governance.md](references/governance.md) and
