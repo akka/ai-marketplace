@@ -58,9 +58,9 @@ as re-running setup, stands either way. The message names the remedy.
    - Parallel execution examples per story
    - Implementation strategy section (MVP first, incremental delivery)
 
-5. **Refresh the docs.** Before reporting, in this session, run `/akka:docs` (the implementation docs and the Story) so they match what this command wrote. Keep its outcome for the report.
+5. **Refresh the docs.** If the project has a `discovery/` folder, run `/akka:docs` (the implementation docs and the Story) before reporting, in this session, so they match what this command wrote, and keep its outcome for the report. If the project has no `discovery/` folder, do not run `/akka:docs`; offer it in the report as an optional next step, and leave `docs/` untouched.
 
-6. **Report** (the last step, after the docs refresh): Output path to generated tasks.md and summary:
+6. **Report** (the last step): Output path to generated tasks.md and summary:
    - Total task count
    - Task count per user story
    - Parallel opportunities identified
@@ -165,6 +165,6 @@ Every task MUST strictly follow this format:
 - [ ] Task IDs are sequential (`T001, T002, …`) and unique across the file.
 - [ ] Every user story from spec.md has all needed tasks and is independently testable per the story goal and independent test criteria in its group header.
 - [ ] The User Story Dependencies section has one `- **USn**: <stories it needs> (why)` line for every user story, which also sets the completion order, and a Parallel Execution Examples subsection is provided per story.
-- [ ] `/akka:docs` ran before the report.
+- [ ] With a `discovery/` folder, `/akka:docs` ran before the report; without one, it was offered as a next step and `docs/` was left untouched.
 - [ ] The report includes total task count, per-story count, parallel opportunities, and the suggested MVP scope (typically User Story 1 only).
 """

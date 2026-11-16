@@ -21,7 +21,7 @@
       unresolvable         docs are silent and running it shows no defined behaviour;
                            status observed, and it is also listed under Decisions to Force
   - A claim with "every", "all", "none" or "only" cites a source that enumerated the whole
-    set (a probe result or a bill of materials), never a few examples.
+    set (a probe result), never a few examples.
   - A threshold, length or size claim cites a probe of the value below, the value itself
     and the value above.
   - Sources: a file path with :line, a probe result `.akka/discovery/<probe>.json`, a URL,

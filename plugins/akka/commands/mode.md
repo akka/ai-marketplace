@@ -51,11 +51,14 @@ conditions block shipping.
   `open` or `red` condition first.
 
 The mode also decides which commands you may run. Enforced mode gives the
-sequence to the engine, so five commands stay available — `/akka:mode`,
-`/akka:specify`, `/akka:discover`, `/akka:ship`, and `/akka:status` — and every
-step the engine sequences is refused when you invoke it yourself, with the remedy
-named. `/akka:discover` stays available because it records what a person knows
-and confirms, which the engine cannot do for them. In Enforced mode the process gates
+sequence to the engine: `/akka:plan`, `/akka:tasks`, `/akka:implement`,
+`/akka:build` and `/akka:conform` are steps `/akka:specify` carries out, so they
+are refused when you invoke them yourself, with the remedy named. `/akka:clarify`
+and `/akka:setup` are refused to the engine as well: an open question is settled
+by `/akka:specify`, and re-running setup would change the ground the conditions
+were verified against. Every other command, `/akka:discover` included, stays
+available. An older akka CLI refuses more commands than this; its message names
+the remedy. In Enforced mode the process gates
 `PROC-AUDITOR-COVERAGE` and `PROC-ADEQUACY-REVIEWED` apply as usual. While the
 set is dormant they do not resolve at all — there is nothing yet to have
 covered or reviewed.

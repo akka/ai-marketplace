@@ -21,9 +21,8 @@
       unresolvable         the system has no defined behaviour here (rung 4)
     These are the words a specification's requirement annotation uses, so a requirement
     built on a finding copies its rung: `(observed, exercised: surface)`.
-  - Sources: a file path with :line, a probe result `.akka/discovery/<probe>.json`,
-    a bill of materials file under discovery/bom/, a URL, S-<n> from research.md,
-    `stated: <role or name>, <YYYY-MM-DD>`, or `understanding.md U-<CODE>-<n>` once confirmed.
+  - Sources: a file path with :line, a probe result `.akka/discovery/<probe>.json`, a URL,
+    S-<n> from research.md, `stated: <role or name>, <YYYY-MM-DD>`, or `understanding.md U-<CODE>-<n>` once confirmed.
 
   A section marked "required, or none" is never deleted; when empty its only line is
   `none: <what was checked>`. A count of 0 is a finding, not an omission.
@@ -35,7 +34,6 @@
 - **Running instance**: [URL, or none]
 - **Study level**: [read | run | diff]
 - **Probe run**: [date of `.akka/discovery/run.json`, or not run]
-- **Bill of materials**: [discovery/bom/, or not generated]
 
 ## Inventory *(required; every row has a count, 0 where none exists)*
 
@@ -52,7 +50,7 @@
 | Tables or stores | [n] | [F-n] |
 | External dependencies | [n] | [F-n] |
 
-Counts come from a probe or a generated bill of materials, never from reading by hand.
+Counts come from a probe, never from reading by hand.
 
 ## Structure Findings *(required)*
 

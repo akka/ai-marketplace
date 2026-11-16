@@ -49,8 +49,9 @@ alone; both then run steps 10 and 11. There is no other option.
 
 ## When it runs
 
-`/akka:docs` runs by itself as the last step of `/akka:plan`, `/akka:tasks` and
-`/akka:implement` (before implement's commit), and `/akka:discover` runs
+In a project with a `discovery/` folder, `/akka:docs` runs by itself as the last
+step of `/akka:plan`, `/akka:tasks` and `/akka:implement` (before implement's
+commit); without one, those commands offer it as a next step. `/akka:discover` runs
 `/akka:docs story` when a topic settles. A developer can also invoke it directly
 to regenerate the rendered documentation and see how the content-governance
 exit conditions decided. In Enforced mode
@@ -202,18 +203,20 @@ ship-gating differs.
 9. **Point the console at the app's UI in `.akka/app.yaml`.** When the project
    serves a UI from an endpoint — an `HttpEndpoint` that returns
    `HttpResponses.staticResource`, or files under
-   `src/main/resources/static-resources/` — write or refresh `.akka/app.yaml`.
+   `src/main/resources/static-resources/` — write `.akka/app.yaml` when it is
+   absent, or refresh it when it carries `generated_from`. A file without
+   `generated_from` was written by hand: leave it alone and say so in the report.
    The local console frames that UI, as the running service serves it, as
    System › App:
 
    ```yaml
    version: 2
-   title: Engineering Change Intelligence   # the UI's <title>, or its main heading
-   service: bae                             # the service's local name: the Maven artifactId, as ~/.akka/local/<service>.conf names it
+   title: Shopping Cart                     # the UI's <title>, or its main heading
+   service: shopping-cart                   # the service's local name: the Maven artifactId, as ~/.akka/local/<service>.conf names it
    ui: /ui/                                 # the path the endpoint serves the UI's page at
    generated_from:                          # every file read, for staleness
      - src/main/resources/static-resources/index.html
-     - src/main/java/com/example/bae/api/UiEndpoint.java
+     - src/main/java/com/example/shoppingcart/api/UiEndpoint.java
    ```
 
    `ui` is an absolute path on the service with no scheme, host, `..`, query or
@@ -410,7 +413,7 @@ S7. **Write the pages.** Self-contained, as in step 7.
 - [ ] CONTENT-LANGUAGE ran Vale **and** `harnesses/content/diagram_check.py` over `docs/` and `docs/story/` and reported `green`/`red` (or `open` with reason `blocked-outside-project` where a tool is unavailable — never a false `red`).
 - [ ] Completeness was checked as the documentation surface class of the coverage gate; any undocumented thing reds the gate or was recorded as a waiver with a reason.
 - [ ] CONTENT-TONE applied the decomposed adversarial rubric as pass/fail predicates and, on pass, was attested via `akka_harness_attest` with the condition key and a receipt reference — never left as a numeric score.
-- [ ] When the project serves a UI, `.akka/app.yaml` was written or refreshed with its title, the service and the path the UI is served at, listing the files read in `generated_from`; when it serves none, a generated descriptor was removed and the user told.
+- [ ] When the project serves a UI, `.akka/app.yaml` was written (if absent) or refreshed (if it carries `generated_from`) with its title, the service and the path the UI is served at, listing the files read in `generated_from`, and a hand-written one was left alone and reported; when it serves none, a generated descriptor was removed and the user told.
 - [ ] The Story was written from its fixed templates with CSS and layout unchanged: the overview at `docs/story/index.html` and one chapter per settled area topic at `docs/story/<topic>/index.html` (with `story <topic>`, that chapter alone), from the confirmed findings and the plan, or the overview alone from the spec's User Scenarios and Key Entities when there is no `discovery/` folder.
 - [ ] The overview has Essence, Chapters, Concepts, Approach, and for a modernization The system, before and after; each chapter has its goal, Concepts, Approach and alternatives and a link back; each section holds one idea in complete plain sentences.
 - [ ] Every concept whose findings are all confirmed is drawn from its `visual` block, its figure carrying `data-concept` and `data-kind`; every picture is one of the five kinds; every caption carries the findings it rests on in its `data-findings` attribute.

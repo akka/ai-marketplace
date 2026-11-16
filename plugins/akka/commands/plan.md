@@ -51,11 +51,11 @@ as re-running setup, stands either way. The message names the remedy.
    - Phase 0: Generate research.md (resolve all NEEDS CLARIFICATION)
    - Phase 1: Map domain concepts to Akka components (Component Architecture table), then generate data-model.md, contracts/, quickstart.md
    - Re-evaluate Constitution Check post-design
-   - Phase 2: Fill Delivery Phases, Review Gates, Baseline, Metrics and Targets, Model Plan and Decisions Log
+   - Phase 2: Fill Delivery Phases, Review Gates, Baseline, Metrics and Targets, Model Plan and Decisions Log. Without a `discovery/` folder Phase 2 is optional: write in short form only the sections that help this plan, and leave the rest out
 
 4. **Report existing diagrams.** If `FEATURE_DIR/plan-visualize.md` exists, mention in the completion report that it may be stale and suggest running `/akka:visualize` for this feature when the user wants updated diagrams. Leave all diagram files untouched; visualization is optional.
 
-5. **Refresh the docs.** Before reporting, in this session, run `/akka:docs` (the implementation docs and the Story) so they match what this command wrote. Keep its outcome for the report.
+5. **Refresh the docs.** If the project has a `discovery/` folder, run `/akka:docs` (the implementation docs and the Story) before reporting, in this session, so they match what this command wrote, and keep its outcome for the report. If the project has no `discovery/` folder, do not run `/akka:docs`; offer it in the report as an optional next step, and leave `docs/` untouched.
 
 6. **Stop and report**: The command ends here, after Phase 2 planning and the docs refresh. Report branch, IMPL_PLAN path, generated artifacts, and any potentially stale diagram paths.
 
@@ -114,6 +114,8 @@ as re-running setup, stands either way. The message names the remedy.
 
 **Prerequisites:** Phase 1 complete
 
+Phase 2 is required when the project has a `discovery/` folder. Without one, it is optional: write in short form only the sections that help this plan, and skip the mock gate, the baseline stop and the `.akka/models.md` question below, since each relies on discovery.
+
 1. **Delivery Phases** → one `### Phase <n>: <name>` block per phase in plan.md:
    - A phase delivers something a person can check: a working slice, a migrated capability, a reviewed design. Order phases so the riskiest assumption is tested earliest.
    - Fill every field: goal, steps, parallel with, acceptance test, gate, risk, rollback, size.
@@ -122,11 +124,11 @@ as re-running setup, stands either way. The message names the remedy.
    - Write the critical path, and which phases can run at the same time.
    - Only delivery phases use headings that begin with "Phase". The model plan and the exit conditions read every such heading in plan.md as a phase.
 
-2. **Review Gates** → for each phase that must not start until a person has seen something (screens, a storyboard, a data model, a cutover plan), add a gate row naming the artifact. If the spec header reads `**User Interface**: yes`, at least one gate reviews a mock before the first phase that builds the interface. The artifact is registered with `/akka:discover <topic> mock`; if it does not exist yet, say so in the report.
+2. **Review Gates** → for each phase that must not start until a person has seen something (screens, a storyboard, a data model, a cutover plan), add a gate row naming the artifact. In a project with a `discovery/` folder, if the spec header reads `**User Interface**: yes`, at least one gate reviews a mock before the first phase that builds the interface. The artifact is registered with `/akka:discover <topic> mock`; if it does not exist yet, say so in the report.
 
 3. **Baseline** → measured values of what is true today, one bullet per metric: `- <metric>: <value> | method: <how measured> | source: <finding or probe result>`.
    - Take values from discovery findings or `.akka/discovery/timing.json`. Never write a value nobody measured; put it under Metrics and Targets with how and before which phase it will be measured.
-   - If the spec header reads `**Modernization**: yes`, the Baseline section needs at least one measured value before the plan is complete. If none exists, stop and ask the user how the current system can be measured (`/akka:discover <topic> system` with the timing probe is one way).
+   - In a project with a `discovery/` folder, if the spec header reads `**Modernization**: yes`, the Baseline section needs at least one measured value before the plan is complete. If none exists, stop and ask the user how the current system can be measured (`/akka:discover <topic> system` with the timing probe is one way).
    - Otherwise write `none: <what was checked>` when there is nothing to compare against.
 
 4. **Metrics and Targets** → each target names the success criterion (SC-nnn) or finding it serves, and how it will be measured.
@@ -138,7 +140,7 @@ as re-running setup, stands either way. The message names the remedy.
    - Cost, speed and accuracy are stated relative to the other tiers (lowest, medium, highest). Do not quote prices unless the user gave them.
    - Under the table, write the downgrade rule (at 85% of the plan's allowance every sub-agent moves one tier down; the main session is not changed by the AI) and its exceptions, then a rough estimate by phase.
    - No subheadings inside this section.
-   - If `.akka/models.md` does not exist, ask the user whether to create it from this plan's choices. If yes, call `akka_sdd_get_template` with template_name="models" and write `.akka/models.md`.
+   - If the project has a `discovery/` folder and `.akka/models.md` does not exist, ask the user whether to create it from this plan's choices. If yes, call `akka_sdd_get_template` with template_name="models" and write `.akka/models.md`. If the CLI answers that the template is unknown, say plainly that this CLI does not provide the `models` template and that `.akka/models.md` was not created.
 
 6. **Decisions Log** → one row for every choice that changes the plan: every Decisions Raised item in each `understanding.md` under `discovery/`, every Decisions to Force finding in each `behaviour.md` under `discovery/`, and every close call made in this plan. Each row has a recommendation with its reason, an owner (a role), and a status of open, decided with the date, or dropped. Never mark a decision decided unless the user made it.
 
@@ -157,9 +159,9 @@ as re-running setup, stands either way. The message names the remedy.
 - [ ] Phase 0 produced `research.md` with every `NEEDS CLARIFICATION` resolved (Decision / Rationale / Alternatives).
 - [ ] The Component Architecture table in `plan.md` maps every domain concept, process, and query to a component (or a plain domain class), with close-call rows naming the rejected alternative and why it was not chosen — informed by the "Choosing a component type" section of `akka-context/sdk/components/index.html.md`.
 - [ ] Phase 1 produced `data-model.md`, `quickstart.md`, and — if the project exposes external interfaces — `contracts/`.
-- [ ] Phase 2 filled Delivery Phases (`### Phase <n>: <name>` blocks with goal, steps, parallel with, acceptance test, gate, risk, rollback and size), Review Gates, Baseline (measured values only; at least one for a modernization), Metrics and Targets, the Model Plan table (a model and an effort for every phase, the downgrade rule beneath it) and the Decisions Log.
+- [ ] With a `discovery/` folder, Phase 2 filled Delivery Phases (`### Phase <n>: <name>` blocks with goal, steps, parallel with, acceptance test, gate, risk, rollback and size), Review Gates, Baseline (measured values only; at least one for a modernization), Metrics and Targets, the Model Plan table (a model and an effort for every phase, the downgrade rule beneath it) and the Decisions Log. Without one, any Phase 2 section written is in short form.
 - [ ] No heading other than a delivery phase begins with "Phase", and the Model Plan section has no subheadings.
 - [ ] `FEATURE_DIR/plan.md` was written using the template structure and no gate error was left unresolved.
 - [ ] Existing diagrams affected by the source update were reported as potentially stale, with `/akka:visualize` suggested as an optional next step; all diagram files were left untouched.
 - [ ] Completion was reported with the branch, plan path, generated artifacts, and the next-command recommendation (`/akka:tasks`).
-- [ ] `/akka:docs` ran before the report.
+- [ ] With a `discovery/` folder, `/akka:docs` ran before the report; without one, it was offered as a next step and `docs/` was left untouched.

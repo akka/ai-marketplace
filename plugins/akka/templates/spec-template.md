@@ -110,9 +110,9 @@
 
   Success criteria are annotated the same way.
 
-  When **Modernization** is yes, every FR and SC carries an annotation, (decided) included, and
-  PROJ-PROVENANCE-DECLARED checks it: in a rebuild a requirement that declares nothing is an
-  assumption about the existing system that nobody confirmed.
+  When **Modernization** is yes (set only in a project with a discovery/ folder), every FR and SC
+  carries an annotation, (decided) included, and PROJ-PROVENANCE-DECLARED checks it: in a rebuild a
+  requirement that declares nothing is an assumption about the existing system that nobody confirmed.
 -->
 
 - **FR-001**: System MUST [specific capability, e.g., "allow users to create accounts"]
@@ -150,7 +150,8 @@
 <!--
   One row for every FR and SC above, and no other rows. Source is where the requirement comes from:
   the findings it cites, or the user story or input it was taken from. Test is the acceptance
-  scenario or the named test that verifies it. Neither cell is left empty.
+  scenario or the named test that verifies it. Neither cell is left empty. Without a discovery/
+  folder a short form is enough: the user story as Source and its scenario as Test.
 -->
 
 | Requirement | Source | Test |

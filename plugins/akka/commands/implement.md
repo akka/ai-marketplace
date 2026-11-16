@@ -144,7 +144,7 @@ as re-running setup, stands either way. The message names the remedy.
    - **Follow TDD approach**: Execute test tasks before their corresponding implementation tasks
    - **File-based coordination**: Tasks affecting the same files must run sequentially
    - **Validation checkpoints**: Verify each group completion before proceeding
-   - **Delivery phases**: When tasks carry [Ph<n>] tags, run the phase's acceptance test from plan.md before starting tasks of a later phase. If a phase has a gate, check the topic's `discovery/<topic>/mocks/index.md`: the gate's artifact must read `approval: approved by ...`. If it does not, stop and ask the user to review it with `/akka:discover <topic> mock`
+   - **Delivery phases**: When tasks carry [Ph<n>] tags, run the phase's acceptance test from plan.md before starting tasks of a later phase. In a project with a `discovery/` folder, if a phase has a gate, check the topic's `discovery/<topic>/mocks/index.md`: the gate's artifact must read `approval: approved by ...`. If it does not, stop and ask the user to review it with `/akka:discover <topic> mock`
 
 8. Implementation execution rules:
    - **Component fidelity**: Implement components as mapped in plan.md's Component Architecture table. If a task needs a component not in the table, consult the "Choosing a component type" section of `akka-context/sdk/components/index.html.md`, then record the addition (with the rejected alternative) in plan.md before coding
@@ -162,7 +162,7 @@ as re-running setup, stands either way. The message names the remedy.
    - Suggest next steps if implementation cannot proceed
    - **IMPORTANT** For completed tasks, make sure to mark the task off as [X] in the tasks file.
 
-10. **Refresh the docs.** Before the commit, in this session, run `/akka:docs` (the implementation docs and the Story) so they match what this command built. Add its outcome to the report, and leave the refreshed docs for the commit in the next step.
+10. **Refresh the docs.** If the project has a `discovery/` folder, run `/akka:docs` (the implementation docs and the Story) before the commit, in this session, so they match what this command built; add its outcome to the report, and leave the refreshed docs for the commit in the next step. If the project has no `discovery/` folder, do not run `/akka:docs`; offer it in the report as an optional next step, and leave `docs/` untouched.
 
 11. **Commit the implementation**:
    - Call `akka_git_add` to stage all changes
@@ -189,10 +189,10 @@ Note: This command assumes a complete task breakdown exists in tasks.md. If task
 - [ ] The checklists status table was displayed; if any checklist had incomplete items, the user explicitly approved proceeding.
 - [ ] Every applicable ignore file (`.gitignore`, `.dockerignore`, `.eslintignore`/eslint config, `.prettierignore`, `.npmignore`, `.terraformignore`, `.helmignore`) was created or verified with the correct patterns for the detected tech stack.
 - [ ] Tasks were executed group-by-group, respecting sequential dependencies and running `[P]` tasks in parallel where safe.
-- [ ] When tasks carry `[Ph<n>]` tags, each delivery phase's acceptance test passed and its gate was approved before a later phase's tasks started.
+- [ ] When tasks carry `[Ph<n>]` tags, each delivery phase's acceptance test passed before a later phase's tasks started, and, with a `discovery/` folder, its gate was approved.
 - [ ] Each sub-agent's model and effort came from the task's `[model: …]` tag, the plan's Model Plan, `.akka/models.md` or the harness default, in that order, with the 85% downgrade rule applied; the model used was reported per task.
 - [ ] Every completed task in `tasks.md` was marked `[X]`; any failed task halted execution (or, for `[P]` tasks, was reported while continuing successful siblings).
 - [ ] All changes were staged via `akka_git_add` and committed via `akka_git_commit` with a descriptive message.
 - [ ] The user was asked whether to merge the feature branch to `main`; the answer was acted on (`akka_git_checkout` + `akka_git_merge` on yes, stay on feature branch on no).
 - [ ] The final report validates that implemented features match the spec, tests pass, and the implementation follows the plan.
-- [ ] `/akka:docs` ran before the commit.
+- [ ] With a `discovery/` folder, `/akka:docs` ran before the commit; without one, it was offered as a next step and `docs/` was left untouched.

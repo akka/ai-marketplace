@@ -7,7 +7,7 @@ description: "Discover what a feature or an existing system needs before it is s
 
 You **MUST** consider the user input before proceeding (if not empty).
 
-This command runs `akka specify` subcommands (`probes`, `conform`) and, for discovery, `akka bom generate`. They need the akka CLI release that includes the discovery gates and probes. If a subcommand is reported as unknown, tell the person their CLI is older than this plugin, name the missing subcommand, skip the step that needs it and say it was skipped.
+This command runs `akka specify probes` and `akka specify conform`, which need an akka CLI with discovery support. Check first: run `akka specify probes --help`. If its list of commands does not include `findings`, the CLI predates discovery. Tell the person so and name what is missing (`akka specify probes findings` and the discovery gates). Then skip the steps that need them, say which were skipped, and carry on with the steps that only read and write discovery files. Treat an `unknown command` or `unknown flag` error from any `akka specify` call the same way: name the subcommand or flag, skip that step, and say so. A `probes run` that fails only on `--database-var` is run again without it, and the report says the database's catalogue was not read.
 
 ## Before anything else
 
@@ -314,7 +314,7 @@ the old system's dependencies are not the investigation's dependencies.
 
 Rules that apply on every rung:
 
-- A claim with "every", "all", "none" or "only" cites something that enumerated the whole set (a probe result or a bill of materials), never a few examples.
+- A claim with "every", "all", "none" or "only" cites something that enumerated the whole set (a probe result), never a few examples.
 - A name is not evidence. A claim about what something does cites its body or a run, never its identifier.
 - A constant's meaning is where it is used, not where it is defined.
 - A threshold, length or size rule is probed below, at and above the boundary, and recorded in Boundaries Probed.
@@ -339,17 +339,15 @@ Rules that apply on every rung:
    akka specify probes run --source <source path> --target <address> --study <level> [--probe +<name>,-<name>] [--database-var <NAME>]
    ```
 
-   `--probe` adds or removes probes against the study level's defaults. `--database-var` takes the **name** of the environment variable that holds a database material's address, as recorded in `materials.md` (for example `CLAIMS_DB_URL`), never the address itself; the `schema` probe then reads the database's catalogue as well as the source. The database counts as available only when that variable is set in the environment the command runs in; if it is not, ask the person to set it in their own terminal, and never ask for its value. `run.json` records the name only. Report any probe that was withheld or failed, with its reason. A failed probe produced nothing, so no finding may cite it. To see one probe's raw exchange, use `akka specify probes test <probe>` with the same flags.
+   `--probe` adds or removes probes against the study level's defaults. `--database-var` takes the **name** of the environment variable that holds a database material's address, as recorded in `materials.md` (for example `CLAIMS_DB_URL`), never the address itself; the `schema` probe then reads the database's catalogue as well as the source. The database counts as available only when that variable is set in the environment the command runs in; if it is not, ask the person to set it in their own terminal, and never ask for its value. `run.json` records the name only. Report any probe that was withheld or failed, with its reason. A failed probe produced nothing, so no finding may cite it. To see one probe's raw exchange, use `akka specify probes test <probe>` with the same `--source`, `--target` and `--study`; it takes no `--database-var`.
 
-4. **Draft the findings the probes support**. Run `akka specify probes findings --topic <topic>`. It prints one finding line for each count a probe established (routes, tables, libraries, outside services called, tests and reachability), numbered after the highest `F-<CODE>-<n>` in the topic, and an Unknowns line for each gap a probe reported. Its numbers continue from the files as they are when it runs, so run it after this run's other findings are written, and copy each line into the right section of `system-map.md` or `behaviour.md` as written. `--write system-map` appends the lines under a `## Draft Findings` heading instead, which is not a template section: move them into place before the step ends.
+4. **Draft the findings the probes support**. Run `akka specify probes findings --topic <topic>`. It prints one finding line for each count a probe established (routes, tables, libraries, outside services called, tests and reachability), numbered after the highest `F-<CODE>-<n>` in the topic, and an Unknowns line for each gap a probe reported. Its numbers continue from the files as they are when it runs, so run it after this run's other findings are written, and copy each line into the right section of `system-map.md` or `behaviour.md` as written. `--write system-map` appends them instead, the findings under a `## Draft Findings` heading and the unknowns under `## Draft Unknowns`. Neither is a template section: move both into place and remove the headings before the step ends.
 
-5. **Bill of materials** (Akka services only). When the source is an Akka service, run `akka bom generate <source path> --out discovery/<topic>/bom`. Its AI bill of materials lists models, agents, prompts, tools, endpoints, flows and personal data, each with the file and line it was read from. Cite `discovery/<topic>/bom/<file>` as evidence.
+5. **Write `system-map.md`**: the system studied, the inventory with a count for every kind (`0` where none exists; counts come from a probe, never from reading by hand), structure findings, reachability (code that exists but never runs does not need rebuilding), test coverage, and the probes table.
 
-6. **Write `system-map.md`**: the system studied, the inventory with a count for every kind (`0` where none exists; counts come from a probe or the bill of materials, never from reading by hand), structure findings, reachability (code that exists but never runs does not need rebuilding), test coverage, and the probes table.
+6. **Write `behaviour.md`**: one finding per rule, grouped by capability, each with its rung. List every finding still at `inspected` under Read but Not Run with the probe that would settle it. List every `unresolvable` finding under Decisions to Force.
 
-7. **Write `behaviour.md`**: one finding per rule, grouped by capability, each with its rung. List every finding still at `inspected` under Read but Not Run with the probe that would settle it. List every `unresolvable` finding under Decisions to Force.
-
-8. **Climb**. For each high-impact finding still at `inspected`, propose the probe or document that would settle it and ask whether to run it now.
+7. **Climb**. For each high-impact finding still at `inspected`, propose the probe or document that would settle it and ask whether to run it now.
 
 Never start, stop or change a running system without asking. Never copy customer data out of it into discovery files.
 
