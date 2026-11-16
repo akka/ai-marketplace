@@ -319,17 +319,7 @@ Rules that apply on every rung:
 
 ### Steps
 
-1. **See which probes can reach the system**. Run:
-
-   ```text
-   akka specify probes list --source <source path> --target <address> --study <read|run|diff>
-   ```
-
-   Leave out `--target` when nothing is running. Show the person, in plain words, which probes are available and which are not, with the reason for each (for example *"the timing probe needs a running copy"*). A probe that cannot run is reported, never silently skipped.
-
-2. **Approval of declared probes**. A probe a project or organization declared is a command that runs with the person's privileges. If one is selected and not yet approved, show its exact command and ask the person whether to approve it. Run `akka specify probes approve <probe>` only after they say yes to that command. Built-in probes need no approval.
-
-3. **Declare the probes that exercise the system or read its database**. A finding whose `rung:` is `exercised: <probe>` rests on `.akka/discovery/<probe>.json`, which only `akka specify probes run` writes, and the conform gate `PROC-FINDINGS-PROBE-RAN` fails a finding whose result file is missing or whose probe failed in the recorded run. No built-in probe sends test applications through the system or runs queries against its database, so when this investigation does either, do it as a declared probe, never as a script run on its own and never by writing the result file by hand:
+1. **Declare the probes that exercise the system or read its database**. A finding whose `rung:` is `exercised: <probe>` rests on `.akka/discovery/<probe>.json`, which only `akka specify probes run` writes, and the conform gate `PROC-FINDINGS-PROBE-RAN` fails a finding whose result file is missing or whose probe failed in the recorded run. No built-in probe sends test applications through the system or runs queries against its database, so when this investigation does either, do it as a declared probe, never as a script run on its own and never by writing the result file by hand:
 
    - Write the exercising as a program that speaks the probe contract: it reads one JSON request from standard input and writes one JSON answer to standard output, `{"version": 1, "probe": "<probe name>", "examined": <count>, "findings": [{"element": ..., "says": ..., "evidence": ...}], "detail": {...}}`. Keep the program and its full output under the topic's `evidence/` folder, and put the cases, queries and counts in `detail`. A probe that examined nothing says `"examined": 0`. A database program reads its connection string from the environment variable whose **name** it is given on its command line, and never prints it.
    - Declare it in the project's `.akka/exit-conditions.yaml` under `probes:`, one entry for test applications and one for database queries, named exactly as the finding's rung names them (the conventional names are `test-applications` and `database-query`):
@@ -341,17 +331,29 @@ Rules that apply on every rung:
          answers: what the system does when applications are submitted to it
          needs: [http]
          effects: change          # creates records, so it runs only against a copy
-         run: [py, -3, discovery/<topic>/evidence/test_applications.py]
+         run: [<program>, discovery/<topic>/evidence/<test applications program>]
        - name: database-query
          group: Behaviour
          answers: what the system's own database holds for the questions asked
          needs: [database]
-         effects: passive         # read-only queries on a copy of the database
-         run: [py, -3, discovery/<topic>/evidence/database_queries.py, <VARIABLE_NAME>]
+         effects: passive         # read-only queries; see the database rule below
+         run: [<program>, discovery/<topic>/evidence/<database queries program>, <VARIABLE_NAME>]
      ```
 
-   - A probe that creates or changes records needs the target declared a copy: after the person confirms the instance is a copy, run `akka specify probes target <address> --kind copy`. Approve each declared command as in the step above.
-   - Select them with `--probe +test-applications,+database-query` in the next step. Probes whose `default_at` is empty run only when selected.
+   - `run:` is the command and its arguments that start the program, written for the person's own platform (the angle-bracket values are placeholders). A probe that takes longer than two minutes sets `timeout:` on its entry, for example `timeout: 10m`.
+   - Before declaring `database-query`, ask the person whether the connection in the variable is to a copy of the database or uses a read-only account. When it is neither, do not declare or run the probe, record the gap as an Unknowns line, and tell the person why. The variable's name is also passed to `probes run` as `--database-var <VARIABLE_NAME>`, as in the run step.
+   - A probe that creates or changes records needs the target declared a copy: after the person confirms the instance is a copy, run `akka specify probes target <address> --kind copy`. Approve each declared command in the approval step.
+   - Select them with `--probe +test-applications,+database-query` in the run step. Probes whose `default_at` is empty run only when selected.
+
+2. **See which probes can reach the system**. Run:
+
+   ```text
+   akka specify probes list --source <source path> --target <address> --study <read|run|diff>
+   ```
+
+   Leave out `--target` when nothing is running. Show the person, in plain words, which probes are available and which are not, with the reason for each (for example *"the timing probe needs a running copy"*). A probe that cannot run is reported, never silently skipped.
+
+3. **Approval of declared probes**. A probe a project or organization declared is a command that runs with the person's privileges. If one is selected and not yet approved, show its exact command and ask the person whether to approve it. Run `akka specify probes approve <probe>` only after they say yes to that command. Built-in probes need no approval.
 
 4. **Run the probes**. Run:
 
