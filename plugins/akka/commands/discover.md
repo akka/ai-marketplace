@@ -23,10 +23,13 @@ This command runs `akka specify` subcommands (`probes`, `conform`) and, for disc
 ## Before anything else
 
 Run `akka specify mode --allows discover`. Add `--as-engine` when you are carrying
-this command out as part of a sequence `/akka:specify` is driving, rather than
-because a person invoked it. It exits non-zero when the project's mode does not
+this command out as a step another command runs, rather than because a person
+invoked it: the sequence `/akka:specify` drives in Enforced mode, or the Story
+refresh `/akka:discover` performs. It exits non-zero when the project's mode does not
 permit the command. On a non-zero exit, print its message verbatim and stop. Do
-not continue, and do not work around it.
+not continue, and do not work around it. The one exception is a CLI that rejects
+`--allows` as an unknown flag: it predates the mode check (older than 3.0.74), so
+say so and continue without the check.
 
 Enforced mode gives the sequence to the engine, so a step it sequences is refused
 to a person and permitted to the engine. A refusal with a reason of its own, such
@@ -492,7 +495,7 @@ customer, product or person; it uses placeholders the owner fills in.
 - Only `confirm` sets a finding to `confirmed`, and only from a person's answer. Only `mock` records an approval, and only from the reviewer's answer. Only the person sets a topic settled or parked.
 - A step adds to an existing file; it never deletes another step's findings or any line of an item's thread.
 - `notes.md` and `materials.md` are the person's. Discovery adds a note or a material only from what the person said, and changes nothing in them but a material's `status:`. A database's address, and any password, key or token, is never written to a discovery file.
-- Discovery refreshes the Story with `/akka:docs story` when the person settles a topic, and when a concept or a finding the Story cites changes, in the same session. A topic's chapter alone is `/akka:docs story <topic>`.
+- Discovery refreshes the Story with `/akka:docs story` when the person settles a topic, and when a concept or a finding the Story cites changes, in the same session. The refresh is part of discovery's work, so run the docs command's mode check with `--as-engine`. A topic's chapter alone is `/akka:docs story <topic>`.
 - Discovery never writes a specification. `/akka:specify` does, citing confirmed findings by identifier, such as `[F-PAY-3]`, from any topic.
 
 ## Done When

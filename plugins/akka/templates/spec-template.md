@@ -108,7 +108,9 @@
   unresolvable by discovery is settled as a decision, (decided). A requirement with no annotation
   is read as decided.
 
-  When **Modernization** is yes, every requirement carries an annotation, (decided) included, and
+  Success criteria are annotated the same way.
+
+  When **Modernization** is yes, every FR and SC carries an annotation, (decided) included, and
   PROJ-PROVENANCE-DECLARED checks it: in a rebuild a requirement that declares nothing is an
   assumption about the existing system that nobody confirmed.
 -->
