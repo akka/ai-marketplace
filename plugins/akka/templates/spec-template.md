@@ -92,6 +92,25 @@
   constrained also name how they were established: inspected, documented, or exercised: <probe>.
   In a project with a discovery/ folder, each requirement cites the confirmed findings it rests on,
   such as [F-PAY-3], anywhere on its line.
+
+  A decision cannot be wrong. A rule imposed from outside, or a behaviour read off a system that
+  already exists, is a claim about the world and can be: the source may have been misread. The
+  annotation records which kind each requirement is and how strongly it was established, and the
+  Traceability table names the test that covers it. For example:
+
+    **EX-A** (constrained, documented): System keeps audit records for seven years [F-PAY-2]
+    **EX-B** (observed, exercised: sequence): System answers a duplicate order with 409 [F-PAY-40]
+
+  The first word is where it came from: decided, constrained or observed. The second is the rung
+  that established it, from weakest to strongest: inspected (the source was read), documented (a
+  manual or specification addresses this exact case), exercised: <probe> (the system was run and
+  observed). An observed requirement copies the rung of the finding it cites; a finding left
+  unresolvable by discovery is settled as a decision, (decided). A requirement with no annotation
+  is read as decided.
+
+  When **Modernization** is yes, every requirement carries an annotation, (decided) included, and
+  PROJ-PROVENANCE-DECLARED checks it: in a rebuild a requirement that declares nothing is an
+  assumption about the existing system that nobody confirmed.
 -->
 
 - **FR-001**: System MUST [specific capability, e.g., "allow users to create accounts"]

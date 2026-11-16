@@ -89,12 +89,28 @@ Given that feature description, do this:
     5. Generate Functional Requirements
        Each requirement must be testable
        Use reasonable defaults for unspecified details (document assumptions in Assumptions section)
+       Annotate any requirement that is not your own decision. A requirement
+       imposed from outside is `(constrained, <rung>)`; one read off a system
+       that already exists is `(observed, <rung>)`. The rung is `inspected`,
+       `documented`, or `exercised: <probe>`. Leave a requirement you chose
+       unannotated, except in a modernization (step 8).
     6. Define Success Criteria
        Create measurable, technology-agnostic outcomes
        Include both quantitative metrics (time, performance, volume) and qualitative measures (user satisfaction, task completion)
        Each criterion must be verifiable without implementation details
     7. Identify Key Entities (if data involved)
-    8. Set the header markers. Write `**User Interface**: yes` if the feature adds or changes screens a person uses, and `**Modernization**: yes` if it replaces or rebuilds a system that already exists; otherwise leave each as `no`. A user interface needs approved mocks (`/akka:discover <topic> mock`) and a modernization needs a measured baseline in plan.md before the feature can ship.
+    8. Set the header markers. Write `**User Interface**: yes` if the feature adds or changes screens a person uses, and `**Modernization**: yes` if it replaces or rebuilds a system that already exists; otherwise leave each as `no`. A user interface needs approved mocks (`/akka:discover <topic> mock`) and a modernization needs a measured baseline in plan.md before the feature can ship. A spec that rests on findings from a topic whose track is modernization is a modernization.
+       When the spec is a modernization, every requirement declares where it came from, `(decided)` included, and an observed requirement cites its finding and copies its rung (step 9): `- **FR-004** (observed, exercised: sequence): ... [F-PAY-40]`. Switch on the condition that checks this, `PROJ-PROVENANCE-DECLARED`, which ships off because turning it on is a statement about the specification. Write this to a temporary file, run `akka specify conditions author --file <file>`, and delete the file:
+       ```yaml
+       conditions:
+         - id: PROJ-PROVENANCE-DECLARED
+           tier: project
+           dod_type: documentation-training
+           invariant: "every requirement declares where it came from"
+           default_level: on-but-dev-configurable
+           check: provenance-declared
+       ```
+       Re-running it replaces the same condition, so a later run of this command does no harm. Where the exit-condition set is dormant it resolves once the set is active.
     9. If the project has a `discovery/` folder, ground each requirement in it:
        - Read every finding line under `discovery/`, in every topic folder and at the root (`- [F-<CODE>-<n>] <claim> | evidence: ... | status: ...`; the project-level set at the root writes `F-<n>`), and use them as the source for requirements, Key Entities (from each topic's `concepts.md` and the shared list in `discovery/concepts.md`) and success criteria (from research outcomes and the baseline).
        - Every functional requirement bullet cites at least one finding by its identifier in square brackets, anywhere on the bullet: `- **FR-003**: System MUST mark a subscriber unconfirmed after three soft bounces within 24 hours [F-PAY-40]`. A requirement may cite findings from several topics.
@@ -356,6 +372,7 @@ Generation runs in the assistant; the engine detects the surfaces, verifies dete
 - [ ] The `**User Interface**` and `**Modernization**` header markers are set to yes or no.
 - [ ] Where the project has a `discovery/` folder, every functional requirement bullet cites at least one confirmed finding by its identifier, such as `[F-PAY-3]`, and `akka specify conform` shows no discovery gate red.
 - [ ] The Traceability table has one row for every FR and SC, each with a source and a test.
+- [ ] Every requirement that is not a decision carries its origin and rung; where the spec is a modernization, every requirement carries an annotation, each observed one cites its `F-<CODE>-<n>` finding, and `PROJ-PROVENANCE-DECLARED` was switched on with `akka specify conditions author`.
 - [ ] No more than 3 `[NEEDS CLARIFICATION]` markers for routine details remain (surplus resolved by informed guesses documented in Assumptions); no policy decision or finding confirmation was guessed, and open ones remain as markers.
 - [ ] `FEATURE_DIR/checklists/requirements.md` was created and every non-`[NEEDS CLARIFICATION]` item passes (or the user was warned after 3 failed iterations).
 - [ ] Existing diagrams affected by the source update were reported as potentially stale, with `/akka:visualize` suggested as an optional next step; all diagram files were left untouched.
