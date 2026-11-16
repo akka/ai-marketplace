@@ -24,6 +24,8 @@ This single command handles everything: dependency installation, project scaffol
 /akka-specify:review    → Review against spec and constitution
 ```
 
+This plugin is deprecated and has no discovery step. `/akka:discover` is part of the `akka` plugin.
+
 ## Enterprise Support
 
 Place an `enterprise.yaml` manifest at `.akka/enterprise.yaml` (project-level), `~/.akka/enterprise.yaml` (user-level), or set `AKKA_ENTERPRISE_CONFIG_URL` to customize:

@@ -1,0 +1,139 @@
+<!doctype html>
+<!--
+  /akka:docs Story CHAPTER template. DO NOT edit the CSS, the layout, the
+  fonts, or the colors. The stylesheet is a copy of docs-story-template.html's
+  and the two stay identical. The assistant fills the {{placeholders}} and pastes
+  the fragments; every fragment and the five diagram kinds (relationship, flow,
+  state, comparison, timeline) with their slot tables are the ones in
+  docs-story-template.html, used unchanged.
+
+  One chapter per settled area topic, discovery/<topic>/ with Scope naming an
+  area, written to docs/story/<topic>/index.html by `/akka:docs story` (every
+  chapter) or `/akka:docs story <topic>` (this one). Its sources are that
+  topic's confirmed findings and files, and the plan. A chapter is read on its
+  own: it explains every term it uses and links back to the overview.
+
+  Placeholders (single-value):
+    {{TITLE}}            the project name, as on the overview
+    {{CHAPTER_TITLE}}    the area's name
+    {{TOPIC}}            the topic folder name
+    {{AREA}}             the scope from the topic header
+    {{STATUS}}           the topic's status from its header (Settled)
+    {{GOAL}}             the topic's goal or question, as one sentence
+    {{SLUG}}             project slug plus topic, kebab-case; prefixes SVG ids
+    {{APPROACH}}         one or two sentences: the approach this topic chose
+    {{ALTERNATIVES}}     two or three sentences: the alternatives in the topic's
+                         landscape.md and decisions, and why each was not chosen
+    {{SOURCES}}          the files the chapter was written from, comma separated
+    {{FOOTER_TARGET}}    right-side footer text (typically "Akka SDK")
+
+  Placeholder regions:
+    {{CONCEPTS}}         one CONCEPT fragment per confirmed concept of this topic,
+                         in C-number order; the figure tag carries
+                         data-concept="C-<n>" data-kind="<kind>", in that order
+    {{APPROACH_FIGURE}}  one figure of the five kinds, name "approach", without
+                         data-concept: a timeline of the topic's phases, a flow of
+                         its steps, or a comparison of the chosen approach with
+                         the alternatives
+    {{SYSTEM_SECTION}}   the SYSTEM fragment when the topic's track is
+                         modernization; otherwise nothing
+
+  RULES THAT ARE VERIFIED: diagram_check.py runs over this page as over the
+  overview. STORY-CONCEPTS-VISUAL checks this topic's confirmed concepts
+  against the pages in docs/story/<topic>/ alone, and STORY-CITES-CONFIRMED
+  reports every citation on this page against this page. HTML comments are not
+  read; keep real finding identifiers out of them.
+-->
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{CHAPTER_TITLE}} — {{TITLE}} — Project Story</title>
+<style>
+:root{--yellow:#F5C518;--white:#F5F5F5;}
+*{margin:0;box-sizing:border-box}
+body{background:#070707;color:#B8B8B8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.6}
+a{color:#F5C518}
+.wrap{max-width:1080px;margin:0 auto;padding:48px 40px 80px;position:relative}
+.bg{position:fixed;inset:0;background-image:radial-gradient(circle,rgba(245,197,24,0.035) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+.wrap>*{position:relative;z-index:1}
+.mono{font-family:'SF Mono','Cascadia Code','Consolas',monospace}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.brand-mark{font-weight:800;letter-spacing:1px;color:#0A0A0A;background:var(--yellow);padding:3px 9px;border-radius:5px;font-size:14px}
+.brand-sub{font-size:11px;text-transform:uppercase;letter-spacing:3px;color:#666;font-weight:600}
+h1{font-size:40px;font-weight:700;letter-spacing:-0.03em;color:var(--white);margin:14px 0 6px}
+.lead{font-size:15px;color:#999;max-width:720px;margin-bottom:34px}
+.section-label{font-size:11px;text-transform:uppercase;letter-spacing:3px;color:var(--yellow);font-weight:600;margin:48px 0 16px}
+/* one idea per panel: the sentences, then the picture */
+.idea{display:grid;grid-template-columns:minmax(0,1fr) 440px;gap:24px;align-items:start;background:#0A0A0A;border:1px solid #1C1C1C;border-radius:10px;padding:20px 22px;margin-bottom:12px}
+.idea h3{font-size:16px;font-weight:700;color:var(--white);margin-bottom:8px}
+.idea-text{min-width:0}
+.say{font-size:15px;color:#ccc;margin-bottom:10px;max-width:640px}
+.ex{font-size:13.5px;color:#999;margin-bottom:10px;max-width:640px}
+.why{font-size:13.5px;color:#999;max-width:640px}
+.fig{border:1px solid #1C1C1C;border-radius:8px;padding:12px;min-width:0}
+.cap{font-size:12px;color:#888;margin-top:8px}
+/* keeps, changes, drops: a modernization only */
+.kcd{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.kcd-col{border:1px solid #1C1C1C;border-radius:8px;padding:12px 14px}
+.kcd-h{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#888;font-weight:700;margin-bottom:6px}
+.kcd-col ul{padding-left:16px;font-size:13px;color:#B8B8B8}
+/* the map of chapters on the overview, and the way back from a chapter */
+.chapters{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:12px}
+.chap{display:block;background:#0A0A0A;border:1px solid #1C1C1C;border-radius:10px;padding:14px 16px;color:#B8B8B8;text-decoration:none}
+.chap-area{display:block;font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#888;font-weight:700}
+.chap-title{display:block;font-size:14px;font-weight:700;color:#F5F5F5;margin:4px 0}
+.chap-status{display:block;font-size:12px;color:#999}
+.crumb{font-size:12px;color:#888;margin-bottom:6px}
+/* story diagrams: narrative, so muted grey with at most two accented elements */
+.sd{display:block;width:100%;height:auto}
+.sd .nd rect{fill:#141414;stroke:#666;stroke-width:1}
+.sd .nd.focus rect,.sd .nd.new rect{fill:#1A1600;stroke:#F5C518}
+.sd .nd.gone rect{fill:#0A0A0A;stroke:#555;stroke-dasharray:4 3}
+.sd .nd.end rect{fill:#0A0A0A;stroke:#333}
+.sd .nn{font-size:12px;font-weight:700;fill:#fff}
+.sd .nd.gone .nn{fill:#888}
+.sd .sub{font-size:8px;fill:#999;font-family:'SF Mono','Consolas',monospace}
+.sd .hd{font-size:8px;letter-spacing:2px;font-weight:700;fill:#F5C518}
+.sd .edge{stroke:#8a8a8a;stroke-width:1;fill:none}
+.sd .rule{stroke:#1C1C1C;stroke-width:1}
+.sd .rail{stroke:#2a2a2a;stroke-width:1}
+.sd .elbl{font-size:8px;letter-spacing:.06em;fill:#aaa}
+.sd .emask{fill:#0A0A0A}
+.sd .pt{fill:#0A0A0A;stroke:#666;stroke-width:1}
+.sd .pt.done{fill:#888;stroke:#888}
+.sd .pt.now{fill:#F5C518;stroke:#F5C518}
+.foot{margin-top:56px;padding-top:20px;border-top:1px solid #1C1C1C;font-size:11px;color:#555;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.foot .cmd{color:#F5C518}
+@media (max-width:860px){.idea{grid-template-columns:minmax(0,1fr)}.kcd{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:600px){.wrap{padding:32px 16px 56px}h1{font-size:32px}.idea{padding:16px}}
+</style></head>
+<body><div class="bg"></div><div class="wrap">
+
+<div class="brand"><span class="brand-mark">AKKA</span><span class="brand-sub">Project Story</span></div>
+<p class="crumb"><a href="../index.html">{{TITLE}}</a> &middot; {{AREA}} &middot; {{STATUS}}</p>
+<h1>{{CHAPTER_TITLE}}</h1>
+<p class="lead">{{GOAL}}</p>
+
+<div class="section-label" id="concepts">Concepts</div>
+<!--
+  {{CONCEPTS}}: the CONCEPT fragment from docs-story-template.html, one per
+  confirmed concept of this topic.
+-->
+{{CONCEPTS}}
+
+<div class="section-label">Approach and alternatives</div>
+<section class="idea">
+  <div class="idea-text">
+    <p class="say">{{APPROACH}}</p>
+    <p class="why">{{ALTERNATIVES}}</p>
+  </div>
+  {{APPROACH_FIGURE}}
+</section>
+
+<!--
+  {{SYSTEM_SECTION}}: the SYSTEM fragment from docs-story-template.html for a
+  modernization topic; nothing otherwise.
+-->
+{{SYSTEM_SECTION}}
+
+<div class="foot"><span>Generated by <span class="cmd mono">/akka:docs story {{TOPIC}}</span> &middot; docs/story/{{TOPIC}}/index.html &middot; from {{SOURCES}}</span><span>{{FOOTER_TARGET}}</span></div>
+</div></body></html>

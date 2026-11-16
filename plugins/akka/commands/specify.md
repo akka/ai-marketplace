@@ -22,6 +22,8 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+In a project with a `discovery/` folder this command relies on the discovery gates in `akka specify conform`, which need an akka CLI with discovery support. Check first: run `akka specify probes --help`. If its list of commands does not include `findings`, the CLI predates discovery. Tell the person so, name what is missing (the discovery gates and `akka specify probes findings`), and stop, because a spec may rely only on confirmed findings and this CLI cannot check them. Treat an `unknown command` or `unknown flag` error from any `akka specify` call the same way, naming the subcommand or flag. A project without `discovery/` needs neither and skips this check.
+
 ## Outline
 
 The text the user typed after `/akka:specify` in the triggering message **is** the feature description. Assume you always have it available in this conversation even if `$ARGUMENTS` appears literally below. Do not ask the user to repeat it unless they provided an empty command.
@@ -83,19 +85,49 @@ Given that feature description, do this:
          - The choice significantly impacts feature scope or user experience
          - Multiple reasonable interpretations exist with different implications
          - No reasonable default exists
-       - **LIMIT: Maximum 3 [NEEDS CLARIFICATION] markers for routine details; policy decisions always keep a marker and do not count toward the limit** (see "Policy decisions are not reasonable defaults")
+       - **LIMIT: Maximum 3 [NEEDS CLARIFICATION] markers for routine details; policy decisions and `confirm F-...` markers always keep their marker and do not count toward the limit** (see "Policy decisions are not reasonable defaults")
        - Prioritize clarifications by impact: scope > security/privacy > user experience > technical details
     4. Fill User Scenarios & Testing section
        If no clear user flow: ERROR "Cannot determine user scenarios"
     5. Generate Functional Requirements
        Each requirement must be testable
        Use reasonable defaults for unspecified details (document assumptions in Assumptions section)
+       Annotate any requirement that is not your own decision. A requirement
+       imposed from outside is `(constrained, <rung>)`; one read off a system
+       that already exists is `(observed, <rung>)`. The rung is `inspected`,
+       `documented`, or `exercised: <probe>`. Leave a requirement you chose
+       unannotated, except in a modernization with discovery (step 8). Success criteria are
+       annotated the same way, because the provenance check counts them too.
     6. Define Success Criteria
        Create measurable, technology-agnostic outcomes
        Include both quantitative metrics (time, performance, volume) and qualitative measures (user satisfaction, task completion)
        Each criterion must be verifiable without implementation details
     7. Identify Key Entities (if data involved)
-    8. Return: SUCCESS (spec ready for planning)
+    8. If the project has a `discovery/` folder, set the header markers. Without one, leave both as `no` and skip the rest of this step: what they require (approved mocks, a measured baseline, an annotation on every requirement) relies on `/akka:discover`. Write `**User Interface**: yes` if the feature adds or changes screens a person uses, and `**Modernization**: yes` if it replaces or rebuilds a system that already exists; otherwise leave each as `no`. A user interface needs approved mocks (`/akka:discover <topic> mock`) and a modernization needs a measured baseline in plan.md before the feature can ship. A spec that rests on findings from a topic whose track is modernization is a modernization.
+       When the spec is a modernization, every functional requirement and every success criterion declares where it came from, `(decided)` included, and an observed requirement cites its finding and copies its rung (step 9): `- **FR-004** (observed, exercised: sequence): ... [F-PAY-40]`. Switch on the condition that checks this, `PROJ-PROVENANCE-DECLARED`, which ships off because turning it on is a statement about the specification. Write this to a temporary file, run `akka specify conditions author --file <file>`, and delete the file. It carries the built-in definition's fields, so the condition stays an author-time gate that closes on its own; only the level changes:
+       ```yaml
+       conditions:
+         - id: PROJ-PROVENANCE-DECLARED
+           tier: project
+           dod_type: documentation-training
+           invariant: "every requirement declares where it came from"
+           signal: filesystem
+           probe: requirement provenance annotations
+           pass: "requirements_without_provenance == 0"
+           autonomy: auto
+           check: provenance-declared
+           default_level: on-but-dev-configurable
+           ship_tier: author
+       ```
+       Re-running it replaces the same condition, so a later run of this command does no harm. Where the exit-condition set is dormant it resolves once the set is active.
+    9. If the project has a `discovery/` folder, ground each requirement in it:
+       - Read every finding line under `discovery/`, in every topic folder and at the root (`- [F-<CODE>-<n>] <claim> | evidence: ... | status: ...`; the project-level set at the root writes `F-<n>`), and use them as the source for requirements, Key Entities (from each topic's `concepts.md` and the shared list in `discovery/concepts.md`) and success criteria (from research outcomes and the baseline).
+       - Every functional requirement bullet cites at least one finding by its identifier in square brackets, anywhere on the bullet: `- **FR-003**: System MUST mark a subscriber unconfirmed after three soft bounces within 24 hours [F-PAY-40]`. A requirement may cite findings from several topics.
+       - Cite only findings whose status is `confirmed`. If a requirement needs a finding that is not yet confirmed, mark it `[NEEDS CLARIFICATION: confirm F-<CODE>-<n> with /akka:discover <topic> confirm]` instead of citing it. If more than three requirements wait on unconfirmed findings, stop before writing the spec and recommend `/akka:discover <topic> confirm` first.
+       - A requirement built on a finding with a rung copies it into its annotation: `- **FR-003** (observed, exercised: sequence): ... [F-PAY-40]`. The first word says where the requirement comes from (`observed` for a behaviour of the existing system, `constrained` for a rule imposed from outside, `decided` for a choice), never the finding's status: `inferred` and `confirmed` are not annotation words. So a requirement on a confirmed finding at rung inspected reads `(observed, inspected)`. `observed` and `constrained` always name the rung that established them (`inspected`, `documented` or `exercised: <probe>`); a constraint taken from a document reads `(constrained, documented)`.
+       - A requirement that is purely the user's own choice still cites the confirmed finding that records the choice (a finding with evidence `stated: <who>, <date>`).
+    10. Fill the Traceability table. Without a `discovery/` folder a short form is enough: Source may name the user story (`User Story 1`) and Test its scenario (`scenario 2`). In either case write one row `| FR-001 | <source> | <test> |` for every functional requirement and every success criterion, and no row for an identifier that is not one. Source names where the requirement comes from (the findings it cites, such as `F-PAY-3`, or the user story or input); Test names the acceptance scenario or the test that verifies it (`User Story 1, scenario 2`). Neither cell is left empty. Keep the heading `## Traceability`: the spec schema check reads the table under it, and a requirement missing from it fails the check.
+    11. Return: SUCCESS (spec ready for planning)
 
 5. Write the specification to SPEC_FILE using the template structure, replacing placeholders with concrete details derived from the feature description (arguments) while preserving section order and headings.
 
@@ -156,7 +188,7 @@ Given that feature description, do this:
 
       - **If [NEEDS CLARIFICATION] markers remain**:
         1. Extract all [NEEDS CLARIFICATION: ...] markers from the spec
-        2. **LIMIT CHECK**: If more than 3 non-policy markers exist, keep only the 3 most critical (by scope/security/UX impact) and make informed guesses for the rest. Never guess policy decisions: they keep their markers, and the spec is not ready until they are resolved
+        2. **LIMIT CHECK**: If more than 3 routine markers exist (policy decisions and `confirm F-...` markers are not routine), keep only the 3 most critical (by scope/security/UX impact) and make informed guesses for the rest. Never guess policy decisions or the confirmation of a finding: they keep their markers, and the spec is not ready until they are resolved
         3. For each clarification needed (max 3), present options to user in this format:
 
            ```markdown
@@ -193,7 +225,22 @@ Given that feature description, do this:
 
 7. **Report existing diagrams.** If `FEATURE_DIR/spec-visualize.md` or `FEATURE_DIR/plan-visualize.md` exists, mention in the completion report that it may be stale and suggest running `/akka:visualize` for this feature when the user wants updated diagrams. Leave all diagram files untouched; visualization is optional.
 
-8. Report completion with branch name, spec file path, checklist results, any potentially stale diagram paths, and readiness for the next phase (`/akka:clarify` or `/akka:plan`).
+8. Report completion with branch name, spec file path, checklist results, and any potentially stale diagram paths.
+
+   **The next step depends on the mode.** Run `akka specify mode` and read it.
+
+   - **À la carte** — recommend the next command (`/akka:clarify` or
+     `/akka:plan`) and stop. The developer drives.
+   - **Enforced** — do not name a command the engine sequences. Those steps are
+     refused when a person invokes them, so recommending one hands the developer
+     a dead end. Carry out the sequence yourself instead, in order, following each
+     command's own instructions from this same conversation: plan, tasks,
+     implement, build, conform. You are the engine while you do this, so each
+     step's opening gate check is run with `--as-engine`; without it the step
+     refuses itself and the sequence stops at its first line. Stop when a step
+     reports something only a person can settle, and say what it is. A finding
+     that needs confirming is settled with `/akka:discover <topic> confirm`, which
+     enforcement leaves to the person.
 
 **NOTE:** The script creates and checks out the new branch and initializes the spec file before writing.
 
@@ -218,7 +265,7 @@ When creating this spec from a user prompt:
 
 1. **Make informed guesses**: Use context, industry standards, and common patterns to fill gaps
 2. **Document assumptions**: Record reasonable defaults in the Assumptions section
-3. **Limit clarifications**: Maximum 3 [NEEDS CLARIFICATION] markers for routine details, not counting policy decisions, which are never guessed - use only for critical decisions that:
+3. **Limit clarifications**: Maximum 3 [NEEDS CLARIFICATION] markers for routine details, not counting policy decisions or `confirm F-...` markers, which are never guessed - use only for critical decisions that:
    - Significantly impact feature scope or user experience
    - Have multiple reasonable interpretations with different implications
    - Lack any reasonable default
@@ -280,7 +327,9 @@ For probabilistic model behavior, define acceptance over an agreed, representati
 
 Akka Specify turns requirements into machine-checked **exit conditions**, each backed by a **check** that delegates to the ecosystem's own tooling. In Enforced mode the engine will not let the build advance until every check passes and has been reviewed. In À la carte mode every check is advisory — the user always sees the full picture and the run never blocks on a failing condition.
 
-**Check first whether this loop applies at all.** Run `akka specify mode`. In À la carte mode the exit-condition set is dormant until the developer asks for it, and the whole of this section is then **skipped**: capture nothing, create no auditors, call no `akka_ec_*` tool, and do not report a verdict. Treat `/akka:specify` as spec-and-plan work and nothing more. The dormant state is not a gap to close and not something to talk the user into — mention exit conditions only if they ask what else is available, and never more than once. If the developer does ask for checks, run `akka specify mode a-la-carte --exit-conditions=honor` and then follow this loop with every result advisory.
+**The discovery gates run whenever there is a `discovery/` folder.** In a project with one, the seven discovery gates (`PROC-FINDINGS-CONFIRMED`, `PROC-SPEC-CITES-FINDINGS`, `PROC-UNDERSTANDING-SETTLED`, `PROC-MOCKS-APPROVED`, `PROC-BASELINE-RECORDED`, `PROC-MODEL-PLAN-PRESENT` and `PROC-FINDINGS-PROBE-RAN`) are evaluated in every mode, including a new project's default, by an akka CLI that scopes them in for a `discovery/` folder. The Story conditions (`STORY-CONCEPTS-VISUAL` and `STORY-CITES-CONFIRMED`) are not among them: they are evaluated only when the project turns them on. After writing the spec, run `akka specify conform` and fix any discovery gate that is red before recommending `/akka:plan`. An older CLI leaves the gates out in À la carte mode unless exit conditions are honoured, and then reports READY_TO_SHIP without them. So check that the output lists the discovery gate rows (`PROC-FINDINGS-CONFIRMED`, `PROC-SPEC-CITES-FINDINGS` and the other `PROC-` discovery gates). If it does not, say plainly that the discovery gates were not evaluated, and do not treat the verdict as passing them. In a project without `discovery/` they report not applicable.
+
+**Check next whether the rest of this loop applies.** Run `akka specify mode`. In À la carte mode the rest of the exit-condition set is dormant until the developer asks for it, and the rest of this section is then **skipped**: capture nothing, create no auditors, call no `akka_ec_*` tool, and report no verdict beyond the discovery gates. Treat `/akka:specify` as spec-and-plan work and nothing more. The dormant state is not a gap to close and not something to talk the user into — mention exit conditions only if they ask what else is available, and never more than once. If the developer does ask for checks, run `akka specify mode a-la-carte --exit-conditions=honor` and then follow this loop with every result advisory.
 
 When the set is active, on each `/akka:specify <feedback>` turn:
 
@@ -322,14 +371,19 @@ Generation runs in the assistant; the engine detects the surfaces, verifies dete
 
 ## Done When
 
-- [ ] The mode was read before any `akka_ec_*` call, and where the exit-condition set was dormant nothing was captured, approved, audited, or reported as a verdict.
+- [ ] The mode was read before any `akka_ec_*` call, and where the exit-condition set was dormant nothing was captured, approved or audited beyond the discovery gates.
 - [ ] Where the set was active: any checkable requirement in the feedback was captured as an exit condition + check via `akka_ec_capture`, surfaced for approval at the exit-condition level, and approved via `akka_ec_approve`.
 - [ ] Where the set was active: the active checks were reviewed adversarially and `akka_ec_adequacy_submit` was called; the plain `akka_ec_summary` (never internal ids) was shown to the user.
 - [ ] A short-name and next feature number were derived by checking remote branches, local branches, and the `specs/` directory; the highest existing N was used and N+1 was passed to `akka_sdd_create_spec`.
 - [ ] `akka_sdd_create_spec` created a numbered FEATURE_DIR and returned BRANCH_NAME and SPEC_FILE.
 - [ ] The specification was written to SPEC_FILE using the template structure, with all mandatory sections filled and section order preserved.
 - [ ] Success Criteria are measurable, technology-agnostic, user-focused, and verifiable.
-- [ ] No more than 3 `[NEEDS CLARIFICATION]` markers for routine details remain (surplus resolved by informed guesses documented in Assumptions); no policy decision was guessed, and open ones remain as markers.
+- [ ] With a `discovery/` folder, the `**User Interface**` and `**Modernization**` header markers are set to yes or no; without one, both are `no`.
+- [ ] Where the project has a `discovery/` folder, every functional requirement bullet cites at least one confirmed finding by its identifier, such as `[F-PAY-3]`, and `akka specify conform` lists the discovery gates with none red, or the report says they were not evaluated.
+- [ ] The Traceability table has one row for every FR and SC, each with a source and a test (short form without `discovery/`).
+- [ ] Every requirement that is not a decision carries its origin and rung; where the spec is a modernization in a project with `discovery/`, every functional requirement and success criterion carries an annotation, each observed one cites its `F-<CODE>-<n>` finding, and `PROJ-PROVENANCE-DECLARED` was switched on with `akka specify conditions author`.
+- [ ] No more than 3 `[NEEDS CLARIFICATION]` markers for routine details remain (surplus resolved by informed guesses documented in Assumptions); no policy decision or finding confirmation was guessed, and open ones remain as markers.
 - [ ] `FEATURE_DIR/checklists/requirements.md` was created and every non-`[NEEDS CLARIFICATION]` item passes (or the user was warned after 3 failed iterations).
 - [ ] Existing diagrams affected by the source update were reported as potentially stale, with `/akka:visualize` suggested as an optional next step; all diagram files were left untouched.
-- [ ] Completion was reported to the user with branch name, spec file path, checklist results, and the next-command recommendation (`/akka:clarify` or `/akka:plan`).
+- [ ] Completion was reported with branch name, spec file path, and checklist results.
+- [ ] The mode was read, and the next step matched it: a recommendation in À la carte, and the sequence carried out here in Enforced, with no command named that the gate would refuse.

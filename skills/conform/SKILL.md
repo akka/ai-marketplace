@@ -7,6 +7,22 @@ description: "Run the in-scope auditors, print the definition-of-done manifest, 
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+In a project with a `discovery/` folder this command relies on the discovery gates in `akka specify conform`, which need an akka CLI with discovery support. Check first: run `akka specify probes --help`. If its list of commands does not include `findings`, the CLI predates discovery. Tell the person so, name what is missing (the discovery gates and `akka specify probes findings`), and stop, because a spec may rely only on confirmed findings and this CLI cannot check them. Treat an `unknown command` or `unknown flag` error from any `akka specify` call the same way, naming the subcommand or flag. A project without `discovery/` needs neither and skips this check.
+
+## Before anything else
+
+Run `akka specify mode --allows conform`. Add `--as-engine` when you are carrying
+this command out as a step of the sequence `/akka:specify` drives in Enforced
+mode, rather than because a person invoked it. It exits non-zero when the
+project's mode does not permit the command. On a non-zero exit, print its message verbatim and stop. Do
+not continue, and do not work around it. The one exception is a CLI that rejects
+`--allows` as an unknown flag: it predates the mode check (older than 3.0.74), so
+say so and continue without the check.
+
+Enforced mode gives the sequence to the engine, so a step it sequences is refused
+to a person and permitted to the engine. A refusal with a reason of its own, such
+as re-running setup, stands either way. The message names the remedy.
+
 ## Purpose
 
 `/akka:conform` runs the in-scope auditors and reports whether the feature is
@@ -36,6 +52,12 @@ the verdict is `READY_TO_SHIP`.
 - **`READY_TO_SHIP`** — every applicable condition is `green` and not stale, or
   covered by an effective waiver.
 - **`NOT_READY`** — any other combination.
+
+In a project with a `discovery/` folder, a CLI that predates scoping the
+discovery gates in leaves them out in À la carte mode unless exit conditions are
+honoured. Check that the manifest lists the `PROC-` discovery gate rows (such as
+`PROC-FINDINGS-CONFIRMED`). If it does not, say plainly that the discovery gates
+were not evaluated, and do not present `READY_TO_SHIP` as covering them.
 
 A `NOT_READY` verdict says what is blocking and what to do about it:
 

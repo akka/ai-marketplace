@@ -12,8 +12,8 @@ You **MUST** consider the user input before proceeding (if not empty).
 ## Purpose
 
 `/akka:mode` shows the project's conformance mode, or sets it. The mode is
-recorded in `.akka/exit-conditions.yaml` and controls exactly one thing:
-whether unmet exit conditions block shipping.
+recorded in `.akka/exit-conditions.yaml` and decides whether unmet exit
+conditions block shipping.
 
 - **À la carte** — the default. The exit-condition set is **dormant** until the
   developer asks for it: only the Akka-intrinsic baseline resolves, no auditors
@@ -25,8 +25,15 @@ whether unmet exit conditions block shipping.
   by an effective waiver. You use sign-off, strike, and waive to resolve each
   `open` or `red` condition first.
 
-Every Specify command is available in both modes; the mode changes what the
-engine does on its own, not the command set. In Enforced mode the process gates
+The mode also decides which commands you may run. Enforced mode gives the
+sequence to the engine: `/akka:plan`, `/akka:tasks`, `/akka:implement`,
+`/akka:build` and `/akka:conform` are steps `/akka:specify` carries out, so they
+are refused when you invoke them yourself. `/akka:clarify` and `/akka:setup` are
+refused to the engine as well: an open question is settled by `/akka:specify`,
+and re-running setup would change the ground the conditions were verified
+against. Every other command, `/akka:discover` included, stays available to you.
+An older akka CLI may refuse more; its message names the remedy, which is to
+switch to À la carte with `/akka:mode a-la-carte`. In Enforced mode the process gates
 `PROC-AUDITOR-COVERAGE` and `PROC-ADEQUACY-REVIEWED` apply as usual. While the
 set is dormant they do not resolve at all — there is nothing yet to have
 covered or reviewed.

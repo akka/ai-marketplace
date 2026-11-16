@@ -27,11 +27,11 @@ of the code relative to the feature's artifacts — no git, no branch comparison
 ## Operating Constraints
 
 **APPEND-ONLY, NEVER REWRITE**: The command's **only** write is appending a new
-`## Phase N: Convergence` section to `tasks.md`. It MUST NOT:
+`## Group N: Convergence` section to `tasks.md`. It MUST NOT:
 
 - modify `spec.md` or `plan.md` in any way;
 - rewrite, renumber, reorder, or delete any existing task (including tasks from a prior
-  Convergence phase);
+  Convergence group);
 - modify, create, or delete any application code — completing the appended tasks is the
   job of `/akka:implement`.
 
@@ -83,8 +83,8 @@ Load only the minimal necessary context from each artifact:
 
 **From tasks.md:**
 
-- Task IDs (to compute the next ID and next phase number)
-- Descriptions, phase grouping, and referenced file paths
+- Task IDs (to compute the next ID and next group number)
+- Descriptions, group structure, and referenced file paths
 
 **From constitution (if not an unfilled template):**
 
@@ -159,9 +159,9 @@ Before appending anything, output a compact, severity-graded summary (no file wr
 
 Append to the **end** of `tasks.md`, per the append contract:
 
-1. Scan all existing task IDs; let `M` be the maximum. Determine the next phase number `N`
-   (highest existing phase + 1).
-2. Write a single new section header `## Phase N: Convergence`.
+1. Scan all existing task IDs; let `M` be the maximum. Determine the next group number `N`
+   (highest existing group + 1; headings spelled `## Phase N` in older tasks.md files count too).
+2. Write a single new section header `## Group N: Convergence`.
 3. Emit one checklist item per actionable finding, ordered CRITICAL/HIGH first, assigning
    zero-padded IDs `T{M+1:03d}, T{M+2:03d}, …`:
 
@@ -176,18 +176,18 @@ Append to the **end** of `tasks.md`, per the append contract:
 
    Constitution-violation tasks MUST be emitted first and described as
    `CRITICAL`.
-4. Never reuse or renumber existing IDs. If a prior Convergence phase exists, add a new,
+4. Never reuse or renumber existing IDs. If a prior Convergence group exists, add a new,
    separately-numbered one below it — do not touch the old one.
 
 **If there are no actionable findings** (`converged` outcome):
 
-- Do **not** modify `tasks.md` at all — no empty phase header.
+- Do **not** modify `tasks.md` at all — no empty group header.
 - Report: **"✅ Converged — the implementation satisfies the spec, plan, and tasks."**
 - Include the summary counts of what was checked.
 
 ### 8. Provide Next Actions (Handoff)
 
-- On `tasks_appended`: state how many tasks were appended under which phase, and recommend
+- On `tasks_appended`: state how many tasks were appended under which group, and recommend
   running `/akka:implement` to complete them; note that a follow-up converge
   run will find fewer or no remaining items.
 - On `converged`: recommend proceeding to `/akka:review` or opening a PR. No
@@ -201,7 +201,7 @@ Append to the **end** of `tasks.md`, per the append contract:
 - [ ] Every finding traces to an explicit `source-ref` and carries a `gap-type` from {`missing`, `partial`, `contradicts`, `unrequested`}.
 - [ ] Constitution MUST violations, if any, are reported as CRITICAL and appear first in the appended task list.
 - [ ] Outcome is exactly one of `converged` or `tasks_appended`, reported explicitly.
-- [ ] On `converged`: `tasks.md` is byte-for-byte unchanged (no empty `## Phase N: Convergence` header).
-- [ ] On `tasks_appended`: a single new `## Phase N: Convergence` section was appended, task IDs continue from `M+1`, no existing task was modified or renumbered, and no application code was created, modified, or deleted.
+- [ ] On `converged`: `tasks.md` is byte-for-byte unchanged (no empty `## Group N: Convergence` header).
+- [ ] On `tasks_appended`: a single new `## Group N: Convergence` section was appended, task IDs continue from `M+1`, no existing task was modified or renumbered, and no application code was created, modified, or deleted.
 - [ ] Next-action recommendation names the specific follow-up command (`/akka:implement` or `/akka:review`).
 """

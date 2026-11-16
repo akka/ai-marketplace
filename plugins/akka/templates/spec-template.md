@@ -4,6 +4,8 @@
 **Created**: [DATE]
 **Status**: Draft
 **Input**: User description: "$ARGUMENTS"
+**User Interface**: no
+**Modernization**: no
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -84,6 +86,35 @@
 
 ### Functional Requirements
 
+<!--
+  A requirement that is not simply our own choice says where it came from in brackets after its
+  identifier: (decided), (constrained, documented) or (observed, inspected), where observed and
+  constrained also name how they were established: inspected, documented, or exercised: <probe>.
+  In a project with a discovery/ folder, each requirement cites the confirmed findings it rests on,
+  such as [F-PAY-3], anywhere on its line.
+
+  A decision cannot be wrong. A rule imposed from outside, or a behaviour read off a system that
+  already exists, is a claim about the world and can be: the source may have been misread. The
+  annotation records which kind each requirement is and how strongly it was established, and the
+  Traceability table names the test that covers it. For example:
+
+    **EX-A** (constrained, documented): System keeps audit records for seven years [F-PAY-2]
+    **EX-B** (observed, exercised: sequence): System answers a duplicate order with 409 [F-PAY-40]
+
+  The first word is where it came from: decided, constrained or observed. The second is the rung
+  that established it, from weakest to strongest: inspected (the source was read), documented (a
+  manual or specification addresses this exact case), exercised: <probe> (the system was run and
+  observed). An observed requirement copies the rung of the finding it cites; a finding left
+  unresolvable by discovery is settled as a decision, (decided). A requirement with no annotation
+  is read as decided.
+
+  Success criteria are annotated the same way.
+
+  When **Modernization** is yes (set only in a project with a discovery/ folder), every FR and SC
+  carries an annotation, (decided) included, and PROJ-PROVENANCE-DECLARED checks it: in a rebuild a
+  requirement that declares nothing is an assumption about the existing system that nobody confirmed.
+-->
+
 - **FR-001**: System MUST [specific capability, e.g., "allow users to create accounts"]
 - **FR-002**: System MUST [specific capability, e.g., "validate email addresses"]
 - **FR-003**: Users MUST be able to [key interaction, e.g., "reset their password"]
@@ -113,3 +144,24 @@
 - **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
 - **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
 - **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
+
+## Traceability *(mandatory)*
+
+<!--
+  One row for every FR and SC above, and no other rows. Source is where the requirement comes from:
+  the findings it cites, or the user story or input it was taken from. Test is the acceptance
+  scenario or the named test that verifies it. Neither cell is left empty. Without a discovery/
+  folder a short form is enough: the user story as Source and its scenario as Test.
+-->
+
+| Requirement | Source | Test |
+|-------------|--------|------|
+| FR-001 | [Findings cited, or the user story, e.g., "F-PAY-3" or "User Story 1"] | [Scenario or test that verifies it, e.g., "User Story 1, scenario 1"] |
+| FR-002 | [Source] | [Test] |
+| FR-003 | [Source] | [Test] |
+| FR-004 | [Source] | [Test] |
+| FR-005 | [Source] | [Test] |
+| SC-001 | [Source] | [Test] |
+| SC-002 | [Source] | [Test] |
+| SC-003 | [Source] | [Test] |
+| SC-004 | [Source] | [Test] |

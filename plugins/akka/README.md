@@ -14,6 +14,7 @@ This single command handles everything: dependency installation, project scaffol
 
 ```
 /akka:setup     → Environment + project setup (one-time, re-runnable)
+/akka:discover  → Research, landscape, concepts, existing system; confirm the understanding
 /akka:specify   → Design your feature (spec)
 /akka:clarify   → Resolve open questions
 /akka:plan      → Create implementation plan
@@ -38,6 +39,7 @@ The Codex variant includes:
 Use the canonical `akka-sdd` skill when you want the full workflow guidance,
 or one of the alias skills when you want a task-specific entry point:
 
+- `akka-discover`
 - `akka-specify`
 - `akka-plan`
 - `akka-tasks`
@@ -49,6 +51,13 @@ or one of the alias skills when you want a task-specific entry point:
 - `akka-clarify`
 - `akka-checklist`
 - `akka-issues`
+
+## Console Ask
+
+The `ask-console` skill answers questions typed on the Akka local console's Ask page. The
+Akka CLI runs Claude Code with this skill and the CLI's canvas tools
+(`akka mcp serve --toolsets canvas`), and the answer is rendered as a screen in the console.
+The CLI finds the skill in the `akka` plugin enabled in the user's Claude Code settings.
 
 ## Enterprise Support
 

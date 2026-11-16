@@ -55,7 +55,7 @@ Load only the minimal necessary context from each artifact:
 
 - Task IDs
 - Descriptions
-- Phase grouping
+- Task groups
 - Parallel markers [P]
 - Referenced file paths
 

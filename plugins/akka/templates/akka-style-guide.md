@@ -87,6 +87,18 @@ types, code, connector labels, event chips. A human-readable name never goes in 
 - **Label mask** 6–10px clear of its stroke, on open canvas.
 - **No shadows.** Borders only.
 
+## Story diagrams
+
+`docs-story-template.html` uses the same palette and type. Its pictures are narrative, so
+editorial color applies: nodes `paper-inset` with a `faint` stroke, connectors `arrow`, and at
+most two accented elements (`accent` stroke on a `#1A1600` fill) — the ones the caption is about.
+A dropped thing is a `#555` dashed `4 3` stroke; a terminal state a `#333` stroke. Timeline
+points: done `soft`, now `accent`, next hollow.
+
+Five kinds only, each with a fixed 480-wide viewBox and slot table in the template:
+relationship (208 high), flow (96), state (168), comparison (28 + 40 per row), timeline (112).
+The section label carries no rule beside the words.
+
 ## Budget
 
 | Limit | Value |
