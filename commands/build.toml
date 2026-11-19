@@ -12,17 +12,26 @@ You **MUST** consider the user input before proceeding (if not empty).
 ## Before anything else
 
 The akka CLI keeps an idea record when the `akka_run_start` MCP tool is
-available, or `akka specify run start --help` exits 0; a CLI without it predates
-the idea record.
+available, or the output of `akka specify run start --help` contains
+`--station`; a CLI without it predates the idea record.
 
-Run `akka specify mode --allows build`. With a CLI that predates the idea
-record, add `--as-engine` when you are carrying this command out as a step of
-the sequence `/akka:specify` drives in Enforced mode, rather than because a
-person invoked it. It exits non-zero when the project's mode does not permit the
-command. On a non-zero exit, print its message verbatim and stop. Do not
-continue, and do not work around it. The one exception is a CLI that rejects
-`--allows` as an unknown flag: it predates the mode check (older than 3.0.74),
-so say so and continue without the check.
+With the idea record, find the idea first, as the station commands do: call
+`akka_sdd_list_specs` and identify the feature being built, then take the idea
+in `akka specify idea list --json` whose `spec` is the feature's folder name
+(`NNN-name`), never one found from the git branch. When that idea has `derived:
+true`, it has no record yet: adopt it with `akka specify ideas adopt --idea
+<id>`, then use it. Pass its id to the mode check as `--idea <id>`. In a console
+run (`AKKA_RUN_ID` set, or no shell), skip this and skip the mode check when it
+cannot run.
+
+Run `akka specify mode --allows build`, adding `--idea <id>` when the idea was
+found. With a CLI that predates the idea record, add `--as-engine` when you are
+carrying this command out as a step of the sequence `/akka:specify` drives in
+Enforced mode, rather than because a person invoked it. It exits non-zero when
+the project's mode does not permit the command. On a non-zero exit, print its
+message verbatim and stop. Do not continue, and do not work around it. The one
+exception is a CLI that rejects `--allows` as an unknown flag: it predates the
+mode check (older than 3.0.74), so say so and continue without the check.
 
 With the idea record, Enforced mode runs a station command when the idea's
 previous station is done and approved, and the CLI's run start decides;

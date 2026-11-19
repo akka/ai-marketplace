@@ -14,46 +14,56 @@ This command runs `akka specify probes` and `akka specify conform`, which need a
 ## Before anything else
 
 This command keeps a run in the idea's record when the akka CLI has one: the
-`akka_run_start` MCP tool is available, or `akka specify run start --help` exits
-0. A CLI without it predates the idea record. With such a CLI, say so once and
-carry this command out as before: skip every step marked **Idea record**, and
-open no run.
+`akka_run_start` MCP tool is available, or the output of `akka specify run start
+--help` contains `--station`. A CLI without it predates the idea record. With
+such a CLI, say so once and carry this command out as before: skip every step
+marked **Idea record**, and open no run.
+
+**Idea record: a console run.** The console started this command when
+`AKKA_RUN_ID` is set in its environment, or when the command has no shell to run
+the akka CLI in. The console has already opened the run and enforced the rules
+for it. So in a console run: skip every step that finds, adopts, starts or links
+an idea, and ask no question before the run is closed; skip the mode check when
+it cannot run here; open the run by calling `akka_run_start` with `command` and
+`args` only, no `idea` and no `station`, and the CLI joins the console's run;
+close it as usual; and skip the carry-on step, because the console moves the
+idea on.
 
 The topic list (no input) and `--prework` write no topic's files and open no
 run.
 
-**Idea record: find or start the topic's idea.** Once the topic is known from
-the input (see *Input* below), find its idea in `akka specify idea list --json`:
-the idea whose `topic` is this topic's folder name; an idea is never found from
-the git branch. When that idea has `derived: true`, it has no record yet: adopt
-it with `akka specify ideas adopt --idea <id>` (with a CLI whose `adopt` has no
-`--idea`, `akka specify ideas adopt`), then use it. A topic has one idea: never
-start a second. When there is none, start it: ask the person how it ships,
-Deploy to Akka (`akka`) or Commit to internal systems (`internal`), with your
-suggestion, then run `akka specify idea new --topic <folder> --lane <lane>
-"<words>"` with the person's idea as its words (the context in the user input,
-or ask for it in one sentence), quoted as one argument. The id it prints is the
-topic's idea. When the adopt or `idea new` fails, continue without a run, and
-say so in one line.
+**Idea record: find or start the topic's idea.** On a laptop run, once the topic
+is known from the input (see *Input* below), find its idea in `akka specify idea
+list --json`: the idea whose `topic` is this topic's folder name; an idea is
+never found from the git branch. When that idea has `derived: true`, it has no
+record yet: adopt it with `akka specify ideas adopt --idea <id>`, then use it. A
+topic has one idea: never start a second. When there is none, start it: ask the
+person how it ships, Deploy to Akka (`akka`) or Commit to internal systems
+(`internal`), with your suggestion, then run `akka specify idea new --topic
+<folder> --lane <lane> "<words>"` with the person's idea as its words (the
+context in the user input, or ask for it in one sentence), quoted as one
+argument. The id it prints is the topic's idea. When the adopt or `idea new`
+fails, in Enforced mode (`akka specify mode`) stop with the CLI's message;
+otherwise open no run, say in one line that this run is not recorded, and
+continue.
 
-**Idea record: open the run.** Call the `akka_run_start` MCP tool with `station:
-discover`, `command: /akka:discover`, `idea` set to the topic's idea and `args`
-set to the user input. Where the tool is not available, run `akka specify run
-start --station discover --command /akka:discover --idea <id> --args "<the user
-input>" --json`, leaving out `--idea` when no idea was found, quoting the input
-as one argument. It answers JSON: `recorded`, and for a recorded run its `idea`
-and `run.id`. Keep both: the last steps use them.
+**Idea record: open the run.** On a laptop run, call the `akka_run_start` MCP
+tool with `station: discover`, `command: /akka:discover`, `idea` set to the
+topic's idea and `args` set to the user input. Where the tool is not available,
+run `akka specify run start --station discover --command /akka:discover --idea
+<id> --args "<the user input>" --json`, with the input quoted as one argument. A
+run is never started without its idea. It answers JSON: `recorded`, and for a
+recorded run its `idea` and `run.id`. Keep both: the last steps use them.
 
 - When it answers `recorded: false`, continue without a run, and say in one line
   that this run is not recorded, with its `reason`.
 - A refusal by rule is an error whose JSON is `{refused, message, remedy}`,
   `refused` naming the rule: `paused`, `limit`, `shipped`, `dropped`,
-  `approval`, `order` or `no-idea-enforced`. Print `message` and `remedy`
-  verbatim and stop. For `no-idea-enforced` the remedy is `akka specify ideas
-  adopt`, run once for the project.
-- Any other error, one without `refused` (such as no login or several matching
-  ideas), does not stop the command: continue without a run, and say in one line
-  that this run is not recorded.
+  `approval`, `order`, `no-idea-enforced`, `idea-unresolved` or `console-run`.
+  Print `message` and `remedy` verbatim and stop.
+- Any other error, one without `refused` (such as no login), does not stop the
+  command: continue without a run, and say in one line that this run is not
+  recorded.
 
 **Idea record: a run that fails is closed too.** Once the run is open, every way
 the command ends closes it. When the work fails (a build or tests fail, or a
@@ -517,7 +527,7 @@ customer, product or person; it uses placeholders the owner fills in.
 
 The last step of every run this command opened closes it, after the step's report and any Story refresh. Call the `akka_run_close` MCP tool with `run` set to the run's id and `outputs` set to the files this run wrote, as project-relative paths: the step's files from the Writes column above, and the Story pages when `/akka:docs story` ran. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output. On an error, print its message; the files already written stand.
 
-Then carry on or stop. If a run was opened, run `akka specify idea next --idea <idea> --from discover --json`, where `<idea>` is the `idea` the run start returned. It answers `{ go, next, reason }`. When `go` is true, carry on into `next.command` in this conversation, following its own instructions. Otherwise stop, print `reason`, and name `next.command` when there is one. Without a run, stop and name the next command.
+Then carry on or stop. In a console run, skip this step: the console moves the idea on. If a run was opened, run `akka specify idea next --idea <idea> --from discover --json`, where `<idea>` is the `idea` the run start returned. It answers `{ go, next, reason }`. When `go` is true, carry on into `next.command` in this conversation, following its own instructions. Otherwise stop, print `reason`, and name `next.command` when there is one. Without a run, stop and name the next command.
 
 ## Key rules
 
