@@ -546,7 +546,7 @@ customer, product or person; it uses placeholders the owner fills in.
 
 ## Closing the run
 
-The last step of every run this command opened closes it, after the step's report and any Story refresh. Call the `akka_run_close` MCP tool with `run` set to the run's id and `outputs` set to the files this run wrote, as project-relative paths: the step's files from the Writes column above, and the Story pages when `/akka:docs story` ran. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output. On an error, print its message; the files already written stand.
+The last step of every run this command opened closes it, after the step's report and any Story refresh. Call the `akka_run_close` MCP tool with `run` set to the run's id and `outputs` set to the files this run wrote, as project-relative paths: the step's files from the Writes column above, and the Story pages when `/akka:docs story` ran. Where the tool is not available, run `akka specify run close --run <id>` with one `--file <path>` for each output. On an error, print its message; the files already written stand.
 
 Then carry on or stop. In a console run, skip this step: the console moves the idea on. If a run was opened, run `akka specify idea next --idea <idea> --from discover --json`, where `<idea>` is the `idea` the run start returned. It answers `{ go, next, reason }`. When `go` is true, carry on into `next.command` in this conversation, following its own instructions. Otherwise stop, print `reason`, and name `next.command` when there is one. Without a run, stop and name the next command.
 

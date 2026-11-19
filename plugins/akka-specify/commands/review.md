@@ -133,7 +133,7 @@ the work's normal end.
    - Checklist completion percentage
    - Recommendations
 
-8. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to the checklist files step 6 marked, as project-relative paths, or to none. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output. On an error, print its message; the report stands.
+8. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to the checklist files step 6 marked, as project-relative paths, or to none. Where the tool is not available, run `akka specify run close --run <id>` with one `--file <path>` for each output. On an error, print its message; the report stands.
 
 9. **Carry on or stop.** In a console run, skip this step: the console moves the idea on. If a run was opened, run `akka specify idea next --idea <idea> --from review --json`, where `<idea>` is the `idea` the run start returned. It answers `{ go, next, reason }`. When `go` is true, carry on into the `/akka-specify:` command of the same name in this conversation, following its own instructions, when this plugin has one. Otherwise stop, print `reason`, and name `next.command` when there is one. This plugin has no `conform`, `converge` or `ship`: for those, stop and name the `/akka:` command. Without a run, stop and name the next command.
 

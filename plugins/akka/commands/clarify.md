@@ -278,7 +278,7 @@ Execution steps:
    - If any Outstanding or Deferred remain, recommend whether to proceed to `/akka:plan` or run `/akka:clarify` again later post-plan.
    - Suggested next command. If policy-decision markers remain, recommend `/akka:clarify` again, not `/akka:plan`.
 
-10. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to `FEATURE_SPEC` as a project-relative path, or to none when no answer was integrated. Where the tool is not available, run `akka specify run close --run <id>` with `--output <path>` for the spec. On an error, print its message; the clarifications already written stand.
+10. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to `FEATURE_SPEC` as a project-relative path, or to none when no answer was integrated. Where the tool is not available, run `akka specify run close --run <id>` with `--file <path>` for the spec. On an error, print its message; the clarifications already written stand.
 
 11. **Carry on or stop.** In a console run, skip this step: the console moves the idea on. If a run was opened, run `akka specify idea next --idea <idea> --from clarify --json`, where `<idea>` is the `idea` the run start returned. It answers `{ go, next, reason }`. When `go` is true, carry on into `next.command` in this conversation, following its own instructions. Otherwise stop, print `reason`, and name `next.command` when there is one. Without a run, stop and name the next command.
 

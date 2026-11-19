@@ -275,7 +275,7 @@ Append to the **end** of `tasks.md`, per the append contract:
 If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and
 `outputs` set to TASKS as a project-relative path on `tasks_appended`, or to none on
 `converged`. Where the tool is not available, run `akka specify run close --run <id>`,
-with `--output <path>` for TASKS on `tasks_appended`. On an error, print its message;
+with `--file <path>` for TASKS on `tasks_appended`. On an error, print its message;
 the outcome already reported stands.
 
 ### 10. Carry on or stop

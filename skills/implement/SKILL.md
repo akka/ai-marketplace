@@ -252,7 +252,7 @@ the work's normal end.
    - Confirm the implementation follows the technical plan
    - Report final status with summary of completed work
 
-14. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id, `outputs` set to the code and test files this run created or changed and `FEATURE_DIR/tasks.md`, with `docs/` when the docs refresh ran, all as project-relative paths, and `tasks` set to the ids of the tasks this run marked `[X]`. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output and one `--task <id>` for each task. On an error, print its message; the committed work stands.
+14. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id, `outputs` set to the code and test files this run created or changed and `FEATURE_DIR/tasks.md`, with `docs/` when the docs refresh ran, all as project-relative paths, and `tasks` set to the ids of the tasks this run marked `[X]`. Where the tool is not available, run `akka specify run close --run <id>` with one `--file <path>` for each output and one `--task <id>` for each task. On an error, print its message; the committed work stands.
 
 15. **Carry on or stop.** In a console run, skip this step: the console moves the idea on. If a run was opened, run `akka specify idea next --idea <idea> --from implement --json`, where `<idea>` is the `idea` the run start returned. It answers `{ go, next, reason }`. When `go` is true, carry on into `next.command` in this conversation, following its own instructions. Otherwise stop, print `reason`, and name `next.command` when there is one. Without a run, stop and name the next command.
 
