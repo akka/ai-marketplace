@@ -11,20 +11,11 @@ In a project with a `discovery/` folder this command relies on the discovery gat
 
 ## Before anything else
 
-Open this run in the idea's record. Call the `akka_run_start` MCP tool with
-`station: specify`, `command: /akka:specify` and `args` set to the user input.
-Where the tool is not available, run `akka specify run start --station specify
---command /akka:specify` instead. Keep the run id it returns: the last step
-closes the run. When it refuses because no idea matches the branch and none was
-named, start the idea: ask the person how it ships, Deploy to Akka (`akka`) or
-Commit to internal systems (`internal`), with your suggestion, then run `akka
-specify idea new --lane <lane>` with the feature description as its words,
-quoted as one argument. Open the run again with `idea` set to the id it printed
-(`--idea <id>` on the CLI). On any other error or a non-zero exit, print its
-message verbatim and stop. Do not continue, and do not work around it; the
-message names the remedy. The one exception is a CLI that does not know the
-command (no `akka_run_start` tool, and `run` rejected as an unknown command): it
-predates the idea record, so say so and continue without a run.
+This command keeps a run in the idea's record when the akka CLI has one: the
+`akka_run_start` MCP tool is available, or `akka specify run --help` lists
+`start`. A CLI without it predates the idea record. With such a CLI, say so once
+and carry this command out as before: skip every step marked **Idea record**,
+and open no run.
 
 ## Outline
 
@@ -71,6 +62,8 @@ Given that feature description, do this:
    - Only match branches/directories with the exact short-name pattern
    - If no existing branches/directories found with this short-name, start with number 1
    - The tool output will contain BRANCH_NAME and SPEC_FILE paths
+
+2e. **Idea record: start the idea and open the run.** `/akka:specify` always records against a new idea or the idea of the discovery topic this feature continues, never the idea of the branch it started on. When the feature continues a discovery topic (the person names it, or the spec rests on its findings), look for that topic's idea in `akka specify idea list --json`: the idea whose `topic` is the topic's folder name and whose `spec` is null. If there is one, link it to this spec with `akka specify idea link --idea <idea> --spec <BRANCH_NAME>`. Otherwise start a new idea: ask the person how it ships, Deploy to Akka (`akka`) or Commit to internal systems (`internal`), with your suggestion, then run `akka specify idea new --spec <BRANCH_NAME> --lane <lane> "<words>"` with the feature description as its words, quoted as one argument. Then open the run against that idea: call the `akka_run_start` MCP tool with `station: specify`, `command: /akka:specify`, `idea` set to it and `args` set to the user input. Where the tool is not available, run `akka specify run start --station specify --command /akka:specify --idea <idea> --args "<the user input>"`, with the input quoted as one argument. Keep the run id it returns. A refusal by rule stops the command: the idea is paused, shipped or dropped, an approval it needs is missing, an earlier station has not run, or its spending limit is reached. Print the message verbatim and stop; it names the remedy. Any other error, such as no branch, no login or several matching ideas, does not stop the command: continue without a run, and say in one line that this run is not recorded.
 
 3. Load `akka_sdd_get_template` to understand required sections.
 
@@ -229,11 +222,24 @@ Given that feature description, do this:
 
 8. Report completion with branch name, spec file path, checklist results, and any potentially stale diagram paths.
 
-9. **Close the run.** If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to SPEC_FILE and `FEATURE_DIR/checklists/requirements.md` as project-relative paths. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output. On an error, print its message; the spec already written stands.
+9. **Idea record: close the run.** If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to SPEC_FILE and `FEATURE_DIR/checklists/requirements.md` as project-relative paths. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output. On an error, print its message; the spec already written stands.
 
-10. **End waiting for the owner's approval** (the last step). The spec now waits for the owner's approval before the next station runs, in either mode. Say so and, when a run was opened, say how to give it: on the idea in the console's Ideas page, or `akka specify idea approve <idea> spec`, where `<idea>` is the idea `akka_run_start` named. Do not carry out `/akka:plan` or any later station.
+10. **Idea record: end waiting for the owner's approval.** When a run was opened, the spec now waits for the owner's approval before the next station runs, in either mode. Say so, and say how to give it: on the idea in the console's Ideas page, or `akka specify idea approve <idea> spec`, where `<idea>` is the idea the run start returned. Do not carry out `/akka:plan` or any later station. Name the next command for after the approval (`/akka:clarify` or `/akka:plan`) and stop. Without a run, name the next command and stop.
 
-   Name the next command for after the approval (`/akka:clarify` or `/akka:plan`) and stop. A finding that needs confirming is settled first with `/akka:discover <topic> confirm`.
+11. **With a CLI that predates the idea record, the next step depends on the mode.** Run `akka specify mode` and read it.
+
+   - **À la carte** — recommend the next command (`/akka:clarify` or
+     `/akka:plan`) and stop. The developer drives.
+   - **Enforced** — do not name a command the engine sequences. Those steps are
+     refused when a person invokes them, so recommending one hands the developer
+     a dead end. Carry out the sequence yourself instead, in order, following each
+     command's own instructions from this same conversation: plan, tasks,
+     implement, build, conform. You are the engine while you do this, so each
+     step's opening gate check is run with `--as-engine`; without it the step
+     refuses itself and the sequence stops at its first line. Stop when a step
+     reports something only a person can settle, and say what it is. A finding
+     that needs confirming is settled with `/akka:discover <topic> confirm`, which
+     enforcement leaves to the person.
 
 **NOTE:** The script creates and checks out the new branch and initializes the spec file before writing.
 
@@ -379,5 +385,5 @@ Generation runs in the assistant; the engine detects the surfaces, verifies dete
 - [ ] `FEATURE_DIR/checklists/requirements.md` was created and every non-`[NEEDS CLARIFICATION]` item passes (or the user was warned after 3 failed iterations).
 - [ ] Existing diagrams affected by the source update were reported as potentially stale, with `/akka:visualize` suggested as an optional next step; all diagram files were left untouched.
 - [ ] Completion was reported with branch name, spec file path, and checklist results.
-- [ ] The run was opened with `akka_run_start` before any other step and closed with `akka_run_close` naming the spec and its checklist, or the CLI was reported as predating the idea record.
-- [ ] The command ended waiting for the owner's approval of the spec, and no later station was carried out; the next command for after the approval was named.
+- [ ] With the idea record, the run was opened after the branch and spec folder were created, against a new idea started with `--spec` or the continued topic's idea linked to the spec, and closed with `akka_run_close` naming the spec and its checklist; or the CLI was reported as predating the idea record.
+- [ ] With a run, the command ended waiting for the owner's approval of the spec, with no later station carried out and the next command named. With a CLI that predates the idea record, the mode was read and the next step matched it: a recommendation in À la carte, and the sequence carried out here in Enforced, with no command named that the gate would refuse.

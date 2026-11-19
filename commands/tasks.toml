@@ -11,28 +11,45 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Before anything else
 
-Run `akka specify mode --allows tasks`. It exits non-zero when the project's
-mode does not permit the command. On a non-zero exit, print its message verbatim
-and stop. Do not continue, and do not work around it. The one exception is a CLI
-that rejects `--allows` as an unknown flag: it predates the mode check (older
-than 3.0.74), so say so and continue without the check.
+This command keeps a run in the idea's record when the akka CLI has one: the
+`akka_run_start` MCP tool is available, or `akka specify run --help` lists
+`start`. A CLI without it predates the idea record. With such a CLI, say so once
+and carry this command out as before: skip every step marked **Idea record**,
+and open no run.
 
-In Enforced mode a station command runs when the idea's previous station is done
-and approved; `akka_run_start`, the next step, enforces this. `/akka:specify`
-does not drive the whole sequence: each station runs on its own once the one
-before it is done and approved. A refusal with a reason of its own, such as
+Run `akka specify mode --allows tasks`. With a CLI that predates the idea
+record, add `--as-engine` when you are carrying this command out as a step of
+the sequence `/akka:specify` drives in Enforced mode, rather than because a
+person invoked it. It exits non-zero when the project's mode does not permit the
+command. On a non-zero exit, print its message verbatim and stop. Do not
+continue, and do not work around it. The one exception is a CLI that rejects
+`--allows` as an unknown flag: it predates the mode check (older than 3.0.74),
+so say so and continue without the check.
+
+With the idea record, Enforced mode runs a station command when the idea's
+previous station is done and approved, and the CLI's run start decides;
+`/akka:specify` does not drive the sequence. With an older CLI, Enforced mode
+gives the sequence to the engine, so a step it sequences is refused to a person
+and permitted to the engine. A refusal with a reason of its own, such as
 re-running setup, stands either way. The message names the remedy.
 
-Then open this run in the idea's record. Call the `akka_run_start` MCP tool with
-`station: tasks`, `command: /akka:tasks` and `args` set to the user input. Where
-the tool is not available, run `akka specify run start --station tasks --command
-/akka:tasks` instead. Keep the run id it returns: the last step closes the run.
-When it refuses because no idea matches the branch and none was named, continue
-without a run, and say in one line that this run is not recorded. On any other
-error or a non-zero exit, print its message verbatim and stop, as for the mode
-check; the message names the remedy. The one exception is a CLI that does not
-know the command (no `akka_run_start` tool, and `run` rejected as an unknown
-command): it predates the idea record, so say so and continue without a run.
+**Idea record: open the run.** Call the `akka_run_start` MCP tool with `station:
+tasks`, `command: /akka:tasks` and `args` set to the user input. Where the tool
+is not available, run `akka specify run start --station tasks --command
+/akka:tasks --args "<the user input>"`, with the input quoted as one argument.
+Keep the `idea` and the run id it returns: the last steps use them.
+
+- A refusal by rule stops the command: the idea is paused, shipped or dropped,
+  an approval it needs is missing, an earlier station has not run, or its
+  spending limit is reached. Print the message verbatim and stop; it names the
+  remedy.
+- When no idea matches the branch, read the mode with `akka specify mode`. In
+  Enforced mode, say that this project's specs and topics get their ideas once
+  with `akka specify ideas adopt`, and stop. Otherwise continue without a run,
+  and say in one line that this run is not recorded.
+- Any other error, such as no branch, no login or several matching ideas, does
+  not stop the command: continue without a run, and say in one line that this
+  run is not recorded.
 
 ## Outline
 
@@ -80,7 +97,7 @@ command): it predates the idea record, so say so and continue without a run.
 
 7. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to `FEATURE_DIR/tasks.md` as a project-relative path, with `docs/` when the docs refresh ran. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output. On an error, print its message; the tasks already written stand.
 
-8. **End waiting for approval** (the last step). The tasks now wait for the owner's approval before Implement runs, in either mode. Say so and, when a run was opened, say how to give it: on the idea in the console's Ideas page, or `akka specify idea approve <idea> tasks`, where `<idea>` is the idea `akka_run_start` named. Do not carry out `/akka:implement` or any later station. Name `/akka:implement` as the command for after the approval.
+8. **Idea record: end waiting for approval.** When a run was opened, the tasks now wait for the owner's approval before Implement runs, in either mode. Say so and, when a run was opened, say how to give it: on the idea in the console's Ideas page, or `akka specify idea approve <idea> tasks`, where `<idea>` is the idea `akka_run_start` named. Do not carry out `/akka:implement` or any later station. Name `/akka:implement` as the command for after the approval.
 
 Context for task generation: {{args}}
 
@@ -182,5 +199,5 @@ Every task MUST strictly follow this format:
 - [ ] With a `discovery/` folder, `/akka:docs` ran before the report; without one, it was offered as a next step and `docs/` was left untouched.
 - [ ] The report includes total task count, per-story count, parallel opportunities, and the suggested MVP scope (typically User Story 1 only).
 - [ ] The run was opened with `akka_run_start` after the mode check and closed with `akka_run_close` naming `tasks.md`, or the CLI was reported as predating the idea record.
-- [ ] The command ended waiting for the owner's approval of the tasks, and no later station was carried out.
+- [ ] With a run, the command ended waiting for the owner's approval of the tasks, and no later station was carried out.
 """

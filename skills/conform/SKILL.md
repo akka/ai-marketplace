@@ -11,29 +11,45 @@ In a project with a `discovery/` folder this command relies on the discovery gat
 
 ## Before anything else
 
-Run `akka specify mode --allows conform`. It exits non-zero when the project's
-mode does not permit the command. On a non-zero exit, print its message verbatim
-and stop. Do not continue, and do not work around it. The one exception is a CLI
-that rejects `--allows` as an unknown flag: it predates the mode check (older
-than 3.0.74), so say so and continue without the check.
+This command keeps a run in the idea's record when the akka CLI has one: the
+`akka_run_start` MCP tool is available, or `akka specify run --help` lists
+`start`. A CLI without it predates the idea record. With such a CLI, say so once
+and carry this command out as before: skip every step marked **Idea record**,
+and open no run.
 
-In Enforced mode a station command runs when the idea's previous station is done
-and approved; `akka_run_start`, the next step, enforces this. `/akka:specify`
-does not drive the whole sequence: each station runs on its own once the one
-before it is done and approved. A refusal with a reason of its own, such as
+Run `akka specify mode --allows conform`. With a CLI that predates the idea
+record, add `--as-engine` when you are carrying this command out as a step of
+the sequence `/akka:specify` drives in Enforced mode, rather than because a
+person invoked it. It exits non-zero when the project's mode does not permit the
+command. On a non-zero exit, print its message verbatim and stop. Do not
+continue, and do not work around it. The one exception is a CLI that rejects
+`--allows` as an unknown flag: it predates the mode check (older than 3.0.74),
+so say so and continue without the check.
+
+With the idea record, Enforced mode runs a station command when the idea's
+previous station is done and approved, and the CLI's run start decides;
+`/akka:specify` does not drive the sequence. With an older CLI, Enforced mode
+gives the sequence to the engine, so a step it sequences is refused to a person
+and permitted to the engine. A refusal with a reason of its own, such as
 re-running setup, stands either way. The message names the remedy.
 
-Then open this run in the idea's record. Call the `akka_run_start` MCP tool with
-`station: conform`, `command: /akka:conform` and `args` set to the user input.
-Where the tool is not available, run `akka specify run start --station conform
---command /akka:conform` instead. Keep the run id it returns: the last step
-closes the run. When it refuses because no idea matches the branch and none was
-named, continue without a run, and say in one line that this run is not
-recorded. On any other error or a non-zero exit, print its message verbatim and
-stop, as for the mode check; the message names the remedy. The one exception is
-a CLI that does not know the command (no `akka_run_start` tool, and `run`
-rejected as an unknown command): it predates the idea record, so say so and
-continue without a run.
+**Idea record: open the run.** Call the `akka_run_start` MCP tool with `station:
+conform`, `command: /akka:conform` and `args` set to the user input. Where the
+tool is not available, run `akka specify run start --station conform --command
+/akka:conform --args "<the user input>"`, with the input quoted as one argument.
+Keep the `idea` and the run id it returns: the last steps use them.
+
+- A refusal by rule stops the command: the idea is paused, shipped or dropped,
+  an approval it needs is missing, an earlier station has not run, or its
+  spending limit is reached. Print the message verbatim and stop; it names the
+  remedy.
+- When no idea matches the branch, read the mode with `akka specify mode`. In
+  Enforced mode, say that this project's specs and topics get their ideas once
+  with `akka specify ideas adopt`, and stop. Otherwise continue without a run,
+  and say in one line that this run is not recorded.
+- Any other error, such as no branch, no login or several matching ideas, does
+  not stop the command: continue without a run, and say in one line that this
+  run is not recorded.
 
 ## Purpose
 
@@ -116,14 +132,8 @@ A `NOT_READY` verdict says what is blocking and what to do about it:
    --manifest <file>`. Do this whatever the verdict. On an error, print its
    message; the verdict already reported stands.
 
-5. **Carry on or stop.** Read the idea with `akka specify idea show <idea>
-   --json`: `next` names the next station's command, and `waits` lists what
-   waits on a person. Outside Enforced mode (`akka specify mode`), when
-   `idea.advance` is `continue` and `waits` is empty, carry on into that command
-   in this conversation, following its own instructions, instead of stopping.
-   Never carry on into `/akka:ship` or `/akka:deploy`. Otherwise stop and name
-   the next command: when `advance` is `step` or absent, in Enforced mode, when
-   anything waits on a person, or when no run was opened.
+5. **Stop and name the ship command**: `/akka:ship`, or `/akka:deploy` on the
+   Deploy to Akka lane. Ship is never started automatically.
 
 ## Key rules
 
@@ -162,5 +172,5 @@ A `NOT_READY` verdict says what is blocking and what to do about it:
 - [ ] The run was opened with `akka_run_start` after the mode check and closed
       with `akka_run_close` passing the manifest, or the CLI was reported as
       predating the idea record.
-- [ ] The command stopped and named the next command; Ship is never started
+- [ ] The command stopped and named the ship command; Ship is never started
       automatically.

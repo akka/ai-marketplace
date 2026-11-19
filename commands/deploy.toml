@@ -11,17 +11,29 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Before anything else
 
-Open this run in the idea's record. Call the `akka_run_start` MCP tool with
-`station: ship`, `command: /akka:deploy` and `args` set to the user input. Where
-the tool is not available, run `akka specify run start --station ship --command
-/akka:deploy` instead. Keep the run id it returns: the last step closes the run.
-When it refuses because no idea matches the branch and none was named, continue
-without a run, and say in one line that this run is not recorded. On any other
-error or a non-zero exit, print its message verbatim and stop. Do not continue,
-and do not work around it; the message names the remedy. The one exception is a
-CLI that does not know the command (no `akka_run_start` tool, and `run` rejected
-as an unknown command): it predates the idea record, so say so and continue
-without a run.
+This command keeps a run in the idea's record when the akka CLI has one: the
+`akka_run_start` MCP tool is available, or `akka specify run --help` lists
+`start`. A CLI without it predates the idea record. With such a CLI, say so once
+and carry this command out as before: skip every step marked **Idea record**,
+and open no run.
+
+**Idea record: open the run.** Call the `akka_run_start` MCP tool with `station:
+ship`, `command: /akka:deploy` and `args` set to the user input. Where the tool
+is not available, run `akka specify run start --station ship --command
+/akka:deploy --args "<the user input>"`, with the input quoted as one argument.
+Keep the `idea` and the run id it returns: the last steps use them.
+
+- A refusal by rule stops the command: the idea is paused, shipped or dropped,
+  an approval it needs is missing, an earlier station has not run, or its
+  spending limit is reached. Print the message verbatim and stop; it names the
+  remedy.
+- When no idea matches the branch, read the mode with `akka specify mode`. In
+  Enforced mode, say that this project's specs and topics get their ideas once
+  with `akka specify ideas adopt`, and stop. Otherwise continue without a run,
+  and say in one line that this run is not recorded.
+- Any other error, such as no branch, no login or several matching ideas, does
+  not stop the command: continue without a run, and say in one line that this
+  run is not recorded.
 
 ## Purpose
 

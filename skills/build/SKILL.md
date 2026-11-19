@@ -9,18 +9,26 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Before anything else
 
-Run `akka specify mode --allows build`. It exits non-zero when the project's
-mode does not permit the command. On a non-zero exit, print its message verbatim
-and stop. Do not continue, and do not work around it. The one exception is a CLI
-that rejects `--allows` as an unknown flag: it predates the mode check (older
-than 3.0.74), so say so and continue without the check.
+The akka CLI keeps an idea record when the `akka_run_start` MCP tool is
+available, or `akka specify run --help` lists `start`; a CLI without it predates
+the idea record.
 
-In Enforced mode a station command runs when the idea's previous station is done
-and approved, which the CLI's `run start` enforces. Build is not a station and
-opens no run. `/akka:specify` does not drive the whole sequence: each station
-runs on its own once the one before it is done and approved. A refusal with a
-reason of its own, such as re-running setup, stands either way. The message
-names the remedy.
+Run `akka specify mode --allows build`. With a CLI that predates the idea
+record, add `--as-engine` when you are carrying this command out as a step of
+the sequence `/akka:specify` drives in Enforced mode, rather than because a
+person invoked it. It exits non-zero when the project's mode does not permit the
+command. On a non-zero exit, print its message verbatim and stop. Do not
+continue, and do not work around it. The one exception is a CLI that rejects
+`--allows` as an unknown flag: it predates the mode check (older than 3.0.74),
+so say so and continue without the check.
+
+With the idea record, Enforced mode runs a station command when the idea's
+previous station is done and approved, and the CLI's run start decides;
+`/akka:specify` does not drive the sequence. Build is not a station and opens no
+run. With an older CLI, Enforced mode gives the sequence to the engine, so a
+step it sequences is refused to a person and permitted to the engine. A refusal
+with a reason of its own, such as re-running setup, stands either way. The
+message names the remedy.
 
 ## Purpose
 
