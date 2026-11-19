@@ -10,6 +10,21 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Before anything else
+
+Open this run in the idea's record. Call the `akka_run_start` MCP tool with
+`station: review`, `command: /akka:analyze` and `args` set to the user input.
+Where the tool is not available, run `akka specify run start --station review
+--command /akka:analyze` instead. Keep the run id it returns: the last step
+closes the run. On an error or a non-zero exit, print its message verbatim and
+stop. Do not continue, and do not work around it; the message names the remedy.
+The one exception is a CLI that does not know the command (no `akka_run_start`
+tool, and `run` rejected as an unknown command): it predates the idea record, so
+say so and continue without a run.
+
+The receipt under `.akka/record/` is the CLI's to write; it is not a file this
+command modifies.
+
 ## Goal
 
 Identify inconsistencies, duplications, ambiguities, and underspecified items across the three core artifacts (`spec.md`, `plan.md`, `tasks.md`) before implementation. This command MUST run only after `/akka:tasks` has successfully produced a complete `tasks.md`.
@@ -161,6 +176,10 @@ At end of report, output a concise Next Actions block:
 
 Ask the user: "Would you like me to suggest concrete remediation edits for the top N issues?" (Do NOT apply them automatically.)
 
+### 9. Close the run
+
+If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and no outputs: this command writes no file. Where the tool is not available, run `akka specify run close --run <id>`. On an error, print its message; the report stands.
+
 ## Operating Principles
 
 ### Context Efficiency
@@ -189,3 +208,4 @@ Ask the user: "Would you like me to suggest concrete remediation edits for the t
 - [ ] A Coverage Summary table, Constitution Alignment Issues section (if any), Unmapped Tasks section (if any), and the Metrics block (total requirements, total tasks, coverage %, ambiguity count, duplication count, critical issues count) were all included.
 - [ ] A Next Actions block named specific follow-up commands (`/akka:specify` refinement, `/akka:plan` adjustment, or manual edits to `tasks.md`) and recommended blocking `/akka:implement` iff CRITICAL issues exist.
 - [ ] The user was offered — but not automatically given — concrete remediation edits for the top N issues.
+- [ ] The run was opened at the `review` station with `akka_run_start` before any other step and closed with `akka_run_close` as the last step, or the CLI was reported as predating the idea record.

@@ -21,6 +21,16 @@ Enforced mode gives the sequence to the engine, so a step it sequences is refuse
 to a person and permitted to the engine. A refusal with a reason of its own, such
 as re-running setup, stands either way. The message names the remedy.
 
+Then open this run in the idea's record. Call the `akka_run_start` MCP tool with
+`station: implement`, `command: /akka:implement` and `args` set to the user
+input. Where the tool is not available, run `akka specify run start --station
+implement --command /akka:implement` instead. Keep the run id it returns: the
+last step closes the run. On an error or a non-zero exit, print its message
+verbatim and stop, as for the mode check; the message names the remedy. The one
+exception is a CLI that does not know the command (no `akka_run_start` tool, and
+`run` rejected as an unknown command): it predates the idea record, so say so
+and continue without a run.
+
 ## Outline
 
 1. Call the `akka_sdd_list_specs` MCP tool to find features. Verify that tasks.md exists for the target feature (has_tasks must be true). If tasks.md is missing, instruct the user to run `/akka:tasks` first. Read the tasks.md content from FEATURE_DIR. Also note which other artifacts are available (AVAILABLE_DOCS).
@@ -167,6 +177,8 @@ as re-running setup, stands either way. The message names the remedy.
    - Confirm the implementation follows the technical plan
    - Report final status with summary of completed work
 
+14. **Close the run** (the last step). If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id, `outputs` set to the code and test files this run created or changed and `FEATURE_DIR/tasks.md`, with `docs/` when the docs refresh ran, all as project-relative paths, and `tasks` set to the ids of the tasks this run marked `[X]`. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output and one `--task <id>` for each task. On an error, print its message; the committed work stands.
+
 Note: This command assumes a complete task breakdown exists in tasks.md. If tasks are incomplete or missing, suggest running `/akka:tasks` first to regenerate the task list.
 
 ## Done When
@@ -183,3 +195,4 @@ Note: This command assumes a complete task breakdown exists in tasks.md. If task
 - [ ] The user was asked whether to merge the feature branch to `main`; the answer was acted on (`akka_git_checkout` + `akka_git_merge` on yes, stay on feature branch on no).
 - [ ] The final report validates that implemented features match the spec, tests pass, and the implementation follows the plan.
 - [ ] With a `discovery/` folder, `/akka:docs` ran before the commit; without one, it was offered as a next step and `docs/` was left untouched.
+- [ ] The run was opened with `akka_run_start` after the mode check and closed with `akka_run_close` as the last step, naming the files written and the tasks completed, or the CLI was reported as predating the idea record.

@@ -31,6 +31,16 @@ as re-running setup, stands either way. The message names the remedy.
 Under enforcement an unresolved question is settled by `/akka:specify`, so this
 command is refused to the engine as well. `--as-engine` does not lift this one.
 
+Then open this run in the idea's record. Call the `akka_run_start` MCP tool with
+`station: clarify`, `command: /akka:clarify` and `args` set to the user input.
+Where the tool is not available, run `akka specify run start --station clarify
+--command /akka:clarify` instead. Keep the run id it returns: the last step
+closes the run. On an error or a non-zero exit, print its message verbatim and
+stop, as for the mode check; the message names the remedy. The one exception is
+a CLI that does not know the command (no `akka_run_start` tool, and `run`
+rejected as an unknown command): it predates the idea record, so say so and
+continue without a run.
+
 ## Outline
 
 Goal: Detect and reduce ambiguity or missing decision points in the active feature specification and record the clarifications directly in the spec file.
@@ -187,6 +197,8 @@ Execution steps:
    - If any Outstanding or Deferred remain, recommend whether to proceed to `/akka:plan` or run `/akka:clarify` again later post-plan.
    - Suggested next command. If policy-decision markers remain, recommend `/akka:clarify` again, not `/akka:plan`.
 
+10. **Close the run** (the last step). If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to `FEATURE_SPEC` as a project-relative path, or to none when no answer was integrated. Where the tool is not available, run `akka specify run close --run <id>` with `--output <path>` for the spec. On an error, print its message; the clarifications already written stand.
+
 Behavior rules:
 
 - Policy-decision markers (thresholds, access permissions, retention, sensitive-data rules, approvals) are not subject to the specify marker limit: put them first in the question queue and never infer an answer. Any not reached within the 5-question limit stay as markers for the next run.
@@ -211,3 +223,4 @@ Context for prioritization: $ARGUMENTS
 - [ ] The spec file was saved to FEATURE_SPEC after each integration and passes validation (no lingering vague placeholders the new answer was meant to resolve; markdown structure valid; only allowed new headings added).
 - [ ] Existing diagrams affected by the source update were reported as potentially stale, with `/akka:visualize` suggested as an optional next step; all diagram files were left untouched.
 - [ ] The final report listed questions asked/answered, sections touched, a coverage summary (Resolved / Deferred / Clear / Outstanding), and the suggested next command.
+- [ ] The run was opened with `akka_run_start` after the mode check and closed with `akka_run_close` as the last step, or the CLI was reported as predating the idea record.

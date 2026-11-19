@@ -11,6 +11,18 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 In a project with a `discovery/` folder this command relies on the discovery gates in `akka specify conform`, which need an akka CLI with discovery support. Check first: run `akka specify probes --help`. If its list of commands does not include `findings`, the CLI predates discovery. Tell the person so, name what is missing (the discovery gates and `akka specify probes findings`), and stop, because a spec may rely only on confirmed findings and this CLI cannot check them. Treat an `unknown command` or `unknown flag` error from any `akka specify` call the same way, naming the subcommand or flag. A project without `discovery/` needs neither and skips this check.
 
+## Before anything else
+
+Open this run in the idea's record. Call the `akka_run_start` MCP tool with
+`station: specify`, `command: /akka:specify` and `args` set to the user input.
+Where the tool is not available, run `akka specify run start --station specify
+--command /akka:specify` instead. Keep the run id it returns: the last step
+closes the run. On an error or a non-zero exit, print its message verbatim and
+stop. Do not continue, and do not work around it; the message names the remedy.
+The one exception is a CLI that does not know the command (no `akka_run_start`
+tool, and `run` rejected as an unknown command): it predates the idea record, so
+say so and continue without a run.
+
 ## Outline
 
 The text the user typed after `/akka:specify` in the triggering message **is** the feature description. Assume you always have it available in this conversation even if `{{args}}` appears literally below. Do not ask the user to repeat it unless they provided an empty command.
@@ -214,20 +226,18 @@ Given that feature description, do this:
 
 8. Report completion with branch name, spec file path, checklist results, and any potentially stale diagram paths.
 
-   **The next step depends on the mode.** Run `akka specify mode` and read it.
+9. **Close the run.** If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to SPEC_FILE and `FEATURE_DIR/checklists/requirements.md` as project-relative paths. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output. On an error, print its message; the spec already written stands.
 
-   - **À la carte** — recommend the next command (`/akka:clarify` or
-     `/akka:plan`) and stop. The developer drives.
+10. **End waiting for the owner's approval** (the last step). The spec now waits for the owner's approval before the next station runs, in either mode. Say so and, when a run was opened, say how to give it: on the idea in the console's Ideas page, or `akka specify idea approve <idea> spec`, where `<idea>` is the idea `akka_run_start` named. Do not carry out `/akka:plan` or any later station.
+
+   **What to name next depends on the mode.** Run `akka specify mode` and read it.
+
+   - **À la carte** — name the next command for after the approval
+     (`/akka:clarify` or `/akka:plan`) and stop. The developer drives.
    - **Enforced** — do not name a command the engine sequences. Those steps are
      refused when a person invokes them, so recommending one hands the developer
-     a dead end. Carry out the sequence yourself instead, in order, following each
-     command's own instructions from this same conversation: plan, tasks,
-     implement, build, conform. You are the engine while you do this, so each
-     step's opening gate check is run with `--as-engine`; without it the step
-     refuses itself and the sequence stops at its first line. Stop when a step
-     reports something only a person can settle, and say what it is. A finding
-     that needs confirming is settled with `/akka:discover <topic> confirm`, which
-     enforcement leaves to the person.
+     a dead end. Stop. A finding that needs confirming is settled with
+     `/akka:discover <topic> confirm`, which enforcement leaves to the person.
 
 **NOTE:** The script creates and checks out the new branch and initializes the spec file before writing.
 
@@ -373,5 +383,6 @@ Generation runs in the assistant; the engine detects the surfaces, verifies dete
 - [ ] `FEATURE_DIR/checklists/requirements.md` was created and every non-`[NEEDS CLARIFICATION]` item passes (or the user was warned after 3 failed iterations).
 - [ ] Existing diagrams affected by the source update were reported as potentially stale, with `/akka:visualize` suggested as an optional next step; all diagram files were left untouched.
 - [ ] Completion was reported with branch name, spec file path, and checklist results.
-- [ ] The mode was read, and the next step matched it: a recommendation in À la carte, and the sequence carried out here in Enforced, with no command named that the gate would refuse.
+- [ ] The run was opened with `akka_run_start` before any other step and closed with `akka_run_close` naming the spec and its checklist, or the CLI was reported as predating the idea record.
+- [ ] The command ended waiting for the owner's approval of the spec, and no later station was carried out. The mode was read: À la carte named the next command for after the approval, and Enforced named no command the gate would refuse.
 """

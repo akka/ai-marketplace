@@ -21,6 +21,15 @@ Enforced mode gives the sequence to the engine, so a step it sequences is refuse
 to a person and permitted to the engine. A refusal with a reason of its own, such
 as re-running setup, stands either way. The message names the remedy.
 
+Then open this run in the idea's record. Call the `akka_run_start` MCP tool with
+`station: plan`, `command: /akka:plan` and `args` set to the user input. Where
+the tool is not available, run `akka specify run start --station plan --command
+/akka:plan` instead. Keep the run id it returns: the last step closes the run.
+On an error or a non-zero exit, print its message verbatim and stop, as for the
+mode check; the message names the remedy. The one exception is a CLI that does
+not know the command (no `akka_run_start` tool, and `run` rejected as an unknown
+command): it predates the idea record, so say so and continue without a run.
+
 ## Outline
 
 1. **Setup**: Call the `akka_sdd_list_specs` MCP tool to find the target feature. Then call `akka_sdd_get_template` with template_name="plan" to get the plan template. Identify the feature's spec path (FEATURE_SPEC) and plan destination (FEATURE_DIR/plan.md).
@@ -41,7 +50,9 @@ as re-running setup, stands either way. The message names the remedy.
 
 5. **Refresh the docs.** If the project has a `discovery/` folder, run `/akka:docs` (the implementation docs and the Story) before reporting, in this session, so they match what this command wrote, and keep its outcome for the report. If the project has no `discovery/` folder, do not run `/akka:docs`; offer it in the report as an optional next step, and leave `docs/` untouched.
 
-6. **Stop and report**: The command ends here, after Phase 2 planning and, in a project with a `discovery/` folder, the docs refresh. Report branch, IMPL_PLAN path, generated artifacts, and any potentially stale diagram paths; without a `discovery/` folder, offer `/akka:docs` as an optional next step.
+6. **Stop and report**: Planning ends here, after Phase 2 and, in a project with a `discovery/` folder, the docs refresh. Report branch, IMPL_PLAN path, generated artifacts, and any potentially stale diagram paths; without a `discovery/` folder, offer `/akka:docs` as an optional next step.
+
+7. **Close the run** (the last step). If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to the files and folders this run wrote, as project-relative paths: `plan.md`, `research.md`, `data-model.md`, `quickstart.md` and `contracts/` under FEATURE_DIR, whichever exist, and `docs/` when the docs refresh ran. A folder ends in `/`. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output. On an error, print its message; the plan already written stands.
 
 ## Phases
 
@@ -149,3 +160,4 @@ Phase 2 is required when the project has a `discovery/` folder. Without one, it 
 - [ ] Existing diagrams affected by the source update were reported as potentially stale, with `/akka:visualize` suggested as an optional next step; all diagram files were left untouched.
 - [ ] Completion was reported with the branch, plan path, generated artifacts, and the next-command recommendation (`/akka:tasks`).
 - [ ] With a `discovery/` folder, `/akka:docs` ran before the report; without one, it was offered as a next step and `docs/` was left untouched.
+- [ ] The run was opened with `akka_run_start` after the mode check and closed with `akka_run_close` as the last step, naming what the plan wrote, or the CLI was reported as predating the idea record.

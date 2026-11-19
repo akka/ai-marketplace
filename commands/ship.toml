@@ -47,7 +47,17 @@ bypass.
    the user: *"`/akka:ship` requires an explicit target: `review` or `release`.
    For example: `/akka:ship review`."* Do not call the CLI.
 
-2. **Invoke the CLI.** Run `akka specify ship <target>` in the project directory
+2. **Open the run.** Open this run in the idea's record. Call the
+   `akka_run_start` MCP tool with `station: ship`, `command: /akka:ship` and
+   `args` set to the target. Where the tool is not available, run `akka specify
+   run start --station ship --command /akka:ship` instead. Keep the run id it
+   returns: the last step closes the run. On an error or a non-zero exit, print
+   its message verbatim and stop. Do not continue, and do not work around it;
+   the message names the remedy. The one exception is a CLI that does not know
+   the command (no `akka_run_start` tool, and `run` rejected as an unknown
+   command): it predates the idea record, so say so and continue without a run.
+
+3. **Invoke the CLI.** Run `akka specify ship <target>` in the project directory
    (via the shell). Capture the output. The CLI:
    - Runs the author-time auditors first; in Enforced mode stops there if any
      of them blocks.
@@ -61,7 +71,7 @@ bypass.
    - Writes a conformance receipt recording which target was shipped, what was
      verified, and any conditions that remained `open` with their reasons.
 
-3. **Report plainly.** Present the CLI output. Do not restate internal condition
+4. **Report plainly.** Present the CLI output. Do not restate internal condition
    ids, check keys, or the words "auditor" / "coverage gate" / "adequacy review".
    If the ship succeeded, say so and name the target that was shipped. If the
    ship refused, say what would unblock it — the reason field on each blocking
@@ -72,6 +82,13 @@ bypass.
    conditions as passing, failing, or outstanding — nothing is known about them
    yet. "Your own checks have to pass before the rest even run" is the honest
    framing.
+
+5. **Close the run** (the last step). If a run was opened, call the
+   `akka_run_close` MCP tool with `run` set to its id and no outputs: the ship
+   steps are the organization's, and the CLI records what it shipped. Where the
+   tool is not available, run `akka specify run close --run <id>`. Close it
+   whether the ship succeeded or was refused. On an error, print its message;
+   the outcome already reported stands.
 
 ## Key rules
 
@@ -101,4 +118,7 @@ bypass.
       machinery words).
 - [ ] If the refusal came from the author-time precondition, the report said so
       and did not characterize the checks that never ran.
+- [ ] Once the target was valid, the run was opened with `akka_run_start` before
+      the CLI ran the ship and closed with `akka_run_close` as the last step, or
+      the CLI was reported as predating the idea record.
 """

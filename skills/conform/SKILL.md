@@ -23,6 +23,16 @@ Enforced mode gives the sequence to the engine, so a step it sequences is refuse
 to a person and permitted to the engine. A refusal with a reason of its own, such
 as re-running setup, stands either way. The message names the remedy.
 
+Then open this run in the idea's record. Call the `akka_run_start` MCP tool with
+`station: conform`, `command: /akka:conform` and `args` set to the user input.
+Where the tool is not available, run `akka specify run start --station conform
+--command /akka:conform` instead. Keep the run id it returns: the last step
+closes the run. On an error or a non-zero exit, print its message verbatim and
+stop, as for the mode check; the message names the remedy. The one exception is
+a CLI that does not know the command (no `akka_run_start` tool, and `run`
+rejected as an unknown command): it predates the idea record, so say so and
+continue without a run.
+
 ## Purpose
 
 `/akka:conform` runs the in-scope auditors and reports whether the feature is
@@ -95,6 +105,15 @@ A `NOT_READY` verdict says what is blocking and what to do about it:
    "coverage gate" / "adequacy review". Offer *"say 'show details' for the full
    checklist"* for the manifest.
 
+4. **Close the run with the manifest** (the last step). If a run was opened,
+   write the manifest `akka_ec_conform` returned, as printed, to a temporary
+   file outside the project. Call the `akka_run_close` MCP tool with `run` set
+   to its id and `manifest` set to that file's path, then delete the file. The
+   record keeps the manifest beside the receipt with the engine's verdict.
+   Where the tool is not available, run `akka specify run close --run <id>
+   --manifest <file>`. Do this whatever the verdict. On an error, print its
+   message; the verdict already reported stands.
+
 ## Key rules
 
 - Report the verdict the engine returned. Never soften a `NOT_READY`, and never
@@ -129,3 +148,6 @@ A `NOT_READY` verdict says what is blocking and what to do about it:
       the ordinary open items.
 - [ ] No condition was signed off, struck, or waived in the course of running
       this command.
+- [ ] The run was opened with `akka_run_start` after the mode check and closed
+      with `akka_run_close` passing the manifest, or the CLI was reported as
+      predating the idea record.

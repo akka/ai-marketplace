@@ -33,6 +33,15 @@ Enforced mode gives the sequence to the engine, so a step it sequences is refuse
 to a person and permitted to the engine. A refusal with a reason of its own, such
 as re-running setup, stands either way. The message names the remedy.
 
+Then open this run in the idea's record. Call the `akka_run_start` MCP tool with
+`station: tasks`, `command: /akka:tasks` and `args` set to the user input. Where
+the tool is not available, run `akka specify run start --station tasks --command
+/akka:tasks` instead. Keep the run id it returns: the last step closes the run.
+On an error or a non-zero exit, print its message verbatim and stop, as for the
+mode check; the message names the remedy. The one exception is a CLI that does
+not know the command (no `akka_run_start` tool, and `run` rejected as an unknown
+command): it predates the idea record, so say so and continue without a run.
+
 ## Outline
 
 1. **Setup**: Call the `akka_sdd_list_specs` MCP tool to find features and their available documents. From the response, identify the target feature's FEATURE_DIR and which artifacts exist (AVAILABLE_DOCS: spec.md, plan.md, tasks.md, etc.). If no features exist, instruct the user to run `/akka:specify` first.
@@ -69,13 +78,17 @@ as re-running setup, stands either way. The message names the remedy.
 
 5. **Refresh the docs.** If the project has a `discovery/` folder, run `/akka:docs` (the implementation docs and the Story) before reporting, in this session, so they match what this command wrote, and keep its outcome for the report. If the project has no `discovery/` folder, do not run `/akka:docs`; offer it in the report as an optional next step, and leave `docs/` untouched.
 
-6. **Report** (the last step): Output path to generated tasks.md and summary:
+6. **Report**: Output path to generated tasks.md and summary:
    - Total task count
    - Task count per user story
    - Parallel opportunities identified
    - Independent test criteria for each story
    - Suggested MVP scope (typically just User Story 1)
    - Format validation: Confirm ALL tasks follow the checklist format (checkbox, ID, labels, file paths)
+
+7. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to `FEATURE_DIR/tasks.md` as a project-relative path, with `docs/` when the docs refresh ran. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output. On an error, print its message; the tasks already written stand.
+
+8. **End waiting for approval** (the last step). The tasks now wait for the owner's approval before Implement runs, in either mode. Say so and, when a run was opened, say how to give it: on the idea in the console's Ideas page, or `akka specify idea approve <idea> tasks`, where `<idea>` is the idea `akka_run_start` named. Do not carry out `/akka:implement` or any later station. In À la carte mode, name `/akka:implement` as the command for after the approval; in Enforced mode, name no command the engine sequences.
 
 Context for task generation: $ARGUMENTS
 
@@ -176,3 +189,5 @@ Every task MUST strictly follow this format:
 - [ ] The User Story Dependencies section has one `- **USn**: <stories it needs> (why)` line for every user story, which also sets the completion order, and a Parallel Execution Examples subsection is provided per story.
 - [ ] With a `discovery/` folder, `/akka:docs` ran before the report; without one, it was offered as a next step and `docs/` was left untouched.
 - [ ] The report includes total task count, per-story count, parallel opportunities, and the suggested MVP scope (typically User Story 1 only).
+- [ ] The run was opened with `akka_run_start` after the mode check and closed with `akka_run_close` naming `tasks.md`, or the CLI was reported as predating the idea record.
+- [ ] The command ended waiting for the owner's approval of the tasks, and no later station was carried out.

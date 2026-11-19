@@ -20,6 +20,20 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command runs `akka specify probes` and `akka specify conform`, which need an akka CLI with discovery support. Check first: run `akka specify probes --help`. If its list of commands does not include `findings`, the CLI predates discovery: akka CLI 3.0.81 and earlier lack the discovery probes and gates, and refuse the discovery templates as well. Tell the person that discovery cannot run with this CLI and needs a newer akka CLI, name what is missing (`akka specify probes findings`, the discovery gates and the discovery templates), and stop without writing any file. On a CLI that passes this check, treat an `unknown command` or `unknown flag` error from an `akka specify` call, or a template refused as unknown, the same way within one step: name what is missing, skip that step, and say so. A `probes run` that fails only on `--database-var` is run again without it, and the report says the database's catalogue was not read.
 
+## Before anything else
+
+Open this run in the idea's record. Call the `akka_run_start` MCP tool with
+`station: discover`, `command: /akka:discover` and `args` set to the user input.
+Where the tool is not available, run `akka specify run start --station discover
+--command /akka:discover` instead. Keep the run id it returns: the last step
+closes the run. On an error or a non-zero exit, print its message verbatim and
+stop. Do not continue, and do not work around it; the message names the remedy.
+The one exception is a CLI that does not know the command (no `akka_run_start`
+tool, and `run` rejected as an unknown command): it predates the idea record, so
+say so and continue without a run.
+
+The topic list (no input) writes nothing and opens no run.
+
 ## Outline
 
 Discovery is the work that comes before a specification: learning what is already known, what
@@ -470,6 +484,10 @@ customer, product or person; it uses placeholders the owner fills in.
 3. **Report** the file path, the number of prompts, and which ones need other people first.
 
 
+## Closing the run
+
+The last step of every run this command opened closes it, after the step's report and any Story refresh. Call the `akka_run_close` MCP tool with `run` set to the run's id and `outputs` set to the files this run wrote, as project-relative paths: the step's files from the Writes column above, and the Story pages when `/akka:docs story` ran. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output. On an error, print its message; the files already written stand.
+
 ## Key rules
 
 - Use absolute paths when reading and writing files.
@@ -495,3 +513,4 @@ customer, product or person; it uses placeholders the owner fills in.
 - [ ] `mock`: every entry is one `[M-<CODE>-<n>]` line; every approval or change request came from the reviewer and is in Review History.
 - [ ] `--prework`: the pack has how to use, the request list first, the strongest-model note, Prompt 0, numbered prompts each naming its output file, the kickoff brief last, and a specification seed, with no customer, product or person named.
 - [ ] The report gave the files written, the findings added by status, and one recommended next step.
+- [ ] Apart from the topic list, the run was opened with `akka_run_start` before any other step and closed with `akka_run_close` naming the files written, or the CLI was reported as predating the idea record.
