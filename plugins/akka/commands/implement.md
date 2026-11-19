@@ -21,27 +21,29 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Before anything else
 
-Run `akka specify mode --allows implement`. Add `--as-engine` when you are carrying
-this command out as a step of the sequence `/akka:specify` drives in Enforced
-mode, rather than because a person invoked it. It exits non-zero when the
-project's mode does not permit the command. On a non-zero exit, print its message verbatim and stop. Do
-not continue, and do not work around it. The one exception is a CLI that rejects
-`--allows` as an unknown flag: it predates the mode check (older than 3.0.74), so
-say so and continue without the check.
+Run `akka specify mode --allows implement`. It exits non-zero when the project's
+mode does not permit the command. On a non-zero exit, print its message verbatim
+and stop. Do not continue, and do not work around it. The one exception is a CLI
+that rejects `--allows` as an unknown flag: it predates the mode check (older
+than 3.0.74), so say so and continue without the check.
 
-Enforced mode gives the sequence to the engine, so a step it sequences is refused
-to a person and permitted to the engine. A refusal with a reason of its own, such
-as re-running setup, stands either way. The message names the remedy.
+In Enforced mode a station command runs when the idea's previous station is done
+and approved; `akka_run_start`, the next step, enforces this. `/akka:specify`
+does not drive the whole sequence: each station runs on its own once the one
+before it is done and approved. A refusal with a reason of its own, such as
+re-running setup, stands either way. The message names the remedy.
 
 Then open this run in the idea's record. Call the `akka_run_start` MCP tool with
 `station: implement`, `command: /akka:implement` and `args` set to the user
 input. Where the tool is not available, run `akka specify run start --station
 implement --command /akka:implement` instead. Keep the run id it returns: the
-last step closes the run. On an error or a non-zero exit, print its message
-verbatim and stop, as for the mode check; the message names the remedy. The one
-exception is a CLI that does not know the command (no `akka_run_start` tool, and
-`run` rejected as an unknown command): it predates the idea record, so say so
-and continue without a run.
+last step closes the run. When it refuses because no idea matches the branch and
+none was named, continue without a run, and say in one line that this run is not
+recorded. On any other error or a non-zero exit, print its message verbatim and
+stop, as for the mode check; the message names the remedy. The one exception is
+a CLI that does not know the command (no `akka_run_start` tool, and `run`
+rejected as an unknown command): it predates the idea record, so say so and
+continue without a run.
 
 ## Outline
 
@@ -189,7 +191,9 @@ and continue without a run.
    - Confirm the implementation follows the technical plan
    - Report final status with summary of completed work
 
-14. **Close the run** (the last step). If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id, `outputs` set to the code and test files this run created or changed and `FEATURE_DIR/tasks.md`, with `docs/` when the docs refresh ran, all as project-relative paths, and `tasks` set to the ids of the tasks this run marked `[X]`. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output and one `--task <id>` for each task. On an error, print its message; the committed work stands.
+14. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id, `outputs` set to the code and test files this run created or changed and `FEATURE_DIR/tasks.md`, with `docs/` when the docs refresh ran, all as project-relative paths, and `tasks` set to the ids of the tasks this run marked `[X]`. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output and one `--task <id>` for each task. On an error, print its message; the committed work stands.
+
+15. **Carry on or stop.** Read the idea with `akka specify idea show <idea> --json`: `next` names the next station's command, and `waits` lists what waits on a person. Outside Enforced mode (`akka specify mode`), when `idea.advance` is `continue` and `waits` is empty, carry on into that command in this conversation, following its own instructions, instead of stopping. Never carry on into `/akka:ship` or `/akka:deploy`. Otherwise stop and name the next command: when `advance` is `step` or absent, in Enforced mode, when anything waits on a person, or when no run was opened.
 
 Note: This command assumes a complete task breakdown exists in tasks.md. If tasks are incomplete or missing, suggest running `/akka:tasks` first to regenerate the task list.
 
@@ -207,4 +211,5 @@ Note: This command assumes a complete task breakdown exists in tasks.md. If task
 - [ ] The user was asked whether to merge the feature branch to `main`; the answer was acted on (`akka_git_checkout` + `akka_git_merge` on yes, stay on feature branch on no).
 - [ ] The final report validates that implemented features match the spec, tests pass, and the implementation follows the plan.
 - [ ] With a `discovery/` folder, `/akka:docs` ran before the commit; without one, it was offered as a next step and `docs/` was left untouched.
-- [ ] The run was opened with `akka_run_start` after the mode check and closed with `akka_run_close` as the last step, naming the files written and the tasks completed, or the CLI was reported as predating the idea record.
+- [ ] The run was opened with `akka_run_start` after the mode check and closed with `akka_run_close` at the end, naming the files written and the tasks completed, or the CLI was reported as predating the idea record.
+- [ ] Outside Enforced mode, the command carried on into the next station's command only when the idea's `advance` was `continue` and nothing waited on a person, and never into `/akka:ship` or `/akka:deploy`; otherwise it stopped and named the next command.

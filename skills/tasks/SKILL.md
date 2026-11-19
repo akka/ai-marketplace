@@ -9,25 +9,27 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Before anything else
 
-Run `akka specify mode --allows tasks`. Add `--as-engine` when you are carrying
-this command out as a step of the sequence `/akka:specify` drives in Enforced
-mode, rather than because a person invoked it. It exits non-zero when the
-project's mode does not permit the command. On a non-zero exit, print its message verbatim and stop. Do
-not continue, and do not work around it. The one exception is a CLI that rejects
-`--allows` as an unknown flag: it predates the mode check (older than 3.0.74), so
-say so and continue without the check.
+Run `akka specify mode --allows tasks`. It exits non-zero when the project's
+mode does not permit the command. On a non-zero exit, print its message verbatim
+and stop. Do not continue, and do not work around it. The one exception is a CLI
+that rejects `--allows` as an unknown flag: it predates the mode check (older
+than 3.0.74), so say so and continue without the check.
 
-Enforced mode gives the sequence to the engine, so a step it sequences is refused
-to a person and permitted to the engine. A refusal with a reason of its own, such
-as re-running setup, stands either way. The message names the remedy.
+In Enforced mode a station command runs when the idea's previous station is done
+and approved; `akka_run_start`, the next step, enforces this. `/akka:specify`
+does not drive the whole sequence: each station runs on its own once the one
+before it is done and approved. A refusal with a reason of its own, such as
+re-running setup, stands either way. The message names the remedy.
 
 Then open this run in the idea's record. Call the `akka_run_start` MCP tool with
 `station: tasks`, `command: /akka:tasks` and `args` set to the user input. Where
 the tool is not available, run `akka specify run start --station tasks --command
 /akka:tasks` instead. Keep the run id it returns: the last step closes the run.
-On an error or a non-zero exit, print its message verbatim and stop, as for the
-mode check; the message names the remedy. The one exception is a CLI that does
-not know the command (no `akka_run_start` tool, and `run` rejected as an unknown
+When it refuses because no idea matches the branch and none was named, continue
+without a run, and say in one line that this run is not recorded. On any other
+error or a non-zero exit, print its message verbatim and stop, as for the mode
+check; the message names the remedy. The one exception is a CLI that does not
+know the command (no `akka_run_start` tool, and `run` rejected as an unknown
 command): it predates the idea record, so say so and continue without a run.
 
 ## Outline
@@ -76,7 +78,7 @@ command): it predates the idea record, so say so and continue without a run.
 
 7. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to `FEATURE_DIR/tasks.md` as a project-relative path, with `docs/` when the docs refresh ran. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output. On an error, print its message; the tasks already written stand.
 
-8. **End waiting for approval** (the last step). The tasks now wait for the owner's approval before Implement runs, in either mode. Say so and, when a run was opened, say how to give it: on the idea in the console's Ideas page, or `akka specify idea approve <idea> tasks`, where `<idea>` is the idea `akka_run_start` named. Do not carry out `/akka:implement` or any later station. In À la carte mode, name `/akka:implement` as the command for after the approval; in Enforced mode, name no command the engine sequences.
+8. **End waiting for approval** (the last step). The tasks now wait for the owner's approval before Implement runs, in either mode. Say so and, when a run was opened, say how to give it: on the idea in the console's Ideas page, or `akka specify idea approve <idea> tasks`, where `<idea>` is the idea `akka_run_start` named. Do not carry out `/akka:implement` or any later station. Name `/akka:implement` as the command for after the approval.
 
 Context for task generation: the user's request
 

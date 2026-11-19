@@ -16,12 +16,12 @@ verbatim and stop. Do not continue, and do not work around it. The one exception
 is a CLI that rejects `--allows` as an unknown flag: it predates the mode check
 (older than 3.0.74), so say so and continue without the check.
 
-Re-running setup would change the ground the conditions were verified against, so
-under enforcement it is refused to the engine as well. `--as-engine` does not
-lift this one.
+Re-running setup would change the ground the conditions were verified against,
+so under enforcement the mode check refuses it.
 
-Enforced mode gives the sequence to the engine, so the steps it sequences are
-refused when a person invokes them. The message names the remedy.
+In Enforced mode a station command runs when the idea's previous station is done
+and approved; the CLI's `run start` enforces this. `/akka:specify` does not
+drive the whole sequence. The message names the remedy.
 
 ## Purpose
 

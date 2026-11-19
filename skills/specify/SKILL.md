@@ -15,11 +15,16 @@ Open this run in the idea's record. Call the `akka_run_start` MCP tool with
 `station: specify`, `command: /akka:specify` and `args` set to the user input.
 Where the tool is not available, run `akka specify run start --station specify
 --command /akka:specify` instead. Keep the run id it returns: the last step
-closes the run. On an error or a non-zero exit, print its message verbatim and
-stop. Do not continue, and do not work around it; the message names the remedy.
-The one exception is a CLI that does not know the command (no `akka_run_start`
-tool, and `run` rejected as an unknown command): it predates the idea record, so
-say so and continue without a run.
+closes the run. When it refuses because no idea matches the branch and none was
+named, start the idea: ask the person how it ships, Deploy to Akka (`akka`) or
+Commit to internal systems (`internal`), with your suggestion, then run `akka
+specify idea new --lane <lane>` with the feature description as its words,
+quoted as one argument. Open the run again with `idea` set to the id it printed
+(`--idea <id>` on the CLI). On any other error or a non-zero exit, print its
+message verbatim and stop. Do not continue, and do not work around it; the
+message names the remedy. The one exception is a CLI that does not know the
+command (no `akka_run_start` tool, and `run` rejected as an unknown command): it
+predates the idea record, so say so and continue without a run.
 
 ## Outline
 
@@ -228,14 +233,7 @@ Given that feature description, do this:
 
 10. **End waiting for the owner's approval** (the last step). The spec now waits for the owner's approval before the next station runs, in either mode. Say so and, when a run was opened, say how to give it: on the idea in the console's Ideas page, or `akka specify idea approve <idea> spec`, where `<idea>` is the idea `akka_run_start` named. Do not carry out `/akka:plan` or any later station.
 
-   **What to name next depends on the mode.** Run `akka specify mode` and read it.
-
-   - **À la carte** — name the next command for after the approval
-     (`/akka:clarify` or `/akka:plan`) and stop. The developer drives.
-   - **Enforced** — do not name a command the engine sequences. Those steps are
-     refused when a person invokes them, so recommending one hands the developer
-     a dead end. Stop. A finding that needs confirming is settled with
-     `/akka:discover <topic> confirm`, which enforcement leaves to the person.
+   Name the next command for after the approval (`/akka:clarify` or `/akka:plan`) and stop. A finding that needs confirming is settled first with `/akka:discover <topic> confirm`.
 
 **NOTE:** The script creates and checks out the new branch and initializes the spec file before writing.
 
@@ -382,4 +380,4 @@ Generation runs in the assistant; the engine detects the surfaces, verifies dete
 - [ ] Existing diagrams affected by the source update were reported as potentially stale, with `/akka:visualize` suggested as an optional next step; all diagram files were left untouched.
 - [ ] Completion was reported with branch name, spec file path, and checklist results.
 - [ ] The run was opened with `akka_run_start` before any other step and closed with `akka_run_close` naming the spec and its checklist, or the CLI was reported as predating the idea record.
-- [ ] The command ended waiting for the owner's approval of the spec, and no later station was carried out. The mode was read: À la carte named the next command for after the approval, and Enforced named no command the gate would refuse.
+- [ ] The command ended waiting for the owner's approval of the spec, and no later station was carried out; the next command for after the approval was named.

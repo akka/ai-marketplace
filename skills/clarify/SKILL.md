@@ -9,26 +9,28 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Before anything else
 
-Run `akka specify mode --allows clarify`. Add `--as-engine` when you are carrying
-this command out as a step of the sequence `/akka:specify` drives in Enforced
-mode, rather than because a person invoked it. It exits non-zero when the
-project's mode does not permit the command. On a non-zero exit, print its message verbatim and stop. Do
-not continue, and do not work around it. The one exception is a CLI that rejects
-`--allows` as an unknown flag: it predates the mode check (older than 3.0.74), so
-say so and continue without the check.
+Run `akka specify mode --allows clarify`. It exits non-zero when the project's
+mode does not permit the command. On a non-zero exit, print its message verbatim
+and stop. Do not continue, and do not work around it. The one exception is a CLI
+that rejects `--allows` as an unknown flag: it predates the mode check (older
+than 3.0.74), so say so and continue without the check.
 
-Enforced mode gives the sequence to the engine, so a step it sequences is refused
-to a person and permitted to the engine. A refusal with a reason of its own, such
-as re-running setup, stands either way. The message names the remedy.
+In Enforced mode a station command runs when the idea's previous station is done
+and approved; `akka_run_start`, the next step, enforces this. `/akka:specify`
+does not drive the whole sequence: each station runs on its own once the one
+before it is done and approved. A refusal with a reason of its own, such as
+re-running setup, stands either way. The message names the remedy.
 
-Under enforcement an unresolved question is settled by `/akka:specify`, so this
-command is refused to the engine as well. `--as-engine` does not lift this one.
+Under enforcement an unresolved question is settled by `/akka:specify`, so the
+mode check refuses this command.
 
 Then open this run in the idea's record. Call the `akka_run_start` MCP tool with
 `station: clarify`, `command: /akka:clarify` and `args` set to the user input.
 Where the tool is not available, run `akka specify run start --station clarify
 --command /akka:clarify` instead. Keep the run id it returns: the last step
-closes the run. On an error or a non-zero exit, print its message verbatim and
+closes the run. When it refuses because no idea matches the branch and none was
+named, continue without a run, and say in one line that this run is not
+recorded. On any other error or a non-zero exit, print its message verbatim and
 stop, as for the mode check; the message names the remedy. The one exception is
 a CLI that does not know the command (no `akka_run_start` tool, and `run`
 rejected as an unknown command): it predates the idea record, so say so and
@@ -190,7 +192,9 @@ Execution steps:
    - If any Outstanding or Deferred remain, recommend whether to proceed to `/akka:plan` or run `/akka:clarify` again later post-plan.
    - Suggested next command. If policy-decision markers remain, recommend `/akka:clarify` again, not `/akka:plan`.
 
-10. **Close the run** (the last step). If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to `FEATURE_SPEC` as a project-relative path, or to none when no answer was integrated. Where the tool is not available, run `akka specify run close --run <id>` with `--output <path>` for the spec. On an error, print its message; the clarifications already written stand.
+10. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to `FEATURE_SPEC` as a project-relative path, or to none when no answer was integrated. Where the tool is not available, run `akka specify run close --run <id>` with `--output <path>` for the spec. On an error, print its message; the clarifications already written stand.
+
+11. **Carry on or stop.** Read the idea with `akka specify idea show <idea> --json`: `next` names the next station's command, and `waits` lists what waits on a person. Outside Enforced mode (`akka specify mode`), when `idea.advance` is `continue` and `waits` is empty, carry on into that command in this conversation, following its own instructions, instead of stopping. Never carry on into `/akka:ship` or `/akka:deploy`. Otherwise stop and name the next command: when `advance` is `step` or absent, in Enforced mode, when anything waits on a person, or when no run was opened.
 
 Behavior rules:
 
@@ -216,4 +220,5 @@ Context for prioritization: the user's request
 - [ ] The spec file was saved to FEATURE_SPEC after each integration and passes validation (no lingering vague placeholders the new answer was meant to resolve; markdown structure valid; only allowed new headings added).
 - [ ] Existing diagrams affected by the source update were reported as potentially stale, with `/akka:visualize` suggested as an optional next step; all diagram files were left untouched.
 - [ ] The final report listed questions asked/answered, sections touched, a coverage summary (Resolved / Deferred / Clear / Outstanding), and the suggested next command.
-- [ ] The run was opened with `akka_run_start` after the mode check and closed with `akka_run_close` as the last step, or the CLI was reported as predating the idea record.
+- [ ] The run was opened with `akka_run_start` after the mode check and closed with `akka_run_close` at the end, or the CLI was reported as predating the idea record.
+- [ ] Outside Enforced mode, the command carried on into the next station's command only when the idea's `advance` was `continue` and nothing waited on a person, and never into `/akka:ship` or `/akka:deploy`; otherwise it stopped and named the next command.

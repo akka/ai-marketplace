@@ -25,11 +25,13 @@ Open this run in the idea's record. Call the `akka_run_start` MCP tool with
 `station: implement`, `command: /akka:converge` and `args` set to the user
 input. Where the tool is not available, run `akka specify run start --station
 implement --command /akka:converge` instead. Keep the run id it returns: the
-last step closes the run. On an error or a non-zero exit, print its message
-verbatim and stop. Do not continue, and do not work around it; the message names
-the remedy. The one exception is a CLI that does not know the command (no
-`akka_run_start` tool, and `run` rejected as an unknown command): it predates
-the idea record, so say so and continue without a run.
+last step closes the run. When it refuses because no idea matches the branch and
+none was named, continue without a run, and say in one line that this run is not
+recorded. On any other error or a non-zero exit, print its message verbatim and
+stop. Do not continue, and do not work around it; the message names the remedy.
+The one exception is a CLI that does not know the command (no `akka_run_start`
+tool, and `run` rejected as an unknown command): it predates the idea record, so
+say so and continue without a run.
 
 `/akka:converge` is Implement's re-run after a send-back, so its run opens at
 the `implement` station. The receipt under `.akka/record/` is the CLI's to
@@ -227,6 +229,17 @@ If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id
 with `--output <path>` for TASKS on `tasks_appended`. On an error, print its message;
 the outcome already reported stands.
 
+### 10. Carry on or stop
+
+Read the idea with `akka specify idea show <idea> --json`: `next` names the next
+station's command, and `waits` lists what waits on a person. Outside Enforced
+mode (`akka specify mode`), when `idea.advance` is `continue` and `waits` is
+empty, carry on into that command in this conversation, following its own
+instructions, instead of stopping. Never carry on into `/akka:ship` or
+`/akka:deploy`. Otherwise stop and name the next command: when `advance` is
+`step` or absent, in Enforced mode, when anything waits on a person, or when no
+run was opened.
+
 ## Done When
 
 - [ ] `akka_sdd_list_specs` returned a valid FEATURE_DIR and `spec.md`, `plan.md`, `tasks.md` were all located (or the command stopped with the correct prerequisite guidance).
@@ -238,4 +251,5 @@ the outcome already reported stands.
 - [ ] On `converged`: `tasks.md` is byte-for-byte unchanged (no empty `## Group N: Convergence` header).
 - [ ] On `tasks_appended`: a single new `## Group N: Convergence` section was appended, task IDs continue from `M+1`, no existing task was modified or renumbered, and no application code was created, modified, or deleted.
 - [ ] Next-action recommendation names the specific follow-up command (`/akka:implement` or `/akka:review`).
-- [ ] The run was opened at the `implement` station with `akka_run_start` before any other step and closed with `akka_run_close` as the last step, or the CLI was reported as predating the idea record.
+- [ ] The run was opened at the `implement` station with `akka_run_start` before any other step and closed with `akka_run_close` at the end, or the CLI was reported as predating the idea record.
+- [ ] Outside Enforced mode, the command carried on into the next station's command only when the idea's `advance` was `continue` and nothing waited on a person, and never into `/akka:ship` or `/akka:deploy`; otherwise it stopped and named the next command.

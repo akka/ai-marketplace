@@ -61,8 +61,10 @@ bypass.
    `akka_run_start` MCP tool with `station: ship`, `command: /akka:ship` and
    `args` set to the target. Where the tool is not available, run `akka specify
    run start --station ship --command /akka:ship` instead. Keep the run id it
-   returns: the last step closes the run. On an error or a non-zero exit, print
-   its message verbatim and stop. Do not continue, and do not work around it;
+   returns: the last step closes the run. When it refuses because no idea
+   matches the branch and none was named, continue without a run, and say in
+   one line that this run is not recorded. On any other error or a non-zero
+   exit, print its message verbatim and stop. Do not continue, and do not work around it;
    the message names the remedy. The one exception is a CLI that does not know
    the command (no `akka_run_start` tool, and `run` rejected as an unknown
    command): it predates the idea record, so say so and continue without a run.

@@ -15,11 +15,17 @@ Open this run in the idea's record. Call the `akka_run_start` MCP tool with
 `station: discover`, `command: /akka:discover` and `args` set to the user input.
 Where the tool is not available, run `akka specify run start --station discover
 --command /akka:discover` instead. Keep the run id it returns: the last step
-closes the run. On an error or a non-zero exit, print its message verbatim and
-stop. Do not continue, and do not work around it; the message names the remedy.
-The one exception is a CLI that does not know the command (no `akka_run_start`
-tool, and `run` rejected as an unknown command): it predates the idea record, so
-say so and continue without a run.
+closes the run. When it refuses because no idea matches the branch and none was
+named, start the idea: ask the person how it ships, Deploy to Akka (`akka`) or
+Commit to internal systems (`internal`), with your suggestion, then run `akka
+specify idea new --lane <lane> [--topic <topic>]` with the person's idea as its
+words (the context in the user input, or ask for it in one sentence), quoted as
+one argument. Open the run again with `idea` set to the id it printed (`--idea
+<id>` on the CLI). On any other error or a non-zero exit, print its message
+verbatim and stop. Do not continue, and do not work around it; the message names
+the remedy. The one exception is a CLI that does not know the command (no
+`akka_run_start` tool, and `run` rejected as an unknown command): it predates
+the idea record, so say so and continue without a run.
 
 The topic list (no input) writes nothing and opens no run.
 
@@ -477,6 +483,8 @@ customer, product or person; it uses placeholders the owner fills in.
 
 The last step of every run this command opened closes it, after the step's report and any Story refresh. Call the `akka_run_close` MCP tool with `run` set to the run's id and `outputs` set to the files this run wrote, as project-relative paths: the step's files from the Writes column above, and the Story pages when `/akka:docs story` ran. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output. On an error, print its message; the files already written stand.
 
+Then carry on or stop. Read the idea with `akka specify idea show <idea> --json`: `next` names the next station's command, and `waits` lists what waits on a person. Outside Enforced mode (`akka specify mode`), when `idea.advance` is `continue` and `waits` is empty, carry on into that command in this conversation, following its own instructions, instead of stopping. Never carry on into `/akka:ship` or `/akka:deploy`. Otherwise stop and name the next command: when `advance` is `step` or absent, in Enforced mode, when anything waits on a person, or when no run was opened.
+
 ## Key rules
 
 - Use absolute paths when reading and writing files.
@@ -503,3 +511,4 @@ The last step of every run this command opened closes it, after the step's repor
 - [ ] `--prework`: the pack has how to use, the request list first, the strongest-model note, Prompt 0, numbered prompts each naming its output file, the kickoff brief last, and a specification seed, with no customer, product or person named.
 - [ ] The report gave the files written, the findings added by status, and one recommended next step.
 - [ ] Apart from the topic list, the run was opened with `akka_run_start` before any other step and closed with `akka_run_close` naming the files written, or the CLI was reported as predating the idea record.
+- [ ] Outside Enforced mode, the command carried on into the next station's command only when the idea's `advance` was `continue` and nothing waited on a person, and never into `/akka:ship` or `/akka:deploy`; otherwise it stopped and named the next command.
