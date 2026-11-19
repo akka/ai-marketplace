@@ -31,36 +31,38 @@ such a CLI, say so once and carry this command out as before: skip every step
 marked **Idea record**, and open no run.
 
 **Idea record: a console run.** Call the `akka_run_context` MCP tool first when
-it is available: it answers `{ console, idea, station, run }`, and `console:
-true` means the console started this command. Only without that tool, the
-console started it when `AKKA_RUN_ID` is set in its environment, or when the
-command has no shell to run the akka CLI in. The console has already opened the
-run and enforced the rules for it, so in a console run the run is open from the
-first step: its id is the `run` `akka_run_context` answered. Any stop before the
-normal close, such as a mode-check refusal, a missing argument, or a check that
-needs a tool this run lacks, closes it with `akka_run_close`, that `run`,
-`outcome: failed` and the reason. So in a console run: the feature is
-`akka_run_context`'s `spec` (for `/akka:discover`, the topic is its `topic`),
-and the command never searches for one; skip every step that finds, adopts,
-starts or links an idea, and never ask a person a question: wherever this
-command would ask one, it closes the run with `outcome: waiting` and `question`
-set to the question (`--outcome waiting --question "<question>"` on the CLI);
-the owner answers in the console, and the re-run reads the answer from
-`akka_run_context`'s `questions` (`{station, run, question, answer}`) and does
-not ask it again; run the mode check with `--idea` set to the `idea`
-`akka_run_context` answered, and skip it when it cannot run here or no idea is
-known; open the run by calling `akka_run_start` with `command` and `args` only,
-no `idea` and no `station`, and the CLI joins the console's run; close it as
-usual; and skip the carry-on step, because the console moves the idea on. A run
-with no shell for the akka CLI that `akka_run_context` answers `console: false`
-for is not a console run and keeps no record: open no run, ask nothing about
-ideas or lanes, and carry the command out as before the idea record, skipping
-every step marked **Idea record**.
+it is available: it answers `{ console, idea, station, run, spec, topic,
+questions }`, and `console: true` means the console started this command. Only
+without that tool, the console started it when `AKKA_RUN_ID` is set in its
+environment, or when the command has no shell to run the akka CLI in. The
+console has already opened the run and enforced the rules for it, so in a
+console run the run is open from the first step: its id is the `run`
+`akka_run_context` answered. Any stop before the normal close, such as a
+mode-check refusal, a missing argument, or a check that needs a tool this run
+lacks, closes it with `akka_run_close`, that `run`, `outcome: failed` and the
+reason. So in a console run: the feature is `akka_run_context`'s `spec` (for
+`/akka:discover`, the topic is its `topic`), and the command never searches for
+one; skip every step that finds, adopts, starts or links an idea, and never ask
+a person a question: wherever this command would ask one, it closes the run with
+`outcome: waiting` and `question` set to the question (`--outcome waiting
+--question "<question>"` on the CLI); the owner answers in the console, and the
+re-run reads the answer from `akka_run_context`'s `questions` (`{station, run,
+question, answer}`) and does not ask it again; run the mode check with `--idea`
+set to the `idea` `akka_run_context` answered, and skip it when it cannot run
+here or no idea is known; open the run by calling `akka_run_start` with
+`command` and `args` only, no `idea` and no `station`, and the CLI joins the
+console's run; close it as usual; and skip the carry-on step, because the
+console moves the idea on. A run with no shell for the akka CLI that
+`akka_run_context` answers `console: false` for is not a console run and keeps
+no record: open no run, ask nothing about ideas or lanes, and carry the command
+out as before the idea record, skipping every step marked **Idea record**.
 
 **Idea record: plan in a console run.** Skip the `.akka/models.md` question and
-never write under `.akka/`; say so in one line. The modernization baseline
-question closes the run `waiting` only when `akka_run_context`'s `questions`
-holds no answer to it; on the re-run, use the recorded answer.
+never write under `.akka/`; say so in one line. Skip the docs refresh and say in
+one line that it is left for a laptop run: `/akka:docs` writes under `.akka/`
+and needs tools a console run lacks. The modernization baseline question closes
+the run `waiting` only when `akka_run_context`'s `questions` holds no answer to
+it; on the re-run, use the recorded answer.
 
 **Idea record: find the idea.** On a laptop run, find the feature this command
 works on first: call `akka_sdd_list_specs` and identify the target feature as
@@ -122,7 +124,7 @@ the work's normal end.
 
 1. **Setup**: Call the `akka_sdd_list_specs` MCP tool to find the target feature. Then call `akka_sdd_get_template` with template_name="plan" to get the plan template. Identify the feature's spec path (FEATURE_SPEC) and plan destination (FEATURE_DIR/plan.md).
 
-2. **Load context**: Read FEATURE_SPEC and `akka_sdd_constitution`. If the spec contains unresolved [NEEDS CLARIFICATION] markers for policy decisions (thresholds, access permissions, retention, sensitive-data rules, approvals), report them, recommend `/akka:clarify`, and stop; do not decide them through research. Load IMPL_PLAN template (already copied). If the project has a `discovery/` folder, read, in each topic folder `discovery/<topic>/` and at the `discovery/` root, `understanding.md` (its Decisions Raised), `behaviour.md` and `system-map.md` (measured figures and Decisions to Force) and `mocks/index.md` (review artifacts), and list the files read on the plan's **Discovery** line. If `.akka/models.md` exists, read it.
+2. **Load context**: Read FEATURE_SPEC and `akka_sdd_constitution`. First fold in answered markers: for each `[NEEDS CLARIFICATION]` marker with a recorded `- Q: … → A: …` answer under `## Clarifications`, integrate the answer into the spec as `/akka:clarify` does and remove the marker. Then, if the spec contains unresolved [NEEDS CLARIFICATION] markers for policy decisions (thresholds, access permissions, retention, sensitive-data rules, approvals), report them, recommend `/akka:clarify`, and stop; do not decide them through research. Load IMPL_PLAN template (already copied). If the project has a `discovery/` folder, read, in each topic folder `discovery/<topic>/` and at the `discovery/` root, `understanding.md` (its Decisions Raised), `behaviour.md` and `system-map.md` (measured figures and Decisions to Force) and `mocks/index.md` (review artifacts), and list the files read on the plan's **Discovery** line. If `.akka/models.md` exists, read it.
 
 3. **Execute plan workflow**: Follow the structure in IMPL_PLAN template to:
    - Fill Technical Context (mark unknowns as "NEEDS CLARIFICATION")
@@ -249,6 +251,6 @@ Phase 2 is required when the project has a `discovery/` folder. Without one, it 
 - [ ] `FEATURE_DIR/plan.md` was written using the template structure and no gate error was left unresolved.
 - [ ] Existing diagrams affected by the source update were reported as potentially stale, with `/akka:visualize` suggested as an optional next step; all diagram files were left untouched.
 - [ ] Completion was reported with the branch, plan path, generated artifacts, and the next-command recommendation (`/akka:tasks`).
-- [ ] With a `discovery/` folder, `/akka:docs` ran before the report; without one, it was offered as a next step and `docs/` was left untouched.
+- [ ] With a `discovery/` folder, `/akka:docs` ran before the report (a console run left it for a laptop run); without one, it was offered as a next step and `docs/` was left untouched.
 - [ ] The run was opened with `akka_run_start` after the mode check, against the idea found from its feature, and closed with `akka_run_close` at the end, naming what the plan wrote, or the CLI was reported as predating the idea record.
 - [ ] With a run, the command carried on into `next.command` only when `akka specify idea next` answered `go: true`; otherwise it stopped, printed the reason and named the next command.

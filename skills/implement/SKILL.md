@@ -16,38 +16,43 @@ such a CLI, say so once and carry this command out as before: skip every step
 marked **Idea record**, and open no run.
 
 **Idea record: a console run.** Call the `akka_run_context` MCP tool first when
-it is available: it answers `{ console, idea, station, run }`, and `console:
-true` means the console started this command. Only without that tool, the
-console started it when `AKKA_RUN_ID` is set in its environment, or when the
-command has no shell to run the akka CLI in. The console has already opened the
-run and enforced the rules for it, so in a console run the run is open from the
-first step: its id is the `run` `akka_run_context` answered. Any stop before the
-normal close, such as a mode-check refusal, a missing argument, or a check that
-needs a tool this run lacks, closes it with `akka_run_close`, that `run`,
-`outcome: failed` and the reason. So in a console run: the feature is
-`akka_run_context`'s `spec` (for `/akka:discover`, the topic is its `topic`),
-and the command never searches for one; skip every step that finds, adopts,
-starts or links an idea, and never ask a person a question: wherever this
-command would ask one, it closes the run with `outcome: waiting` and `question`
-set to the question (`--outcome waiting --question "<question>"` on the CLI);
-the owner answers in the console, and the re-run reads the answer from
-`akka_run_context`'s `questions` (`{station, run, question, answer}`) and does
-not ask it again; run the mode check with `--idea` set to the `idea`
-`akka_run_context` answered, and skip it when it cannot run here or no idea is
-known; open the run by calling `akka_run_start` with `command` and `args` only,
-no `idea` and no `station`, and the CLI joins the console's run; close it as
-usual; and skip the carry-on step, because the console moves the idea on. A run
-with no shell for the akka CLI that `akka_run_context` answers `console: false`
-for is not a console run and keeps no record: open no run, ask nothing about
-ideas or lanes, and carry the command out as before the idea record, skipping
-every step marked **Idea record**.
+it is available: it answers `{ console, idea, station, run, spec, topic,
+questions }`, and `console: true` means the console started this command. Only
+without that tool, the console started it when `AKKA_RUN_ID` is set in its
+environment, or when the command has no shell to run the akka CLI in. The
+console has already opened the run and enforced the rules for it, so in a
+console run the run is open from the first step: its id is the `run`
+`akka_run_context` answered. Any stop before the normal close, such as a
+mode-check refusal, a missing argument, or a check that needs a tool this run
+lacks, closes it with `akka_run_close`, that `run`, `outcome: failed` and the
+reason. So in a console run: the feature is `akka_run_context`'s `spec` (for
+`/akka:discover`, the topic is its `topic`), and the command never searches for
+one; skip every step that finds, adopts, starts or links an idea, and never ask
+a person a question: wherever this command would ask one, it closes the run with
+`outcome: waiting` and `question` set to the question (`--outcome waiting
+--question "<question>"` on the CLI); the owner answers in the console, and the
+re-run reads the answer from `akka_run_context`'s `questions` (`{station, run,
+question, answer}`) and does not ask it again; run the mode check with `--idea`
+set to the `idea` `akka_run_context` answered, and skip it when it cannot run
+here or no idea is known; open the run by calling `akka_run_start` with
+`command` and `args` only, no `idea` and no `station`, and the CLI joins the
+console's run; close it as usual; and skip the carry-on step, because the
+console moves the idea on. A run with no shell for the akka CLI that
+`akka_run_context` answers `console: false` for is not a console run and keeps
+no record: open no run, ask nothing about ideas or lanes, and carry the command
+out as before the idea record, skipping every step marked **Idea record**.
 
 **Idea record: implement in a console run.** When a checklist is incomplete, do
 not ask whether to proceed: close the run with `outcome: waiting` and that
 question. Never merge to `main` in a console run: skip the merge question and
-leave the feature branch, because the merge is a person's choice. When the
-feature branch already exists and cannot be entered (HEAD is elsewhere and
-checking out is not granted), close the run `failed` with the reason.
+leave the feature branch, because the merge is a person's choice. Skip the docs
+refresh and say in one line that it is left for a laptop run: `/akka:docs`
+writes under `.akka/` and needs tools a console run lacks. When a delivery
+phase's gate mock is not approved in `mocks/index.md`, close the run `waiting`;
+the re-run checks `mocks/index.md` again, and a recorded answer is not the
+approval. When the feature branch already exists and cannot be entered (HEAD is
+elsewhere and checking out is not granted), close the run `failed` with the
+reason.
 
 **Idea record: find the idea.** On a laptop run, find the feature this command
 works on first: call `akka_sdd_list_specs` and identify the target feature as
@@ -271,6 +276,6 @@ Note: This command assumes a complete task breakdown exists in tasks.md. If task
 - [ ] All changes were staged via `akka_git_add` and committed via `akka_git_commit` with a descriptive message.
 - [ ] On a laptop run, the user was asked whether to merge the feature branch to `main`, and a console run left the branch unmerged; the answer was acted on (`akka_git_checkout` + `akka_git_merge` on yes, stay on feature branch on no).
 - [ ] The final report validates that implemented features match the spec, tests pass, and the implementation follows the plan.
-- [ ] With a `discovery/` folder, `/akka:docs` ran before the commit; without one, it was offered as a next step and `docs/` was left untouched.
+- [ ] With a `discovery/` folder, `/akka:docs` ran before the commit (a console run left it for a laptop run); without one, it was offered as a next step and `docs/` was left untouched.
 - [ ] The run was opened with `akka_run_start` after the mode check, against the idea found from its feature, and closed with `akka_run_close` at the end, naming the files written and the tasks completed, or the CLI was reported as predating the idea record.
 - [ ] With a run, the command carried on into `next.command` only when `akka specify idea next` answered `go: true`; otherwise it stopped, printed the reason and named the next command.
