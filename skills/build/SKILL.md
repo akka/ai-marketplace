@@ -19,8 +19,9 @@ in `akka specify idea list --json` whose `spec` is the feature's folder name
 (`NNN-name`), never one found from the git branch. When that idea has `derived:
 true`, it has no record yet: adopt it with `akka specify ideas adopt --idea
 <id>`, then use it. Pass its id to the mode check as `--idea <id>`. In a console
-run (`AKKA_RUN_ID` set, or no shell), skip this and skip the mode check when it
-cannot run.
+run (`akka_run_context` answers `console: true`; without that tool,
+`AKKA_RUN_ID` is set or there is no shell), skip this and skip the mode check
+when it cannot run.
 
 Run `akka specify mode --allows build`, adding `--idea <id>` when the idea was
 found. With a CLI that predates the idea record, add `--as-engine` when you are
