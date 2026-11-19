@@ -22,8 +22,10 @@ in `akka specify idea list --json` whose `spec` is the feature's folder name
 true`, it has no record yet: adopt it with `akka specify ideas adopt --idea
 <id>`, then use it. Pass its id to the mode check as `--idea <id>`. In a console
 run (`akka_run_context` answers `console: true`; without that tool,
-`AKKA_RUN_ID` is set or there is no shell), skip this and skip the mode check
-when it cannot run.
+`AKKA_RUN_ID` is set or there is no shell), skip finding the idea and pass
+`--idea` set to the `idea` `akka_run_context` answered, skipping the mode check
+when it cannot run or no idea is known. With no shell and `console: false`, skip
+both.
 
 Run `akka specify mode --allows build`, adding `--idea <id>` when the idea was
 found. With a CLI that predates the idea record, add `--as-engine` when you are

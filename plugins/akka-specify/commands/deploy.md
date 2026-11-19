@@ -34,10 +34,23 @@ console started it when `AKKA_RUN_ID` is set in its environment, or when the
 command has no shell to run the akka CLI in. The console has already opened the
 run and enforced the rules for it. So in a console run: skip every step that
 finds, adopts, starts or links an idea, and ask no question before the run is
-closed; skip the mode check when it cannot run here; open the run by calling
-`akka_run_start` with `command` and `args` only, no `idea` and no `station`, and
-the CLI joins the console's run; close it as usual; and skip the carry-on step,
-because the console moves the idea on.
+closed; run the mode check with `--idea` set to the `idea` `akka_run_context`
+answered, and skip it when it cannot run here or no idea is known; open the run
+by calling `akka_run_start` with `command` and `args` only, no `idea` and no
+`station`, and the CLI joins the console's run; close it as usual; and skip the
+carry-on step, because the console moves the idea on. A run with no shell for
+the akka CLI that `akka_run_context` answers `console: false` for is not a
+console run and keeps no record: open no run, ask nothing about ideas or lanes,
+and carry the command out as before the idea record, skipping every step marked
+**Idea record**.
+
+**Idea record: deploy in a console run.** Use only the deploy tools the console
+grants: `akka_build_image`, `akka_push_image`, `akka_services_deploy`,
+`akka_projects_list`, `akka_services_get` and `akka_services_logs`. Skip the
+step that stops local services (`akka_local_stop_service`, `akka_local_stop`)
+and Option B, and deploy with Option A. When the deploy needs anything those
+tools do not give, such as creating a project, a route or a hostname, stop and
+close the run with `outcome: failed` and the reason.
 
 **Idea record: find the idea.** On a laptop run, find the feature this command
 works on first: the feature the user input names; otherwise call
@@ -79,7 +92,8 @@ step stops the command early), call `akka_run_close` with `run`, `outcome:
 failed` and `error` set to what failed, in one line, then stop. Where the tool
 is not available, run `akka specify run close --run <id> --outcome failed
 --error "<what failed>"`. When the person stops the command, close the run with
-`outcome: stopped`. The close step below is for the work's normal end.
+`outcome: stopped`. This holds in a console run too. The close step below is for
+the work's normal end.
 
 ## Purpose
 

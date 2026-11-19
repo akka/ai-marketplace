@@ -57,28 +57,33 @@ bypass.
    shell to run the akka CLI in. The console has already opened the run and
    enforced the rules for it. So in a console run: skip every step that finds,
    adopts, starts or links an idea, and ask no question before the run is
-   closed; skip the mode check when it cannot run here; open the run by calling
-   `akka_run_start` with `command` and `args` only, no `idea` and no `station`,
-   and the CLI joins the console's run; close it as usual; and skip the carry-on
-   step, because the console moves the idea on. On a laptop run, find the
-   feature this command works on first: the feature the user input names;
-   otherwise call `akka_sdd_list_specs` and take the only feature, or the one
-   whose folder name is the current branch's, and ask which when that leaves
-   several. Its idea is the one in `akka specify idea list --json` whose `spec`
-   is the feature's folder name (`NNN-name`); an idea is never found from the
-   git branch. When that idea has `derived: true`, it has no record yet: adopt
-   it with `akka specify ideas adopt --idea <id>`, then use it. When no idea has
-   it, read the mode with `akka specify mode`. In À la carte mode, open no run:
-   say in one line that this run is not recorded, and continue. In Enforced
-   mode, stop: the project's specs and topics get their ideas once with `akka
-   specify ideas adopt`, and this command runs after that. Pass the idea's id as
-   `idea` to the run start. On a laptop run, call the `akka_run_start` MCP tool
-   with `station: ship`, `command: /akka:ship`, `idea` set to the idea found
-   above and `args` set to the target. Where the tool is not available, run
-   `akka specify run start --station ship --command /akka:ship --idea <id>
-   --args <target> --json`. A run is never started without its idea. It answers
-   JSON: `recorded`, and for a recorded run its `idea` and `run.id`. Keep both:
-   the last steps use them.
+   closed; run the mode check with `--idea` set to the `idea` `akka_run_context`
+   answered, and skip it when it cannot run here or no idea is known; open the
+   run by calling `akka_run_start` with `command` and `args` only, no `idea` and
+   no `station`, and the CLI joins the console's run; close it as usual; and
+   skip the carry-on step, because the console moves the idea on. A run with no
+   shell for the akka CLI that `akka_run_context` answers `console: false` for
+   is not a console run and keeps no record: open no run, ask nothing about
+   ideas or lanes, and carry the command out as before the idea record, skipping
+   every step marked **Idea record**. On a laptop run, find the feature this
+   command works on first: the feature the user input names; otherwise call
+   `akka_sdd_list_specs` and take the only feature, or the one whose folder name
+   is the current branch's, and ask which when that leaves several. Its idea is
+   the one in `akka specify idea list --json` whose `spec` is the feature's
+   folder name (`NNN-name`); an idea is never found from the git branch. When
+   that idea has `derived: true`, it has no record yet: adopt it with `akka
+   specify ideas adopt --idea <id>`, then use it. When no idea has it, read the
+   mode with `akka specify mode`. In À la carte mode, open no run: say in one
+   line that this run is not recorded, and continue. In Enforced mode, stop: the
+   project's specs and topics get their ideas once with `akka specify ideas
+   adopt`, and this command runs after that. Pass the idea's id as `idea` to the
+   run start. On a laptop run, call the `akka_run_start` MCP tool with `station:
+   ship`, `command: /akka:ship`, `idea` set to the idea found above and `args`
+   set to the target. Where the tool is not available, run `akka specify run
+   start --station ship --command /akka:ship --idea <id> --args <target>
+   --json`. A run is never started without its idea. It answers JSON:
+   `recorded`, and for a recorded run its `idea` and `run.id`. Keep both: the
+   last steps use them.
 
    - When it answers `recorded: false`, continue without a run, and say in one
      line that this run is not recorded, with its `reason`.
@@ -96,8 +101,8 @@ bypass.
    `outcome: failed` and `error` set to what failed, in one line, then stop.
    Where the tool is not available, run `akka specify run close --run <id>
    --outcome failed --error "<what failed>"`. When the person stops the command,
-   close the run with `outcome: stopped`. The close step below is for the work's
-   normal end.
+   close the run with `outcome: stopped`. This holds in a console run too. The
+   close step below is for the work's normal end.
 
 3. **Invoke the CLI.** Run `akka specify ship <target>` in the project directory
    (via the shell). Capture the output. The CLI:
