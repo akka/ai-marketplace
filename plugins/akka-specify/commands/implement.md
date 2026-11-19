@@ -19,6 +19,21 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Before anything else
+
+Open this run in the idea's record. Call the `akka_run_start` MCP tool with
+`station: implement`, `command: /akka:implement` and `args` set to the user
+input. Where the tool is not available, run `akka specify run start --station
+implement --command /akka:implement` instead. Keep the run id it returns: the
+last step closes the run. On an error or a non-zero exit, print its message
+verbatim and stop. Do not continue, and do not work around it; the message names
+the remedy. The one exception is a CLI that does not know the command (no
+`akka_run_start` tool, and `run` rejected as an unknown command): it predates
+the idea record, so say so and continue without a run.
+
+The record names each station command by its `akka` plugin name, so this
+plugin's commands open their runs under `/akka:` names.
+
 ## Outline
 
 1. Call the `akka_sdd_list_specs` MCP tool to find features. Verify that tasks.md exists for the target feature (has_tasks must be true). If tasks.md is missing, instruct the user to run `/akka-specify:tasks` first. Read the tasks.md content from FEATURE_DIR. Also note which other artifacts are available (AVAILABLE_DOCS).
@@ -150,5 +165,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Validate that tests pass and coverage meets requirements
    - Confirm the implementation follows the technical plan
    - Report final status with summary of completed work
+
+13. **Close the run** (the last step). If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id, `outputs` set to the code and test files this run created or changed and `FEATURE_DIR/tasks.md`, as project-relative paths, and `tasks` set to the ids of the tasks this run marked `[X]`. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output and one `--task <id>` for each task. On an error, print its message; the committed work stands.
 
 Note: This command assumes a complete task breakdown exists in tasks.md. If tasks are incomplete or missing, suggest running `/akka-specify:tasks` first to regenerate the task list.

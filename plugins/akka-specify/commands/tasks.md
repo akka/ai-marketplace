@@ -19,6 +19,21 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Before anything else
+
+Open this run in the idea's record. Call the `akka_run_start` MCP tool with
+`station: tasks`, `command: /akka:tasks` and `args` set to the user input. Where
+the tool is not available, run `akka specify run start --station tasks --command
+/akka:tasks` instead. Keep the run id it returns: the last step closes the run.
+On an error or a non-zero exit, print its message verbatim and stop. Do not
+continue, and do not work around it; the message names the remedy. The one
+exception is a CLI that does not know the command (no `akka_run_start` tool, and
+`run` rejected as an unknown command): it predates the idea record, so say so
+and continue without a run.
+
+The record names each station command by its `akka` plugin name, so this
+plugin's commands open their runs under `/akka:` names.
+
 ## Outline
 
 1. **Setup**: Call the `akka_sdd_list_specs` MCP tool to find features and their available documents. From the response, identify the target feature's FEATURE_DIR and which artifacts exist (AVAILABLE_DOCS: spec.md, plan.md, tasks.md, etc.). If no features exist, instruct the user to run `/akka-specify:specify` first.
@@ -59,6 +74,10 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Independent test criteria for each story
    - Suggested MVP scope (typically just User Story 1)
    - Format validation: Confirm ALL tasks follow the checklist format (checkbox, ID, labels, file paths)
+
+6. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to `FEATURE_DIR/tasks.md` as a project-relative path. Where the tool is not available, run `akka specify run close --run <id>` with `--output <path>` for tasks.md. On an error, print its message; the tasks already written stand.
+
+7. **End waiting for approval** (the last step). The tasks now wait for the owner's approval before Implement runs. Say so and, when a run was opened, say how to give it: on the idea in the console's Ideas page, or `akka specify idea approve <idea> tasks`, where `<idea>` is the idea `akka_run_start` named. Do not carry out `/akka-specify:implement` or any later station; name `/akka-specify:implement` as the command for after the approval.
 
 Context for task generation: $ARGUMENTS
 

@@ -18,6 +18,21 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Before anything else
+
+Open this run in the idea's record. Call the `akka_run_start` MCP tool with
+`station: plan`, `command: /akka:plan` and `args` set to the user input. Where
+the tool is not available, run `akka specify run start --station plan --command
+/akka:plan` instead. Keep the run id it returns: the last step closes the run.
+On an error or a non-zero exit, print its message verbatim and stop. Do not
+continue, and do not work around it; the message names the remedy. The one
+exception is a CLI that does not know the command (no `akka_run_start` tool, and
+`run` rejected as an unknown command): it predates the idea record, so say so
+and continue without a run.
+
+The record names each station command by its `akka` plugin name, so this
+plugin's commands open their runs under `/akka:` names.
+
 ## Outline
 
 1. **Setup**: Call the `akka_sdd_list_specs` MCP tool to find the target feature. Then call `akka_sdd_get_template` with template_name="plan" to get the plan template. Identify the feature's spec path (FEATURE_SPEC) and plan destination (FEATURE_DIR/plan.md).
@@ -32,7 +47,9 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Phase 1: Generate data-model.md, contracts/, quickstart.md
    - Re-evaluate Constitution Check post-design
 
-4. **Stop and report**: Command ends after Phase 2 planning. Report branch, IMPL_PLAN path, and generated artifacts.
+4. **Stop and report**: Planning ends after Phase 2. Report branch, IMPL_PLAN path, and generated artifacts.
+
+5. **Close the run** (the last step). If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to the files and folders this run wrote, as project-relative paths: `plan.md`, `research.md`, `data-model.md`, `quickstart.md` and `contracts/` under FEATURE_DIR, whichever exist. A folder ends in `/`. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output. On an error, print its message; the plan already written stands.
 
 ## Phases
 

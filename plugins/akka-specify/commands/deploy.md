@@ -19,6 +19,21 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Before anything else
+
+Open this run in the idea's record. Call the `akka_run_start` MCP tool with
+`station: ship`, `command: /akka:deploy` and `args` set to the user input. Where
+the tool is not available, run `akka specify run start --station ship --command
+/akka:deploy` instead. Keep the run id it returns: the last step closes the run.
+On an error or a non-zero exit, print its message verbatim and stop. Do not
+continue, and do not work around it; the message names the remedy. The one
+exception is a CLI that does not know the command (no `akka_run_start` tool, and
+`run` rejected as an unknown command): it predates the idea record, so say so
+and continue without a run.
+
+The record names each station command by its `akka` plugin name, so this
+plugin's commands open their runs under `/akka:` names.
+
 ## Purpose
 
 This command transitions the service from **local development** to the
@@ -118,6 +133,13 @@ locally (via `/akka-specify:build`) and you're ready to ship.
    - Region deployed to
    - Route URL (if configured)
    - Service status
+
+8. **Close the run** (the last step). If a run was opened, call the
+   `akka_run_close` MCP tool with `run` set to its id and `outputs` set to the
+   project descriptor file when Option B exported one, as a project-relative
+   path, or to none. Where the tool is not available, run `akka specify run
+   close --run <id>`, with `--output <path>` for the descriptor. On an error,
+   print its message; the deployment stands.
 
 ## Key Rules
 

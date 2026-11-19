@@ -18,6 +18,21 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Before anything else
+
+Open this run in the idea's record. Call the `akka_run_start` MCP tool with
+`station: specify`, `command: /akka:specify` and `args` set to the user input.
+Where the tool is not available, run `akka specify run start --station specify
+--command /akka:specify` instead. Keep the run id it returns: the last step
+closes the run. On an error or a non-zero exit, print its message verbatim and
+stop. Do not continue, and do not work around it; the message names the remedy.
+The one exception is a CLI that does not know the command (no `akka_run_start`
+tool, and `run` rejected as an unknown command): it predates the idea record, so
+say so and continue without a run.
+
+The record names each station command by its `akka` plugin name, so this
+plugin's commands open their runs under `/akka:` names.
+
 ## Outline
 
 The text the user typed after `/akka-specify:specify` in the triggering message **is** the feature description. Assume you always have it available in this conversation even if `$ARGUMENTS` appears literally below. Do not ask the user to repeat it unless they provided an empty command.
@@ -182,6 +197,10 @@ Given that feature description, do this:
    d. **Update Checklist**: After each validation iteration, update the checklist file with current pass/fail status
 
 7. Report completion with branch name, spec file path, checklist results, and readiness for the next phase (`/akka-specify:clarify` or `/akka-specify:plan`).
+
+8. **Close the run.** If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to SPEC_FILE and `FEATURE_DIR/checklists/requirements.md` as project-relative paths. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output. On an error, print its message; the spec already written stands.
+
+9. **End waiting for the owner's approval** (the last step). The spec now waits for the owner's approval before the next station runs. Say so and, when a run was opened, say how to give it: on the idea in the console's Ideas page, or `akka specify idea approve <idea> spec`, where `<idea>` is the idea `akka_run_start` named. Do not carry out `/akka-specify:plan` or any later station; name `/akka-specify:clarify` or `/akka-specify:plan` as the command for after the approval.
 
 **NOTE:** The script creates and checks out the new branch and initializes the spec file before writing.
 
