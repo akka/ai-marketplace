@@ -32,17 +32,24 @@ it is available: it answers `{ console, idea, station, run }`, and `console:
 true` means the console started this command. Only without that tool, the
 console started it when `AKKA_RUN_ID` is set in its environment, or when the
 command has no shell to run the akka CLI in. The console has already opened the
-run and enforced the rules for it. So in a console run: skip every step that
-finds, adopts, starts or links an idea, and ask no question before the run is
-closed; run the mode check with `--idea` set to the `idea` `akka_run_context`
-answered, and skip it when it cannot run here or no idea is known; open the run
-by calling `akka_run_start` with `command` and `args` only, no `idea` and no
-`station`, and the CLI joins the console's run; close it as usual; and skip the
-carry-on step, because the console moves the idea on. A run with no shell for
-the akka CLI that `akka_run_context` answers `console: false` for is not a
-console run and keeps no record: open no run, ask nothing about ideas or lanes,
-and carry the command out as before the idea record, skipping every step marked
-**Idea record**.
+run and enforced the rules for it, so in a console run the run is open from the
+first step: its id is the `run` `akka_run_context` answered. Any stop before the
+normal close, such as a mode-check refusal, a missing argument, or a check that
+needs a tool this run lacks, closes it with `akka_run_close`, that `run`,
+`outcome: failed` and the reason. So in a console run: skip every step that
+finds, adopts, starts or links an idea, and never ask a person a question:
+wherever this command would ask one, it closes the run with `outcome: waiting`
+and `question` set to the question (`--outcome waiting --question "<question>"`
+on the CLI); the owner answers in the console, and the re-run reads the answer
+from the record (`akka specify idea show <idea> --json`); run the mode check
+with `--idea` set to the `idea` `akka_run_context` answered, and skip it when it
+cannot run here or no idea is known; open the run by calling `akka_run_start`
+with `command` and `args` only, no `idea` and no `station`, and the CLI joins
+the console's run; close it as usual; and skip the carry-on step, because the
+console moves the idea on. A run with no shell for the akka CLI that
+`akka_run_context` answers `console: false` for is not a console run and keeps
+no record: open no run, ask nothing about ideas or lanes, and carry the command
+out as before the idea record, skipping every step marked **Idea record**.
 
 **Idea record: deploy in a console run.** Use only the deploy tools the console
 grants: `akka_build_image`, `akka_push_image`, `akka_services_deploy`,
@@ -50,7 +57,13 @@ grants: `akka_build_image`, `akka_push_image`, `akka_services_deploy`,
 step that stops local services (`akka_local_stop_service`, `akka_local_stop`)
 and Option B, and deploy with Option A. When the deploy needs anything those
 tools do not give, such as creating a project, a route or a hostname, stop and
-close the run with `outcome: failed` and the reason.
+close the run with `outcome: failed` and the reason. Read the target from what
+is configured, `akka_projects_list` and the project's own configuration, not
+from the `akka://context` or `akka://regions` resources. Wherever the steps
+below ask the person (the organization, project or service name, the Docker
+image store check, the reliability-artifact prompt, the confirmation to deploy),
+close the run with `outcome: waiting` and that question; the re-run reads the
+answer from the record.
 
 **Idea record: find the idea.** On a laptop run, find the feature this command
 works on first: the feature the user input names; otherwise call
@@ -239,17 +252,4 @@ locally (via `/akka:build`) and you're ready to ship.
 
 ## Done When
 
-- [ ] `mvn compile` and `mvn test` succeeded — no deploy was attempted with failing tests.
-- [ ] Platform context is confirmed: `akka://context` was read; an organization and project were selected (from `akka_organizations_list` / `akka_projects_list` if empty) and passed as the `project` parameter on every subsequent platform call — `akka config set` was NOT invoked.
-- [ ] The target region was confirmed via `akka://regions`.
-- [ ] The `pom.xml` `<artifactId>` was checked; if it was a scaffold default, the user supplied the deploy service name and it was passed as the `service` parameter to `akka_services_deploy` — `<artifactId>` was NOT renamed.
-- [ ] Docker Desktop was checked for the containerd image store; if detected, the deploy paused until the user disabled it and confirmed.
-- [ ] The user explicitly confirmed the deploy.
-- [ ] Outside a console run, `akka_local_stop_service` and `akka_local_stop` were called to release file locks before building the image; a console run used only the deploy tools the console grants.
-- [ ] `akka_build_image` produced a local Docker image and the image name/tag are known.
-- [ ] Either Option A (`akka_services_deploy` with `push=true`) or Option B (`akka_push_image` → `akka_project_export` → `akka_project_validate` → `akka_project_apply` with `dry_run=true` then real apply) completed successfully — production deploys used the descriptor-based flow.
-- [ ] `akka_services_get` and `akka_services_logs` confirm the deployed service is healthy with no startup errors.
-- [ ] Routing was configured only if requested; when configured, a hostname exists (`akka_hostnames_list` / `akka_hostnames_add`) and a route maps to the service (`akka_routes_create`).
-- [ ] NO changes were made to `pom.xml` for image building or deployment — no Jib, docker-maven-plugin, or buildx plugins were added.
-- [ ] The report includes image URI, service name and version, region, route URL (if configured), and current service status.
-- [ ] The run was opened at the `ship` station with `akka_run_start` before any other step and closed with `akka_run_close` as the last step, or the CLI was reported as predating the idea record.
+- [ ] `mvn compile` and `mvn test` succeeded — no deploy was attempted with failing tests. - [ ] Platform context is confirmed: `akka://context` was read; an organization and project were selected (from `akka_organizations_list` / `akka_projects_list` if empty) and passed as the `project` parameter on every subsequent platform call — `akka config set` was NOT invoked. - [ ] The target region was confirmed via `akka://regions`. - [ ] The `pom.xml` `<artifactId>` was checked; if it was a scaffold default, the user supplied the deploy service name and it was passed as the `service` parameter to `akka_services_deploy` — `<artifactId>` was NOT renamed. - [ ] Docker Desktop was checked for the containerd image store; if detected, the deploy paused until the user disabled it and confirmed. - [ ] On a laptop run, the user explicitly confirmed the deploy; a console run asked nothing and closed `waiting` with each question it needed answered. - [ ] Outside a console run, `akka_local_stop_service` and `akka_local_stop` were called to release file locks before building the image; a console run used only the deploy tools the console grants. - [ ] `akka_build_image` produced a local Docker image and the image name/tag are known. - [ ] Either Option A (`akka_services_deploy` with `push=true`) or Option B (`akka_push_image` → `akka_project_export` → `akka_project_validate` → `akka_project_apply` with `dry_run=true` then real apply) completed successfully — production deploys used the descriptor-based flow. - [ ] `akka_services_get` and `akka_services_logs` confirm the deployed service is healthy with no startup errors. - [ ] Routing was configured only if requested; when configured, a hostname exists (`akka_hostnames_list` / `akka_hostnames_add`) and a route maps to the service (`akka_routes_create`). - [ ] NO changes were made to `pom.xml` for image building or deployment — no Jib, docker-maven-plugin, or buildx plugins were added. - [ ] The report includes image URI, service name and version, region, route URL (if configured), and current service status. - [ ] The run was opened at the `ship` station with `akka_run_start` before any other step and closed with `akka_run_close` as the last step, or the CLI was reported as predating the idea record.

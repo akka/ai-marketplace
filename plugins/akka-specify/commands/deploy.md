@@ -32,17 +32,24 @@ it is available: it answers `{ console, idea, station, run }`, and `console:
 true` means the console started this command. Only without that tool, the
 console started it when `AKKA_RUN_ID` is set in its environment, or when the
 command has no shell to run the akka CLI in. The console has already opened the
-run and enforced the rules for it. So in a console run: skip every step that
-finds, adopts, starts or links an idea, and ask no question before the run is
-closed; run the mode check with `--idea` set to the `idea` `akka_run_context`
-answered, and skip it when it cannot run here or no idea is known; open the run
-by calling `akka_run_start` with `command` and `args` only, no `idea` and no
-`station`, and the CLI joins the console's run; close it as usual; and skip the
-carry-on step, because the console moves the idea on. A run with no shell for
-the akka CLI that `akka_run_context` answers `console: false` for is not a
-console run and keeps no record: open no run, ask nothing about ideas or lanes,
-and carry the command out as before the idea record, skipping every step marked
-**Idea record**.
+run and enforced the rules for it, so in a console run the run is open from the
+first step: its id is the `run` `akka_run_context` answered. Any stop before the
+normal close, such as a mode-check refusal, a missing argument, or a check that
+needs a tool this run lacks, closes it with `akka_run_close`, that `run`,
+`outcome: failed` and the reason. So in a console run: skip every step that
+finds, adopts, starts or links an idea, and never ask a person a question:
+wherever this command would ask one, it closes the run with `outcome: waiting`
+and `question` set to the question (`--outcome waiting --question "<question>"`
+on the CLI); the owner answers in the console, and the re-run reads the answer
+from the record (`akka specify idea show <idea> --json`); run the mode check
+with `--idea` set to the `idea` `akka_run_context` answered, and skip it when it
+cannot run here or no idea is known; open the run by calling `akka_run_start`
+with `command` and `args` only, no `idea` and no `station`, and the CLI joins
+the console's run; close it as usual; and skip the carry-on step, because the
+console moves the idea on. A run with no shell for the akka CLI that
+`akka_run_context` answers `console: false` for is not a console run and keeps
+no record: open no run, ask nothing about ideas or lanes, and carry the command
+out as before the idea record, skipping every step marked **Idea record**.
 
 **Idea record: deploy in a console run.** Use only the deploy tools the console
 grants: `akka_build_image`, `akka_push_image`, `akka_services_deploy`,
@@ -50,7 +57,13 @@ grants: `akka_build_image`, `akka_push_image`, `akka_services_deploy`,
 step that stops local services (`akka_local_stop_service`, `akka_local_stop`)
 and Option B, and deploy with Option A. When the deploy needs anything those
 tools do not give, such as creating a project, a route or a hostname, stop and
-close the run with `outcome: failed` and the reason.
+close the run with `outcome: failed` and the reason. Read the target from what
+is configured, `akka_projects_list` and the project's own configuration, not
+from the `akka://context` or `akka://regions` resources. Wherever the steps
+below ask the person (the organization, project or service name, the Docker
+image store check, the reliability-artifact prompt, the confirmation to deploy),
+close the run with `outcome: waiting` and that question; the re-run reads the
+answer from the record.
 
 **Idea record: find the idea.** On a laptop run, find the feature this command
 works on first: the feature the user input names; otherwise call

@@ -32,17 +32,29 @@ it is available: it answers `{ console, idea, station, run }`, and `console:
 true` means the console started this command. Only without that tool, the
 console started it when `AKKA_RUN_ID` is set in its environment, or when the
 command has no shell to run the akka CLI in. The console has already opened the
-run and enforced the rules for it. So in a console run: skip every step that
-finds, adopts, starts or links an idea, and ask no question before the run is
-closed; run the mode check with `--idea` set to the `idea` `akka_run_context`
-answered, and skip it when it cannot run here or no idea is known; open the run
-by calling `akka_run_start` with `command` and `args` only, no `idea` and no
-`station`, and the CLI joins the console's run; close it as usual; and skip the
-carry-on step, because the console moves the idea on. A run with no shell for
-the akka CLI that `akka_run_context` answers `console: false` for is not a
-console run and keeps no record: open no run, ask nothing about ideas or lanes,
-and carry the command out as before the idea record, skipping every step marked
-**Idea record**.
+run and enforced the rules for it, so in a console run the run is open from the
+first step: its id is the `run` `akka_run_context` answered. Any stop before the
+normal close, such as a mode-check refusal, a missing argument, or a check that
+needs a tool this run lacks, closes it with `akka_run_close`, that `run`,
+`outcome: failed` and the reason. So in a console run: skip every step that
+finds, adopts, starts or links an idea, and never ask a person a question:
+wherever this command would ask one, it closes the run with `outcome: waiting`
+and `question` set to the question (`--outcome waiting --question "<question>"`
+on the CLI); the owner answers in the console, and the re-run reads the answer
+from the record (`akka specify idea show <idea> --json`); run the mode check
+with `--idea` set to the `idea` `akka_run_context` answered, and skip it when it
+cannot run here or no idea is known; open the run by calling `akka_run_start`
+with `command` and `args` only, no `idea` and no `station`, and the CLI joins
+the console's run; close it as usual; and skip the carry-on step, because the
+console moves the idea on. A run with no shell for the akka CLI that
+`akka_run_context` answers `console: false` for is not a console run and keeps
+no record: open no run, ask nothing about ideas or lanes, and carry the command
+out as before the idea record, skipping every step marked **Idea record**.
+
+**Idea record: implement in a console run.** When a checklist is incomplete, do
+not ask whether to proceed: close the run with `outcome: waiting` and that
+question. Never merge to `main` in a console run: skip the merge question and
+leave the feature branch, because the merge is a person's choice.
 
 **Idea record: find the idea.** On a laptop run, find the feature this command
 works on first: call `akka_sdd_list_specs` and identify the target feature as
@@ -255,17 +267,4 @@ Note: This command assumes a complete task breakdown exists in tasks.md. If task
 
 ## Done When
 
-- [ ] FEATURE_DIR and `tasks.md` were resolved via `akka_sdd_list_specs` with `has_tasks == true`.
-- [ ] The current git branch is the feature branch from spec.md (created via `akka_git_create_branch` if needed) — no implementation work happened on `main`.
-- [ ] The checklists status table was displayed; if any checklist had incomplete items, the user explicitly approved proceeding.
-- [ ] Every applicable ignore file (`.gitignore`, `.dockerignore`, `.eslintignore`/eslint config, `.prettierignore`, `.npmignore`, `.terraformignore`, `.helmignore`) was created or verified with the correct patterns for the detected tech stack.
-- [ ] Tasks were executed group-by-group, respecting sequential dependencies and running `[P]` tasks in parallel where safe.
-- [ ] When tasks carry `[Ph<n>]` tags, each delivery phase's acceptance test passed before a later phase's tasks started, and, with a `discovery/` folder, its gate was approved.
-- [ ] Each sub-agent's model and effort came from the task's `[model: …]` tag, the plan's Model Plan, `.akka/models.md` or the harness default, in that order, with the 85% downgrade rule applied; the model used was reported per task.
-- [ ] Every completed task in `tasks.md` was marked `[X]`; any failed task halted execution (or, for `[P]` tasks, was reported while continuing successful siblings).
-- [ ] All changes were staged via `akka_git_add` and committed via `akka_git_commit` with a descriptive message.
-- [ ] The user was asked whether to merge the feature branch to `main`; the answer was acted on (`akka_git_checkout` + `akka_git_merge` on yes, stay on feature branch on no).
-- [ ] The final report validates that implemented features match the spec, tests pass, and the implementation follows the plan.
-- [ ] With a `discovery/` folder, `/akka:docs` ran before the commit; without one, it was offered as a next step and `docs/` was left untouched.
-- [ ] The run was opened with `akka_run_start` after the mode check, against the idea found from its feature, and closed with `akka_run_close` at the end, naming the files written and the tasks completed, or the CLI was reported as predating the idea record.
-- [ ] With a run, the command carried on into `next.command` only when `akka specify idea next` answered `go: true`; otherwise it stopped, printed the reason and named the next command.
+- [ ] FEATURE_DIR and `tasks.md` were resolved via `akka_sdd_list_specs` with `has_tasks == true`. - [ ] The current git branch is the feature branch from spec.md (created via `akka_git_create_branch` if needed) — no implementation work happened on `main`. - [ ] The checklists status table was displayed; if any checklist had incomplete items, the user explicitly approved proceeding. - [ ] Every applicable ignore file (`.gitignore`, `.dockerignore`, `.eslintignore`/eslint config, `.prettierignore`, `.npmignore`, `.terraformignore`, `.helmignore`) was created or verified with the correct patterns for the detected tech stack. - [ ] Tasks were executed group-by-group, respecting sequential dependencies and running `[P]` tasks in parallel where safe. - [ ] When tasks carry `[Ph<n>]` tags, each delivery phase's acceptance test passed before a later phase's tasks started, and, with a `discovery/` folder, its gate was approved. - [ ] Each sub-agent's model and effort came from the task's `[model: …]` tag, the plan's Model Plan, `.akka/models.md` or the harness default, in that order, with the 85% downgrade rule applied; the model used was reported per task. - [ ] Every completed task in `tasks.md` was marked `[X]`; any failed task halted execution (or, for `[P]` tasks, was reported while continuing successful siblings). - [ ] All changes were staged via `akka_git_add` and committed via `akka_git_commit` with a descriptive message. - [ ] On a laptop run, the user was asked whether to merge the feature branch to `main`, and a console run left the branch unmerged; the answer was acted on (`akka_git_checkout` + `akka_git_merge` on yes, stay on feature branch on no). - [ ] The final report validates that implemented features match the spec, tests pass, and the implementation follows the plan. - [ ] With a `discovery/` folder, `/akka:docs` ran before the commit; without one, it was offered as a next step and `docs/` was left untouched. - [ ] The run was opened with `akka_run_start` after the mode check, against the idea found from its feature, and closed with `akka_run_close` at the end, naming the files written and the tasks completed, or the CLI was reported as predating the idea record. - [ ] With a run, the command carried on into `next.command` only when `akka specify idea next` answered `go: true`; otherwise it stopped, printed the reason and named the next command.
