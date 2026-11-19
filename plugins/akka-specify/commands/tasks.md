@@ -25,11 +25,13 @@ Open this run in the idea's record. Call the `akka_run_start` MCP tool with
 `station: tasks`, `command: /akka:tasks` and `args` set to the user input. Where
 the tool is not available, run `akka specify run start --station tasks --command
 /akka:tasks` instead. Keep the run id it returns: the last step closes the run.
-On an error or a non-zero exit, print its message verbatim and stop. Do not
-continue, and do not work around it; the message names the remedy. The one
-exception is a CLI that does not know the command (no `akka_run_start` tool, and
-`run` rejected as an unknown command): it predates the idea record, so say so
-and continue without a run.
+When it refuses because no idea matches the branch and none was named, continue
+without a run, and say in one line that this run is not recorded. On any other
+error or a non-zero exit, print its message verbatim and stop. Do not continue,
+and do not work around it; the message names the remedy. The one exception is a
+CLI that does not know the command (no `akka_run_start` tool, and `run` rejected
+as an unknown command): it predates the idea record, so say so and continue
+without a run.
 
 The record names each station command by its `akka` plugin name, so this
 plugin's commands open their runs under `/akka:` names.

@@ -20,7 +20,9 @@ Open this run in the idea's record. Call the `akka_run_start` MCP tool with
 `station: clarify`, `command: /akka:clarify` and `args` set to the user input.
 Where the tool is not available, run `akka specify run start --station clarify
 --command /akka:clarify` instead. Keep the run id it returns: the last step
-closes the run. On an error or a non-zero exit, print its message verbatim and
+closes the run. When it refuses because no idea matches the branch and none was
+named, continue without a run, and say in one line that this run is not
+recorded. On any other error or a non-zero exit, print its message verbatim and
 stop. Do not continue, and do not work around it; the message names the remedy.
 The one exception is a CLI that does not know the command (no `akka_run_start`
 tool, and `run` rejected as an unknown command): it predates the idea record, so
@@ -182,7 +184,9 @@ Execution steps:
    - If any Outstanding or Deferred remain, recommend whether to proceed to `/akka-specify:plan` or run `/akka-specify:clarify` again later post-plan.
    - Suggested next command.
 
-9. **Close the run** (the last step). If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to `FEATURE_SPEC` as a project-relative path, or to none when no answer was integrated. Where the tool is not available, run `akka specify run close --run <id>` with `--output <path>` for the spec. On an error, print its message; the clarifications already written stand.
+9. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to `FEATURE_SPEC` as a project-relative path, or to none when no answer was integrated. Where the tool is not available, run `akka specify run close --run <id>` with `--output <path>` for the spec. On an error, print its message; the clarifications already written stand.
+
+10. **Carry on or stop.** Read the idea with `akka specify idea show <idea> --json`: `next` names the next station's command, and `waits` lists what waits on a person. Outside Enforced mode (`akka specify mode`), when `idea.advance` is `continue` and `waits` is empty, carry on into the `/akka-specify:` command of that name in this conversation, following its own instructions, instead of stopping. Never carry on into `/akka:ship` or `/akka:deploy`. Otherwise stop and name the next command: when `advance` is `step` or absent, in Enforced mode, when anything waits on a person, or when no run was opened.
 
 Behavior rules:
 

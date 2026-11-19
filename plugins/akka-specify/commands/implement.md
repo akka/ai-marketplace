@@ -25,11 +25,13 @@ Open this run in the idea's record. Call the `akka_run_start` MCP tool with
 `station: implement`, `command: /akka:implement` and `args` set to the user
 input. Where the tool is not available, run `akka specify run start --station
 implement --command /akka:implement` instead. Keep the run id it returns: the
-last step closes the run. On an error or a non-zero exit, print its message
-verbatim and stop. Do not continue, and do not work around it; the message names
-the remedy. The one exception is a CLI that does not know the command (no
-`akka_run_start` tool, and `run` rejected as an unknown command): it predates
-the idea record, so say so and continue without a run.
+last step closes the run. When it refuses because no idea matches the branch and
+none was named, continue without a run, and say in one line that this run is not
+recorded. On any other error or a non-zero exit, print its message verbatim and
+stop. Do not continue, and do not work around it; the message names the remedy.
+The one exception is a CLI that does not know the command (no `akka_run_start`
+tool, and `run` rejected as an unknown command): it predates the idea record, so
+say so and continue without a run.
 
 The record names each station command by its `akka` plugin name, so this
 plugin's commands open their runs under `/akka:` names.
@@ -166,6 +168,8 @@ plugin's commands open their runs under `/akka:` names.
    - Confirm the implementation follows the technical plan
    - Report final status with summary of completed work
 
-13. **Close the run** (the last step). If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id, `outputs` set to the code and test files this run created or changed and `FEATURE_DIR/tasks.md`, as project-relative paths, and `tasks` set to the ids of the tasks this run marked `[X]`. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output and one `--task <id>` for each task. On an error, print its message; the committed work stands.
+13. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id, `outputs` set to the code and test files this run created or changed and `FEATURE_DIR/tasks.md`, as project-relative paths, and `tasks` set to the ids of the tasks this run marked `[X]`. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output and one `--task <id>` for each task. On an error, print its message; the committed work stands.
+
+14. **Carry on or stop.** Read the idea with `akka specify idea show <idea> --json`: `next` names the next station's command, and `waits` lists what waits on a person. Outside Enforced mode (`akka specify mode`), when `idea.advance` is `continue` and `waits` is empty, carry on into the `/akka-specify:` command of that name in this conversation, following its own instructions, instead of stopping. Never carry on into `/akka:ship` or `/akka:deploy`. Otherwise stop and name the next command: when `advance` is `step` or absent, in Enforced mode, when anything waits on a person, or when no run was opened.
 
 Note: This command assumes a complete task breakdown exists in tasks.md. If tasks are incomplete or missing, suggest running `/akka-specify:tasks` first to regenerate the task list.

@@ -24,11 +24,13 @@ Open this run in the idea's record. Call the `akka_run_start` MCP tool with
 `station: plan`, `command: /akka:plan` and `args` set to the user input. Where
 the tool is not available, run `akka specify run start --station plan --command
 /akka:plan` instead. Keep the run id it returns: the last step closes the run.
-On an error or a non-zero exit, print its message verbatim and stop. Do not
-continue, and do not work around it; the message names the remedy. The one
-exception is a CLI that does not know the command (no `akka_run_start` tool, and
-`run` rejected as an unknown command): it predates the idea record, so say so
-and continue without a run.
+When it refuses because no idea matches the branch and none was named, continue
+without a run, and say in one line that this run is not recorded. On any other
+error or a non-zero exit, print its message verbatim and stop. Do not continue,
+and do not work around it; the message names the remedy. The one exception is a
+CLI that does not know the command (no `akka_run_start` tool, and `run` rejected
+as an unknown command): it predates the idea record, so say so and continue
+without a run.
 
 The record names each station command by its `akka` plugin name, so this
 plugin's commands open their runs under `/akka:` names.
@@ -49,7 +51,9 @@ plugin's commands open their runs under `/akka:` names.
 
 4. **Stop and report**: Planning ends after Phase 2. Report branch, IMPL_PLAN path, and generated artifacts.
 
-5. **Close the run** (the last step). If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to the files and folders this run wrote, as project-relative paths: `plan.md`, `research.md`, `data-model.md`, `quickstart.md` and `contracts/` under FEATURE_DIR, whichever exist. A folder ends in `/`. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output. On an error, print its message; the plan already written stands.
+5. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to the files and folders this run wrote, as project-relative paths: `plan.md`, `research.md`, `data-model.md`, `quickstart.md` and `contracts/` under FEATURE_DIR, whichever exist. A folder ends in `/`. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output. On an error, print its message; the plan already written stands.
+
+6. **Carry on or stop.** Read the idea with `akka specify idea show <idea> --json`: `next` names the next station's command, and `waits` lists what waits on a person. Outside Enforced mode (`akka specify mode`), when `idea.advance` is `continue` and `waits` is empty, carry on into the `/akka-specify:` command of that name in this conversation, following its own instructions, instead of stopping. Never carry on into `/akka:ship` or `/akka:deploy`. Otherwise stop and name the next command: when `advance` is `step` or absent, in Enforced mode, when anything waits on a person, or when no run was opened.
 
 ## Phases
 
