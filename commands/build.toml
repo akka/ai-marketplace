@@ -12,7 +12,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 ## Before anything else
 
 The akka CLI keeps an idea record when the `akka_run_start` MCP tool is
-available, or `akka specify run --help` lists `start`; a CLI without it predates
+available, or `akka specify run start --help` exits 0; a CLI without it predates
 the idea record.
 
 Run `akka specify mode --allows build`. With a CLI that predates the idea

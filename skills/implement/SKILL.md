@@ -10,19 +10,30 @@ You **MUST** consider the user input before proceeding (if not empty).
 ## Before anything else
 
 This command keeps a run in the idea's record when the akka CLI has one: the
-`akka_run_start` MCP tool is available, or `akka specify run --help` lists
-`start`. A CLI without it predates the idea record. With such a CLI, say so once
-and carry this command out as before: skip every step marked **Idea record**,
-and open no run.
+`akka_run_start` MCP tool is available, or `akka specify run start --help` exits
+0. A CLI without it predates the idea record. With such a CLI, say so once and
+carry this command out as before: skip every step marked **Idea record**, and
+open no run.
 
-Run `akka specify mode --allows implement`. With a CLI that predates the idea
-record, add `--as-engine` when you are carrying this command out as a step of
-the sequence `/akka:specify` drives in Enforced mode, rather than because a
-person invoked it. It exits non-zero when the project's mode does not permit the
-command. On a non-zero exit, print its message verbatim and stop. Do not
-continue, and do not work around it. The one exception is a CLI that rejects
-`--allows` as an unknown flag: it predates the mode check (older than 3.0.74),
-so say so and continue without the check.
+**Idea record: find the idea.** Find the feature this command works on first:
+call `akka_sdd_list_specs` and identify the target feature as the first step
+below does. Its idea is the one in `akka specify idea list --json` whose `spec`
+is the feature's folder name (`NNN-name`); an idea is never found from the git
+branch. When that idea has `derived: true`, it has no record yet: adopt it with
+`akka specify ideas adopt --idea <id>` (with a CLI whose `adopt` has no
+`--idea`, `akka specify ideas adopt`), then use it. Pass its id as `--idea <id>`
+to the mode check and `idea` to the run start. When no feature or no idea is
+found, pass no idea.
+
+Run `akka specify mode --allows implement`, adding `--idea <id>` when the idea
+record found the idea. With a CLI that predates the idea record, add
+`--as-engine` when you are carrying this command out as a step of the sequence
+`/akka:specify` drives in Enforced mode, rather than because a person invoked
+it. It exits non-zero when the project's mode does not permit the command. On a
+non-zero exit, print its message verbatim and stop. Do not continue, and do not
+work around it. The one exception is a CLI that rejects `--allows` as an unknown
+flag: it predates the mode check (older than 3.0.74), so say so and continue
+without the check.
 
 With the idea record, Enforced mode runs a station command when the idea's
 previous station is done and approved, and the CLI's run start decides;
@@ -32,11 +43,13 @@ and permitted to the engine. A refusal with a reason of its own, such as
 re-running setup, stands either way. The message names the remedy.
 
 **Idea record: open the run.** Call the `akka_run_start` MCP tool with `station:
-implement`, `command: /akka:implement` and `args` set to the user input. Where
-the tool is not available, run `akka specify run start --station implement
---command /akka:implement --args "<the user input>" --json`, with the input
-quoted as one argument. It answers JSON: `recorded`, and for a recorded run its
-`idea` and `run.id`. Keep both: the last steps use them.
+implement`, `command: /akka:implement`, `idea` set to the idea found above (left
+out when none was found) and `args` set to the user input. Where the tool is not
+available, run `akka specify run start --station implement --command
+/akka:implement --idea <id> --args "<the user input>" --json`, leaving out
+`--idea` when no idea was found, quoting the input as one argument. It answers
+JSON: `recorded`, and for a recorded run its `idea` and `run.id`. Keep both: the
+last steps use them.
 
 - When it answers `recorded: false`, continue without a run, and say in one line
   that this run is not recorded, with its `reason`.
@@ -45,9 +58,9 @@ quoted as one argument. It answers JSON: `recorded`, and for a recorded run its
   `approval`, `order` or `no-idea-enforced`. Print `message` and `remedy`
   verbatim and stop. For `no-idea-enforced` the remedy is `akka specify ideas
   adopt`, run once for the project.
-- Any other error, one without `refused` (such as no branch, no login or several
-  matching ideas), does not stop the command: continue without a run, and say in
-  one line that this run is not recorded.
+- Any other error, one without `refused` (such as no login or several matching
+  ideas), does not stop the command: continue without a run, and say in one line
+  that this run is not recorded.
 
 **Idea record: a run that fails is closed too.** Once the run is open, every way
 the command ends closes it. When the work fails (a build or tests fail, or a
@@ -205,7 +218,7 @@ is not available, run `akka specify run close --run <id> --outcome failed
 
 14. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id, `outputs` set to the code and test files this run created or changed and `FEATURE_DIR/tasks.md`, with `docs/` when the docs refresh ran, all as project-relative paths, and `tasks` set to the ids of the tasks this run marked `[X]`. Where the tool is not available, run `akka specify run close --run <id>` with one `--output <path>` for each output and one `--task <id>` for each task. On an error, print its message; the committed work stands.
 
-15. **Carry on or stop.** If a run was opened, run `akka specify idea next --idea <idea> --json`, where `<idea>` is the `idea` the run start returned. It answers `{ go, next, reason }`. When `go` is true, carry on into `next.command` in this conversation, following its own instructions. Otherwise stop, print `reason`, and name `next.command` when there is one. Without a run, stop and name the next command.
+15. **Carry on or stop.** If a run was opened, run `akka specify idea next --idea <idea> --from implement --json`, where `<idea>` is the `idea` the run start returned. It answers `{ go, next, reason }`. When `go` is true, carry on into `next.command` in this conversation, following its own instructions. Otherwise stop, print `reason`, and name `next.command` when there is one. Without a run, stop and name the next command.
 
 Note: This command assumes a complete task breakdown exists in tasks.md. If tasks are incomplete or missing, suggest running `/akka:tasks` first to regenerate the task list.
 
@@ -223,5 +236,5 @@ Note: This command assumes a complete task breakdown exists in tasks.md. If task
 - [ ] The user was asked whether to merge the feature branch to `main`; the answer was acted on (`akka_git_checkout` + `akka_git_merge` on yes, stay on feature branch on no).
 - [ ] The final report validates that implemented features match the spec, tests pass, and the implementation follows the plan.
 - [ ] With a `discovery/` folder, `/akka:docs` ran before the commit; without one, it was offered as a next step and `docs/` was left untouched.
-- [ ] The run was opened with `akka_run_start` after the mode check and closed with `akka_run_close` at the end, naming the files written and the tasks completed, or the CLI was reported as predating the idea record.
+- [ ] The run was opened with `akka_run_start` after the mode check, against the idea found from its feature, and closed with `akka_run_close` at the end, naming the files written and the tasks completed, or the CLI was reported as predating the idea record.
 - [ ] With a run, the command carried on into `next.command` only when `akka specify idea next` answered `go: true`; otherwise it stopped, printed the reason and named the next command.

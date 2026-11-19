@@ -22,17 +22,28 @@ You **MUST** consider the user input before proceeding (if not empty).
 ## Before anything else
 
 This command keeps a run in the idea's record when the akka CLI has one: the
-`akka_run_start` MCP tool is available, or `akka specify run --help` lists
-`start`. A CLI without it predates the idea record. With such a CLI, say so once
-and carry this command out as before: skip every step marked **Idea record**,
-and open no run.
+`akka_run_start` MCP tool is available, or `akka specify run start --help` exits
+0. A CLI without it predates the idea record. With such a CLI, say so once and
+carry this command out as before: skip every step marked **Idea record**, and
+open no run.
+
+**Idea record: find the idea.** Find the feature this command works on first:
+the feature the user input names; otherwise call `akka_sdd_list_specs` and take
+the only feature, or the one whose folder name is the current branch's, and ask
+which when that leaves several. Its idea is the one in `akka specify idea list
+--json` whose `spec` is the feature's folder name (`NNN-name`); an idea is never
+found from the git branch. When that idea has `derived: true`, it has no record
+yet: adopt it with `akka specify ideas adopt --idea <id>` (with a CLI whose
+`adopt` has no `--idea`, `akka specify ideas adopt`), then use it. Pass its id
+as `idea` to the run start. When no feature or no idea is found, pass no idea.
 
 **Idea record: open the run.** Call the `akka_run_start` MCP tool with `station:
-ship`, `command: /akka:deploy` and `args` set to the user input. Where the tool
-is not available, run `akka specify run start --station ship --command
-/akka:deploy --args "<the user input>" --json`, with the input quoted as one
-argument. It answers JSON: `recorded`, and for a recorded run its `idea` and
-`run.id`. Keep both: the last steps use them.
+ship`, `command: /akka:deploy`, `idea` set to the idea found above (left out
+when none was found) and `args` set to the user input. Where the tool is not
+available, run `akka specify run start --station ship --command /akka:deploy
+--idea <id> --args "<the user input>" --json`, leaving out `--idea` when no idea
+was found, quoting the input as one argument. It answers JSON: `recorded`, and
+for a recorded run its `idea` and `run.id`. Keep both: the last steps use them.
 
 - When it answers `recorded: false`, continue without a run, and say in one line
   that this run is not recorded, with its `reason`.
@@ -41,9 +52,9 @@ argument. It answers JSON: `recorded`, and for a recorded run its `idea` and
   `approval`, `order` or `no-idea-enforced`. Print `message` and `remedy`
   verbatim and stop. For `no-idea-enforced` the remedy is `akka specify ideas
   adopt`, run once for the project.
-- Any other error, one without `refused` (such as no branch, no login or several
-  matching ideas), does not stop the command: continue without a run, and say in
-  one line that this run is not recorded.
+- Any other error, one without `refused` (such as no login or several matching
+  ideas), does not stop the command: continue without a run, and say in one line
+  that this run is not recorded.
 
 **Idea record: a run that fails is closed too.** Once the run is open, every way
 the command ends closes it. When the work fails (a build or tests fail, or a

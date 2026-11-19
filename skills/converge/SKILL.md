@@ -10,21 +10,32 @@ You **MUST** consider the user input before proceeding (if not empty).
 ## Before anything else
 
 This command keeps a run in the idea's record when the akka CLI has one: the
-`akka_run_start` MCP tool is available, or `akka specify run --help` lists
-`start`. A CLI without it predates the idea record. With such a CLI, say so once
-and carry this command out as before: skip every step marked **Idea record**,
-and open no run.
+`akka_run_start` MCP tool is available, or `akka specify run start --help` exits
+0. A CLI without it predates the idea record. With such a CLI, say so once and
+carry this command out as before: skip every step marked **Idea record**, and
+open no run.
+
+**Idea record: find the idea.** Find the feature this command works on first:
+call `akka_sdd_list_specs` and identify the target feature as the first step
+below does. Its idea is the one in `akka specify idea list --json` whose `spec`
+is the feature's folder name (`NNN-name`); an idea is never found from the git
+branch. When that idea has `derived: true`, it has no record yet: adopt it with
+`akka specify ideas adopt --idea <id>` (with a CLI whose `adopt` has no
+`--idea`, `akka specify ideas adopt`), then use it. Pass its id as `idea` to the
+run start. When no feature or no idea is found, pass no idea.
 
 `/akka:converge` is Implement's re-run after a send-back, so its run opens at
 the `implement` station. The receipt under `.akka/record/` is the CLI's to
 write; it is not a file this command modifies.
 
 **Idea record: open the run.** Call the `akka_run_start` MCP tool with `station:
-implement`, `command: /akka:converge` and `args` set to the user input. Where
-the tool is not available, run `akka specify run start --station implement
---command /akka:converge --args "<the user input>" --json`, with the input
-quoted as one argument. It answers JSON: `recorded`, and for a recorded run its
-`idea` and `run.id`. Keep both: the last steps use them.
+implement`, `command: /akka:converge`, `idea` set to the idea found above (left
+out when none was found) and `args` set to the user input. Where the tool is not
+available, run `akka specify run start --station implement --command
+/akka:converge --idea <id> --args "<the user input>" --json`, leaving out
+`--idea` when no idea was found, quoting the input as one argument. It answers
+JSON: `recorded`, and for a recorded run its `idea` and `run.id`. Keep both: the
+last steps use them.
 
 - When it answers `recorded: false`, continue without a run, and say in one line
   that this run is not recorded, with its `reason`.
@@ -33,9 +44,9 @@ quoted as one argument. It answers JSON: `recorded`, and for a recorded run its
   `approval`, `order` or `no-idea-enforced`. Print `message` and `remedy`
   verbatim and stop. For `no-idea-enforced` the remedy is `akka specify ideas
   adopt`, run once for the project.
-- Any other error, one without `refused` (such as no branch, no login or several
-  matching ideas), does not stop the command: continue without a run, and say in
-  one line that this run is not recorded.
+- Any other error, one without `refused` (such as no login or several matching
+  ideas), does not stop the command: continue without a run, and say in one line
+  that this run is not recorded.
 
 **Idea record: a run that fails is closed too.** Once the run is open, every way
 the command ends closes it. When the work fails (a build or tests fail, or a
@@ -239,11 +250,15 @@ the outcome already reported stands.
 
 ### 10. Carry on or stop
 
-If a run was opened, run `akka specify idea next --idea <idea> --json`, where
-`<idea>` is the `idea` the run start returned. It answers `{ go, next, reason
-}`. When `go` is true, carry on into `next.command` in this conversation,
-following its own instructions. Otherwise stop, print `reason`, and name
-`next.command` when there is one. Without a run, stop and name the next command.
+If a run was opened, run `akka specify idea next --idea <idea> --from implement
+--json`, where `<idea>` is the `idea` the run start returned. It answers `{ go,
+next, reason }`. On `tasks_appended`, the appended tasks are Implement's to
+build: when `go` is true, carry on into `/akka:implement` in this conversation,
+following its own instructions, instead of `next.command`; otherwise stop, print
+`reason`, and name `/akka:implement`. On `converged`, when `go` is true, carry
+on into `next.command` in this conversation, following its own instructions;
+otherwise stop, print `reason`, and name `next.command` when there is one.
+Without a run, stop and name the follow-up command from step 8.
 
 ## Done When
 
@@ -257,4 +272,4 @@ following its own instructions. Otherwise stop, print `reason`, and name
 - [ ] On `tasks_appended`: a single new `## Group N: Convergence` section was appended, task IDs continue from `M+1`, no existing task was modified or renumbered, and no application code was created, modified, or deleted.
 - [ ] Next-action recommendation names the specific follow-up command (`/akka:implement` or `/akka:review`).
 - [ ] The run was opened at the `implement` station with `akka_run_start` before any other step and closed with `akka_run_close` at the end, or the CLI was reported as predating the idea record.
-- [ ] With a run, the command carried on into `next.command` only when `akka specify idea next` answered `go: true`; otherwise it stopped, printed the reason and named the next command.
+- [ ] On `tasks_appended`, the command carried on into `/akka:implement` only when `akka specify idea next` answered `go: true`, and otherwise named it; on `converged`, it followed `idea next`.
