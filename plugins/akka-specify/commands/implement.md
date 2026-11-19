@@ -57,9 +57,11 @@ out as before the idea record, skipping every step marked **Idea record**.
 **Idea record: implement in a console run.** When a checklist is incomplete, do
 not ask whether to proceed: close the run with `outcome: waiting` and that
 question. Never merge to `main` in a console run: skip the merge question and
-leave the feature branch, because the merge is a person's choice. When the
-feature branch already exists and cannot be entered (HEAD is elsewhere and
-checking out is not granted), close the run `failed` with the reason.
+leave the feature branch, because the merge is a person's choice. The feature
+branch is `akka_run_context`'s `spec`, the idea's spec name, not the spec's
+**Feature Branch** field. When the feature branch already exists and cannot be
+entered (HEAD is elsewhere and checking out is not granted), close the run
+`failed` with the reason.
 
 **Idea record: find the idea.** On a laptop run, find the feature this command
 works on first: call `akka_sdd_list_specs` and identify the target feature as

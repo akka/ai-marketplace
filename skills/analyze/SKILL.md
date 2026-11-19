@@ -45,7 +45,11 @@ out as before the idea record, skipping every step marked **Idea record**.
 **Idea record: analyze in a console run.** Make no remediation offer. When the
 report has CRITICAL issues, close the run with `outcome: waiting` and the
 question "Analysis found critical issues: <each issue's id and summary> — fix
-them or accept?", so the idea stops; otherwise close it as usual.
+them or accept?", so the idea stops; otherwise close it as usual. On the re-run,
+read the owner's answer to that question from `akka_run_context`'s `questions`:
+an "accept" answer closes the run as usual, and the idea moves on as usual; a
+"fix" answer, or any other, closes it `failed` with the issues as the error, so
+the owner sends the idea back.
 
 **Idea record: find the idea.** On a laptop run, find the feature this command
 works on first: call `akka_sdd_list_specs` and identify the target feature as

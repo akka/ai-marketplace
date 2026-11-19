@@ -47,14 +47,15 @@ out as before the idea record, skipping every step marked **Idea record**.
 **Idea record: implement in a console run.** When a checklist is incomplete, do
 not ask whether to proceed: close the run with `outcome: waiting` and that
 question. Never merge to `main` in a console run: skip the merge question and
-leave the feature branch, because the merge is a person's choice. Skip the docs
-refresh and say in one line that it is left for a laptop run: `/akka:docs`
-writes under `.akka/` and needs tools a console run lacks. When a delivery
-phase's gate mock is not approved in `mocks/index.md`, close the run `waiting`;
-the re-run checks `mocks/index.md` again, and a recorded answer is not the
-approval. When the feature branch already exists and cannot be entered (HEAD is
-elsewhere and checking out is not granted), close the run `failed` with the
-reason.
+leave the feature branch, because the merge is a person's choice. The feature
+branch is `akka_run_context`'s `spec`, the idea's spec name, not the spec's
+**Feature Branch** field. Skip the docs refresh and say in one line that it is
+left for a laptop run: `/akka:docs` writes under `.akka/` and needs tools a
+console run lacks. When a delivery phase's gate mock is not approved in
+`mocks/index.md`, close the run `waiting`; the re-run checks `mocks/index.md`
+again, and a recorded answer is not the approval. When the feature branch
+already exists and cannot be entered (HEAD is elsewhere and checking out is not
+granted), close the run `failed` with the reason.
 
 **Idea record: find the idea.** On a laptop run, find the feature this command
 works on first: call `akka_sdd_list_specs` and identify the target feature as

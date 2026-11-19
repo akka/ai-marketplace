@@ -60,15 +60,16 @@ grants: `akka_build_image`, `akka_push_image`, `akka_services_deploy`,
 step that stops local services (`akka_local_stop_service`, `akka_local_stop`)
 and Option B, and deploy with Option A. When the deploy needs anything those
 tools do not give, such as creating a project, a route or a hostname, stop and
-close the run with `outcome: failed` and the reason. Read the target from what
-is configured, `akka_projects_list` and the project's own configuration, not
-from the `akka://context` or `akka://regions` resources. Wherever the steps
-below ask the person (the organization or project, the reliability-artifact
-prompt, the confirmation to deploy), close the run with `outcome: waiting` and
-that question; the re-run reads the answer from `akka_run_context`'s
-`questions`. Skip the Docker image store check, because the image tools report
-Docker problems themselves, and deploy as the pom's `<artifactId>` without
-asking for a service name.
+close the run with `outcome: failed` and the reason. Deploy to the configured
+project: pass no `project` and no `registry` on any platform tool call, whatever
+the platform-context step below says, and do not read the `akka://context` or
+`akka://regions` resources. When no project is configured, close the run
+`failed` with that reason. Wherever the steps below ask the person (the
+reliability-artifact prompt, the confirmation to deploy), close the run with
+`outcome: waiting` and that question; the re-run reads the answer from
+`akka_run_context`'s `questions`. Skip the Docker image store check, because the
+image tools report Docker problems themselves, and deploy as the pom's
+`<artifactId>` without asking for a service name.
 
 **Idea record: find the idea.** On a laptop run, find the feature this command
 works on first: the feature the user input names; otherwise call
@@ -136,7 +137,8 @@ locally (via `/akka-specify:build`) and you're ready to ship.
         c. If none: ask if they want to create one via `akka_projects_create`
         d. Remember the chosen project for subsequent tool calls
      4. Read `akka://regions` to confirm target region
-     5. **IMPORTANT**: Pass the chosen project as the `project` parameter on
+     5. **IMPORTANT** (laptop runs; a console run passes no `project` and no
+        `registry`): Pass the chosen project as the `project` parameter on
         every platform tool call. Do NOT call `akka config set` — that
         modifies the user's persistent CLI configuration.
    - **Check the service name**: Read `pom.xml` and check the `<artifactId>`.
