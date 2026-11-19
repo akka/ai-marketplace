@@ -24,20 +24,23 @@ run and enforced the rules for it, so in a console run the run is open from the
 first step: its id is the `run` `akka_run_context` answered. Any stop before the
 normal close, such as a mode-check refusal, a missing argument, or a check that
 needs a tool this run lacks, closes it with `akka_run_close`, that `run`,
-`outcome: failed` and the reason. So in a console run: skip every step that
-finds, adopts, starts or links an idea, and never ask a person a question:
-wherever this command would ask one, it closes the run with `outcome: waiting`
-and `question` set to the question (`--outcome waiting --question "<question>"`
-on the CLI); the owner answers in the console, and the re-run reads the answer
-from the record (`akka specify idea show <idea> --json`); run the mode check
-with `--idea` set to the `idea` `akka_run_context` answered, and skip it when it
-cannot run here or no idea is known; open the run by calling `akka_run_start`
-with `command` and `args` only, no `idea` and no `station`, and the CLI joins
-the console's run; close it as usual; and skip the carry-on step, because the
-console moves the idea on. A run with no shell for the akka CLI that
-`akka_run_context` answers `console: false` for is not a console run and keeps
-no record: open no run, ask nothing about ideas or lanes, and carry the command
-out as before the idea record, skipping every step marked **Idea record**.
+`outcome: failed` and the reason. So in a console run: the feature is
+`akka_run_context`'s `spec` (for `/akka:discover`, the topic is its `topic`),
+and the command never searches for one; skip every step that finds, adopts,
+starts or links an idea, and never ask a person a question: wherever this
+command would ask one, it closes the run with `outcome: waiting` and `question`
+set to the question (`--outcome waiting --question "<question>"` on the CLI);
+the owner answers in the console, and the re-run reads the answer from
+`akka_run_context`'s `questions` (`{station, run, question, answer}`) and does
+not ask it again; run the mode check with `--idea` set to the `idea`
+`akka_run_context` answered, and skip it when it cannot run here or no idea is
+known; open the run by calling `akka_run_start` with `command` and `args` only,
+no `idea` and no `station`, and the CLI joins the console's run; close it as
+usual; and skip the carry-on step, because the console moves the idea on. A run
+with no shell for the akka CLI that `akka_run_context` answers `console: false`
+for is not a console run and keeps no record: open no run, ask nothing about
+ideas or lanes, and carry the command out as before the idea record, skipping
+every step marked **Idea record**.
 
 **Idea record: find the idea.** On a laptop run, find the feature this command
 works on first: call `akka_sdd_list_specs` and identify the target feature as

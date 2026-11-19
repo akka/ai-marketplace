@@ -43,6 +43,13 @@ switch to À la carte with `/akka:mode a-la-carte`. In Enforced mode the process
 set is dormant they do not resolve at all — there is nothing yet to have
 covered or reviewed.
 
+Each idea also has a Step or Continue setting. With Step, a station command
+stops when its work is done and names the next command. With Continue, outside
+Enforced mode and while nothing waits on a person, a station command run on a
+laptop carries on into the next station's command in the same conversation. It
+never carries on into `/akka:ship` or `/akka:deploy`, and a console run never
+carries on itself: the console moves the idea on.
+
 The organization can constrain this. A policy may set a different default and
 lock it; when the mode is locked, only the org-allowed mode(s) may be set. A
 locked Enforced mode cannot be dropped to À la carte to bypass the ship gate.
