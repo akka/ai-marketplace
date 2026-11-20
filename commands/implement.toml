@@ -19,7 +19,7 @@ marked **Idea record**, and open no run.
 
 **Idea record: a console run.** Call the `akka_run_context` MCP tool first when
 it is available: it answers `{ console, idea, station, run, spec, topic,
-questions }`, and `console: true` means the console started this command. Only
+questions, sentBack }`, and `console: true` means the console started this command. Only
 without that tool, the console started it when `AKKA_RUN_ID` is set in its
 environment, or when the command has no shell to run the akka CLI in. The
 console has already opened the run and enforced the rules for it, so in a
@@ -43,6 +43,13 @@ console moves the idea on. A run with no shell for the akka CLI that
 `akka_run_context` answers `console: false` for is not a console run and keeps
 no record: open no run, ask nothing about ideas or lanes, and carry the command
 out as before the idea record, skipping every step marked **Idea record**.
+
+**Idea record: a station sent back to.** When `akka_run_context` answers
+`sentBack` (`{ from, reason, by, at }`), the idea was sent back to this station
+from `from`, and `reason` says why. Work on that reason first: read it as the
+owner's instruction for this run, change this station's outputs where the
+reason points, and keep what it does not touch. `sentBack` is `null` when no
+send-back opened this station's visit.
 
 **Idea record: implement in a console run.** When a checklist is incomplete, do
 not ask whether to proceed: close the run with `outcome: waiting` and that
