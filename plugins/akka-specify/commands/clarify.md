@@ -52,7 +52,7 @@ out as before the idea record, skipping every step marked **Idea record**.
 **Idea record: a station sent back to.** When `akka_run_context` answers
 `sentBack` (`{ from, reason, by, at }`), the idea was sent back to this station
 from `from`, and `reason` says why. Work on that reason first: read it as the
-owner's instruction for this run, change this station's outputs where the
+instruction for this run from `by`, change this station's outputs where the
 reason points, and keep what it does not touch. `sentBack` is `null` when no
 send-back opened this station's visit.
 

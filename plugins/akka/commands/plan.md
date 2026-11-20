@@ -60,7 +60,7 @@ out as before the idea record, skipping every step marked **Idea record**.
 **Idea record: a station sent back to.** When `akka_run_context` answers
 `sentBack` (`{ from, reason, by, at }`), the idea was sent back to this station
 from `from`, and `reason` says why. Work on that reason first: read it as the
-owner's instruction for this run, change this station's outputs where the
+instruction for this run from `by`, change this station's outputs where the
 reason points, and keep what it does not touch. `sentBack` is `null` when no
 send-back opened this station's visit.
 
@@ -131,7 +131,7 @@ the work's normal end.
 
 1. **Setup**: Call the `akka_sdd_list_specs` MCP tool to find the target feature. Then call `akka_sdd_get_template` with template_name="plan" to get the plan template. Identify the feature's spec path (FEATURE_SPEC) and plan destination (FEATURE_DIR/plan.md).
 
-2. **Load context**: Read FEATURE_SPEC and `akka_sdd_constitution`. First fold in answered markers: for each `[NEEDS CLARIFICATION]` marker with a recorded `- Q: … → A: …` answer under `## Clarifications`, integrate the answer into the spec as `/akka:clarify` does and remove the marker. Then, if the spec contains unresolved [NEEDS CLARIFICATION] markers for policy decisions (thresholds, access permissions, retention, sensitive-data rules, approvals), report them, recommend `/akka:clarify`, and stop; do not decide them through research. Load IMPL_PLAN template (already copied). If the project has a `discovery/` folder, read, in each topic folder `discovery/<topic>/` and at the `discovery/` root, `understanding.md` (its Decisions Raised), `behaviour.md` and `system-map.md` (measured figures and Decisions to Force) and `mocks/index.md` (review artifacts), and list the files read on the plan's **Discovery** line. If `.akka/models.md` exists, read it.
+2. **Load context**: Read FEATURE_SPEC and `akka_sdd_constitution`. First fold in answered markers: for each `[NEEDS CLARIFICATION]` marker with a recorded `- Q: … → A: …` answer under `## Clarifications`, integrate the answer into the spec as `/akka:clarify` does and remove the marker. Then, if the spec contains unresolved [NEEDS CLARIFICATION] markers for policy decisions (thresholds, access permissions, retention, sensitive-data rules, approvals), report them, recommend `/akka:clarify`, and stop; do not decide them through research. Load IMPL_PLAN template (already copied). If the project has a `discovery/` folder, read, in each topic folder `discovery/<topic>/` and at the `discovery/` root, `understanding.md` (its Decisions Raised), `behaviour.md` and `system-map.md` (measured figures and Decisions to Force) and `mocks/index.md` (review artifacts), and list the files read on the plan's **Discovery** line. If `.akka/models.md` exists, read it. If FEATURE_DIR/plan.md already exists, read its Decisions Log before writing anything: a row whose status reads `decided <date> by <login>: <answer>` is settled, every section of the new plan (Phase 0 and Phase 1 included) follows its answer, and the row is carried into the new plan unchanged.
 
 3. **Execute plan workflow**: Follow the structure in IMPL_PLAN template to:
    - Fill Technical Context (mark unknowns as "NEEDS CLARIFICATION")
