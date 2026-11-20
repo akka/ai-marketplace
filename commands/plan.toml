@@ -223,7 +223,7 @@ Phase 2 is required when the project has a `discovery/` folder. Without one, it 
    - No subheadings inside this section.
    - If the project has a `discovery/` folder and `.akka/models.md` does not exist, ask the user whether to create it from this plan's choices. If yes, call `akka_sdd_get_template` with template_name="models" and write `.akka/models.md`. If the CLI answers that the template is unknown, say plainly that this CLI does not provide the `models` template and that `.akka/models.md` was not created.
 
-6. **Decisions Log** → one row for every choice that changes the plan: every Decisions Raised item in each `understanding.md` under `discovery/`, every Decisions to Force finding in each `behaviour.md` under `discovery/`, and every close call made in this plan. Each row has a recommendation with its reason, an owner (a role), and a status of open, decided with the date, or dropped. Never mark a decision decided unless the user made it.
+6. **Decisions Log** → one row for every choice that changes the plan: every Decisions Raised item in each `understanding.md` under `discovery/`, every Decisions to Force finding in each `behaviour.md` under `discovery/`, and every close call made in this plan. Each row has a recommendation with its reason, an owner (a role), and a status of open, decided with the date, or dropped. Never mark a decision decided unless the user made it. A row decided in the console has the status `decided <date> by <login>: <answer>`: the person named there decided it for its owner. Keep that row, its owner and its status as written, never reopen it, and make the plan follow the answer.
 
 **Output**: Delivery Phases, Review Gates, Baseline, Metrics and Targets, Model Plan and Decisions Log in plan.md
 
