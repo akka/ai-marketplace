@@ -235,10 +235,10 @@ locally (via `/akka:build`) and you're ready to ship.
    - Component health (if backoffice inspection was performed)
 
 9. **Close the run** (the last step). If a run was opened, call the
-   `akka_run_close` MCP tool with `run` set to its id and `outputs` set to the
+   `akka_run_close` MCP tool with `run` set to its id, `outcome: ok`, and `outputs` set to the
    project descriptor file when Option B exported one, as a project-relative
    path, or to none. Where the tool is not available, run `akka specify run
-   close --run <id>`, with `--file <path>` for the descriptor. On an error,
+   close --run <id> --outcome ok`, with `--file <path>` for the descriptor. On an error,
    print its message; the deployment stands.
 
 ## Key Rules

@@ -291,9 +291,9 @@ Append to the **end** of `tasks.md`, per the append contract:
 
 ### 9. Close the run
 
-If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and
+If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id, `outcome: ok`, and
 `outputs` set to TASKS as a project-relative path on `tasks_appended`, or to none on
-`converged`. Where the tool is not available, run `akka specify run close --run <id>`,
+`converged`. Where the tool is not available, run `akka specify run close --run <id> --outcome ok`,
 with `--file <path>` for TASKS on `tasks_appended`. On an error, print its message;
 the outcome already reported stands.
 

@@ -182,9 +182,9 @@ A `NOT_READY` verdict says what is blocking and what to do about it:
    checklist"* for the manifest.
 
 4. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool
-   with `run` set to its id and no outputs. The CLI writes the manifest beside
+   with `run` set to its id, `outcome: ok`, and no outputs. The CLI writes the manifest beside
    the receipt from the recorded conform results, with the engine's verdict.
-   Where the tool is not available, run `akka specify run close --run <id>`. Do
+   Where the tool is not available, run `akka specify run close --run <id> --outcome ok`. Do
    this whatever the verdict: a `NOT_READY` verdict still closes as `ok`,
    because the manifest carries it. On an error, print its message; the verdict
    already reported stands.

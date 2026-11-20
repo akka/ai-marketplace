@@ -263,7 +263,7 @@ Given that feature description, do this:
 
 8. Report completion with branch name, spec file path, checklist results, and any potentially stale diagram paths.
 
-9. **Idea record: close the run.** If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to SPEC_FILE and `FEATURE_DIR/checklists/requirements.md` as project-relative paths. Where the tool is not available, run `akka specify run close --run <id>` with one `--file <path>` for each output. On an error, print its message; the spec already written stands.
+9. **Idea record: close the run.** If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id, `outcome: ok`, and `outputs` set to SPEC_FILE and `FEATURE_DIR/checklists/requirements.md` as project-relative paths. Where the tool is not available, run `akka specify run close --run <id> --outcome ok` with one `--file <path>` for each output. On an error, print its message; the spec already written stands.
 
 10. **Idea record: end waiting for the owner's approval.** When a run was opened, the spec now waits for the owner's approval before the next station runs, in either mode. Say so, and say how to give it: on the idea in the console's Ideas page, or `akka specify idea approve <idea> spec`, where `<idea>` is the idea the run start returned. Do not carry out `/akka:plan` or any later station. Name the next command for after the approval (`/akka:clarify` or `/akka:plan`) and stop. Without a run, name the next command and stop.
 

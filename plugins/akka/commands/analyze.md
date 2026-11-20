@@ -257,7 +257,7 @@ Ask the user: "Would you like me to suggest concrete remediation edits for the t
 
 ### 9. Close the run
 
-If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and no outputs: this command writes no file. Where the tool is not available, run `akka specify run close --run <id>`. On an error, print its message; the report stands.
+If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id, `outcome: ok`, and no outputs: this command writes no file. Where the tool is not available, run `akka specify run close --run <id> --outcome ok`. On an error, print its message; the report stands.
 
 ### 10. Carry on or stop
 
