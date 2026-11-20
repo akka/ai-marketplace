@@ -289,6 +289,10 @@ Append to the **end** of `tasks.md`, per the append contract:
 - On `converged`: recommend proceeding to `/akka:review` or opening a PR. No
   further implement pass is needed for this feature's specified scope.
 
+### Task events
+
+`/akka:converge` appends tasks and does not run them, so it records no `start` or `tick` events itself. When it hands any part of the assessment to sub-agents, number them `agent-1`, `agent-2` and so on in the order they start, and begin each sub-agent's prompt with the line `[akka-agent: agent-<n>]`; a single agent is `agent-1`. When a finding needs a person's decision, call the `akka_run_task` MCP tool with `run` set to the run id, `task` set to the T-id of the task it concerns, `agent` set to the agent's number and `event: raise`, with `question` set to the question id. Where the tool is not available, run `akka specify run task raise --run <id> --task <T> --agent agent-<n> --question <Q-n>`. These calls are best-effort and never stop the run: on an older CLI with neither the tool nor the command, carry on as before and say once that task progress is not recorded. The appended group keeps its `[Ph<n>]` tags and detail lines.
+
 ### 9. Close the run
 
 If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id, `outcome: ok`, and
