@@ -143,12 +143,12 @@ bypass.
    framing.
 
 5. **Close the run** (the last step). If a run was opened, call the
-   `akka_run_close` MCP tool with `run` set to its id and no outputs: the ship
-   steps are the organization's, and the CLI records what it shipped. Where the
-   tool is not available, run `akka specify run close --run <id>`. A ship that
-   succeeded closes with `outcome: ok` (`--outcome ok` on the CLI); a refused ship closes with `outcome:
-   failed` and `error` set to the refusal's reason (`--outcome failed --error
-   "<reason>"` on the CLI). On an error, print its message; the outcome already
+   `akka_run_close` MCP tool with `run` set to its id, `outcome: ok` and no
+   outputs: the ship steps are the organization's, and the CLI records what it
+   shipped. Where the tool is not available, run `akka specify run close --run
+   <id> --outcome ok`. A refused ship closes instead with `outcome: failed` and
+   `error` set to the refusal's reason (`--outcome failed --error "<reason>"`
+   on the CLI). On an error, print its message; the outcome already
    reported stands.
 
 ## Key rules

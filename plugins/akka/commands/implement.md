@@ -29,7 +29,7 @@ marked **Idea record**, and open no run.
 
 **Idea record: a console run.** Call the `akka_run_context` MCP tool first when
 it is available: it answers `{ console, idea, station, run, spec, topic,
-questions, sentBack }`, and `console: true` means the console started this command. Only
+questions, sentBack, tasks }`, and `console: true` means the console started this command. Only
 without that tool, the console started it when `AKKA_RUN_ID` is set in its
 environment, or when the command has no shell to run the akka CLI in. The
 console has already opened the run and enforced the rules for it, so in a
@@ -241,10 +241,10 @@ the work's normal end.
    **Numbering the agents and recording task events**: number each agent `agent-1`, `agent-2` and so on in the order it starts; a run with a single agent uses `agent-1`. Begin each sub-agent's prompt with the line `[akka-agent: agent-<n>]`, so the gateway's records can be joined to that agent. Tell each sub-agent to record its tasks as follows, and call the same steps yourself for tasks you run in this session as `agent-1`:
    1. If a run was opened and `akka_run_context` returned `tasks`, take the next task from `tasks.next` first.
    2. Before starting a task, call the `akka_run_task` MCP tool with `run` set to the run id, `task` set to the task's T-id, `agent` set to `agent-<n>` and `action: start`. Where the tool is not available, run `akka specify run task start --run <id> --task <T> --agent agent-<n>`. If it answers that the task is held, handed over or already started, skip that task and take another. Follow any instructions it returns.
-   3. When the task's acceptance passes and you tick it in tasks.md, call the same tool with `action: tick`, or run `akka specify run task tick --run <id> --task <T> --agent agent-<n>`.
-   4. When a task needs a person's decision, call the same tool with `action: raise`, `question` set to the question id, `text` set to the question, `options` set to a list of options each with a label and a sentence, `recommended` set to the recommended option's label and `owner` set to the role that decides, or run `akka specify run task raise --run <id> --task <T> --agent agent-<n> --question <Q-n> --text <question> --option <label>=<sentence> ... --recommended <label> --owner <role>`, then move to another task.
+   3. When the task's acceptance passes, call the same tool with `action: tick`, or run `akka specify run task tick --run <id> --task <T> --agent agent-<n>`. The CLI sets the task's box in tasks.md under its lock, so when either is available do not edit the box yourself; only when neither is available, tick the box in tasks.md as before.
+   4. When a task needs a person's decision, call the same tool with `action: raise`, `text` set to the question, `options` set to a list of options each with a label and a sentence, `recommended` set to the recommended option's label and `owner` set to the role that decides, or run `akka specify run task raise --run <id> --task <T> --agent agent-<n> --text <question> --option <label>=<sentence> ... --recommended <label> --owner <role>`. Do not choose a question id: the CLI assigns the next one and returns it, and you use that id afterwards. Once the raise is recorded, move to another task. When neither the tool nor the command is available, the command's existing question handling applies unchanged; in a console run the question closes the run as `waiting`.
 
-   These calls are best-effort and never stop the run. When a run was not opened, or neither the `akka_run_task` tool nor `akka specify run task` exists on an older CLI, carry on exactly as before and say once that task progress is not recorded.
+   These calls are best-effort and never stop the run. When a run was not opened, or neither the `akka_run_task` tool nor `akka specify run task` exists on an older CLI, carry on exactly as before and say once that task progress is not recorded, unless the command has already said that the CLI predates the idea record.
 
 7. Execute implementation following the task plan:
    - **Group-by-group execution**: Complete each group before moving to the next
