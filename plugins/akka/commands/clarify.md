@@ -16,20 +16,118 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Before anything else
 
-Run `akka specify mode --allows clarify`. Add `--as-engine` when you are carrying
-this command out as a step of the sequence `/akka:specify` drives in Enforced
-mode, rather than because a person invoked it. It exits non-zero when the
-project's mode does not permit the command. On a non-zero exit, print its message verbatim and stop. Do
-not continue, and do not work around it. The one exception is a CLI that rejects
-`--allows` as an unknown flag: it predates the mode check (older than 3.0.74), so
-say so and continue without the check.
+This command keeps a run in the idea's record when the akka CLI has one: the
+`akka_run_start` MCP tool is available, or the output of `akka specify run start
+--help` contains `--station`. A CLI without it predates the idea record. With
+such a CLI, say so once and carry this command out as before: skip every step
+marked **Idea record**, and open no run.
 
-Enforced mode gives the sequence to the engine, so a step it sequences is refused
-to a person and permitted to the engine. A refusal with a reason of its own, such
-as re-running setup, stands either way. The message names the remedy.
+**Idea record: a console run.** Call the `akka_run_context` MCP tool first when
+it is available: it answers `{ console, idea, station, run, spec, topic,
+questions, sentBack }`, and `console: true` means the console started this command. Only
+without that tool, the console started it when `AKKA_RUN_ID` is set in its
+environment, or when the command has no shell to run the akka CLI in. The
+console has already opened the run and enforced the rules for it, so in a
+console run the run is open from the first step: its id is the `run`
+`akka_run_context` answered. Any stop before the normal close, such as a
+mode-check refusal, a missing argument, or a check that needs a tool this run
+lacks, closes it with `akka_run_close`, that `run`, `outcome: failed` and the
+reason. So in a console run: the feature is `akka_run_context`'s `spec` (for
+`/akka:discover`, the topic is its `topic`), and the command never searches for
+one; skip every step that finds, adopts, starts or links an idea, and never ask
+a person a question: wherever this command would ask one, it closes the run with
+`outcome: waiting` and `question` set to the question (`--outcome waiting
+--question "<question>"` on the CLI); the owner answers in the console, and the
+re-run reads the answer from `akka_run_context`'s `questions` (`{station, run,
+question, answer}`) and does not ask it again; run the mode check with `--idea`
+set to the `idea` `akka_run_context` answered, and skip it when it cannot run
+here or no idea is known; open the run by calling `akka_run_start` with
+`command` and `args` only, no `idea` and no `station`, and the CLI joins the
+console's run; close it as usual; and skip the carry-on step, because the
+console moves the idea on. A run with no shell for the akka CLI that
+`akka_run_context` answers `console: false` for is not a console run and keeps
+no record: open no run, ask nothing about ideas or lanes, and carry the command
+out as before the idea record, skipping every step marked **Idea record**.
 
-Under enforcement an unresolved question is settled by `/akka:specify`, so this
-command is refused to the engine as well. `--as-engine` does not lift this one.
+**Idea record: a station sent back to.** When `akka_run_context` answers
+`sentBack` (`{ from, reason, by, at }`), the idea was sent back to this station
+from `from`, and `reason` says why. Work on that reason first: read it as the
+instruction for this run from `by`, change this station's outputs where the
+reason points, and keep what it does not touch. `sentBack` is `null` when no
+send-back opened this station's visit.
+
+**Idea record: clarify in a console run.** Nobody answers questions in a console
+run, so do not run the questioning loop. Fold in the owner's answers first, as
+the next paragraph says. Write each question the scan would ask into the spec as
+a `[NEEDS CLARIFICATION: <question>]` marker at the place it concerns; the
+console shows each as a wait for the owner to answer. Report them, and close the
+run as usual, with `FEATURE_SPEC` as its output.
+
+**Answers given in the console.** In every run, before the scan: for each `- Q:
+<question> → A: <answer>` line under `## Clarifications` whose `[NEEDS
+CLARIFICATION: <question>]` marker is still in the spec, integrate the answer as
+an accepted answer is integrated below, and remove the marker. These answers do
+not count against the question limit.
+
+**Idea record: find the idea.** On a laptop run, find the feature this command
+works on first: call `akka_sdd_list_specs` and identify the target feature as
+the first step below does. Its idea is the one in `akka specify idea list
+--json` whose `spec` is the feature's folder name (`NNN-name`); an idea is never
+found from the git branch. When that idea has `derived: true`, it has no record
+yet: adopt it with `akka specify ideas adopt --idea <id>`, then use it. When no
+idea has it, read the mode with `akka specify mode`. In À la carte mode, open no
+run: say in one line that this run is not recorded, and continue. In Enforced
+mode, stop: the project's specs and topics get their ideas once with `akka
+specify ideas adopt`, and this command runs after that. Pass the idea's id as
+`--idea <id>` to the mode check and `idea` to the run start.
+
+Run `akka specify mode --allows clarify`, adding `--idea <id>` when the idea
+record found the idea. With a CLI that predates the idea record, add
+`--as-engine` when you are carrying this command out as a step of the sequence
+`/akka:specify` drives in Enforced mode, rather than because a person invoked
+it. It exits non-zero when the project's mode does not permit the command. On a
+non-zero exit, print its message verbatim and stop. Do not continue, and do not
+work around it. The one exception is a CLI that rejects `--allows` as an unknown
+flag: it predates the mode check (older than 3.0.74), so say so and continue
+without the check.
+
+With the idea record, Enforced mode runs a station command when the idea's
+previous station is done and approved, and the CLI's run start decides;
+`/akka:specify` does not drive the sequence. With an older CLI, Enforced mode
+gives the sequence to the engine, so a step it sequences is refused to a person
+and permitted to the engine. A refusal with a reason of its own, such as
+re-running setup, stands either way. The message names the remedy.
+
+Under enforcement an unresolved question is settled by `/akka:specify`, so the
+CLI refuses this command to the engine as well. `--as-engine` does not lift this
+one.
+
+**Idea record: open the run.** On a laptop run, call the `akka_run_start` MCP
+tool with `station: clarify`, `command: /akka:clarify`, `idea` set to the idea
+found above and `args` set to the user input. Where the tool is not available,
+run `akka specify run start --station clarify --command /akka:clarify --idea
+<id> --args "<the user input>" --json`, with the input quoted as one argument. A
+run is never started without its idea. It answers JSON: `recorded`, and for a
+recorded run its `idea` and `run.id`. Keep both: the last steps use them.
+
+- When it answers `recorded: false`, continue without a run, and say in one line
+  that this run is not recorded, with its `reason`.
+- A refusal by rule is an error whose JSON is `{refused, message, remedy}`,
+  `refused` naming the rule: `paused`, `limit`, `shipped`, `dropped`,
+  `approval`, `order`, `no-idea-enforced`, `idea-unresolved` or `console-run`.
+  Print `message` and `remedy` verbatim and stop.
+- Any other error, one without `refused` (such as no login), does not stop the
+  command: continue without a run, and say in one line that this run is not
+  recorded.
+
+**Idea record: a run that fails is closed too.** Once the run is open, every way
+the command ends closes it. When the work fails (a build or tests fail, or a
+step stops the command early), call `akka_run_close` with `run`, `outcome:
+failed` and `error` set to what failed, in one line, then stop. Where the tool
+is not available, run `akka specify run close --run <id> --outcome failed
+--error "<what failed>"`. When the person stops the command, close the run with
+`outcome: stopped`. This holds in a console run too. The close step below is for
+the work's normal end.
 
 ## Outline
 
@@ -187,6 +285,10 @@ Execution steps:
    - If any Outstanding or Deferred remain, recommend whether to proceed to `/akka:plan` or run `/akka:clarify` again later post-plan.
    - Suggested next command. If policy-decision markers remain, recommend `/akka:clarify` again, not `/akka:plan`.
 
+10. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id, `outcome: ok`, and `outputs` set to `FEATURE_SPEC` as a project-relative path, or to none when no answer was integrated. Where the tool is not available, run `akka specify run close --run <id> --outcome ok` with `--file <path>` for the spec. On an error, print its message; the clarifications already written stand.
+
+11. **Carry on or stop.** In a console run, skip this step: the console moves the idea on. If a run was opened, run `akka specify idea next --idea <idea> --from clarify --json`, where `<idea>` is the `idea` the run start returned. It answers `{ go, next, reason }`. When `go` is true, carry on into `next.command` in this conversation, following its own instructions. Otherwise stop, print `reason`, and name `next.command` when there is one. Without a run, stop and name the next command.
+
 Behavior rules:
 
 - Policy-decision markers (thresholds, access permissions, retention, sensitive-data rules, approvals) are not subject to the specify marker limit: put them first in the question queue and never infer an answer. Any not reached within the 5-question limit stay as markers for the next run.
@@ -211,3 +313,5 @@ Context for prioritization: $ARGUMENTS
 - [ ] The spec file was saved to FEATURE_SPEC after each integration and passes validation (no lingering vague placeholders the new answer was meant to resolve; markdown structure valid; only allowed new headings added).
 - [ ] Existing diagrams affected by the source update were reported as potentially stale, with `/akka:visualize` suggested as an optional next step; all diagram files were left untouched.
 - [ ] The final report listed questions asked/answered, sections touched, a coverage summary (Resolved / Deferred / Clear / Outstanding), and the suggested next command.
+- [ ] The run was opened with `akka_run_start` after the mode check, against the idea found from its feature, and closed with `akka_run_close` at the end, or the CLI was reported as predating the idea record.
+- [ ] With a run, the command carried on into `next.command` only when `akka specify idea next` answered `go: true`; otherwise it stopped, printed the reason and named the next command.

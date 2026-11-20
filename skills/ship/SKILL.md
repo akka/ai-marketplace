@@ -43,9 +43,80 @@ bypass.
 1. **Parse the target from `the user's request`.** Read the first argument. It MUST be
    `review` or `release`. If missing, invalid, or anything else, stop and tell
    the user: *"`/akka:ship` requires an explicit target: `review` or `release`.
-   For example: `/akka:ship review`."* Do not call the CLI.
+   For example: `/akka:ship review`."* Do not call the CLI. In a console run,
+   close the console's run `failed` with this message, as step 2 says.
 
-2. **Invoke the CLI.** Run `akka specify ship <target>` in the project directory
+2. **Idea record: open the run.** This command keeps a run in the idea's record
+   when the akka CLI has one: the `akka_run_start` MCP tool is available, or the
+   output of `akka specify run start --help` contains `--station`. A CLI without
+   it predates the idea record. With such a CLI, say so once and carry this
+   command out as before: skip every step marked **Idea record**, and open no
+   run. Call the `akka_run_context` MCP tool first when it is available: it
+   answers `{ console, idea, station, run, spec, topic, questions }`, and
+   `console: true` means the console started this command. Only without that
+   tool, the console started it when `AKKA_RUN_ID` is set in its environment, or
+   when the command has no shell to run the akka CLI in. The console has already
+   opened the run and enforced the rules for it, so in a console run the run is
+   open from the first step: its id is the `run` `akka_run_context` answered.
+   Any stop before the normal close, such as a mode-check refusal, a missing
+   argument, or a check that needs a tool this run lacks, closes it with
+   `akka_run_close`, that `run`, `outcome: failed` and the reason. So in a
+   console run: the feature is `akka_run_context`'s `spec` (for
+   `/akka:discover`, the topic is its `topic`), and the command never searches
+   for one; skip every step that finds, adopts, starts or links an idea, and
+   never ask a person a question: wherever this command would ask one, it closes
+   the run with `outcome: waiting` and `question` set to the question
+   (`--outcome waiting --question "<question>"` on the CLI); the owner answers
+   in the console, and the re-run reads the answer from `akka_run_context`'s
+   `questions` (`{station, run, question, answer}`) and does not ask it again;
+   run the mode check with `--idea` set to the `idea` `akka_run_context`
+   answered, and skip it when it cannot run here or no idea is known; open the
+   run by calling `akka_run_start` with `command` and `args` only, no `idea` and
+   no `station`, and the CLI joins the console's run; close it as usual; and
+   skip the carry-on step, because the console moves the idea on. A run with no
+   shell for the akka CLI that `akka_run_context` answers `console: false` for
+   is not a console run and keeps no record: open no run, ask nothing about
+   ideas or lanes, and carry the command out as before the idea record, skipping
+   every step marked **Idea record**. On a laptop run, find the feature this
+   command works on first: the feature the user input names; otherwise call
+   `akka_sdd_list_specs` and take the only feature, or the one whose folder name
+   is the current branch's, and ask which when that leaves several. Its idea is
+   the one in `akka specify idea list --json` whose `spec` is the feature's
+   folder name (`NNN-name`); an idea is never found from the git branch. When
+   that idea has `derived: true`, it has no record yet: adopt it with `akka
+   specify ideas adopt --idea <id>`, then use it. When no idea has it, read the
+   mode with `akka specify mode`. In À la carte mode, open no run: say in one
+   line that this run is not recorded, and continue. In Enforced mode, stop: the
+   project's specs and topics get their ideas once with `akka specify ideas
+   adopt`, and this command runs after that. Pass the idea's id as `idea` to the
+   run start. On a laptop run, call the `akka_run_start` MCP tool with `station:
+   ship`, `command: /akka:ship`, `idea` set to the idea found above and `args`
+   set to the target. Where the tool is not available, run `akka specify run
+   start --station ship --command /akka:ship --idea <id> --args <target>
+   --json`. A run is never started without its idea. It answers JSON:
+   `recorded`, and for a recorded run its `idea` and `run.id`. Keep both: the
+   last steps use them.
+
+   - When it answers `recorded: false`, continue without a run, and say in one
+     line that this run is not recorded, with its `reason`.
+   - A refusal by rule is an error whose JSON is `{refused, message, remedy}`,
+     `refused` naming the rule: `paused`, `limit`, `shipped`, `dropped`,
+     `approval`, `order`, `no-idea-enforced`, `idea-unresolved` or
+     `console-run`. Print `message` and `remedy` verbatim and stop.
+   - Any other error, one without `refused` (such as no login), does not stop
+     the command: continue without a run, and say in one line that this run is
+     not recorded.
+
+   **Idea record: a run that fails is closed too.** Once the run is open, every
+   way the command ends closes it. When the work fails (a build or tests fail,
+   or a step stops the command early), call `akka_run_close` with `run`,
+   `outcome: failed` and `error` set to what failed, in one line, then stop.
+   Where the tool is not available, run `akka specify run close --run <id>
+   --outcome failed --error "<what failed>"`. When the person stops the command,
+   close the run with `outcome: stopped`. This holds in a console run too. The
+   close step below is for the work's normal end.
+
+3. **Invoke the CLI.** Run `akka specify ship <target>` in the project directory
    (via the shell). Capture the output. The CLI:
    - Runs the author-time auditors first; in Enforced mode stops there if any
      of them blocks.
@@ -59,7 +130,7 @@ bypass.
    - Writes a conformance receipt recording which target was shipped, what was
      verified, and any conditions that remained `open` with their reasons.
 
-3. **Report plainly.** Present the CLI output. Do not restate internal condition
+4. **Report plainly.** Present the CLI output. Do not restate internal condition
    ids, check keys, or the words "auditor" / "coverage gate" / "adequacy review".
    If the ship succeeded, say so and name the target that was shipped. If the
    ship refused, say what would unblock it — the reason field on each blocking
@@ -71,11 +142,21 @@ bypass.
    yet. "Your own checks have to pass before the rest even run" is the honest
    framing.
 
+5. **Close the run** (the last step). If a run was opened, call the
+   `akka_run_close` MCP tool with `run` set to its id, `outcome: ok` and no
+   outputs: the ship steps are the organization's, and the CLI records what it
+   shipped. Where the tool is not available, run `akka specify run close --run
+   <id> --outcome ok`. A refused ship closes instead with `outcome: failed` and
+   `error` set to the refusal's reason (`--outcome failed --error "<reason>"`
+   on the CLI). On an error, print its message; the outcome already
+   reported stands.
+
 ## Key rules
 
 - The target is required. Never invoke the CLI without one.
 - Never invent a target. If the user typed only `/akka:ship`, ask which target
-  they intended rather than guessing.
+  they intended rather than guessing; a console run closes `failed` instead, as
+  step 1 says.
 - Ship steps are org-specific. This command runs the auditors and, on pass,
   hands off to whatever steps the organization declared in its policy.
 - The author-time precondition is checked before anything else, in both modes.
@@ -99,3 +180,7 @@ bypass.
       machinery words).
 - [ ] If the refusal came from the author-time precondition, the report said so
       and did not characterize the checks that never ran.
+- [ ] Once the target was valid, the run was opened with `akka_run_start` before
+      the CLI ran the ship and closed with `akka_run_close` as the last step, a
+      refused ship with outcome failed and its reason, or the CLI was reported
+      as predating the idea record.

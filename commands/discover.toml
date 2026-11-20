@@ -11,6 +11,98 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command runs `akka specify probes` and `akka specify conform`, which need an akka CLI with discovery support. Check first: run `akka specify probes --help`. If its list of commands does not include `findings`, the CLI predates discovery: akka CLI 3.0.81 and earlier lack the discovery probes and gates, and refuse the discovery templates as well. Tell the person that discovery cannot run with this CLI and needs a newer akka CLI, name what is missing (`akka specify probes findings`, the discovery gates and the discovery templates), and stop without writing any file. On a CLI that passes this check, treat an `unknown command` or `unknown flag` error from an `akka specify` call, or a template refused as unknown, the same way within one step: name what is missing, skip that step, and say so. A `probes run` that fails only on `--database-var` is run again without it, and the report says the database's catalogue was not read.
 
+## Before anything else
+
+This command keeps a run in the idea's record when the akka CLI has one: the
+`akka_run_start` MCP tool is available, or the output of `akka specify run start
+--help` contains `--station`. A CLI without it predates the idea record. With
+such a CLI, say so once and carry this command out as before: skip every step
+marked **Idea record**, and open no run.
+
+**Idea record: a console run.** Call the `akka_run_context` MCP tool first when
+it is available: it answers `{ console, idea, station, run, spec, topic,
+questions, sentBack }`, and `console: true` means the console started this command. Only
+without that tool, the console started it when `AKKA_RUN_ID` is set in its
+environment, or when the command has no shell to run the akka CLI in. The
+console has already opened the run and enforced the rules for it, so in a
+console run the run is open from the first step: its id is the `run`
+`akka_run_context` answered. Any stop before the normal close, such as a
+mode-check refusal, a missing argument, or a check that needs a tool this run
+lacks, closes it with `akka_run_close`, that `run`, `outcome: failed` and the
+reason. So in a console run: the feature is `akka_run_context`'s `spec` (for
+`/akka:discover`, the topic is its `topic`), and the command never searches for
+one; skip every step that finds, adopts, starts or links an idea, and never ask
+a person a question: wherever this command would ask one, it closes the run with
+`outcome: waiting` and `question` set to the question (`--outcome waiting
+--question "<question>"` on the CLI); the owner answers in the console, and the
+re-run reads the answer from `akka_run_context`'s `questions` (`{station, run,
+question, answer}`) and does not ask it again; run the mode check with `--idea`
+set to the `idea` `akka_run_context` answered, and skip it when it cannot run
+here or no idea is known; open the run by calling `akka_run_start` with
+`command` and `args` only, no `idea` and no `station`, and the CLI joins the
+console's run; close it as usual; and skip the carry-on step, because the
+console moves the idea on. A run with no shell for the akka CLI that
+`akka_run_context` answers `console: false` for is not a console run and keeps
+no record: open no run, ask nothing about ideas or lanes, and carry the command
+out as before the idea record, skipping every step marked **Idea record**.
+
+**Idea record: a station sent back to.** When `akka_run_context` answers
+`sentBack` (`{ from, reason, by, at }`), the idea was sent back to this station
+from `from`, and `reason` says why. Work on that reason first: read it as the
+instruction for this run from `by`, change this station's outputs where the
+reason points, and keep what it does not touch. `sentBack` is `null` when no
+send-back opened this station's visit.
+
+**Idea record: discover in a console run.** The topic is `akka_run_context`'s
+`topic`. For a topic the console created from an idea, the goal question closes
+the run `waiting` only when `questions` holds no answer to it; on the re-run,
+write the recorded answer as the goal.
+
+The topic list (no input) and `--prework` write no topic's files and open no
+run.
+
+**Idea record: find or start the topic's idea.** On a laptop run, once the topic
+is known from the input (see *Input* below), find its idea in `akka specify idea
+list --json`: the idea whose `topic` is this topic's folder name; an idea is
+never found from the git branch. When that idea has `derived: true`, it has no
+record yet: adopt it with `akka specify ideas adopt --idea <id>`, then use it. A
+topic has one idea: never start a second. When there is none, start it: ask the
+person how it ships, Deploy to Akka (`akka`) or Commit to internal systems
+(`internal`), with your suggestion, then run `akka specify idea new --topic
+<folder> --lane <lane> "<words>"` with the person's idea as its words (the
+context in the user input, or ask for it in one sentence), quoted as one
+argument. The id it prints is the topic's idea. When the adopt or `idea new`
+fails, in Enforced mode (`akka specify mode`) stop with the CLI's message;
+otherwise open no run, say in one line that this run is not recorded, and
+continue.
+
+**Idea record: open the run.** On a laptop run, call the `akka_run_start` MCP
+tool with `station: discover`, `command: /akka:discover`, `idea` set to the
+topic's idea and `args` set to the user input. Where the tool is not available,
+run `akka specify run start --station discover --command /akka:discover --idea
+<id> --args "<the user input>" --json`, with the input quoted as one argument. A
+run is never started without its idea. It answers JSON: `recorded`, and for a
+recorded run its `idea` and `run.id`. Keep both: the last steps use them.
+
+- When it answers `recorded: false`, continue without a run, and say in one line
+  that this run is not recorded, with its `reason`.
+- A refusal by rule is an error whose JSON is `{refused, message, remedy}`,
+  `refused` naming the rule: `paused`, `limit`, `shipped`, `dropped`,
+  `approval`, `order`, `no-idea-enforced`, `idea-unresolved` or `console-run`.
+  Print `message` and `remedy` verbatim and stop.
+- Any other error, one without `refused` (such as no login), does not stop the
+  command: continue without a run, and say in one line that this run is not
+  recorded.
+
+**Idea record: a run that fails is closed too.** Once the run is open, every way
+the command ends closes it. When the work fails (a build or tests fail, or a
+step stops the command early), call `akka_run_close` with `run`, `outcome:
+failed` and `error` set to what failed, in one line, then stop. Where the tool
+is not available, run `akka specify run close --run <id> --outcome failed
+--error "<what failed>"`. When the person stops the command, close the run with
+`outcome: stopped`. This holds in a console run too. The close step below is for
+the work's normal end.
+
 ## Outline
 
 Discovery is the work that comes before a specification: learning what is already known, what
@@ -488,6 +580,12 @@ customer, product or person; it uses placeholders the owner fills in.
 3. **Report** the file path, the number of prompts, and which ones need other people first.
 
 
+## Closing the run
+
+The last step of every run this command opened closes it, after the step's report and any Story refresh. Call the `akka_run_close` MCP tool with `run` set to the run's id, `outcome: ok`, and `outputs` set to the files this run wrote, as project-relative paths: the step's files from the Writes column above, and the Story pages when `/akka:docs story` ran. Where the tool is not available, run `akka specify run close --run <id> --outcome ok` with one `--file <path>` for each output. On an error, print its message; the files already written stand.
+
+Then carry on or stop. In a console run, skip this step: the console moves the idea on. If a run was opened, run `akka specify idea next --idea <idea> --from discover --json`, where `<idea>` is the `idea` the run start returned. It answers `{ go, next, reason }`. When `go` is true, carry on into `next.command` in this conversation, following its own instructions. Otherwise stop, print `reason`, and name `next.command` when there is one. Without a run, stop and name the next command.
+
 ## Key rules
 
 - Use absolute paths when reading and writing files.
@@ -513,4 +611,6 @@ customer, product or person; it uses placeholders the owner fills in.
 - [ ] `mock`: every entry is one `[M-<CODE>-<n>]` line; every approval or change request came from the reviewer and is in Review History.
 - [ ] `--prework`: the pack has how to use, the request list first, the strongest-model note, Prompt 0, numbered prompts each naming its output file, the kickoff brief last, and a specification seed, with no customer, product or person named.
 - [ ] The report gave the files written, the findings added by status, and one recommended next step.
+- [ ] Apart from the topic list, the run was opened with `akka_run_start` before any other step and closed with `akka_run_close` naming the files written, or the CLI was reported as predating the idea record.
+- [ ] With a run, the command carried on into `next.command` only when `akka specify idea next` answered `go: true`; otherwise it stopped, printed the reason and named the next command.
 """

@@ -9,17 +9,118 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Before anything else
 
-Run `akka specify mode --allows implement`. Add `--as-engine` when you are carrying
-this command out as a step of the sequence `/akka:specify` drives in Enforced
-mode, rather than because a person invoked it. It exits non-zero when the
-project's mode does not permit the command. On a non-zero exit, print its message verbatim and stop. Do
-not continue, and do not work around it. The one exception is a CLI that rejects
-`--allows` as an unknown flag: it predates the mode check (older than 3.0.74), so
-say so and continue without the check.
+This command keeps a run in the idea's record when the akka CLI has one: the
+`akka_run_start` MCP tool is available, or the output of `akka specify run start
+--help` contains `--station`. A CLI without it predates the idea record. With
+such a CLI, say so once and carry this command out as before: skip every step
+marked **Idea record**, and open no run.
 
-Enforced mode gives the sequence to the engine, so a step it sequences is refused
-to a person and permitted to the engine. A refusal with a reason of its own, such
-as re-running setup, stands either way. The message names the remedy.
+**Idea record: a console run.** Call the `akka_run_context` MCP tool first when
+it is available: it answers `{ console, idea, station, run, spec, topic,
+questions, sentBack, tasks }`, and `console: true` means the console started this command. Only
+without that tool, the console started it when `AKKA_RUN_ID` is set in its
+environment, or when the command has no shell to run the akka CLI in. The
+console has already opened the run and enforced the rules for it, so in a
+console run the run is open from the first step: its id is the `run`
+`akka_run_context` answered. Any stop before the normal close, such as a
+mode-check refusal, a missing argument, or a check that needs a tool this run
+lacks, closes it with `akka_run_close`, that `run`, `outcome: failed` and the
+reason. So in a console run: the feature is `akka_run_context`'s `spec` (for
+`/akka:discover`, the topic is its `topic`), and the command never searches for
+one; skip every step that finds, adopts, starts or links an idea, and never ask
+a person a question: wherever this command would ask one, it closes the run with
+`outcome: waiting` and `question` set to the question (`--outcome waiting
+--question "<question>"` on the CLI); the owner answers in the console, and the
+re-run reads the answer from `akka_run_context`'s `questions` (`{station, run,
+question, answer}`) and does not ask it again; run the mode check with `--idea`
+set to the `idea` `akka_run_context` answered, and skip it when it cannot run
+here or no idea is known; open the run by calling `akka_run_start` with
+`command` and `args` only, no `idea` and no `station`, and the CLI joins the
+console's run; close it as usual; and skip the carry-on step, because the
+console moves the idea on. A run with no shell for the akka CLI that
+`akka_run_context` answers `console: false` for is not a console run and keeps
+no record: open no run, ask nothing about ideas or lanes, and carry the command
+out as before the idea record, skipping every step marked **Idea record**.
+
+**Idea record: a station sent back to.** When `akka_run_context` answers
+`sentBack` (`{ from, reason, by, at }`), the idea was sent back to this station
+from `from`, and `reason` says why. Work on that reason first: read it as the
+instruction for this run from `by`, change this station's outputs where the
+reason points, and keep what it does not touch. `sentBack` is `null` when no
+send-back opened this station's visit.
+
+**Idea record: implement in a console run.** When a checklist is incomplete, do
+not ask whether to proceed: close the run with `outcome: waiting` and that
+question. Never merge to `main` in a console run: skip the merge question and
+leave the feature branch, because the merge is a person's choice. The feature
+branch is `akka_run_context`'s `spec`, the idea's spec name, not the spec's
+**Feature Branch** field. Skip the docs refresh and say in one line that it is
+left for a laptop run: `/akka:docs` writes under `.akka/` and needs tools a
+console run lacks. When a delivery phase's gate mock is not approved in
+`mocks/index.md`, close the run `waiting`; the re-run checks `mocks/index.md`
+again, and a recorded answer is not the approval. When the feature branch
+already exists and cannot be entered (HEAD is elsewhere and checking out is not
+granted), close the run `failed` with the reason. Build and test with `mvn` in the shell (for example `mvn -q compile`, `mvn
+test` and `mvn verify`), which a console run of this command may run: it refuses
+the `akka_maven_*` tools, so a task that names one runs as the matching `mvn`
+command.
+
+**Idea record: find the idea.** On a laptop run, find the feature this command
+works on first: call `akka_sdd_list_specs` and identify the target feature as
+the first step below does. Its idea is the one in `akka specify idea list
+--json` whose `spec` is the feature's folder name (`NNN-name`); an idea is never
+found from the git branch. When that idea has `derived: true`, it has no record
+yet: adopt it with `akka specify ideas adopt --idea <id>`, then use it. When no
+idea has it, read the mode with `akka specify mode`. In À la carte mode, open no
+run: say in one line that this run is not recorded, and continue. In Enforced
+mode, stop: the project's specs and topics get their ideas once with `akka
+specify ideas adopt`, and this command runs after that. Pass the idea's id as
+`--idea <id>` to the mode check and `idea` to the run start.
+
+Run `akka specify mode --allows implement`, adding `--idea <id>` when the idea
+record found the idea. With a CLI that predates the idea record, add
+`--as-engine` when you are carrying this command out as a step of the sequence
+`/akka:specify` drives in Enforced mode, rather than because a person invoked
+it. It exits non-zero when the project's mode does not permit the command. On a
+non-zero exit, print its message verbatim and stop. Do not continue, and do not
+work around it. The one exception is a CLI that rejects `--allows` as an unknown
+flag: it predates the mode check (older than 3.0.74), so say so and continue
+without the check.
+
+With the idea record, Enforced mode runs a station command when the idea's
+previous station is done and approved, and the CLI's run start decides;
+`/akka:specify` does not drive the sequence. With an older CLI, Enforced mode
+gives the sequence to the engine, so a step it sequences is refused to a person
+and permitted to the engine. A refusal with a reason of its own, such as
+re-running setup, stands either way. The message names the remedy.
+
+**Idea record: open the run.** On a laptop run, call the `akka_run_start` MCP
+tool with `station: implement`, `command: /akka:implement`, `idea` set to the
+idea found above and `args` set to the user input. Where the tool is not
+available, run `akka specify run start --station implement --command
+/akka:implement --idea <id> --args "<the user input>" --json`, with the input
+quoted as one argument. A run is never started without its idea. It answers
+JSON: `recorded`, and for a recorded run its `idea` and `run.id`. Keep both: the
+last steps use them.
+
+- When it answers `recorded: false`, continue without a run, and say in one line
+  that this run is not recorded, with its `reason`.
+- A refusal by rule is an error whose JSON is `{refused, message, remedy}`,
+  `refused` naming the rule: `paused`, `limit`, `shipped`, `dropped`,
+  `approval`, `order`, `no-idea-enforced`, `idea-unresolved` or `console-run`.
+  Print `message` and `remedy` verbatim and stop.
+- Any other error, one without `refused` (such as no login), does not stop the
+  command: continue without a run, and say in one line that this run is not
+  recorded.
+
+**Idea record: a run that fails is closed too.** Once the run is open, every way
+the command ends closes it. When the work fails (a build or tests fail, or a
+step stops the command early), call `akka_run_close` with `run`, `outcome:
+failed` and `error` set to what failed, in one line, then stop. Where the tool
+is not available, run `akka specify run close --run <id> --outcome failed
+--error "<what failed>"`. When the person stops the command, close the run with
+`outcome: stopped`. This holds in a console run too. The close step below is for
+the work's normal end.
 
 ## Outline
 
@@ -125,6 +226,14 @@ as re-running setup, stands either way. The message names the remedy.
 
    Then apply the downgrade rule: when usage has reached 85% of the plan's allowance (the harness reports it, or the user says so), move the chosen model one tier down the tier list in `.akka/models.md` (the last tier stays), unless the policy's Exceptions name that purpose or phase. Do not change the main session's model; tell the user once that the rule is in effect and suggest they switch the main session themselves. Without a policy file, the tiers are, most capable first: opus, sonnet, haiku. Name the model used in the progress report for each task.
 
+   **Numbering the agents and recording task events**: number each agent `agent-1`, `agent-2` and so on in the order it starts; a run with a single agent uses `agent-1`. Begin each sub-agent's prompt with the line `[akka-agent: agent-<n>]`, so the gateway's records can be joined to that agent. Tell each sub-agent to record its tasks as follows, and call the same steps yourself for tasks you run in this session as `agent-1`:
+   1. If a run was opened and `akka_run_context` returned `tasks`, take the next task from `tasks.next` first.
+   2. Before starting a task, call the `akka_run_task` MCP tool with `run` set to the run id, `task` set to the task's T-id, `agent` set to `agent-<n>` and `action: start`. Where the tool is not available, run `akka specify run task start --run <id> --task <T> --agent agent-<n>`. If it answers that the task is held, handed over or already started, skip that task and take another. Follow any instructions it returns.
+   3. When the task's acceptance passes, call the same tool with `action: tick`, or run `akka specify run task tick --run <id> --task <T> --agent agent-<n>`. The CLI sets the task's box in tasks.md under its lock, so when either is available do not edit the box yourself; only when neither is available, tick the box in tasks.md as before.
+   4. When a task needs a person's decision, call the same tool with `action: raise`, `text` set to the question, `options` set to a list of options each with a label and a sentence, `recommended` set to the recommended option's label and `owner` set to the role that decides, or run `akka specify run task raise --run <id> --task <T> --agent agent-<n> --text <question> --option <label>=<sentence> ... --recommended <label> --owner <role>`. Do not choose a question id: the CLI assigns the next one and returns it, and you use that id afterwards. Once the raise is recorded, move to another task. When neither the tool nor the command is available, the command's existing question handling applies unchanged; in a console run the question closes the run as `waiting`.
+
+   These calls are best-effort and never stop the run. When a run was not opened, or neither the `akka_run_task` tool nor `akka specify run task` exists on an older CLI, carry on exactly as before and say once that task progress is not recorded, unless the command has already said that the CLI predates the idea record.
+
 7. Execute implementation following the task plan:
    - **Group-by-group execution**: Complete each group before moving to the next
    - **Respect dependencies**: Run sequential tasks in order, parallel tasks [P] can run together
@@ -148,6 +257,7 @@ as re-running setup, stands either way. The message names the remedy.
    - Provide clear error messages with context for debugging
    - Suggest next steps if implementation cannot proceed
    - **IMPORTANT** For completed tasks, make sure to mark the task off as [X] in the tasks file.
+   - Record each task's `start`, `tick` and `raise` events as described in step 6.
 
 10. **Refresh the docs.** If the project has a `discovery/` folder, run `/akka:docs` (the implementation docs and the Story) before the commit, in this session, so they match what this command built; add its outcome to the report, and leave the refreshed docs for the commit in the next step. If the project has no `discovery/` folder, do not run `/akka:docs`; offer it in the report as an optional next step, and leave `docs/` untouched.
 
@@ -167,6 +277,10 @@ as re-running setup, stands either way. The message names the remedy.
    - Confirm the implementation follows the technical plan
    - Report final status with summary of completed work
 
+14. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id, `outcome: ok`, `outputs` set to the code and test files this run created or changed and `FEATURE_DIR/tasks.md`, with `docs/` when the docs refresh ran, all as project-relative paths, and `tasks` set to the ids of the tasks this run marked `[X]`. Where the tool is not available, run `akka specify run close --run <id> --outcome ok` with one `--file <path>` for each output and one `--task <id>` for each task. On an error, print its message; the committed work stands.
+
+15. **Carry on or stop.** In a console run, skip this step: the console moves the idea on. If a run was opened, run `akka specify idea next --idea <idea> --from implement --json`, where `<idea>` is the `idea` the run start returned. It answers `{ go, next, reason }`. When `go` is true, carry on into `next.command` in this conversation, following its own instructions. Otherwise stop, print `reason`, and name `next.command` when there is one. Without a run, stop and name the next command.
+
 Note: This command assumes a complete task breakdown exists in tasks.md. If tasks are incomplete or missing, suggest running `/akka:tasks` first to regenerate the task list.
 
 ## Done When
@@ -177,9 +291,12 @@ Note: This command assumes a complete task breakdown exists in tasks.md. If task
 - [ ] Every applicable ignore file (`.gitignore`, `.dockerignore`, `.eslintignore`/eslint config, `.prettierignore`, `.npmignore`, `.terraformignore`, `.helmignore`) was created or verified with the correct patterns for the detected tech stack.
 - [ ] Tasks were executed group-by-group, respecting sequential dependencies and running `[P]` tasks in parallel where safe.
 - [ ] When tasks carry `[Ph<n>]` tags, each delivery phase's acceptance test passed before a later phase's tasks started, and, with a `discovery/` folder, its gate was approved.
+- [ ] Each sub-agent was numbered `agent-<n>` and its prompt began with `[akka-agent: agent-<n>]`; each task's `start` and `tick` events were recorded where the CLI supports them, or the command said once that task progress is not recorded.
 - [ ] Each sub-agent's model and effort came from the task's `[model: …]` tag, the plan's Model Plan, `.akka/models.md` or the harness default, in that order, with the 85% downgrade rule applied; the model used was reported per task.
 - [ ] Every completed task in `tasks.md` was marked `[X]`; any failed task halted execution (or, for `[P]` tasks, was reported while continuing successful siblings).
 - [ ] All changes were staged via `akka_git_add` and committed via `akka_git_commit` with a descriptive message.
-- [ ] The user was asked whether to merge the feature branch to `main`; the answer was acted on (`akka_git_checkout` + `akka_git_merge` on yes, stay on feature branch on no).
+- [ ] On a laptop run, the user was asked whether to merge the feature branch to `main`, and a console run left the branch unmerged; the answer was acted on (`akka_git_checkout` + `akka_git_merge` on yes, stay on feature branch on no).
 - [ ] The final report validates that implemented features match the spec, tests pass, and the implementation follows the plan.
-- [ ] With a `discovery/` folder, `/akka:docs` ran before the commit; without one, it was offered as a next step and `docs/` was left untouched.
+- [ ] With a `discovery/` folder, `/akka:docs` ran before the commit (a console run left it for a laptop run); without one, it was offered as a next step and `docs/` was left untouched.
+- [ ] The run was opened with `akka_run_start` after the mode check, against the idea found from its feature, and closed with `akka_run_close` at the end, naming the files written and the tasks completed, or the CLI was reported as predating the idea record.
+- [ ] With a run, the command carried on into `next.command` only when `akka specify idea next` answered `go: true`; otherwise it stopped, printed the reason and named the next command.

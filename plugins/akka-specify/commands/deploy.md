@@ -19,6 +19,101 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Before anything else
+
+This command keeps a run in the idea's record when the akka CLI has one: the
+`akka_run_start` MCP tool is available, or the output of `akka specify run start
+--help` contains `--station`. A CLI without it predates the idea record. With
+such a CLI, say so once and carry this command out as before: skip every step
+marked **Idea record**, and open no run.
+
+**Idea record: a console run.** Call the `akka_run_context` MCP tool first when
+it is available: it answers `{ console, idea, station, run, spec, topic,
+questions }`, and `console: true` means the console started this command. Only
+without that tool, the console started it when `AKKA_RUN_ID` is set in its
+environment, or when the command has no shell to run the akka CLI in. The
+console has already opened the run and enforced the rules for it, so in a
+console run the run is open from the first step: its id is the `run`
+`akka_run_context` answered. Any stop before the normal close, such as a
+mode-check refusal, a missing argument, or a check that needs a tool this run
+lacks, closes it with `akka_run_close`, that `run`, `outcome: failed` and the
+reason. So in a console run: the feature is `akka_run_context`'s `spec` (for
+`/akka:discover`, the topic is its `topic`), and the command never searches for
+one; skip every step that finds, adopts, starts or links an idea, and never ask
+a person a question: wherever this command would ask one, it closes the run with
+`outcome: waiting` and `question` set to the question (`--outcome waiting
+--question "<question>"` on the CLI); the owner answers in the console, and the
+re-run reads the answer from `akka_run_context`'s `questions` (`{station, run,
+question, answer}`) and does not ask it again; run the mode check with `--idea`
+set to the `idea` `akka_run_context` answered, and skip it when it cannot run
+here or no idea is known; open the run by calling `akka_run_start` with
+`command` and `args` only, no `idea` and no `station`, and the CLI joins the
+console's run; close it as usual; and skip the carry-on step, because the
+console moves the idea on. A run with no shell for the akka CLI that
+`akka_run_context` answers `console: false` for is not a console run and keeps
+no record: open no run, ask nothing about ideas or lanes, and carry the command
+out as before the idea record, skipping every step marked **Idea record**.
+
+**Idea record: deploy in a console run.** Use only the deploy tools the console
+grants: `akka_build_image`, `akka_push_image`, `akka_services_deploy`,
+`akka_projects_list`, `akka_services_get` and `akka_services_logs`. Skip the
+step that stops local services (`akka_local_stop_service`, `akka_local_stop`)
+and Option B, and deploy with Option A. When the deploy needs anything those
+tools do not give, such as creating a project, a route or a hostname, stop and
+close the run with `outcome: failed` and the reason. Deploy to the configured
+project: pass no `project` and no `registry` on any platform tool call, whatever
+the platform-context step below says, and do not read the `akka://context` or
+`akka://regions` resources. When no project is configured, close the run
+`failed` with that reason. Wherever the steps below ask the person (the
+reliability-artifact prompt, the confirmation to deploy), close the run with
+`outcome: waiting` and that question; the re-run reads the answer from
+`akka_run_context`'s `questions`. Skip the Docker image store check, because the
+image tools report Docker problems themselves, and deploy as the pom's
+`<artifactId>` without asking for a service name.
+
+**Idea record: find the idea.** On a laptop run, find the feature this command
+works on first: the feature the user input names; otherwise call
+`akka_sdd_list_specs` and take the only feature, or the one whose folder name is
+the current branch's, and ask which when that leaves several. Its idea is the
+one in `akka specify idea list --json` whose `spec` is the feature's folder name
+(`NNN-name`); an idea is never found from the git branch. When that idea has
+`derived: true`, it has no record yet: adopt it with `akka specify ideas adopt
+--idea <id>`, then use it. When no idea has it, read the mode with `akka specify
+mode`. In À la carte mode, open no run: say in one line that this run is not
+recorded, and continue. In Enforced mode, stop: the project's specs and topics
+get their ideas once with `akka specify ideas adopt`, and this command runs
+after that. Pass the idea's id as `idea` to the run start.
+
+The record names each station command by its `akka` plugin name, so this
+plugin's commands open their runs under `/akka:` names.
+
+**Idea record: open the run.** On a laptop run, call the `akka_run_start` MCP
+tool with `station: ship`, `command: /akka:deploy`, `idea` set to the idea found
+above and `args` set to the user input. Where the tool is not available, run
+`akka specify run start --station ship --command /akka:deploy --idea <id> --args
+"<the user input>" --json`, with the input quoted as one argument. A run is
+never started without its idea. It answers JSON: `recorded`, and for a recorded
+run its `idea` and `run.id`. Keep both: the last steps use them.
+
+- When it answers `recorded: false`, continue without a run, and say in one line
+  that this run is not recorded, with its `reason`.
+- A refusal by rule is an error whose JSON is `{refused, message, remedy}`,
+  `refused` naming the rule: `paused`, `limit`, `shipped`, `dropped`,
+  `approval`, `order`, `no-idea-enforced`, `idea-unresolved` or `console-run`.
+  Print `message` and `remedy` verbatim and stop.
+- Any other error, one without `refused` (such as no login), does not stop the
+  command: continue without a run, and say in one line that this run is not
+  recorded.
+
+**Idea record: a run that fails is closed too.** Once the run is open, every way
+the command ends closes it. When the work fails (a build or tests fail, or a
+step stops the command early), call `akka_run_close` with `run`, `outcome:
+failed` and `error` set to what failed, in one line, then stop. Where the tool
+is not available, run `akka specify run close --run <id> --outcome failed
+--error "<what failed>"`. When the person stops the command, close the run with
+`outcome: stopped`. This holds in a console run too. The close step below is for
+the work's normal end.
+
 ## Purpose
 
 This command transitions the service from **local development** to the
@@ -42,7 +137,8 @@ locally (via `/akka-specify:build`) and you're ready to ship.
         c. If none: ask if they want to create one via `akka_projects_create`
         d. Remember the chosen project for subsequent tool calls
      4. Read `akka://regions` to confirm target region
-     5. **IMPORTANT**: Pass the chosen project as the `project` parameter on
+     5. **IMPORTANT** (laptop runs; a console run passes no `project` and no
+        `registry`): Pass the chosen project as the `project` parameter on
         every platform tool call. Do NOT call `akka config set` — that
         modifies the user's persistent CLI configuration.
    - **Check the service name**: Read `pom.xml` and check the `<artifactId>`.
@@ -118,6 +214,13 @@ locally (via `/akka-specify:build`) and you're ready to ship.
    - Region deployed to
    - Route URL (if configured)
    - Service status
+
+8. **Close the run** (the last step). If a run was opened, call the
+   `akka_run_close` MCP tool with `run` set to its id and `outputs` set to the
+   project descriptor file when Option B exported one, as a project-relative
+   path, or to none. Where the tool is not available, run `akka specify run
+   close --run <id>`, with `--file <path>` for the descriptor. On an error,
+   print its message; the deployment stands.
 
 ## Key Rules
 

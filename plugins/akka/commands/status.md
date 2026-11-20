@@ -57,9 +57,11 @@ machine.
    State plainly that the auditors were not run, and that the machine-checkable
    conditions are therefore still `open` rather than failing. Do not present an
    unevaluated condition as a problem. In À la carte mode, offer `/akka:conform`
-   as the way to resolve them. In Enforced mode a person is refused
-   `/akka:conform`: say the engine runs it as part of the sequence `/akka:specify`
-   carries out, and name `/akka:specify`.
+   as the way to resolve them. In Enforced mode with a CLI that keeps an idea
+   record, offer `/akka:conform` for when the idea's earlier stations are done
+   and approved. With an older CLI a person is refused `/akka:conform`: say the
+   engine runs it as part of the sequence `/akka:specify` carries out, and name
+   `/akka:specify`.
 
    Do not restate internal condition ids, check keys, or the words "auditor" /
    "coverage gate" / "adequacy review" in the summary. Offer *"say 'show

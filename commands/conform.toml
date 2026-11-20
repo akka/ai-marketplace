@@ -13,17 +13,103 @@ In a project with a `discovery/` folder this command relies on the discovery gat
 
 ## Before anything else
 
-Run `akka specify mode --allows conform`. Add `--as-engine` when you are carrying
-this command out as a step of the sequence `/akka:specify` drives in Enforced
-mode, rather than because a person invoked it. It exits non-zero when the
-project's mode does not permit the command. On a non-zero exit, print its message verbatim and stop. Do
-not continue, and do not work around it. The one exception is a CLI that rejects
-`--allows` as an unknown flag: it predates the mode check (older than 3.0.74), so
-say so and continue without the check.
+This command keeps a run in the idea's record when the akka CLI has one: the
+`akka_run_start` MCP tool is available, or the output of `akka specify run start
+--help` contains `--station`. A CLI without it predates the idea record. With
+such a CLI, say so once and carry this command out as before: skip every step
+marked **Idea record**, and open no run.
 
-Enforced mode gives the sequence to the engine, so a step it sequences is refused
-to a person and permitted to the engine. A refusal with a reason of its own, such
-as re-running setup, stands either way. The message names the remedy.
+**Idea record: a console run.** Call the `akka_run_context` MCP tool first when
+it is available: it answers `{ console, idea, station, run, spec, topic,
+questions, sentBack }`, and `console: true` means the console started this command. Only
+without that tool, the console started it when `AKKA_RUN_ID` is set in its
+environment, or when the command has no shell to run the akka CLI in. The
+console has already opened the run and enforced the rules for it, so in a
+console run the run is open from the first step: its id is the `run`
+`akka_run_context` answered. Any stop before the normal close, such as a
+mode-check refusal, a missing argument, or a check that needs a tool this run
+lacks, closes it with `akka_run_close`, that `run`, `outcome: failed` and the
+reason. So in a console run: the feature is `akka_run_context`'s `spec` (for
+`/akka:discover`, the topic is its `topic`), and the command never searches for
+one; skip every step that finds, adopts, starts or links an idea, and never ask
+a person a question: wherever this command would ask one, it closes the run with
+`outcome: waiting` and `question` set to the question (`--outcome waiting
+--question "<question>"` on the CLI); the owner answers in the console, and the
+re-run reads the answer from `akka_run_context`'s `questions` (`{station, run,
+question, answer}`) and does not ask it again; run the mode check with `--idea`
+set to the `idea` `akka_run_context` answered, and skip it when it cannot run
+here or no idea is known; open the run by calling `akka_run_start` with
+`command` and `args` only, no `idea` and no `station`, and the CLI joins the
+console's run; close it as usual; and skip the carry-on step, because the
+console moves the idea on. A run with no shell for the akka CLI that
+`akka_run_context` answers `console: false` for is not a console run and keeps
+no record: open no run, ask nothing about ideas or lanes, and carry the command
+out as before the idea record, skipping every step marked **Idea record**.
+
+**Idea record: a station sent back to.** When `akka_run_context` answers
+`sentBack` (`{ from, reason, by, at }`), the idea was sent back to this station
+from `from`, and `reason` says why. Work on that reason first: read it as the
+instruction for this run from `by`, change this station's outputs where the
+reason points, and keep what it does not touch. `sentBack` is `null` when no
+send-back opened this station's visit.
+
+**Idea record: find the idea.** On a laptop run, find the feature this command
+works on first: the feature the user input names; otherwise call
+`akka_sdd_list_specs` and take the only feature, or the one whose folder name is
+the current branch's, and ask which when that leaves several. Its idea is the
+one in `akka specify idea list --json` whose `spec` is the feature's folder name
+(`NNN-name`); an idea is never found from the git branch. When that idea has
+`derived: true`, it has no record yet: adopt it with `akka specify ideas adopt
+--idea <id>`, then use it. When no idea has it, read the mode with `akka specify
+mode`. In À la carte mode, open no run: say in one line that this run is not
+recorded, and continue. In Enforced mode, stop: the project's specs and topics
+get their ideas once with `akka specify ideas adopt`, and this command runs
+after that. Pass the idea's id as `--idea <id>` to the mode check and `idea` to
+the run start.
+
+Run `akka specify mode --allows conform`, adding `--idea <id>` when the idea
+record found the idea. With a CLI that predates the idea record, add
+`--as-engine` when you are carrying this command out as a step of the sequence
+`/akka:specify` drives in Enforced mode, rather than because a person invoked
+it. It exits non-zero when the project's mode does not permit the command. On a
+non-zero exit, print its message verbatim and stop. Do not continue, and do not
+work around it. The one exception is a CLI that rejects `--allows` as an unknown
+flag: it predates the mode check (older than 3.0.74), so say so and continue
+without the check.
+
+With the idea record, Enforced mode runs a station command when the idea's
+previous station is done and approved, and the CLI's run start decides;
+`/akka:specify` does not drive the sequence. With an older CLI, Enforced mode
+gives the sequence to the engine, so a step it sequences is refused to a person
+and permitted to the engine. A refusal with a reason of its own, such as
+re-running setup, stands either way. The message names the remedy.
+
+**Idea record: open the run.** On a laptop run, call the `akka_run_start` MCP
+tool with `station: conform`, `command: /akka:conform`, `idea` set to the idea
+found above and `args` set to the user input. Where the tool is not available,
+run `akka specify run start --station conform --command /akka:conform --idea
+<id> --args "<the user input>" --json`, with the input quoted as one argument. A
+run is never started without its idea. It answers JSON: `recorded`, and for a
+recorded run its `idea` and `run.id`. Keep both: the last steps use them.
+
+- When it answers `recorded: false`, continue without a run, and say in one line
+  that this run is not recorded, with its `reason`.
+- A refusal by rule is an error whose JSON is `{refused, message, remedy}`,
+  `refused` naming the rule: `paused`, `limit`, `shipped`, `dropped`,
+  `approval`, `order`, `no-idea-enforced`, `idea-unresolved` or `console-run`.
+  Print `message` and `remedy` verbatim and stop.
+- Any other error, one without `refused` (such as no login), does not stop the
+  command: continue without a run, and say in one line that this run is not
+  recorded.
+
+**Idea record: a run that fails is closed too.** Once the run is open, every way
+the command ends closes it. When the work fails (a build or tests fail, or a
+step stops the command early), call `akka_run_close` with `run`, `outcome:
+failed` and `error` set to what failed, in one line, then stop. Where the tool
+is not available, run `akka specify run close --run <id> --outcome failed
+--error "<what failed>"`. When the person stops the command, close the run with
+`outcome: stopped`. This holds in a console run too. The close step below is for
+the work's normal end.
 
 ## Purpose
 
@@ -97,6 +183,17 @@ A `NOT_READY` verdict says what is blocking and what to do about it:
    "coverage gate" / "adequacy review". Offer *"say 'show details' for the full
    checklist"* for the manifest.
 
+4. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool
+   with `run` set to its id, `outcome: ok`, and no outputs. The CLI writes the manifest beside
+   the receipt from the recorded conform results, with the engine's verdict.
+   Where the tool is not available, run `akka specify run close --run <id> --outcome ok`. Do
+   this whatever the verdict: a `NOT_READY` verdict still closes as `ok`,
+   because the manifest carries it. On an error, print its message; the verdict
+   already reported stands.
+
+5. **Stop and name the ship command**: `/akka:ship`, or `/akka:deploy` on the
+   Deploy to Akka lane. Ship is never started automatically.
+
 ## Key rules
 
 - Report the verdict the engine returned. Never soften a `NOT_READY`, and never
@@ -131,4 +228,8 @@ A `NOT_READY` verdict says what is blocking and what to do about it:
       the ordinary open items.
 - [ ] No condition was signed off, struck, or waived in the course of running
       this command.
+- [ ] The run was opened with `akka_run_start` after the mode check, against the idea found from its feature, and closed with `akka_run_close`, or the CLI was reported as
+      predating the idea record.
+- [ ] The command stopped and named the ship command; Ship is never started
+      automatically.
 """
