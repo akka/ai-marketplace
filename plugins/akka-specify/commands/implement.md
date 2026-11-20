@@ -61,7 +61,10 @@ leave the feature branch, because the merge is a person's choice. The feature
 branch is `akka_run_context`'s `spec`, the idea's spec name, not the spec's
 **Feature Branch** field. When the feature branch already exists and cannot be
 entered (HEAD is elsewhere and checking out is not granted), close the run
-`failed` with the reason.
+`failed` with the reason. Build and test with `mvn` in the shell (for example
+`mvn -q compile`, `mvn test` and `mvn verify`), which a console run of this
+command may run: it refuses the `akka_maven_*` tools, so a task that names one
+runs as the matching `mvn` command.
 
 **Idea record: find the idea.** On a laptop run, find the feature this command
 works on first: call `akka_sdd_list_specs` and identify the target feature as
