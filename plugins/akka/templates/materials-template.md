@@ -8,9 +8,11 @@
   This file is discovery/<topic>/materials.md: what a person brought for discovery to
   study. A material is one list line:
     - [S-<CODE>-<n>] <name> | kind: <kind> | location: <where> | feeds: <step>[, <step>] | status: not-read|read|unreachable | by: <name or role> | date: <YYYY-MM-DD> | note: <why it matters>[ | snapshot: snapshots/<file> | sha256: <hex> | taken: <YYYY-MM-DD>][ | fulfils: W-<CODE>-<n>]
+    A link or document that holds a secret is read, never saved, and carries instead
+    | snapshot: withheld | reason: contains a secret
 
     A wish is one line in the Wanted section at the end of this file:
-    - [W-<CODE>-<n>] <what to provide> | kind: <kind> | why: <one sentence> | settles: <F-ids, or none> | from: <role> | status: wanted|provided|declined | date: <YYYY-MM-DD>[ | reason: <text>]
+    - [W-<CODE>-<n>] <what to provide> | kind: <kind> | why: <one sentence> [| settles: <F-ids>] | from: <role> | status: wanted|provided|declined | date: <YYYY-MM-DD>[ | reason: <text> | declined-by: <who> | declined-on: <YYYY-MM-DD>]
 
   - <CODE> is the topic's code from its topic.md. <n> continues from the highest
     S-<CODE>-<n> named anywhere in the topic's files and is never reused while
@@ -34,6 +36,10 @@
   - snapshot, sha256 and taken are set when discovery reads a link or web page: the
     copy is in materials/snapshots/, and sha256 is the hash of that copy. Attached files
     and codebases have none.
+  - settles is written only when the wish settles findings, as their ids; a wish that
+    settles none leaves the field out and never writes "none".
+  - A declined wish keeps its original date; declined-by and declined-on record who
+    declined it and when.
   - fulfils names the wish this material was added for. Only a material the person
     hands over for a wish carries it.
   - status: not-read until /akka:discover has read it; read once it has; unreachable

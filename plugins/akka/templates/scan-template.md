@@ -15,9 +15,9 @@
 
   - <CODE> is the topic's code from its topic.md. <n> continues from the highest
     X-<CODE>-<n> or F-<CODE>-<n> in the topic's files and is never reused.
-  - evidence on an example names only S-<CODE>-<n> materials, each one a web source the
-    person agreed to search and that has a snapshot in materials/snapshots/. A field the
-    sources do not answer reads unknown.
+  - evidence on an example names only S-<CODE>-<n> materials with feeds: scan: the person's
+    own (an attached file or a link) or a web source found for the scan. A link has a
+    snapshot in materials/snapshots/. A field the sources do not answer reads unknown.
   - means is reasoned from the other fields, so it says so in its sentence.
   - Each borrowed idea and each pitfall is a finding with status inferred and
     `evidence: reasoning: <X ids>`. It is then an understanding item with `from: borrow`

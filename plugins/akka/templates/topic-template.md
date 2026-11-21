@@ -2,7 +2,7 @@
 
 **Goal**: [the goal or question, in one sentence] | **Track**: [ideation | modernization] | **Code**: [PAY]
 **Scope**: [project | the name of an area] | **Status**: [active | settled | parked] | **Owner**: [name or role] | **Started**: [YYYY-MM-DD]
-**Choices**: scan: [yes | no | skipped] | probes: [built-in probe ids, or none] | skipped-by: [who] | skipped-on: [YYYY-MM-DD]
+**Choices**: scan: [yes | no | skipped] | probes: [built-in probe ids, or none] | web: [yes | no] | web-on: [YYYY-MM-DD] | skipped-by: [who] | skipped-on: [YYYY-MM-DD]
 **Written by**: `/akka:discover <topic>`
 
 <!--
@@ -32,7 +32,9 @@
   - Choices: scan is yes when the person chose a market scan, no when none was asked for,
     and skipped when the person declined it, with skipped-by and skipped-on set from that
     answer. probes lists the built-in probes the person allowed at the start, or none; the
-    system step runs only those. What ran is recorded in system-map.md, not here.
+    system step runs only those. web is yes or no once the person has been asked whether
+    discovery may search the public web, with web-on the date; both are left out until then.
+    A scan chosen at the start allows the scan step to search the web and sets no web value. What ran is recorded in system-map.md, not here.
   - Header values never contain "|" or "*".
 -->
 
