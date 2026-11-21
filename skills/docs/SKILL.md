@@ -194,39 +194,50 @@ ship-gating differs.
    - `"commit"`: the output of `git rev-parse HEAD` when you write the file, or
      `null` when the project is not a git repository.
    - One key per component, named as its class is named in the source. Its value
-     has `"sources"` (the files read, relative to the main source directory) and
-     the fields of its kind below. Omit a field the component does not have.
+     has `"sources"` (the files read, relative to the main source package, or to
+     the project root for a file outside it, such as
+     `src/main/resources/application.conf`) and the fields of its kind below. Omit
+     a field the component does not have.
 
    Verify each relationship in the method body or the call site, not from a
    class name (step 5). Write method, event, step and type names exactly as the
    source spells them; an event is named by its `@TypeName` value. A call is
    written `[Component, method]`.
 
-   - **Event-sourced entity**: `state`, `events`; `commands`, each
-     `{method, input, emits, to, orTo, read}`, where `emits` lists the events the
-     command persists in order, `to` is the status it leaves, `orTo` the other
-     status when a branch can end in either, and `read: true` marks a query; and
-     `graph`, the status lifecycle with `nodes` and `edges` labelled by event.
-   - **Key-value entity**: `key`, `state`, and `commands` as
-     `{method, input, effect, replies}`.
+   - **Event-sourced entity**: `state` (the state type's name), `events` (the
+     event type's name); `commands`, a list of
+     `{method, input, emits, to, either, orTo, read}`, where `emits` lists the events
+     the command persists in order, `to` is the status it leaves, `either: true`
+     with `orTo` the other status when a branch can end in either, and `read: true`
+     marks a query; and `lifecycle`, the status graph (graph format below), with
+     an edge's `label` the event that causes it. Give the entry a node of type
+     `dot`.
+   - **Key-value entity**: `key` (what the entity id is), `state`, and `commands`,
+     a list of `{method, input, inputType, effect, replies, read}`: `input` is a
+     command type, `inputType` a plain parameter such as `String applicationId`,
+     `effect` says what the command changes, `replies` lists the reply types, and
+     `read: true` marks a query.
    - **Workflow**: `state`; `settings` (`defaultStepTimeout`, `defaultRetries`,
      and `failover`, the step run when a step fails for good); `commands` as
-     `{method, inputType, to, orTo, by}`; `steps`, each
+     a list of `{method, inputType, to, orTo, by, read}` (`to` is the step the
+     command starts, `by` who may call it, `read: true` a query); `steps`, each
      `{name, calls, uses, timeout, retries, pauses}`, where `calls` lists the
      component methods the step calls, `uses` the other collaborators, and
      `pauses: true` marks a step that waits for a person; and `graph`, with a
      node for each entry, step, pause and end state and an edge for each
      transition. Give branch edges their `label`, failover edges `dashed: true`,
      and show compensation as its own entry path and end state.
-   - **Consumer**: `source` (the component whose events it consumes) and
-     `handlers` as `{event, calls, with}`.
-   - **View**: `table`, `row`, `source`, `updates` as `{event, effect}`, and
-     `ignored`, the events it does not handle.
-   - **HTTP or gRPC endpoint**: `acl` and `routes`, one per method as
-     `{request, responses, calls}`, with `responses` as `[code, type]` pairs.
-     **MCP endpoint**: `tools`, one per tool as `{reads}` or `{calls}`.
+   - **Consumer**: `source` (the component whose events it consumes),
+     `targetId` (a string saying how the id of the component it calls is
+     derived) and `handlers`, a list of `{event, calls, with}`.
+   - **View**: `table`, `row`, `source`, `updates` as a list of `{event, effect}`,
+     and `ignored`, the events it does not handle.
+   - **HTTP or gRPC endpoint**: `acl` and `routes`, an object keyed by method
+     name, each value `{request, responses, calls}`, with `responses` as
+     `[code, type]` pairs. **MCP endpoint**: `tools`, an object keyed by tool
+     name, each value `{reads}` or `{calls}`.
    - **Agent**: `method`, `input`, `output`, `memory`, `session`, `onFailure`,
-     and `tools`, one per tool as `{calls}` or `{uses}`.
+     and `tools`, an object keyed by tool name, each value `{calls}` or `{uses}`.
    - **Timed action**: `method`, `inputType`, `scheduler`, `timer` (its name
      pattern), `schedule` as `{event, action, at}` with `action` one of `Set`,
      `Replace` or `Delete`, `calls`, `results` as `{reply, effect}`, and
@@ -238,13 +249,16 @@ ship-gating differs.
    `"loan-origination.documents.expiry-days"`, read from `application.conf`. Never
    record the value itself.
 
-   Graph nodes carry `id`, `m` and `c`, and `type` when it is `entry`, `final`,
-   `wait` (a pause for a person) or `stub` (a summary such as "any status").
+   A graph is `{"nodes": [...], "edges": [...]}`. Nodes carry `id`, `m` and `c`,
+   and `type` when it is `entry`, `final`, `dot` (an entity's entry before its
+   first status), `wait` (a pause for a person) or `stub` (a summary such as
+   "any status"). A `stub` or `wait` node carries its text in `label`.
    `m` is the column, which increases along the main path from the entry, and
-   `c` is the row: 0 for the main path, 1 and up for side paths. An edge may carry
-   `route`: `cross` for an edge that crosses another, or `channel` for an edge
-   that runs in a lane beside the main path, with `off` (-1 or 1) choosing the
-   lane. `pair: true` marks an edge drawn with the edge it is paired with.
+   `c` is the row: 0 for the main path, 1 and up for side paths. An edge is
+   `{"from": <node id>, "to": <node id>}` and may carry `label`, `dashed: true`,
+   and `route`, which is `cross` for an edge that crosses another or `channel`
+   for an edge that runs in a lane beside the main path, with `off` (-1 or 1)
+   choosing the lane. `pair: true` marks an edge drawn with the edge it is paired with.
 
    Add an `example` to a component when a test or the quickstart shows it:
    `{source, ...}`, where `source` names the file and test, and the fields are the
