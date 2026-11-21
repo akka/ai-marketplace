@@ -229,7 +229,14 @@ ship-gating differs.
      and `tools`, one per tool as `{calls}` or `{uses}`.
    - **Timed action**: `method`, `inputType`, `scheduler`, `timer` (its name
      pattern), `schedule` as `{event, action, at}` with `action` one of `Set`,
-     `Replace` or `Delete`, `calls`, and `results` as `{reply, effect}`.
+     `Replace` or `Delete`, `calls`, `results` as `{reply, effect}`, and
+     `deadlineConfig`, the full HOCON path of the setting that gives its deadline
+     or delay, when there is one.
+
+   Where a component's behaviour in its drawing depends on a configured value,
+   record the HOCON path of that setting, such as
+   `"loan-origination.documents.expiry-days"`, read from `application.conf`. Never
+   record the value itself.
 
    Graph nodes carry `id`, `m` and `c`, and `type` when it is `entry`, `final`,
    `wait` (a pause for a person) or `stub` (a summary such as "any status").
