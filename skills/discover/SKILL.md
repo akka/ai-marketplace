@@ -129,7 +129,7 @@ Each topic folder holds a header file, `topic.md`, written from the `topic` temp
 **Choices**: scan: yes|no|skipped | probes: <built-in probe ids, or none> | skipped-by: <who> | skipped-on: <YYYY-MM-DD>
 ```
 
-The skipped fields appear only when `scan: skipped`. `probes:` lists the probes the `system` step ran, from `.akka/discovery/run.json`.
+The skipped fields appear only when `scan: skipped`. `probes:` lists the built-in probes the person allowed at the start, or `none`.
 
 - **Topic name**: the folder name, in lower case with words joined by `-` (`refund-approval`). It is never one of the sub-command words `research`, `landscape`, `concepts`, `system`, `scan`, `confirm` or `mock`, and never begins with `-`.
 - **Code**: two to four capital letters, unique among the project's topics, assigned when the topic is created and never changed (`PAY` for refund approval). Every identifier the topic writes carries it, so identifiers from two topics never collide.
@@ -202,9 +202,11 @@ the answer to question 3 as a material in `materials.md`, with `status: not-read
 
 Then offer the market scan once, as a yes or no question with your suggestion (see `scan`). A yes
 records `scan: yes` in `topic.md`. A no records `scan: skipped`, with `skipped-by` set to the
-person's name or role and `skipped-on` to today's date. Either way `probes:` reads `none` until
-the `system` step runs. Then read the inputs as below, and run the requested step, or recommend
-the first one.
+person's name or role and `skipped-on` to today's date. Then, when the topic may read a codebase
+(a modernization, or a codebase material), ask which built-in probes may run, from `akka specify
+probes list`, offering the ones that apply; record their ids as `probes:`, or `none` when the
+person allows none. Otherwise record `probes: none`. Then read the inputs as below, and run the
+requested step, or recommend the first one.
 
 A topic the console created from an idea has the goal `Shape the idea in note N-<CODE>-1.` in
 its `topic.md`. Before the first step, propose a one-sentence goal drawn from the idea and ask
@@ -452,7 +454,7 @@ Rules that apply on every rung:
    akka specify probes run --source <source path> --target <address> --study <level> [--probe +<name>,-<name>] [--database-var <NAME>]
    ```
 
-   `--probe` adds or removes probes against the study level's defaults. `--database-var` takes the **name** of the environment variable that holds a database material's address, as recorded in `materials.md` (for example `CLAIMS_DB_URL`), never the address itself; the `schema` probe then reads the database's catalogue as well as the source. The database counts as available only when that variable is set in the environment the command runs in; if it is not, ask the person to set it in their own terminal, and never ask for its value. `run.json` records the name only. Report any probe that was withheld or failed, with its reason. A failed probe produced nothing, so no finding may cite it. To see one probe's raw exchange, use `akka specify probes test <probe>` with the same `--source`, `--target` and `--study`; it takes no `--database-var`.
+   Run only the built-in probes listed in `probes:` in `topic.md`: pass `--probe -<name>` for each default probe not listed there. Ask before running a built-in probe that is not listed, and never run one the person has not allowed. `--probe` adds or removes probes against the study level's defaults. `--database-var` takes the **name** of the environment variable that holds a database material's address, as recorded in `materials.md` (for example `CLAIMS_DB_URL`), never the address itself; the `schema` probe then reads the database's catalogue as well as the source. The database counts as available only when that variable is set in the environment the command runs in; if it is not, ask the person to set it in their own terminal, and never ask for its value. `run.json` records the name only. Report any probe that was withheld or failed, with its reason. A failed probe produced nothing, so no finding may cite it. To see one probe's raw exchange, use `akka specify probes test <probe>` with the same `--source`, `--target` and `--study`; it takes no `--database-var`.
 
 4. **Draft the findings the probes support**. Run `akka specify probes findings --topic <topic>`. It prints one finding line for each count a probe established (routes, tables, libraries, outside services called, tests and reachability), numbered after the highest `F-<CODE>-<n>` in the topic, and an Unknowns line for each gap a probe reported. Its numbers continue from the files as they are when it runs, so run it after this run's other findings are written, and copy each line into the right section of `system-map.md` or `behaviour.md` as written. `--write system-map` appends them instead, the findings under a `## Draft Findings` heading and the unknowns under `## Draft Unknowns`. Neither is a template section: move both into place and remove the headings before the step ends.
 
@@ -461,8 +463,7 @@ Rules that apply on every rung:
 6. **Write `behaviour.md`**: one finding per rule, grouped by capability, each with its rung. List every finding still at `inspected` under Read but Not Run with the probe that would settle it. List every `unresolvable` finding under Decisions to Force.
 
 7. **Climb**. For each high-impact finding still at `inspected`, propose the probe or document that would settle it and ask whether to run it now.
-8. **Probes**: set the `probes:` field of `topic.md` to the built-in probe ids this run ran, from `.akka/discovery/run.json`, comma-separated.
-9. **Wanted**: follow *Wanted: the sources the idea needs*.
+8. **Wanted**: follow *Wanted: the sources the idea needs*.
 
 Never start, stop or change a running system without asking. Never copy customer data out of it into discovery files.
 
@@ -638,7 +639,7 @@ Then carry on or stop. In a console run, skip this step: the console moves the i
 - [ ] Each file written follows the template returned by `akka_sdd_get_template` for its step, records the topic and its code in its header, and every *required, or none* section has content or a `none: <what was checked>` line.
 - [ ] Every finding added is one line `- [F-<CODE>-<n>] <claim> | evidence: <source> | status: observed|inferred|confirmed`, numbered after the highest number in the topic, with evidence a reader can open; behaviour and structure findings carry a `rung:`.
 - [ ] Questions were asked one at a time, no more than five in the step; every "don't know" became an Unknowns line.
-- [ ] `system`: probe availability was shown with reasons, declared probes ran only after the person approved their exact command, `.akka/discovery/run.json` was written by `akka specify probes run`, a database material was passed by its variable's name with `--database-var`, and no finding cites a probe that failed.
+- [ ] `system`: probe availability was shown with reasons, only the built-in probes listed in `topic.md` `probes:` ran (others were asked first), declared probes ran only after the person approved their exact command, `.akka/discovery/run.json` was written by `akka specify probes run`, a database material was passed by its variable's name with `--database-var`, and no finding cites a probe that failed.
 - [ ] `concepts`: every concept is defined once, in its topic; a promoted concept has one `- see: <CODE>/C-<CODE>-<n> | shared` line in `discovery/concepts.md` and was promoted on the person's yes; every concept name defined differently by two topics has a conflict item in each topic's `understanding.md`.
 - [ ] `confirm`: items were presented one at a time, each showing the three default parts in plain language, readable on its own, with the example and the consequence behind "More"; every item is one `[U-<CODE>-<n>]` line with impact, covers, response and version, and its versions, comments and answer lines as indented thread lines; a response given after a comment without a new version has an `answer` line; every response, reason, comment, name and date came from the person; agreed and amended findings are `confirmed` with `understanding.md U-<CODE>-<n>` in their evidence.
 - [ ] `mock`: every entry is one `[M-<CODE>-<n>]` line; every approval or change request came from the reviewer and is in Review History.

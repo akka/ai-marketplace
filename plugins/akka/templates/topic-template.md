@@ -31,7 +31,8 @@
     created.
   - Choices: scan is yes when the person chose a market scan, no when none was asked for,
     and skipped when the person declined it, with skipped-by and skipped-on set from that
-    answer. probes lists the built-in probes the system step ran, and reads none until then.
+    answer. probes lists the built-in probes the person allowed at the start, or none; the
+    system step runs only those. What ran is recorded in system-map.md, not here.
   - Header values never contain "|" or "*".
 -->
 
