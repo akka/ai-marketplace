@@ -28,7 +28,7 @@ one condition it cannot decide.
 It writes two sets of pages:
 
 - **Implementation docs**, `docs/index.html`: what was built, from the code
-  (steps 1–9).
+  (steps 1–10).
 - **The Story**, `docs/story/`: what the project is for and how it was
   approached, from the confirmed discovery files and the plan, never the code
   (the Story section below). It has an overview, `docs/story/index.html`, and
@@ -36,7 +36,7 @@ It writes two sets of pages:
 
 `/akka:docs` writes both. `/akka:docs story` writes the whole Story (overview
 and every chapter) and `/akka:docs story <topic>` writes that topic's chapter
-alone; both then run steps 10 and 11. There is no other option.
+alone; both then run steps 11 and 12. There is no other option.
 
 ## When it runs
 
@@ -68,7 +68,7 @@ ship-gating differs.
    MUST NOT modify the CSS, the layout, the fonts, the colors, or any other
    design detail. Customers do not override the design; the template is the
    design. The palette is enumerated in
-   `plugins/akka/templates/akka-style-guide.md`, and step 10 checks the
+   `plugins/akka/templates/akka-style-guide.md`, and step 11 checks the
    generated page against it, so this rule is enforced rather than trusted.
 
 3. **Fill the placeholders and paste the fragments.** The template contains
@@ -97,7 +97,7 @@ ship-gating differs.
    automatically.
 
 4. **Draw the diagrams to the rules the template states.** The template's
-   header comment carries five rules that step 10 verifies. They are not style
+   header comment carries five rules that step 11 verifies. They are not style
    advice, and a page that breaks one reds the language check:
 
    - **Accessibility.** Every diagram `<svg>` carries `role="img"` and
@@ -191,7 +191,80 @@ ship-gating differs.
    the complexity budget is recorded here with its reason — an omission is a
    waiver, never a silent drop.
 
-9. **Point the console at the app's UI in `.akka/app.yaml`.** When the project
+9. **Write `docs/components.json`, the relationships between components.**
+   While you read each component's source for step 8, record the relationships
+   a scan of one file cannot show. The console draws each component's anatomy
+   from this file. It keeps a relationship only when every name in it exists in
+   the source, so write a name only after you have read it there.
+
+   Write one UTF-8 JSON object with two-space indent:
+
+   - `"commit"`: the output of `git rev-parse HEAD` when you write the file, or
+     `null` when the project is not a git repository.
+   - One key per component, named as its class is named in the source. Its value
+     has `"sources"` (the files read, relative to the main source directory) and
+     the fields of its kind below. Omit a field the component does not have.
+
+   Verify each relationship in the method body or the call site, not from a
+   class name (step 5). Write method, event, step and type names exactly as the
+   source spells them; an event is named by its `@TypeName` value. A call is
+   written `[Component, method]`.
+
+   - **Event-sourced entity**: `state`, `events`; `commands`, each
+     `{method, input, emits, to, orTo, read}`, where `emits` lists the events the
+     command persists in order, `to` is the status it leaves, `orTo` the other
+     status when a branch can end in either, and `read: true` marks a query; and
+     `graph`, the status lifecycle with `nodes` and `edges` labelled by event.
+   - **Key-value entity**: `key`, `state`, and `commands` as
+     `{method, input, effect, replies}`.
+   - **Workflow**: `state`; `settings` (`defaultStepTimeout`, `defaultRetries`,
+     and `failover`, the step run when a step fails for good); `commands` as
+     `{method, inputType, to, orTo, by}`; `steps`, each
+     `{name, calls, uses, timeout, retries, pauses}`, where `calls` lists the
+     component methods the step calls, `uses` the other collaborators, and
+     `pauses: true` marks a step that waits for a person; and `graph`, with a
+     node for each entry, step, pause and end state and an edge for each
+     transition. Give branch edges their `label`, failover edges `dashed: true`,
+     and show compensation as its own entry path and end state.
+   - **Consumer**: `source` (the component whose events it consumes) and
+     `handlers` as `{event, calls, with}`.
+   - **View**: `table`, `row`, `source`, `updates` as `{event, effect}`, and
+     `ignored`, the events it does not handle.
+   - **HTTP or gRPC endpoint**: `acl` and `routes`, one per method as
+     `{request, responses, calls}`, with `responses` as `[code, type]` pairs.
+     **MCP endpoint**: `tools`, one per tool as `{reads}` or `{calls}`.
+   - **Agent**: `method`, `input`, `output`, `memory`, `session`, `onFailure`,
+     and `tools`, one per tool as `{calls}` or `{uses}`.
+   - **Timed action**: `method`, `inputType`, `scheduler`, `timer` (its name
+     pattern), `schedule` as `{event, action, at}` with `action` one of `Set`,
+     `Replace` or `Delete`, `calls`, `results` as `{reply, effect}`, and
+     `deadlineConfig`, the full HOCON path of the setting that gives its deadline
+     or delay, when there is one.
+
+   Where a component's behaviour in its drawing depends on a configured value,
+   record the HOCON path of that setting, such as
+   `"loan-origination.documents.expiry-days"`, read from `application.conf`. Never
+   record the value itself.
+
+   Graph nodes carry `id`, `m` and `c`, and `type` when it is `entry`, `final`,
+   `wait` (a pause for a person) or `stub` (a summary such as "any status").
+   `m` is the column, which increases along the main path from the entry, and
+   `c` is the row: 0 for the main path, 1 and up for side paths. An edge may carry
+   `route`: `cross` for an edge that crosses another, or `channel` for an edge
+   that runs in a lane beside the main path, with `off` (-1 or 1) choosing the
+   lane. `pair: true` marks an edge drawn with the edge it is paired with.
+
+   Add an `example` to a component when a test or the quickstart shows it:
+   `{source, ...}`, where `source` names the file and test, and the fields are the
+   ones its kind needs (an entity's events and state, an endpoint's request and
+   response). Copy values from that source; never invent one. Omit `example`
+   otherwise.
+
+   Before you finish, search the source for every name in the file and remove any
+   relationship whose name is not found. This step runs on the implementation
+   docs; `/akka:docs story` does not write the file.
+
+10. **Point the console at the app's UI in `.akka/app.yaml`.** When the project
    serves a UI from an endpoint — an `HttpEndpoint` that returns
    `HttpResponses.staticResource`, or files under
    `src/main/resources/static-resources/` — write `.akka/app.yaml` when it is
@@ -294,7 +367,7 @@ S6. **Cite every caption.** Each `<figcaption>` and each claim taken from
 
 S7. **Write the pages.** Self-contained, as in step 7.
 
-10. **Verify against the content-governance family.** Run the conditions and
+11. **Verify against the content-governance family.** Run the conditions and
    report each. The deterministic checks run over both sets of pages,
    `docs/*.html` and `docs/story/**/*.html`. Two conditions read the Story and
    are `green` with "not applicable" when there is no `docs/story/` or no
@@ -363,7 +436,7 @@ S7. **Write the pages.** Self-contained, as in step 7.
      verified before the change is opened for team review, not on every commit —
      re-attesting every time a source file changes would be excessive.
 
-11. **Report.** Call `akka_ec_conform`, then present `akka_ec_summary` to the user
+12. **Report.** Call `akka_ec_conform`, then present `akka_ec_summary` to the user
    **verbatim** — the plain outcome. Do NOT restate internal condition ids or the
    words "auditor" / "coverage gate". Offer *"say 'show details' for the full
    checklist"* for the manifest.
@@ -394,6 +467,7 @@ S7. **Write the pages.** Self-contained, as in step 7.
 
 - [ ] The documentable things (commands, active exit conditions, detected endpoints) were enumerated as the completeness target.
 - [ ] A page was generated or refreshed under `docs/` for each documentable thing, following the project's structural and terminology conventions.
+- [ ] `docs/components.json` was written with `commit` set, one entry per component, and every name in it found in the source.
 - [ ] Every diagram `<svg>` carries `role="img"`, `aria-labelledby`, and a prefixed `<title>`/`<desc>` pair with `<title>` as its first child.
 - [ ] Off-axis connectors are rounded right-angle elbows, connectors sharing a box edge have their own attach points, and every connector label has a mask rect with a visible gap above the stroke.
 - [ ] Inventory diagrams used categorical kind color; the interaction diagram used editorial color with one primary path.
