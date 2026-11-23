@@ -117,7 +117,7 @@ bypass.
    close step below is for the work's normal end.
 
 3. **Invoke the CLI.** Run `akka specify ship <target>` in the project directory
-   (via the shell). Capture the output. The CLI:
+   (via the shell). This is a dry run: it lists the ship steps and runs none. Capture the output. The CLI:
    - Runs the author-time auditors first; in Enforced mode stops there if any
      of them blocks.
    - Otherwise runs the auditors for every remaining applicable exit condition
@@ -130,9 +130,11 @@ bypass.
    - Writes a conformance receipt recording which target was shipped, what was
      verified, and any conditions that remained `open` with their reasons.
 
+   **Confirm before the steps run.** When the CLI listed ship steps, show the person the listing and ask whether to run them. Only after a yes, run `akka specify ship <target> --execute`: it runs the steps in order and records the shipped event. Without a yes, no step runs; close the run as step 5 says with `stopped`. In a console run there is no person to answer in the terminal: close the run `waiting` with `question` set to "Run the listed ship steps for <target>?" (`--outcome waiting --question "<question>"` on the CLI), and leave the answer to the console. The re-run reads the answer from `akka_run_context`'s `questions`: a yes runs `--execute`, and any other answer closes `stopped`.
+
 4. **Report plainly.** Present the CLI output. Do not restate internal condition
    ids, check keys, or the words "auditor" / "coverage gate" / "adequacy review".
-   If the ship succeeded, say so and name the target that was shipped. If the
+   If the steps ran, say so and name the target that was shipped. If the steps were only listed, say that no step ran. If the
    ship refused, say what would unblock it — the reason field on each blocking
    condition is the user-facing action.
 
@@ -143,13 +145,23 @@ bypass.
    framing.
 
 5. **Close the run** (the last step). If a run was opened, call the
-   `akka_run_close` MCP tool with `run` set to its id, `outcome: ok` and no
-   outputs: the ship steps are the organization's, and the CLI records what it
-   shipped. Where the tool is not available, run `akka specify run close --run
-   <id> --outcome ok`. A refused ship closes instead with `outcome: failed` and
-   `error` set to the refusal's reason (`--outcome failed --error "<reason>"`
-   on the CLI). On an error, print its message; the outcome already
-   reported stands.
+   `akka_run_close` MCP tool with `run` set to its id and no outputs, and set
+   `outcome` by what happened:
+   - `ok` when the shipped event is recorded: `--execute` ran every step, or the
+     CLI reported that no ship steps are defined (it records that event itself).
+   - `stopped` when the person chose not to run the listed steps. No step ran.
+   - `waiting`, with `question` set to the question in step 3, in a console run
+     that stopped at the listing.
+   - `failed`, with `error` set to the refusal's reason or the failing step's
+     message, when the ship was refused or a step failed.
+
+   Where the tool is not available, run `akka specify run close --run <id>
+   --outcome <outcome>`, with `--error "<reason>"` for `failed` and `--question
+   "<question>"` for `waiting`. On an error, print its message; the outcome
+   already reported stands.
+
+   With `--execute`, the CLI records the shipped event for the steps it ran. A
+   dry run that lists steps records nothing, so it never closes `ok`.
 
 ## Key rules
 
@@ -174,13 +186,12 @@ bypass.
 - [ ] The target was parsed from `the user's request` and validated as `review` or
       `release`; missing or invalid targets were reported to the user without
       calling the CLI.
-- [ ] `akka specify ship <target>` was invoked with the validated target.
+- [ ] `akka specify ship <target>` was run with the validated target as a dry run, and `--execute` ran only after a yes from the person.
 - [ ] The plain outcome was shown to the user, and any blocking conditions
       were surfaced with their user-facing reasons (no internal ids, no
       machinery words).
 - [ ] If the refusal came from the author-time precondition, the report said so
       and did not characterize the checks that never ran.
 - [ ] Once the target was valid, the run was opened with `akka_run_start` before
-      the CLI ran the ship and closed with `akka_run_close` as the last step, a
-      refused ship with outcome failed and its reason, or the CLI was reported
+      the CLI ran the ship and closed with `akka_run_close` as the last step, the outcome step 5 gives, or the CLI was reported
       as predating the idea record.
