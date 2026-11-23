@@ -144,7 +144,7 @@ the work's normal end.
    - Suggested MVP scope (typically just User Story 1)
    - Format validation: Confirm ALL tasks follow the checklist format (checkbox, ID, labels, file paths)
 
-6. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to `FEATURE_DIR/tasks.md` as a project-relative path. Where the tool is not available, run `akka specify run close --run <id>` with `--file <path>` for tasks.md. On an error, print its message; the tasks already written stand.
+6. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id and `outputs` set to `FEATURE_DIR/tasks.md` as a project-relative path. Where the tool is not available, run `akka specify run close --run <id> --outcome ok` with `--file <path>` for tasks.md. On an error, print its message; the tasks already written stand.
 
 7. **Idea record: end waiting for approval.** When a run was opened, the tasks now wait for the owner's approval before Implement runs. Say so and, when a run was opened, say how to give it: on the idea in the console's Ideas page, or `akka specify idea approve <idea> tasks`, where `<idea>` is the idea `akka_run_start` named. Do not carry out `/akka-specify:implement` or any later station; name `/akka-specify:implement` as the command for after the approval.
 
