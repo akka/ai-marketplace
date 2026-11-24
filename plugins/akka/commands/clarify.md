@@ -114,8 +114,7 @@ recorded run its `idea` and `run.id`. Keep both: the last steps use them.
   that this run is not recorded, with its `reason`.
 - A refusal by rule is an error whose JSON is `{refused, message, remedy}`,
   `refused` naming the rule: `paused`, `limit`, `shipped`, `dropped`,
-  `approval`, `order`, `no-idea-enforced`, `idea-unresolved` or `console-run`.
-  Print `message` and `remedy` verbatim and stop.
+  `approval`, `order`, `no-idea-enforced`, `idea-unresolved`, `console-run` or `branch`. Print `message` and `remedy` verbatim and stop. A `branch` refusal's remedy is a `git switch` for the person to run; the command never creates or switches a branch itself.
 - Any other error, one without `refused` (such as no login), does not stop the
   command: continue without a run, and say in one line that this run is not
   recorded.
