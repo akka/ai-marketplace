@@ -278,7 +278,7 @@ the work's normal end.
 
 14. **Ask about merging to main**:
    - Ask the user: "Would you like to merge the feature branch back to main?"
-   - If yes: call `akka_git_checkout` to switch to `main`, then `akka_git_merge` with the feature branch name
+   - If yes: call `akka_git_checkout` to switch to `main`, then `akka_git_merge` with the branch the run worked on: the idea's branch when a run was opened, else the feature branch
    - If no: stay on the feature branch — the user may want to create a PR or continue iterating
 
 15. Completion validation:
