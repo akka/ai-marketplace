@@ -235,22 +235,20 @@ the work's normal end.
    - Call `akka_git_add` to stage all changes
    - Call `akka_git_commit` with a descriptive message summarizing the implemented feature
 
-11. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id, `outputs` set to the code and test files this run created or changed and `FEATURE_DIR/tasks.md`, as project-relative paths, and `tasks` set to the ids of the tasks this run marked `[X]`. Where the tool is not available, run `akka specify run close --run <id> --outcome ok` with one `--file <path>` for each output and one `--task <id>` for each task. On an error, print its message; the committed work stands.
+11. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id, `outputs` set to the code and test files this run created or changed and `FEATURE_DIR/tasks.md`, as project-relative paths, and `tasks` set to the ids of the tasks this run marked `[X]`. Where the tool is not available, run `akka specify run close --run <id> --outcome ok` with one `--file <path>` for each output and one `--task <id>` for each task. The close writes the run's events into `.akka/record/` and commits nothing. On an error, print its message; the committed work stands. After the close, run `git status --porcelain -- .akka/record/` and end the final message with one line naming the files it lists, such as "Record files to commit with your work: .akka/record/<id>/…". This command does not commit the record. When git is not available, the line says the record is in `.akka/record/<id>/`.
 
-12. **Commit the run record**. If a run was opened and its close succeeded, call `akka_git_add` with `paths` set to `.akka/record/`, which stages that folder only, then `akka_git_commit` with a message that names the run. Otherwise skip this step. The record is committed before the merge question, so no uncommitted change reaches `main`.
-
-13. **Ask about merging to main**:
+12. **Ask about merging to main**:
    - Ask the user: "Would you like to merge the feature branch back to main?"
    - If yes: call `akka_git_checkout` to switch to `main`, then `akka_git_merge` with the feature branch name
    - If no: stay on the feature branch — the user may want to create a PR or continue iterating
 
-14. Completion validation:
+13. Completion validation:
    - Verify all required tasks are completed
    - Check that implemented features match the original specification
    - Validate that tests pass and coverage meets requirements
    - Confirm the implementation follows the technical plan
    - Report final status with summary of completed work
 
-15. **Carry on or stop.** In a console run, skip this step: the console moves the idea on. If a run was opened, run `akka specify idea next --idea <idea> --from implement --json`, where `<idea>` is the `idea` the run start returned. It answers `{ go, next, reason }`. When `go` is true, carry on into the `/akka-specify:` command of the same name in this conversation, following its own instructions, when this plugin has one. Otherwise stop, print `reason`, and name `next.command` when there is one. This plugin has no `conform`, `converge` or `ship`: for those, stop and name the `/akka:` command. Without a run, stop and name the next command.
+14. **Carry on or stop.** In a console run, skip this step: the console moves the idea on. If a run was opened, run `akka specify idea next --idea <idea> --from implement --json`, where `<idea>` is the `idea` the run start returned. It answers `{ go, next, reason }`. When `go` is true, carry on into the `/akka-specify:` command of the same name in this conversation, following its own instructions, when this plugin has one. Otherwise stop, print `reason`, and name `next.command` when there is one. This plugin has no `conform`, `converge` or `ship`: for those, stop and name the `/akka:` command. Without a run, stop and name the next command.
 
 Note: This command assumes a complete task breakdown exists in tasks.md. If tasks are incomplete or missing, suggest running `/akka-specify:tasks` first to regenerate the task list.

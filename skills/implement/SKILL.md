@@ -51,7 +51,7 @@ send-back opened this station's visit.
 
 **Idea record: implement in a console run.** When a checklist is incomplete, do
 not ask whether to proceed: close the run with `outcome: waiting` and that
-question. Never merge to `main` in a console run: skip the merge question and
+question. Never merge to the default branch in a console run: skip the merge question and
 leave the branch, because the merge is a person's choice. This command works on the branch the project is on and never creates or switches a branch. Skip the docs refresh and say in one line that it is
 left for a laptop run: `/akka:docs` writes under `.akka/` and needs tools a
 console run lacks. When a delivery phase's gate mock is not approved in
@@ -253,15 +253,17 @@ the work's normal end.
 10. **Refresh the docs.** If the project has a `discovery/` folder, run `/akka:docs` (the implementation docs and the Story) before the commit, in this session, so they match what this command built; add its outcome to the report, and leave the refreshed docs for the commit in the next step. If the project has no `discovery/` folder, do not run `/akka:docs`; offer it in the report as an optional next step, and leave `docs/` untouched.
 
 11. **Commit the implementation**:
-   - Before staging, find the repository's default branch with `git symbolic-ref refs/remotes/origin/HEAD` (the `akka_git_*` tools do not cover it), falling back to `main`, then `master`, when that fails. If the current branch noted in step 2 is the default branch, ask the person whether to commit there, or to create a branch they name and commit there (`akka_git_create_branch`). Do not stage or commit until they answer.
+   - Before staging, find the repository's default branch, DEFAULT: run `git symbolic-ref --short refs/remotes/origin/HEAD` and drop the `origin/` prefix (the `akka_git_*` tools do not cover it). When that fails, DEFAULT is `main` if `git rev-parse --verify --quiet main` succeeds, else `master`. Note DEFAULT for step 13.
+   - If the branch noted in step 2 is DEFAULT, ask the person whether to commit there, or to create a branch they name and commit there (`akka_git_create_branch`). Do not stage or commit until they answer. When a branch is created, it is the branch this run committed to, for step 13.
+   - In a console run nobody can answer, so on DEFAULT do not stage or commit: leave the implementation uncommitted, and in the final message say it is uncommitted on DEFAULT.
    - Call `akka_git_add` to stage the implementation's files
    - Call `akka_git_commit` with a descriptive message summarizing the implemented feature
 
 12. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id, `outcome: ok`, `outputs` set to the code and test files this run created or changed and `FEATURE_DIR/tasks.md`, with `docs/` when the docs refresh ran, all as project-relative paths, and `tasks` set to the ids of the tasks this run marked `[X]`. Where the tool is not available, run `akka specify run close --run <id> --outcome ok` with one `--file <path>` for each output and one `--task <id>` for each task. The close writes the run's events into `.akka/record/` and commits nothing. On an error, print its message and stop: do not ask the merge question. After the close, run `git status --porcelain -- .akka/record/` and end the final message with one line naming the files it lists, such as "Record files to commit with your work: .akka/record/<id>/…". This command does not commit the record. When git is not available, the line says the record is in `.akka/record/<id>/`.
 
-13. **Ask about merging to main**. Skip this step when the current branch noted in step 2 is `main`:
-   - Ask the user: "Would you like to merge the current branch back to main?"
-   - If yes: call `akka_git_checkout` to switch to `main`, then `akka_git_merge` with the branch noted in step 2
+13. **Ask about merging to the default branch**. Skip this step when the branch this run committed to is DEFAULT, or when nothing was committed:
+   - Ask the user: "Would you like to merge the current branch back to DEFAULT?", naming DEFAULT
+   - If yes: call `akka_git_checkout` to switch to DEFAULT, then `akka_git_merge` with the branch this run committed to
    - If no: stay on the current branch — the user may want to create a PR or continue iterating
 
 14. Completion validation:
@@ -287,7 +289,7 @@ Note: This command assumes a complete task breakdown exists in tasks.md. If task
 - [ ] Each sub-agent's model and effort came from the task's `[model: …]` tag, the plan's Model Plan, `.akka/models.md` or the harness default, in that order, with the 85% downgrade rule applied; the model used was reported per task.
 - [ ] Every completed task in `tasks.md` was marked `[X]`; any failed task halted execution (or, for `[P]` tasks, was reported while continuing successful siblings).
 - [ ] The implementation was staged via `akka_git_add` and committed via `akka_git_commit` with a descriptive message, after the person answered where to commit when the current branch was the repository's default branch. With a run, the close error (if any) stopped the command, and `.akka/record/` was left uncommitted, its files named in the final message.
-- [ ] On a laptop run off `main`, the user was asked whether to merge the current branch to `main`, and a console run left the branch unmerged; the answer was acted on (`akka_git_checkout` + `akka_git_merge` on yes, stay on the branch on no).
+- [ ] On a laptop run that committed to a branch other than the default branch, the user was asked whether to merge it to the default branch, and a console run left the branch unmerged; the answer was acted on (`akka_git_checkout` + `akka_git_merge` on yes, stay on the branch on no).
 - [ ] The final report validates that implemented features match the spec, tests pass, and the implementation follows the plan.
 - [ ] With a `discovery/` folder, `/akka:docs` ran before the commit (a console run left it for a laptop run); without one, it was offered as a next step and `docs/` was left untouched.
 - [ ] The run was opened with `akka_run_start` after the mode check, against the idea found from its feature, and closed with `akka_run_close` at the end, naming the files written and the tasks completed, or the CLI was reported as predating the idea record.
