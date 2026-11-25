@@ -174,7 +174,7 @@ runtime — not just in code:
 If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id, `outcome: ok`,
 and no outputs: the review's findings are in the report, not in a file. Where the
 tool is not available, run `akka specify run close --run <id> --outcome ok`. On an error,
-print its message; the report stands.
+print its message; the report stands. After the close, run `git status --porcelain -- .akka/record/` and end the final message with one line naming the files it lists, such as "Record files to commit with your work: .akka/record/<id>/…". This command does not commit the record. When git is not available, the line says the record is in `.akka/record/<id>/`.
 
 ### Step 9: Carry on or stop
 

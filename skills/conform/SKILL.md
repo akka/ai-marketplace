@@ -186,7 +186,7 @@ A `NOT_READY` verdict says what is blocking and what to do about it:
    Where the tool is not available, run `akka specify run close --run <id> --outcome ok`. Do
    this whatever the verdict: a `NOT_READY` verdict still closes as `ok`,
    because the manifest carries it. On an error, print its message; the verdict
-   already reported stands.
+   already reported stands. After the close, run `git status --porcelain -- .akka/record/` and end the final message with one line naming the files it lists, such as "Record files to commit with your work: .akka/record/<id>/…". This command does not commit the record. When git is not available, the line says the record is in `.akka/record/<id>/`.
 
 5. **Stop and name the ship command**: `/akka:ship`, or `/akka:deploy` on the
    Deploy to Akka lane. Ship is never started automatically.

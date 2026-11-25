@@ -121,7 +121,7 @@ the work's normal end.
 
 1. Call the `akka_sdd_list_specs` MCP tool to find features. Verify that tasks.md exists for the target feature (has_tasks must be true). If tasks.md is missing, instruct the user to run `/akka:tasks` first. Read the tasks.md content from FEATURE_DIR. Also note which other artifacts are available (AVAILABLE_DOCS).
 
-2. **Work on the current branch.** Call `akka_git_status` to read the current branch and work on it. This command never creates or switches a branch; the branch is the person's choice. Note its name for step 14.
+2. **Work on the current branch.** Call `akka_git_status` to read the current branch and work on it. This command never creates or switches a branch; the branch is the person's choice. Note its name for step 13.
 
 3. **Check checklists status** (if FEATURE_DIR/checklists/ exists):
    - Scan all checklist files in the checklists/ directory
@@ -253,19 +253,18 @@ the work's normal end.
 10. **Refresh the docs.** If the project has a `discovery/` folder, run `/akka:docs` (the implementation docs and the Story) before the commit, in this session, so they match what this command built; add its outcome to the report, and leave the refreshed docs for the commit in the next step. If the project has no `discovery/` folder, do not run `/akka:docs`; offer it in the report as an optional next step, and leave `docs/` untouched.
 
 11. **Commit the implementation**:
+   - Before staging, find the repository's default branch with `git symbolic-ref refs/remotes/origin/HEAD` (the `akka_git_*` tools do not cover it), falling back to `main`, then `master`, when that fails. If the current branch noted in step 2 is the default branch, ask the person whether to commit there, or to create a branch they name and commit there (`akka_git_create_branch`). Do not stage or commit until they answer.
    - Call `akka_git_add` to stage the implementation's files
    - Call `akka_git_commit` with a descriptive message summarizing the implemented feature
 
-12. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id, `outcome: ok`, `outputs` set to the code and test files this run created or changed and `FEATURE_DIR/tasks.md`, with `docs/` when the docs refresh ran, all as project-relative paths, and `tasks` set to the ids of the tasks this run marked `[X]`. Where the tool is not available, run `akka specify run close --run <id> --outcome ok` with one `--file <path>` for each output and one `--task <id>` for each task. The close writes the run's events into `.akka/record/` and commits nothing. On an error, print its message and stop: do not commit the record or ask the merge question.
+12. **Close the run**. If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id, `outcome: ok`, `outputs` set to the code and test files this run created or changed and `FEATURE_DIR/tasks.md`, with `docs/` when the docs refresh ran, all as project-relative paths, and `tasks` set to the ids of the tasks this run marked `[X]`. Where the tool is not available, run `akka specify run close --run <id> --outcome ok` with one `--file <path>` for each output and one `--task <id>` for each task. The close writes the run's events into `.akka/record/` and commits nothing. On an error, print its message and stop: do not ask the merge question. After the close, run `git status --porcelain -- .akka/record/` and end the final message with one line naming the files it lists, such as "Record files to commit with your work: .akka/record/<id>/…". This command does not commit the record. When git is not available, the line says the record is in `.akka/record/<id>/`.
 
-13. **Commit the record**. If a run was opened, call `akka_git_add` for `.akka/record/` only, then `akka_git_commit` with a message naming the idea and the run, so the close leaves no uncommitted record files. Otherwise skip this step.
-
-14. **Ask about merging to main**. Skip this step when the current branch noted in step 2 is `main`:
+13. **Ask about merging to main**. Skip this step when the current branch noted in step 2 is `main`:
    - Ask the user: "Would you like to merge the current branch back to main?"
    - If yes: call `akka_git_checkout` to switch to `main`, then `akka_git_merge` with the branch noted in step 2
    - If no: stay on the current branch — the user may want to create a PR or continue iterating
 
-15. Completion validation:
+14. Completion validation:
    - Verify all required tasks are completed
    - Check that implemented features match the original specification
    - Validate that tests pass and coverage meets requirements
@@ -287,7 +286,7 @@ Note: This command assumes a complete task breakdown exists in tasks.md. If task
 - [ ] Each sub-agent was numbered `agent-<n>` and its prompt began with `[akka-agent: agent-<n>]`; each task's `start` and `tick` events were recorded where the CLI supports them, or the command said once that task progress is not recorded.
 - [ ] Each sub-agent's model and effort came from the task's `[model: …]` tag, the plan's Model Plan, `.akka/models.md` or the harness default, in that order, with the 85% downgrade rule applied; the model used was reported per task.
 - [ ] Every completed task in `tasks.md` was marked `[X]`; any failed task halted execution (or, for `[P]` tasks, was reported while continuing successful siblings).
-- [ ] The implementation was staged via `akka_git_add` and committed via `akka_git_commit` with a descriptive message. With a run, the close error (if any) stopped the command, and `.akka/record/` was committed after the close.
+- [ ] The implementation was staged via `akka_git_add` and committed via `akka_git_commit` with a descriptive message, after the person answered where to commit when the current branch was the repository's default branch. With a run, the close error (if any) stopped the command, and `.akka/record/` was left uncommitted, its files named in the final message.
 - [ ] On a laptop run off `main`, the user was asked whether to merge the current branch to `main`, and a console run left the branch unmerged; the answer was acted on (`akka_git_checkout` + `akka_git_merge` on yes, stay on the branch on no).
 - [ ] The final report validates that implemented features match the spec, tests pass, and the implementation follows the plan.
 - [ ] With a `discovery/` folder, `/akka:docs` ran before the commit (a console run left it for a laptop run); without one, it was offered as a next step and `docs/` was left untouched.

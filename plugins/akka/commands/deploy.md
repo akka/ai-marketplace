@@ -238,7 +238,7 @@ locally (via `/akka:build`) and you're ready to ship.
    project descriptor file when Option B exported one, as a project-relative
    path, or to none. Where the tool is not available, run `akka specify run
    close --run <id> --outcome ok`, with `--file <path>` for the descriptor. On an error,
-   print its message; the deployment stands.
+   print its message; the deployment stands. After the close, run `git status --porcelain -- .akka/record/` and end the final message with one line naming the files it lists, such as "Record files to commit with your work: .akka/record/<id>/…". This command does not commit the record. When git is not available, the line says the record is in `.akka/record/<id>/`.
 
 ## Key Rules
 

@@ -157,7 +157,7 @@ bypass.
    Where the tool is not available, run `akka specify run close --run <id>
    --outcome <outcome>`, with `--error "<reason>"` for `failed` and `--question
    "<question>"` for `waiting`. On an error, print its message; the outcome
-   already reported stands.
+   already reported stands. After the close, run `git status --porcelain -- .akka/record/` and end the final message with one line naming the files it lists, such as "Record files to commit with your work: .akka/record/<id>/…". This command does not commit the record. When git is not available, the line says the record is in `.akka/record/<id>/`.
 
    With `--execute`, the CLI records the shipped event for the steps it ran. A
    dry run that lists steps records nothing, so it never closes `ok`.

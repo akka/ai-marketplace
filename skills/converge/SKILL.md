@@ -286,7 +286,7 @@ If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id
 `outputs` set to TASKS as a project-relative path on `tasks_appended`, or to none on
 `converged`. Where the tool is not available, run `akka specify run close --run <id> --outcome ok`,
 with `--file <path>` for TASKS on `tasks_appended`. On an error, print its message;
-the outcome already reported stands.
+the outcome already reported stands. After the close, run `git status --porcelain -- .akka/record/` and end the final message with one line naming the files it lists, such as "Record files to commit with your work: .akka/record/<id>/…". This command does not commit the record. When git is not available, the line says the record is in `.akka/record/<id>/`.
 
 ### 10. Carry on or stop
 
