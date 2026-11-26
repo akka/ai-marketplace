@@ -315,6 +315,17 @@ Every template marks some sections *required, or none*. Such a section is never 
 has nothing to record, its only line is `none: <what was checked>`, so a reader can tell
 "checked and empty" from "not looked at".
 
+## Fanning out
+
+`research`, `landscape`, `scan`, `concepts` and `system` always fan out when their work has more than one independent thread. `confirm` and `mock` do not: they are a conversation with one person, one item at a time.
+
+1. **Split the work into threads** after reading the inputs and before searching. A thread is one line of inquiry: one regulation or rule set, one competitor or alternative, one material to read, one part of the existing system, one probe. A thread is independent when it needs no other thread's answer. A thread that needs another's answer waits for it.
+2. **One thread runs in this session.** Two or more independent threads each go to their own sub-agent, all started together. Number each agent `agent-<n>` in the order it starts; this session is `agent-1`. Begin each sub-agent's prompt with the line `[akka-agent: agent-<n>]`, so the gateway's records join to that agent. Choose its model and effort from the project's `.akka/models.md`, else the harness default, and apply the same 85% downgrade rule as `/akka:implement`.
+3. **Give each sub-agent** its thread, the topic's goal and code, the materials its thread reads, and the person's recorded answers: `web:`, `probes:` and any limit from the constitution. A sub-agent searches the public web only when `web: yes` is recorded, runs only the probes `probes:` lists, never asks the person anything, and writes nothing in the topic except snapshots. It saves each snapshot as `discovery/<topic>/materials/snapshots/agent-<n>-<k>-<YYYY-MM-DD>.<ext>` with its sha256.
+4. **Each sub-agent returns** its findings, sources, unknowns, requests for other people and wanted sources, in this command's record forms but without identifiers, plus any question for the person, with the evidence for each.
+5. **This session merges.** It numbers every finding, source and wish after the highest number in the topic, renames each snapshot to its source id, removes duplicates, and writes the step's files. Where two threads disagree, it writes both findings and an understanding item for `confirm`, never choosing one silently. It asks the person the sub-agents' questions itself, under *Talking with the person*.
+6. **The report** names each thread, the agent that ran it and what it found.
+
 ## Talking with the person
 
 - Ask one question at a time, never a list, and no more than five in a step, most important first. The items `confirm` presents and the reviews `mock` asks for are not counted as questions. Before asking, read the discovery files and anything the person pointed you to.
@@ -685,6 +696,7 @@ Then carry on or stop. In a console run, skip this step: the console moves the i
 - [ ] `confirm`: items were presented one at a time, each showing the three default parts in plain language, readable on its own, with the example and the consequence behind "More"; every item is one `[U-<CODE>-<n>]` line with impact, covers, response and version, and its versions, comments and answer lines as indented thread lines; a response given after a comment without a new version has an `answer` line; every response, reason, comment, name and date came from the person; agreed and amended findings are `confirmed` with `understanding.md U-<CODE>-<n>` in their evidence.
 - [ ] `mock`: every entry is one `[M-<CODE>-<n>]` line; every approval or change request came from the reviewer and is in Review History.
 - [ ] `--prework`: the pack has how to use, the request list first, the strongest-model note, Prompt 0, numbered prompts each naming its output file, the kickoff brief last, and a specification seed, with no customer, product or person named.
+- [ ] `research`, `landscape`, `scan`, `concepts` and `system` split their work into threads; two or more independent threads ran together in sub-agents numbered `agent-<n>`, each prompt beginning `[akka-agent: agent-<n>]`; sub-agents asked the person nothing and wrote only snapshots; this session numbered and merged their results, recorded conflicts between threads as understanding items, and the report named each thread and its agent.
 - [ ] The report gave the files written, the findings added by status, and one recommended next step.
 - [ ] Apart from the topic list, the run was opened with `akka_run_start` before any other step and closed with `akka_run_close` naming the files written, or the CLI was reported as predating the idea record.
 - [ ] With a run, the command carried on into `next.command` only when `akka specify idea next` answered `go: true`; otherwise it stopped, printed the reason and named the next command.
