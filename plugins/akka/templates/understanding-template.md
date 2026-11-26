@@ -36,6 +36,8 @@
     (left out when there is no choice to make). The last two are shown behind one
     click ("More"): An example and What changes if I am wrong. Each comment is a `comment (<who>, <date>)` line. Nothing in the
     thread is deleted.
+  - An item written by `scan` (a borrowed idea or a pitfall) adds `| from: borrow|pitfall`
+    after its covers field.
   - version is the version the response answers. A new item is version 1.
   - response is what the person answered:
       agree     the restatement is right.

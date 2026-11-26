@@ -9,6 +9,55 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 In a project with a `discovery/` folder this command relies on the discovery gates in `akka specify conform`, which need an akka CLI with discovery support. Check first: run `akka specify probes --help`. If its list of commands does not include `findings`, the CLI predates discovery. Tell the person so, name what is missing (the discovery gates and `akka specify probes findings`), and stop, because a spec may rely only on confirmed findings and this CLI cannot check them. Treat an `unknown command` or `unknown flag` error from any `akka specify` call the same way, naming the subcommand or flag. A project without `discovery/` needs neither and skips this check.
 
+## Before anything else
+
+This command keeps a run in the idea's record when the akka CLI has one: the
+`akka_run_start` MCP tool is available, or the output of `akka specify run start
+--help` contains `--station`. A CLI without it predates the idea record. With
+such a CLI, say so once and carry this command out as before: skip every step
+marked **Idea record**, and open no run.
+
+**Idea record: a console run.** Call the `akka_run_context` MCP tool first when
+it is available: it answers `{ console, idea, station, run, spec, topic,
+questions, sentBack }`, and `console: true` means the console started this command. Only
+without that tool, the console started it when `AKKA_RUN_ID` is set in its
+environment, or when the command has no shell to run the akka CLI in. The
+console has already opened the run and enforced the rules for it, so in a
+console run the run is open from the first step: its id is the `run`
+`akka_run_context` answered. Any stop before the normal close, such as a
+mode-check refusal, a missing argument, or a check that needs a tool this run
+lacks, closes it with `akka_run_close`, that `run`, `outcome: failed` and the
+reason. So in a console run: the feature is `akka_run_context`'s `spec` (for
+`/akka:discover`, the topic is its `topic`), and the command never searches for
+one; skip every step that finds, adopts, starts or links an idea, and never ask
+a person a question: wherever this command would ask one, it closes the run with
+`outcome: waiting` and `question` set to the question (`--outcome waiting
+--question "<question>"` on the CLI); the owner answers in the console, and the
+re-run reads the answer from `akka_run_context`'s `questions` (`{station, run,
+question, answer}`) and does not ask it again; run the mode check with `--idea`
+set to the `idea` `akka_run_context` answered, and skip it when it cannot run
+here or no idea is known; open the run by calling `akka_run_start` with
+`command` and `args` only, no `idea` and no `station`, and the CLI joins the
+console's run; close it as usual; and skip the carry-on step, because the
+console moves the idea on. A run with no shell for the akka CLI that
+`akka_run_context` answers `console: false` for is not a console run and keeps
+no record: open no run, ask nothing about ideas or lanes, and carry the command
+out as before the idea record, skipping every step marked **Idea record**.
+
+**Idea record: a station sent back to.** When `akka_run_context` answers
+`sentBack` (`{ from, reason, by, at }`), the idea was sent back to this station
+from `from`, and `reason` says why. Work on that reason first: read it as the
+instruction for this run from `by`, change this station's outputs where the
+reason points, and keep what it does not touch. `sentBack` is `null` when no
+send-back opened this station's visit.
+
+**Idea record: specify in a console run.** Skip the `akka specify probes --help`
+check above: any CLI with `akka_run_context` has `probes findings`. Present no
+clarification questions: leave the `[NEEDS CLARIFICATION]` markers in the spec
+for `/akka:clarify`, and the console shows them as waits. Skip the
+exit-condition loop and `akka specify conditions author`, and say in one line
+that they are left for a person on a laptop. Close the run as usual.
+
 ## Outline
 
 The text the user typed after `/akka:specify` in the triggering message **is** the feature description. Assume you always have it available in this conversation even if `the user's request` appears literally below. Do not ask the user to repeat it unless they provided an empty command.
@@ -20,7 +69,7 @@ Given that feature description, do this:
    - Check if the current directory has a `pom.xml` or `.akka/` directory. If neither exists, warn: *"This doesn't look like an Akka project directory. Run `/akka:setup` to scaffold a new project, or `cd` into an existing one."*
    - If both checks pass, proceed.
 
-1. **Generate a concise short name** (2-4 words) for the branch:
+1. **Generate a concise short name** (2-4 words) for the spec folder:
    - Analyze the feature description and extract the most meaningful keywords
    - Create a 2-4 word short name that captures the essence of the feature
    - Use action-noun format when possible (e.g., "add-user-auth", "fix-payment-bug")
@@ -32,28 +81,26 @@ Given that feature description, do this:
      - "Create a dashboard for analytics" → "analytics-dashboard"
      - "Fix payment processing timeout bug" → "fix-payment-timeout"
 
-2. **Check for existing branches before creating new one**:
+2. **Find the next spec number**:
 
-   a. First, fetch all remote branches to ensure we have the latest information.
+   a. Call `akka_sdd_list_specs` and find the highest number N among the spec folders matching
+   `specs/[0-9]+-<short-name>`. Only folders with the exact short-name pattern count.
 
-   b. Find the highest feature number across all sources for the short-name:
-      - Remote branches: `git ls-remote --heads origin | grep -E 'refs/heads/[0-9]+-<short-name>$'`
-      - Local branches: `git branch | grep -E '^[* ]*[0-9]+-<short-name>$'`
-      - Specs directories: Check for directories matching `specs/[0-9]+-<short-name>`
+   b. **Only with no idea record** (a CLI that predates it, see "Before anything else"), and never in a
+   console run, which has no shell for git: also check the branches for the same pattern. Run `git fetch`,
+   then `git ls-remote --heads origin | grep -E 'refs/heads/[0-9]+-<short-name>$'` and
+   `git branch | grep -E '^[* ]*[0-9]+-<short-name>$'`, and raise N to the highest number they show. A
+   recorded idea creates no branch.
 
-   c. Determine the next available number:
-      - Extract all numbers from all three sources
-      - Find the highest number N
-      - Use N+1 for the new branch number
+   c. Use N+1 as the number, or 1 when nothing matched. The id is that number, zero-padded to three digits,
+   a hyphen, and the short name from step 1 (`002-user-auth`). It is FEATURE_DIR's folder name. The folder
+   is not created here: step 2f creates it, after the run is opened.
 
-   d. Call the `akka_sdd_create_spec` MCP tool with feature_name set to a short, hyphenated name derived from the user's feature description (e.g. "user-authentication"). The tool creates a numbered feature directory under the specs directory, initializes spec.md from the template, and returns the path. Use this path as FEATURE_SPEC and its parent directory as FEATURE_DIR.
-      - Pass `number` (N+1) and `short_name` parameters along with the feature description
+2e. **Idea record: start the idea and open the run.** In a console run, skip the idea steps here and open the run by calling `akka_run_start` with `command: /akka:specify` and `args` only; the CLI joins the console's run, and its close links the spec from the outputs. On a laptop run, Discover is optional in every mode, so a new idea may start here. `/akka:specify` always records against a new idea or the idea of the discovery topic this feature continues, never an idea found from the git branch. Below, `<NNN-name>` is the id from step 2c. When the feature continues a discovery topic (the person names it, or the spec rests on its findings), look for that topic's idea in `akka specify idea list --json`: the idea whose `topic` is the topic's folder name and whose `spec` is null. When that idea has `derived: true`, it has no record yet: adopt it with `akka specify ideas adopt --idea <id>`, then use it. If there is one, link it to this spec with `akka specify idea link --idea <idea> --spec <NNN-name>`. Otherwise start a new idea: ask the person how it ships, Deploy to Akka (`akka`) or Commit to internal systems (`internal`), with your suggestion, then run `akka specify idea new --spec <NNN-name> --lane <lane> "<words>"` with the feature description as its words, quoted as one argument. When the adopt, `idea link` or `idea new` fails, in Enforced mode (`akka specify mode`) stop with the CLI's message; otherwise open no run, say in one line that this run is not recorded, and continue. Then open the run against that idea: call the `akka_run_start` MCP tool with `station: specify`, `command: /akka:specify`, `idea` set to it and `args` set to the user input. Where the tool is not available, run `akka specify run start --station specify --command /akka:specify --idea <idea> --args "<the user input>" --json`, with the input quoted as one argument. It answers JSON: `recorded`, and for a recorded run its `idea` and `run.id`. Keep both: the closing steps use them. When it answers `recorded: false`, continue without a run, and say in one line that this run is not recorded, with its `reason`. A refusal by rule is an error whose JSON is `{refused, message, remedy}`, `refused` naming the rule: `paused`, `limit`, `shipped`, `dropped`, `approval`, `order`, `no-idea-enforced`, `idea-unresolved` or `console-run`. Print `message` and `remedy` verbatim and stop, before step 2f, so no spec folder is created. Any other error, one without `refused` (such as no login), does not stop the command: continue without a run, and say in one line that this run is not recorded. Once the run is open, every way the command ends closes it. When the work fails (a build or tests fail, or a step stops the command early), call `akka_run_close` with `run`, `outcome: failed` and `error` set to what failed, in one line, then stop. Where the tool is not available, run `akka specify run close --run <id> --outcome failed --error "<what failed>"`. When the person stops the command, close the run with `outcome: stopped`. This holds in a console run too. The closing steps are for the work's normal end.
 
-   **IMPORTANT**:
-   - Check all three sources (remote branches, local branches, specs directories) to find the highest number
-   - Only match branches/directories with the exact short-name pattern
-   - If no existing branches/directories found with this short-name, start with number 1
-   - The tool output will contain BRANCH_NAME and SPEC_FILE paths
+2f. **Create the spec folder.** Only when step 2e has not stopped the command, call the `akka_sdd_create_spec` MCP tool with feature_name set to a short, hyphenated name derived from the user's feature description (e.g. "user-authentication"), `number` (N+1) and `short_name` parameters, along with the feature description. The tool creates a numbered feature directory under the specs directory, initializes spec.md from the template, and returns the path. Use this path as FEATURE_SPEC and its parent directory as FEATURE_DIR.
+
+   **IMPORTANT**: The tool output contains `spec_file`. Its `branch_name` is only a folder name: the command creates no git branch from it.
 
 3. Load `akka_sdd_get_template` to understand required sections.
 
@@ -210,9 +257,13 @@ Given that feature description, do this:
 
 7. **Report existing diagrams.** If `FEATURE_DIR/spec-visualize.md` or `FEATURE_DIR/plan-visualize.md` exists, mention in the completion report that it may be stale and suggest running `/akka:visualize` for this feature when the user wants updated diagrams. Leave all diagram files untouched; visualization is optional.
 
-8. Report completion with branch name, spec file path, checklist results, and any potentially stale diagram paths.
+8. Report completion with spec file path, checklist results, and any potentially stale diagram paths.
 
-   **The next step depends on the mode.** Run `akka specify mode` and read it.
+9. **Idea record: close the run.** If a run was opened, call the `akka_run_close` MCP tool with `run` set to its id, `outcome: ok`, and `outputs` set to SPEC_FILE and `FEATURE_DIR/checklists/requirements.md` as project-relative paths. Where the tool is not available, run `akka specify run close --run <id> --outcome ok` with one `--file <path>` for each output. On an error, print its message; the spec already written stands. After the close, run `git status --porcelain -- .akka/record/` and end the final message with one line naming the files it lists, such as "Record files to commit with your work: .akka/record/<id>/…". This command does not commit the record. When git is not available, the line says the record is in `.akka/record/<id>/`.
+
+10. **Idea record: end waiting for the owner's approval.** When a run was opened, the spec now waits for the owner's approval before the next station runs, in either mode. Say so, and say how to give it: on the idea in the console's Ideas page, or `akka specify idea approve <idea> spec`, where `<idea>` is the idea the run start returned. Do not carry out `/akka:plan` or any later station. Name the next command for after the approval (`/akka:clarify` or `/akka:plan`) and stop. Without a run, name the next command and stop.
+
+11. **On a run that keeps no record (a CLI that predates the idea record, or no shell with `console: false`), the next step depends on the mode, exactly as before the idea record.** Run `akka specify mode` and read it.
 
    - **À la carte** — recommend the next command (`/akka:clarify` or
      `/akka:plan`) and stop. The developer drives.
@@ -226,8 +277,6 @@ Given that feature description, do this:
      reports something only a person can settle, and say what it is. A finding
      that needs confirming is settled with `/akka:discover <topic> confirm`, which
      enforcement leaves to the person.
-
-**NOTE:** The script creates and checks out the new branch and initializes the spec file before writing.
 
 ## General Guidelines
 
@@ -359,8 +408,9 @@ Generation runs in the assistant; the engine detects the surfaces, verifies dete
 - [ ] The mode was read before any `akka_ec_*` call, and where the exit-condition set was dormant nothing was captured, approved or audited beyond the discovery gates.
 - [ ] Where the set was active: any checkable requirement in the feedback was captured as an exit condition + check via `akka_ec_capture`, surfaced for approval at the exit-condition level, and approved via `akka_ec_approve`.
 - [ ] Where the set was active: the active checks were reviewed adversarially and `akka_ec_adequacy_submit` was called; the plain `akka_ec_summary` (never internal ids) was shown to the user.
-- [ ] A short-name and next feature number were derived by checking remote branches, local branches, and the `specs/` directory; the highest existing N was used and N+1 was passed to `akka_sdd_create_spec`.
-- [ ] `akka_sdd_create_spec` created a numbered FEATURE_DIR and returned BRANCH_NAME and SPEC_FILE.
+- [ ] A short-name and next feature number were derived from `akka_sdd_list_specs` (and, with no idea record, the remote and local branches); the highest existing N was used and N+1 was passed to `akka_sdd_create_spec`.
+- [ ] A refused run stopped the command before `akka_sdd_create_spec` ran, so no spec folder was created.
+- [ ] `akka_sdd_create_spec` ran in step 2f, after the run was opened or with none recorded, and created a numbered FEATURE_DIR and returned SPEC_FILE.
 - [ ] The specification was written to SPEC_FILE using the template structure, with all mandatory sections filled and section order preserved.
 - [ ] Success Criteria are measurable, technology-agnostic, user-focused, and verifiable.
 - [ ] With a `discovery/` folder, the `**User Interface**` and `**Modernization**` header markers are set to yes or no; without one, both are `no`.
@@ -370,5 +420,6 @@ Generation runs in the assistant; the engine detects the surfaces, verifies dete
 - [ ] No more than 3 `[NEEDS CLARIFICATION]` markers for routine details remain (surplus resolved by informed guesses documented in Assumptions); no policy decision or finding confirmation was guessed, and open ones remain as markers.
 - [ ] `FEATURE_DIR/checklists/requirements.md` was created and every non-`[NEEDS CLARIFICATION]` item passes (or the user was warned after 3 failed iterations).
 - [ ] Existing diagrams affected by the source update were reported as potentially stale, with `/akka:visualize` suggested as an optional next step; all diagram files were left untouched.
-- [ ] Completion was reported with branch name, spec file path, and checklist results.
-- [ ] The mode was read, and the next step matched it: a recommendation in À la carte, and the sequence carried out here in Enforced, with no command named that the gate would refuse.
+- [ ] Completion was reported with spec file path and checklist results.
+- [ ] With the idea record, the run was opened before the spec folder was created, against a new idea started with `--spec` or the continued topic's idea linked to the spec, and closed with `akka_run_close` naming the spec and its checklist; or the CLI was reported as predating the idea record.
+- [ ] With a run, the command ended waiting for the owner's approval of the spec, with no later station carried out and the next command named. With a CLI that predates the idea record, the mode was read and the next step matched it: a recommendation in À la carte, and the sequence carried out here in Enforced, with no command named that the gate would refuse.

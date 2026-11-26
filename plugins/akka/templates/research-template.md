@@ -37,7 +37,10 @@ replaced, for whom, and why now.]
 
 One line per source used, so findings can cite it by its number.
 
-- S-1: [title] | owner: [author or team] | date: [YYYY-MM-DD] | where: [path or URL] | current: [yes | unsure | no, and why]
+- S-1: [title] | owner: [author or team] | date: [YYYY-MM-DD] | where: [path or URL] | current: [yes | unsure | no, and why][ | snapshot: snapshots/<file> | sha256: <hex> | taken: <YYYY-MM-DD>]
+
+A link or web page read for this file is copied to `materials/snapshots/`, and its line carries
+the snapshot fields. Attached files and codebases have none.
 
 ## Users and Needs *(required, or none)*
 

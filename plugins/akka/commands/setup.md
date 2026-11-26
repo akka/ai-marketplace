@@ -32,8 +32,11 @@ Re-running setup would change the ground the conditions were verified against, s
 under enforcement it is refused to the engine as well. `--as-engine` does not
 lift this one.
 
-Enforced mode gives the sequence to the engine, so the steps it sequences are
-refused when a person invokes them. The message names the remedy.
+With an akka CLI that keeps an idea record, Enforced mode runs a station command
+when the idea's previous station is done and approved, and the CLI decides;
+`/akka:specify` does not drive the sequence. With an older CLI, Enforced mode
+gives the sequence to the engine, so the steps it sequences are refused when a
+person invokes them. The message names the remedy.
 
 ## Purpose
 

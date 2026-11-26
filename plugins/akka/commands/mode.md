@@ -35,10 +35,15 @@ conditions block shipping.
   by an effective waiver. You use sign-off, strike, and waive to resolve each
   `open` or `red` condition first.
 
-The mode also decides which commands you may run. Enforced mode gives the
-sequence to the engine: `/akka:plan`, `/akka:tasks`, `/akka:implement`,
-`/akka:build` and `/akka:conform` are steps `/akka:specify` carries out, so they
-are refused when you invoke them yourself. `/akka:clarify` and `/akka:setup` are
+The mode also decides which commands you may run. With an akka CLI that keeps an
+idea record, Enforced mode runs each station command, such as `/akka:plan`,
+`/akka:tasks`, `/akka:implement` and `/akka:conform`, when the idea's previous
+station is done and approved; the CLI decides when the command opens its run,
+and its message names what is missing. A project whose specs and topics have no
+ideas yet gets them once with `akka specify ideas adopt`. With an older CLI,
+Enforced mode gives the sequence to the engine: `/akka:plan`, `/akka:tasks`,
+`/akka:implement`, `/akka:build` and `/akka:conform` are steps `/akka:specify`
+carries out, so they are refused when you invoke them yourself. `/akka:clarify` and `/akka:setup` are
 refused to the engine as well: an open question is settled by `/akka:specify`,
 and re-running setup would change the ground the conditions were verified
 against. Every other command, `/akka:discover` included, stays available to you.
@@ -47,6 +52,13 @@ switch to À la carte with `/akka:mode a-la-carte`. In Enforced mode the process
 `PROC-AUDITOR-COVERAGE` and `PROC-ADEQUACY-REVIEWED` apply as usual. While the
 set is dormant they do not resolve at all — there is nothing yet to have
 covered or reviewed.
+
+Each idea also has a Step or Continue setting. With Step, a station command
+stops when its work is done and names the next command. With Continue, outside
+Enforced mode and while nothing waits on a person, a station command run on a
+laptop carries on into the next station's command in the same conversation. It
+never carries on into `/akka:ship` or `/akka:deploy`, and a console run never
+carries on itself: the console moves the idea on.
 
 The organization can constrain this. A policy may set a different default and
 lock it; when the mode is locked, only the org-allowed mode(s) may be set. A

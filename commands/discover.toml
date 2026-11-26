@@ -9,7 +9,100 @@ prompt = """
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+In a console run, skip the `akka specify probes --help` check in this paragraph. A console run has no shell, so no `akka specify` command runs; each probes step below is skipped and records that probes were not run.
+
 This command runs `akka specify probes` and `akka specify conform`, which need an akka CLI with discovery support. Check first: run `akka specify probes --help`. If its list of commands does not include `findings`, the CLI predates discovery: akka CLI 3.0.81 and earlier lack the discovery probes and gates, and refuse the discovery templates as well. Tell the person that discovery cannot run with this CLI and needs a newer akka CLI, name what is missing (`akka specify probes findings`, the discovery gates and the discovery templates), and stop without writing any file. On a CLI that passes this check, treat an `unknown command` or `unknown flag` error from an `akka specify` call, or a template refused as unknown, the same way within one step: name what is missing, skip that step, and say so. A `probes run` that fails only on `--database-var` is run again without it, and the report says the database's catalogue was not read.
+
+## Before anything else
+
+This command keeps a run in the idea's record when the akka CLI has one: the
+`akka_run_start` MCP tool is available, or the output of `akka specify run start
+--help` contains `--station`. A CLI without it predates the idea record. With
+such a CLI, say so once and carry this command out as before: skip every step
+marked **Idea record**, and open no run.
+
+**Idea record: a console run.** Call the `akka_run_context` MCP tool first when
+it is available: it answers `{ console, idea, station, run, spec, topic,
+questions, sentBack }`, and `console: true` means the console started this command. Only
+without that tool, the console started it when `AKKA_RUN_ID` is set in its
+environment, or when the command has no shell to run the akka CLI in. The
+console has already opened the run and enforced the rules for it, so in a
+console run the run is open from the first step: its id is the `run`
+`akka_run_context` answered. Any stop before the normal close, such as a
+mode-check refusal, a missing argument, or a check that needs a tool this run
+lacks, closes it with `akka_run_close`, that `run`, `outcome: failed` and the
+reason. So in a console run: the feature is `akka_run_context`'s `spec` (for
+`/akka:discover`, the topic is its `topic`), and the command never searches for
+one; skip every step that finds, adopts, starts or links an idea, and never ask
+a person a question: wherever this command would ask one, it closes the run with
+`outcome: waiting` and `question` set to the question (`--outcome waiting
+--question "<question>"` on the CLI); the owner answers in the console, and the
+re-run reads the answer from `akka_run_context`'s `questions` (`{station, run,
+question, answer}`) and does not ask it again; run the mode check with `--idea`
+set to the `idea` `akka_run_context` answered, and skip it when it cannot run
+here or no idea is known; open the run by calling `akka_run_start` with
+`command` and `args` only, no `idea` and no `station`, and the CLI joins the
+console's run; close it as usual; and skip the carry-on step, because the
+console moves the idea on. A run with no shell for the akka CLI that
+`akka_run_context` answers `console: false` for is not a console run and keeps
+no record: open no run, ask nothing about ideas or lanes, and carry the command
+out as before the idea record, skipping every step marked **Idea record**.
+
+**Idea record: a station sent back to.** When `akka_run_context` answers
+`sentBack` (`{ from, reason, by, at }`), the idea was sent back to this station
+from `from`, and `reason` says why. Work on that reason first: read it as the
+instruction for this run from `by`, change this station's outputs where the
+reason points, and keep what it does not touch. `sentBack` is `null` when no
+send-back opened this station's visit.
+
+**Idea record: discover in a console run.** The topic is `akka_run_context`'s
+`topic`. For a topic the console created from an idea, the goal question closes
+the run `waiting` only when `questions` holds no answer to it; on the re-run,
+write the recorded answer as the goal.
+
+The topic list (no input) and `--prework` write no topic's files and open no
+run.
+
+**Idea record: find or start the topic's idea.** On a laptop run, once the topic
+is known from the input (see *Input* below), find its idea in `akka specify idea
+list --json`: the idea whose `topic` is this topic's folder name; an idea is
+never found from the git branch. When that idea has `derived: true`, it has no
+record yet: adopt it with `akka specify ideas adopt --idea <id>`, then use it. A
+topic has one idea: never start a second. When there is none, start it: ask the
+person how it ships, Deploy to Akka (`akka`) or Commit to internal systems
+(`internal`), with your suggestion, then run `akka specify idea new --topic
+<folder> --lane <lane> "<words>"` with the person's idea as its words (the
+context in the user input, or ask for it in one sentence), quoted as one
+argument. The id it prints is the topic's idea. When the adopt or `idea new`
+fails, in Enforced mode (`akka specify mode`) stop with the CLI's message;
+otherwise open no run, say in one line that this run is not recorded, and
+continue.
+
+**Idea record: open the run.** On a laptop run, call the `akka_run_start` MCP
+tool with `station: discover`, `command: /akka:discover`, `idea` set to the
+topic's idea and `args` set to the user input. Where the tool is not available,
+run `akka specify run start --station discover --command /akka:discover --idea
+<id> --args "<the user input>" --json`, with the input quoted as one argument. A
+run is never started without its idea. It answers JSON: `recorded`, and for a
+recorded run its `idea` and `run.id`. Keep both: the last steps use them.
+
+- When it answers `recorded: false`, continue without a run, and say in one line
+  that this run is not recorded, with its `reason`.
+- A refusal by rule is an error whose JSON is `{refused, message, remedy}`,
+  `refused` naming the rule: `paused`, `limit`, `shipped`, `dropped`,
+  `approval`, `order`, `no-idea-enforced`, `idea-unresolved` or `console-run`. Print `message` and `remedy` verbatim and stop.
+- Any other error, one without `refused` (such as no login), does not stop the
+  command: continue without a run, and say in one line that this run is not
+  recorded.
+
+**Idea record: a run that fails is closed too.** Once the run is open, every way
+the command ends closes it. When the work fails (a build or tests fail, or a
+step stops the command early), call `akka_run_close` with `run`, `outcome:
+failed` and `error` set to what failed, in one line, then stop. Where the tool
+is not available, run `akka specify run close --run <id> --outcome failed
+--error "<what failed>"`. When the person stops the command, close the run with
+`outcome: stopped`. This holds in a console run too. The close step below is for
+the work's normal end.
 
 ## Outline
 
@@ -36,9 +129,12 @@ Each topic folder holds a header file, `topic.md`, written from the `topic` temp
 
 **Goal**: <goal or question> | **Track**: ideation|modernization | **Code**: <CODE>
 **Scope**: project|<area> | **Status**: active|settled|parked | **Owner**: <name or role> | **Started**: <YYYY-MM-DD>
+**Choices**: scan: yes|no|skipped | probes: <built-in probe ids, or none> | web: yes|no | web-on: <YYYY-MM-DD> | skipped-by: <who> | skipped-on: <YYYY-MM-DD>
 ```
 
-- **Topic name**: the folder name, in lower case with words joined by `-` (`refund-approval`). It is never one of the sub-command words `research`, `landscape`, `concepts`, `system`, `confirm` or `mock`, and never begins with `-`.
+The skipped fields appear only when `scan: skipped`. `probes:` lists the built-in probes the person allowed, or `none`. `web:` records whether the person agreed to searching the public web, and `web-on:` the date of the answer; both are absent until the person has been asked. A topic that has no Choices line, or a Choices line without `probes:` or `web:`, is asked when the step that needs the answer first runs, and the answer is written into the Choices line (the line is added when it is missing).
+
+- **Topic name**: the folder name, in lower case with words joined by `-` (`refund-approval`). It is never one of the sub-command words `research`, `landscape`, `concepts`, `system`, `scan`, `confirm` or `mock`, and never begins with `-`.
 - **Code**: two to four capital letters, unique among the project's topics, assigned when the topic is created and never changed (`PAY` for refund approval). Every identifier the topic writes carries it, so identifiers from two topics never collide.
 - **Track**: ideation for a new idea, modernization for a rebuild of an existing system.
 - **Scope**: `project` when the topic is about the whole project, otherwise the name of the area it covers. The Story draws a project-scoped topic in its overview and an area topic in its own chapter.
@@ -55,7 +151,7 @@ the console, records two kinds of input beside `topic.md`:
   idea in the person's words when the topic began from one. Notes are the person's: never rewrite
   or delete one.
 - `materials.md`, from the `materials` template: what the person brought to study, one line each,
-  `- [S-<CODE>-<n>] <name> | kind: file|link|codebase|database|competitor|inspiration|person | location: <where> | feeds: research|concepts|landscape|system | status: not-read|read|unreachable | by: <who> | date: <YYYY-MM-DD> | note: <why it matters>`.
+  `- [S-<CODE>-<n>] <name> | kind: file|link|codebase|database|competitor|inspiration|person | location: <where> | feeds: research|concepts|landscape|system|scan | status: not-read|read|unreachable | by: <who> | date: <YYYY-MM-DD> | note: <why it matters>`.
   Attached files sit in `discovery/<topic>/materials/`. A database is recorded by the **name** of
   the environment variable that holds its address, never the address.
 
@@ -80,6 +176,7 @@ The input is `<topic> <sub-command> [context]`:
 | `<topic> landscape` | Compares the competitors, alternatives and substitutes | `discovery/<topic>/landscape.md` |
 | `<topic> concepts` | Agrees the vocabulary and the domain concepts, promotes shared ones and finds conflicts | `discovery/<topic>/concepts.md`, `discovery/concepts.md` |
 | `<topic> system` | Examines an existing system: its structure and its behaviour | `discovery/<topic>/system-map.md`, `discovery/<topic>/behaviour.md` |
+| `<topic> scan` | Studies similar products, open-source projects, case studies and write-ups for what others built, what was received well, what drew complaints, and what it means for the idea | `discovery/<topic>/scan.md`; scan sources in `materials.md`; borrow and pitfall items in `understanding.md` |
 | `<topic> confirm` | Explains the understanding item by item for a person to agree, amend, comment on or disagree with | `discovery/<topic>/understanding.md` |
 | `<topic> mock` | Registers storyboards, mocks and animatics and records their review | `discovery/<topic>/mocks/index.md` |
 | `--prework <engagement>` | Writes a pre-work prompt pack for someone to run before the first session | `discovery/prework/prompts.md` |
@@ -88,7 +185,7 @@ Read the input this way:
 
 1. Empty: run the topic list.
 2. It starts with `--prework`: run the pre-work step.
-3. The first word is a sub-command word: the topic was left out. With exactly one topic in the project, use that one. With several, list them and ask which, with your suggestion. With none, ask the topic questions below and create it first.
+3. The first word is a sub-command word (`research`, `landscape`, `concepts`, `system`, `scan`, `confirm` or `mock`): the topic was left out. With exactly one topic in the project, use that one. With several, list them and ask which, with your suggestion. With none, ask the topic questions below and create it first.
 4. Otherwise the first word is the topic name. A second word that is a sub-command runs that step for the topic; any other text is context. Text after the sub-command is context for it (for example `refunds system ../legacy-app` or `checkout mock mocks/checkout.html`).
 
 ### Creating a topic
@@ -104,8 +201,15 @@ Then propose a code from the topic name that no other topic uses, set the scope 
 the goal is about the whole project, otherwise the area), the status `active`, the owner (the
 person, by name or role) and today's date, and write `discovery/<topic>/topic.md` from the
 `topic` template. Record the goal as note `N-<CODE>-1` in `notes.md`, and each thing named in
-the answer to question 3 as a material in `materials.md`, with `status: not-read`. Then read the
-inputs as below, and run the requested step, or recommend the first one.
+the answer to question 3 as a material in `materials.md`, with `status: not-read`.
+
+Then offer the market scan once, as a yes or no question with your suggestion (see `scan`). A yes
+records `scan: yes` in `topic.md`; it lets the `scan` step search the public web, and that step only (no `web:` value is written for it). A no records `scan: skipped`, with `skipped-by` set to the
+person's name or role and `skipped-on` to today's date. Then, when the topic may read a codebase
+(a modernization, or a codebase material), ask which built-in probes may run, from `akka specify
+probes list`, offering the ones that apply; record their ids as `probes:`, or `none` when the
+person allows none. Otherwise record `probes: none`. In a console run, record `probes: none` without asking, because no probe can run there. Then read the inputs as below, and run the
+requested step, or recommend the first one.
 
 A topic the console created from an idea has the goal `Shape the idea in note N-<CODE>-1.` in
 its `topic.md`. Before the first step, propose a one-sentence goal drawn from the idea and ask
@@ -128,15 +232,40 @@ nothing else in the header.
 The topic's notes and materials are read before anything else, every time the topic is named.
 
 1. **Notes**: read every line of `notes.md`. The idea (`N-<CODE>-1`) and the notes after it say what the person is after; use them to choose questions and to word the goal. A note is not evidence: a claim taken from one is recorded as `stated: <who>, <date>` only after the person confirms it.
-2. **Materials**: take each material whose status is `not-read`, and those marked `unreachable` when the person says it has been fixed. Read it for the steps its `feeds:` names:
+2. **Materials**: take each material whose status is `not-read`, and those marked `unreachable` when the person says it has been fixed. A material with `fulfils:` answers a wish, so read it first, before any other input and before the step runs. Read it for the steps its `feeds:` names:
    - **file** (documents, spreadsheets, slides) and **link**: read it for `research` (users, outcomes, constraints, prior work) and `concepts` (the words used and what they mean). Open an attached file from `discovery/<topic>/materials/` only to read its text; never run it.
    - **codebase**: the source for `system`. Pass its folder as `--source <location>` to `akka specify probes list` and `akka specify probes run`, as in the `system` step; do not read it by hand to count anything.
    - **database**: the input of the `schema` probe, by the variable's **name** only. Pass the name as `--database-var <NAME>` to `akka specify probes run`, as in the `system` step; the probe reads the database's catalogue through that variable. When the variable is not set in the environment the command says so, the probe reads the code base alone, and you tell the person the database was not reached. Never read the variable's value, print it, ask for it or write it anywhere.
-   - **competitor** and **inspiration**: options and ideas for `landscape`. An inspiration is not a competitor: record what the person admires in it, not how it competes.
-   - **person**: someone to ask, for `research`. Add them to Requests for Other People with what to ask; never contact anyone.
-3. **Mark each one**: set its `status:` to `read` once read, or `unreachable` when it could not be opened (a file that is not there, a folder that does not exist, a link that does not answer, a variable that is not set), and tell the person what went wrong in one sentence. Change only the `status:` field of the line.
+   - **competitor** and **inspiration**: options and ideas for `landscape` and `scan`. An inspiration is not a competitor: record what the person admires in it, not how it competes.
+   - **person**: someone to ask, for `research`. Add them to Requests for Other People with what to ask, and to the Wanted list as a wish of kind `person`; never contact anyone.
+3. **Mark each one**: set its `status:` to `read` once read, or `unreachable` when it could not be opened (a file that is not there, a folder that does not exist, a link that does not answer, a page behind a login, a variable that is not set), and tell the person what went wrong in one sentence. Change only the `status:` field of the line. A link or web page that was read is snapshotted (see *Snapshots*).
 4. **Ask from what you found**: at most three plain questions, one at a time, each with your suggested answer, about what the inputs leave open or contradict. Ask nothing the notes or materials already answer.
 5. **Cite**: a finding drawn from a material names it in its evidence as `S-<CODE>-<n>`, with a page, sheet or section when it helps (`evidence: S-PAY-2 sheet Q3`).
+
+## Snapshots
+
+Discovery keeps a copy of every link, shared document or web page it reads, so that its evidence stays checkable after the original changes. Attached files are not copied, because they already sit in `materials/`. A codebase or a database is never copied.
+
+- **Save**: write what was read to `discovery/<topic>/materials/snapshots/<source id>-<YYYY-MM-DD>.<ext>`. The source id is the line's `S-<CODE>-<n>` (or `S-<n>` in `research.md`), and `<ext>` is the format read (`html`, `md`, `txt`, `pdf`). Record the sha256 of the saved file.
+- **Record**: on the source's line, append `| snapshot: snapshots/<file> | sha256: <hex> | taken: <YYYY-MM-DD>`, with the path relative to `materials/`. In `research.md` the same fields follow the `S-<n>` source fields.
+- **Changed re-read**: when a link is read again and its content differs from the saved one, save a new snapshot dated today and point the line's fields at it. Keep the old file.
+- **Nothing secret**: never save a page or document that holds a password, key, token or connection string. Read it for findings only when they need it, quote nothing secret from it, and write on its line `| snapshot: withheld | reason: contains a secret`.
+- **Behind a login**: a page the person's session cannot open is not saved; its line reads `status: unreachable`. A shared document opened through a signed-in connector is snapshotted like a link, unless it holds a secret.
+- **Public web sources**: search the public web for a landscape or research question only with the person's agreement, asked once per topic before the first such search and recorded in the Choices line of `topic.md` as `web: yes|no | web-on: <YYYY-MM-DD>`. Never search on an assumed yes; a later session reads the recorded answer. Choosing the market scan at the start is a yes for the `scan` step only. For any other step it is not an agreement to search, and `web:` stays unset until the person answers. Sources found that way are recorded as materials, with `by: discovery scan` or `by: discovery research` and the agreed `feeds:`; this is the one case where discovery adds a material itself.
+
+## Wanted: the sources the idea needs
+
+At the end of `research`, `landscape`, `scan`, `concepts` and `system`, list the sources that would help. Take the topic's Unknowns, and its findings that are `inferred` or rest on rung `inspected` alone, where a wrong answer would change the scope, the data, a rule, a gate or a test. For each one a source would settle, add one line to the `## Wanted` section at the end of `materials.md` (create the section if it is missing):
+
+```text
+- [W-<CODE>-<n>] <what to provide> | kind: file|link|codebase|database|competitor|inspiration|person | why: <one sentence> | settles: <F-ids, comma-separated> | from: <role likely to have it> | status: wanted | date: <YYYY-MM-DD>
+```
+
+- Numbered after the highest `W-<CODE>-<n>` in `materials.md`. Do not add a wish that an open wish already asks for.
+- A person who knows is a wish of kind `person`, with the role in `from:`. Each of research's Requests for Other People is one of these wishes.
+- `settles:` names the findings the source would confirm or correct, by identifier only. A wish that settles no finding yet, such as one that answers an Unknown, omits the `settles:` field and names the Unknown in `why:`; the value `none` is never written.
+- A wish's status moves only on the person's words in this conversation. Set `provided` when they hand over the material for it, and `declined` when they decline, appending ` | reason: <their reason> | declined-by: <who> | declined-on: <YYYY-MM-DD>` to the line. The wish keeps its original `date:`. Never mark a wish provided or declined on their behalf.
+- A material the person hands over for a wish is added to `materials.md` with `| fulfils: W-<CODE>-<n>` and `status: not-read`. The next run reads it first.
 
 ## Findings
 
@@ -177,6 +306,17 @@ Every template marks some sections *required, or none*. Such a section is never 
 has nothing to record, its only line is `none: <what was checked>`, so a reader can tell
 "checked and empty" from "not looked at".
 
+## Fanning out
+
+`research`, `landscape`, `scan`, `concepts` and `system` fan out when their work has more than one independent thread. `confirm` and `mock` do not: they are a conversation with one person, one item at a time.
+
+1. **Split the work into threads** after reading the inputs and before searching. A thread is one line of inquiry: one regulation or rule set, one competitor or alternative, a group of related materials to read, or one part of the existing system to read. Probes are not threads: this session runs `akka specify probes` itself, as the `system` step says, and reads their findings. A thread is independent when it needs no other thread's answer. A thread that needs another's answer waits for it.
+2. **Run the threads.** A single thread runs in this session. Two or more independent threads each go to their own sub-agent, started together, at most eight at a time; the rest start as earlier ones finish. Number each agent `agent-<n>` in the order it starts; this session is `agent-1`. Begin each sub-agent's prompt with the line `[akka-agent: agent-<n>]`, so the gateway's records join to that agent. Choose its model and effort from the project's `.akka/models.md`, else the harness default, and apply the same 85% downgrade rule as `/akka:implement`. When the harness cannot start sub-agents, run the threads one after another in this session, and say so once in the report.
+3. **Give each sub-agent** its thread, the topic's goal and code, the materials its thread reads, and the person's recorded answers: `web:` and any limit from the constitution. A sub-agent searches the public web only when `web: yes` is recorded, runs no probe and no command, never asks the person anything, and writes nothing in the topic except snapshots. It saves a link material it reads under the material's own id, as *Snapshots* says, and a new web source as `discovery/<topic>/materials/snapshots/agent-<n>-<k>-<YYYY-MM-DD>.<ext>`, each with its sha256.
+4. **Each sub-agent returns** its findings, sources, concepts, scan examples, unknowns, requests for other people and wanted sources, in this command's record forms but without identifiers, plus any question for the person, with the evidence for each, and the status (`read` or `unreachable`) of each material it was given.
+5. **This session merges.** It gives every finding, source, concept, scan example, understanding item and wish the next number in the topic, renames each new web source's snapshot to its source id and records the snapshot fields on each source's line, marks each material `read` or `unreachable` in `materials.md`, removes duplicates, and writes the step's files. Where two threads disagree, it writes both findings and an understanding item for `confirm`, never choosing one silently. It asks the person the sub-agents' questions itself, under *Talking with the person*. A sub-agent that fails or returns nothing leaves its thread not done: its materials stay `not-read`, and this session runs the thread itself or names it in the report as not done.
+6. **The report** names each thread, the agent that ran it and what it found.
+
 ## Talking with the person
 
 - Ask one question at a time, never a list, and no more than five in a step, most important first. The items `confirm` presents and the reviews `mock` asks for are not counted as questions. Before asking, read the discovery files and anything the person pointed you to.
@@ -199,12 +339,12 @@ has nothing to record, its only line is `none: <what was checked>`, so a reader 
 
 ## A topic with no sub-command: where the topic stands
 
-1. List each of the topic's files and whether it exists: `notes.md`, `materials.md` (with how many materials are not read or unreachable), `research.md`, `landscape.md`, `concepts.md`, `system-map.md`, `behaviour.md`, `understanding.md`, `mocks/index.md`.
-2. Count its findings by status, its understanding items by response and how many open, rethink or disagreed items are high-impact, and its mocks by approval (approved, changes-requested, pending).
+1. List each of the topic's files and whether it exists: `notes.md`, `materials.md` (with how many materials are not read or unreachable), `research.md`, `landscape.md`, `concepts.md`, `system-map.md`, `behaviour.md`, `scan.md`, `understanding.md`, `mocks/index.md`. When `topic.md` reads `scan: skipped`, show the scan as skipped, with who skipped it and when, instead of a missing `scan.md`.
+2. Count its findings by status, its understanding items by response and how many open, rethink or disagreed items are high-impact, its mocks by approval (approved, changes-requested, pending), and its wishes in the Wanted section of `materials.md` by status (wanted, provided, declined).
 3. Recommend one next step, the first that applies:
    1. The first missing file in the track's order:
-      - ideation: research, landscape, concepts;
-      - modernization: research, system, concepts, then landscape if the person wants alternatives compared.
+      - ideation: research, scan if the scan was chosen, landscape, concepts;
+      - modernization: research, system, concepts, then landscape and scan if the person wants them.
    2. A UI is part of the work and the topic's `mocks/index.md` has nothing approved: `/akka:discover <topic> mock`.
    3. There are findings that are not confirmed, or high-impact items still open, rethink or disagreed: `/akka:discover <topic> confirm`.
    4. Otherwise: ask the person whether the topic is settled, and then `/akka:specify`, which cites the confirmed findings.
@@ -217,7 +357,7 @@ success looks like, what constrains it, and what was tried before.
 
 **Template**: `research`. **Writes**: `discovery/<topic>/research.md`.
 
-1. Collect sources before asking anything: documents and links the person gave, files in the project (README, docs, prior specs), the pre-work outputs in `discovery/prework/` if they exist, and, if you have a web search tool and the person agrees to its use, public sources. List each source once under Sources as `S-<n>` with its owner, date and whether it looks current. A material from `materials.md` is not listed again: findings cite it by its own `S-<CODE>-<n>`.
+1. Collect sources before asking anything: documents and links the person gave, files in the project (README, docs, prior specs), the pre-work outputs in `discovery/prework/` if they exist, and, if you have a web search tool and the person agrees to its use, public sources. List each source once under Sources as `S-<n>` with its owner, date and whether it looks current, and snapshot each link or web page it names (see *Snapshots*), adding the snapshot fields to its line. A material from `materials.md` is not listed again: findings cite it by its own `S-<CODE>-<n>`.
 2. Ask only for what the sources and the topic's goal do not answer, chosen from:
    - What are we making or replacing, in one or two sentences?
    - Who will use it, and what do they need to get done?
@@ -226,6 +366,7 @@ success looks like, what constrains it, and what was tried before.
    - What has already been tried or decided?
 3. Write findings into the sections Users and Needs, Outcomes and Measures, Constraints and Regulation, and Prior Work. A pre-work output marked `[KNOWN]` becomes an observed finding citing that file; `[INFERRED]` becomes inferred; `[UNKNOWN]` goes under Unknowns.
 4. Write Unknowns and Requests for Other People: what to ask of which role, each with one sentence on why it matters.
+5. **Wanted**: follow *Wanted: the sources the idea needs*.
 
 ## landscape
 
@@ -239,6 +380,7 @@ what it competes with and what it must be better than.
 3. Ask the person which dimensions matter to them. Suggest four to six that fit the job (for example cost to run, time to a result, accuracy, who can change it, how it is audited) and let them add, drop or rename. Number them `L-<n>`; `D-<n>` belongs to the plan's decisions.
 4. Fill the comparison. Every cell either names the finding that supports it or reads `unknown`. Do not fill a cell from general impressions.
 5. Under What This Means for the Specification, write the implications as inferred findings with `reasoning:` naming the findings they come from.
+6. **Wanted**: follow *Wanted: the sources the idea needs*.
 
 ## concepts
 
@@ -261,6 +403,7 @@ the specification's Key Entities and the console glossary.
 
    and record it under Shared with the Project in the topic's `concepts.md`. The Story then draws the concept in its overview. Promotion changes nothing in the definition.
 8. **Conflicts between topics**: compare every concept name in this topic with the concepts of every other topic and the shared list. When two topics define the same name differently, do not change either definition. Write a conflict item into the `understanding.md` of each topic involved, in the `confirm` structure below, with `impact: high`, `response: open`, `version: 1` and `| conflict: <CODE>/C-<CODE>-<n>, <CODE>/C-<CODE>-<n>`. Its explanation sets the two definitions side by side, says what depends on the difference and recommends one way to reconcile them: one name for both, two names, or one concept moved. Record it under Conflicts with Other Topics in the topic's `concepts.md`. The person reconciles it in `confirm`; nothing is changed before then.
+9. **Wanted**: follow *Wanted: the sources the idea needs*.
 
 ## system
 
@@ -310,7 +453,7 @@ Rules that apply on every rung:
 
 ### Steps
 
-1. **Declare the probes that exercise the system or read its database**. This step only writes the programs and declares them; no probe runs until the person approves its exact command in step 3 and step 4 runs it. A finding whose `rung:` is `exercised: <probe>` rests on `.akka/discovery/<probe>.json`, which only `akka specify probes run` writes, and the conform gate `PROC-FINDINGS-PROBE-RAN` fails a finding whose result file is missing or whose probe failed in the recorded run. No built-in probe sends test applications through the system or runs queries against its database, so when this investigation does either, do it as a declared probe, never as a script run on its own and never by writing the result file by hand:
+1. **Declare the probes that exercise the system or read its database**. In a console run, skip this step: no probe can run there, so none is declared. On a laptop run, this step only writes the programs and declares them; no probe runs until the person approves its exact command in step 3 and step 4 runs it. A finding whose `rung:` is `exercised: <probe>` rests on `.akka/discovery/<probe>.json`, which only `akka specify probes run` writes, and the conform gate `PROC-FINDINGS-PROBE-RAN` fails a finding whose result file is missing or whose probe failed in the recorded run. No built-in probe sends test applications through the system or runs queries against its database, so when this investigation does either, do it as a declared probe, never as a script run on its own and never by writing the result file by hand:
 
    - Write the exercising as a program that speaks the probe contract: it reads one JSON request from standard input and writes one JSON answer to standard output, `{"version": 1, "probe": "<probe name>", "examined": <count>, "findings": [{"element": ..., "says": ..., "evidence": ...}], "detail": {...}}`. Keep the program under the topic's `evidence/` folder. Its answer, and anything else it writes, holds counts, schema (tables, columns and types) and masked or placeholder values only, never a customer's records: a test application is made up for the test, and a query reports how many rows matched and which columns it read, not the rows. Put the cases, queries and counts in `detail`. A probe that examined nothing says `"examined": 0`. A database program reads its connection string from the environment variable whose **name** it is given on its command line, and never prints it.
    - Declare it in the project's `.akka/exit-conditions.yaml` under `probes:`, one entry for test applications and one for database queries, named exactly as the finding's rung names them (the conventional names are `test-applications` and `database-query`). The entries have no `default_at`, so neither runs unless step 4 selects it:
@@ -337,7 +480,7 @@ Rules that apply on every rung:
    - `test-applications` creates or changes records, so it needs the target declared a copy: after the person confirms the instance is a copy, run `akka specify probes target <address> --kind copy`. `<address>` is the same address passed as `--target` to `probes list` and `probes run` in steps 2 and 4. `probes run` withholds a `change` probe from an address that was not declared a copy.
    - No finding may cite a probe that was not declared, or that was declared and did not run successfully in step 4. A question a skipped probe would have answered stays an Unknowns line.
 
-2. **See which probes can reach the system**. Run:
+2. **See which probes can reach the system**. In a console run, skip this step and record that probes were not run. On a laptop run, run:
 
    ```text
    akka specify probes list --source <source path> --target <address> --study <read|run|diff>
@@ -345,17 +488,17 @@ Rules that apply on every rung:
 
    Leave out `--target` when nothing is running. `probes list` takes no `--database-var`, so it always shows `database-query` and other probes that need the database as unavailable; that is not a gap, and step 4 decides whether they run. Show the person, in plain words, which probes are available and which are not, with the reason for each (for example *"the timing probe needs a running copy"*). A probe that cannot run is reported, never silently skipped.
 
-3. **Approval of declared probes**. A probe a project or organization declared is a command that runs with the person's privileges. If one is selected and not yet approved, show its exact command and ask the person whether to approve it. Run `akka specify probes approve <probe>` only after they say yes to that command. Built-in probes need no approval.
+3. **Approval of declared probes**. In a console run, skip this step: no probe is selected there. A probe a project or organization declared is a command that runs with the person's privileges. If one is selected and not yet approved, show its exact command and ask the person whether to approve it. Run `akka specify probes approve <probe>` only after they say yes to that command. Built-in probes need no approval.
 
-4. **Run the probes**. Run:
+4. **Run the probes**. In a console run, skip this step and record that probes were not run; no probe runs without a shell. On a laptop run, run:
 
    ```text
    akka specify probes run --source <source path> --target <address> --study <level> [--probe +<name>,-<name>] [--database-var <NAME>]
    ```
 
-   `--probe` adds or removes probes against the study level's defaults. Select each probe declared in step 1, and only those: for example `--probe +test-applications,+database-query` when both were declared, and `--probe +test-applications` when `database-query` was not. A name that was not declared stops the run with `no probe named`. `--database-var` takes the **name** of the environment variable that holds a database material's address, as recorded in `materials.md` (for example `CLAIMS_DB_URL`), never the address itself; the `schema` probe then reads the database's catalogue as well as the source. The database counts as available only when that variable is set in the environment the command runs in; if it is not, ask the person to set it in their own terminal, and never ask for its value. `run.json` records the name only. Report any probe that was withheld or failed, with its reason. A failed probe produced nothing, so no finding may cite it. When a probe the person had you declare fails, fix its program and run it again here; do not copy its evidence into `.akka/discovery/` yourself. To see one probe's raw exchange, use `akka specify probes test <probe>` with the same `--source`, `--target` and `--study`; it takes no `--database-var`.
+   Run only the built-in probes listed in `probes:` in `topic.md`: put each default probe not listed there in one `--probe` value as `-<name>`; `probes: none` runs none. When `topic.md` has no Choices line or no `probes:`, ask once, before this step, which of the built-in probes from `akka specify probes list` may run, record the answer as `probes:` in the Choices line, and run only those. That question counts toward the step's five. Never run a built-in probe the person has not allowed; when they want another one later, they say so and you add it to `probes:`. `--probe` adds or removes probes against the study level's defaults. Give it one comma-separated value, such as `--probe -appearance,+test-applications`, and never repeat the flag: a second `--probe` replaces the first. Select each probe declared in step 1, and only those: for example `--probe +test-applications,+database-query` when both were declared, and `--probe +test-applications` when `database-query` was not. A name that was not declared stops the run with `no probe named`. `--database-var` takes the **name** of the environment variable that holds a database material's address, as recorded in `materials.md` (for example `CLAIMS_DB_URL`), never the address itself; the `schema` probe then reads the database's catalogue as well as the source. The database counts as available only when that variable is set in the environment the command runs in; if it is not, ask the person to set it in their own terminal, and never ask for its value. `run.json` records the name only. Report any probe that was withheld or failed, with its reason. A failed probe produced nothing, so no finding may cite it. When a probe the person had you declare fails, fix its program and run it again here; do not copy its evidence into `.akka/discovery/` yourself. To see one probe's raw exchange, use `akka specify probes test <probe>` with the same `--source`, `--target` and `--study`; it takes no `--database-var`.
 
-5. **Draft the findings the probes support**. Run `akka specify probes findings --topic <topic>`. It prints one finding line for each count a probe established (routes, tables, libraries, outside services called, tests and reachability), numbered after the highest `F-<CODE>-<n>` in the topic, and an Unknowns line for each gap a probe reported. Its numbers continue from the files as they are when it runs, so run it after this run's other findings are written, and copy each line into the right section of `system-map.md` or `behaviour.md` as written. `--write system-map` appends them instead, the findings under a `## Draft Findings` heading and the unknowns under `## Draft Unknowns`. Neither is a template section: move both into place and remove the headings before the step ends.
+5. **Draft the findings the probes support**. In a console run, skip this step, because no probe ran. On a laptop run, run `akka specify probes findings --topic <topic>`. It prints one finding line for each count a probe established (routes, tables, libraries, outside services called, tests and reachability), numbered after the highest `F-<CODE>-<n>` in the topic, and an Unknowns line for each gap a probe reported. Its numbers continue from the files as they are when it runs, so run it after this run's other findings are written, and copy each line into the right section of `system-map.md` or `behaviour.md` as written. `--write system-map` appends them instead, the findings under a `## Draft Findings` heading and the unknowns under `## Draft Unknowns`. Neither is a template section: move both into place and remove the headings before the step ends.
 
 6. **Write `system-map.md`**: the system studied, the inventory with a count for every kind (`0` where none exists; counts come from a probe, never from reading by hand), structure findings, reachability (code that exists but never runs does not need rebuilding), test coverage, and the probes table.
 
@@ -363,7 +506,30 @@ Rules that apply on every rung:
 
 8. **Climb**. For each high-impact finding still at `inspected`, propose the probe or document that would settle it and ask whether to run it now.
 
+9. **Wanted**: follow *Wanted: the sources the idea needs*.
+
 Never start, stop or change a running system without asking. Never copy customer data out of it into discovery files.
+
+## scan
+
+**Purpose**: Learn from others who tried something similar: what they built, what was received well, what drew complaints, and what it means for this idea. It is inspiration and a check on the idea, separate from `landscape`, which compares options on chosen dimensions.
+
+**Template**: `scan`. **Writes**: `discovery/<topic>/scan.md`; scan sources in `materials.md`; borrow and pitfall items in `understanding.md`.
+
+1. **Choice**: read `scan:` in `topic.md`. When it reads `skipped`, say that the scan was skipped by the person named in `skipped-by` on `skipped-on`, and stop, unless the person now asks for it. Then set `scan: yes` and remove the skipped fields, from their answer.
+2. **Scope**: ask the person which kinds of example to look for (product, open-source project, case study, write-up) and which similar things they already know of. Use the idea's goal and notes to suggest them. Ask one question at a time.
+3. **Sources**: take the topic's `competitor` and `inspiration` materials that `feeds` the scan. `scan: yes` lets you search the public web for this step, as set out in *Snapshots*. Each example's source is a material line with `feeds: scan`, the person's own or one found on the web, read and snapshotted like any other; an example's evidence cites it as `S-<CODE>-<n>`.
+4. **Examples**: for each example closest to the idea that the sources support, read it and write one line, numbered after the highest `X-<CODE>-<n>` in `scan.md`:
+
+   ```text
+   - [X-<CODE>-<n>] <name> | kind: product|open-source|case-study|write-up | location: <where> | built: <one sentence> | received-well: <one sentence> | complaints: <one sentence> | means: <one sentence> | evidence: <S-ids>
+   ```
+
+   Each field states only what the source says, with the source's id as evidence. A field the sources do not answer reads `unknown`. `means` is reasoned from the other fields, not seen, and says so in its sentence.
+5. **Ideas worth borrowing and Pitfalls to avoid**: each item is a finding, `- [F-<CODE>-<n>] <claim> | evidence: reasoning: <X-ids> | status: inferred`, in one of the two sections of `scan.md`. Then write each one as an understanding item in `understanding.md`, with `| from: borrow` or `| from: pitfall`, `response: open` and `version: 1`, following the `confirm` rules. The person agrees, amends or disagrees with each in `confirm`; the scan does not ask.
+6. **Wanted**: follow *Wanted: the sources the idea needs*.
+
+When the scan finds no relevant example, each section reads `none: <what was checked>`.
 
 ## confirm
 
@@ -391,7 +557,7 @@ explanation and thread as indented lines beneath it:
     - What I think you mean: ...
 ```
 
-The indented lines are the item's thread, oldest first, and are never items of their own.
+An item from `scan` adds `| from: borrow|pitfall` after its `covers:` field. The indented lines are the item's thread, oldest first, and are never items of their own.
 `version` is the version the response answers. An `answer` line records a response the person
 gave after a comment without a new version being written; without it, a comment after the newest
 version leaves the item unsettled.
@@ -488,14 +654,20 @@ customer, product or person; it uses placeholders the owner fills in.
 3. **Report** the file path, the number of prompts, and which ones need other people first.
 
 
+## Closing the run
+
+The last step of every run this command opened closes it, after the step's report and any Story refresh. Call the `akka_run_close` MCP tool with `run` set to the run's id, `outcome: ok`, and `outputs` set to the files this run wrote, as project-relative paths: the step's files from the Writes column above, and the Story pages when `/akka:docs story` ran. Where the tool is not available, run `akka specify run close --run <id> --outcome ok` with one `--file <path>` for each output. On an error, print its message; the files already written stand. After the close, run `git status --porcelain -- .akka/record/` and end the final message with one line naming the files it lists, such as "Record files to commit with your work: .akka/record/<id>/…". This command does not commit the record. When git is not available, the line says the record is in `.akka/record/<id>/`.
+
+Then carry on or stop. In a console run, skip this step: the console moves the idea on. If a run was opened, run `akka specify idea next --idea <idea> --from discover --json`, where `<idea>` is the `idea` the run start returned. It answers `{ go, next, reason }`. When `go` is true, carry on into `next.command` in this conversation, following its own instructions. Otherwise stop, print `reason`, and name `next.command` when there is one. Without a run, stop and name the next command.
+
 ## Key rules
 
 - Use absolute paths when reading and writing files.
-- Findings, understanding items, concepts and mock entries use the exact forms above, with the topic's code: `[F-<CODE>-<n>]`, `[U-<CODE>-<n>]`, `### C-<CODE>-<n>:`, `[M-<CODE>-<n>]`. A line that starts with one of these identifiers in brackets and lacks a required field is an error, not an ignored line. The project-level set at the `discovery/` root writes the same forms without a code.
+- Findings, understanding items, concepts, mock entries, wishes and scan examples use the exact forms above, with the topic's code: `[F-<CODE>-<n>]`, `[U-<CODE>-<n>]`, `### C-<CODE>-<n>:`, `[M-<CODE>-<n>]`, `[W-<CODE>-<n>]`, `[X-<CODE>-<n>]`. A line that starts with one of these identifiers in brackets and lacks a required field is an error, not an ignored line. The project-level set at the `discovery/` root writes the same forms without a code.
 - A step writes in its own topic's folder. The exceptions are the reference lines and conflict items `concepts` writes, and nothing else.
 - Only `confirm` sets a finding to `confirmed`, and only from a person's answer. Only `mock` records an approval, and only from the reviewer's answer. Only the person sets a topic settled or parked.
 - A step adds to an existing file; it never deletes another step's findings or any line of an item's thread.
-- `notes.md` and `materials.md` are the person's. Discovery adds a note or a material only from what the person said, and changes nothing in them but a material's `status:`. A database's address, and any password, key or token, is never written to a discovery file.
+- `notes.md` and `materials.md` are the person's. Discovery adds a note or a material only from what the person said, or for a public web source the person agreed to search (see *Snapshots*). It changes nothing in them but a material's `status:`, a snapshot's fields, and the Wanted section, where a wish's status moves only on the person's words. A database's address, and any password, key or token, is never written to a discovery file.
 - Discovery refreshes the Story with `/akka:docs story` when the person settles a topic, and when a concept or a finding the Story cites changes, in the same session. A topic's chapter alone is `/akka:docs story <topic>`.
 - Discovery never writes a specification. `/akka:specify` does, citing confirmed findings by identifier, such as `[F-PAY-3]`, from any topic.
 
@@ -503,14 +675,20 @@ customer, product or person; it uses placeholders the owner fills in.
 
 - [ ] `akka_sdd_list_specs` and `akka_sdd_constitution` were called, and the topic's files, the project-level files and every topic's `topic.md` were read before any question was asked.
 - [ ] The topic's `notes.md` and `materials.md` were read first; every material read is marked `read` or `unreachable`; no more than three questions came from them; findings drawn from a material cite it as `S-<CODE>-<n>`; a database was used by its variable's name only.
-- [ ] The topic and step were read from the input as described (the topic list ran when there was no input; with several topics and none named, the person was asked which); a new topic was created after at most three questions, with a code unique in the project and a name that is not a sub-command word.
+- [ ] The topic and step were read from the input as described (the topic list ran when there was no input; with several topics and none named, the person was asked which); a new topic was created after at most three questions, with a code unique in the project and a name that is not a sub-command word; the scan offer was asked once and recorded in `topic.md`.
+- [ ] Every link, shared document or web page read has a snapshot with its sha256 and date, or `snapshot: withheld` with a reason (it holds a secret), or its line reads `unreachable`; no secret was saved; a changed re-read added a snapshot and kept the old one.
+- [ ] `## Wanted` lines follow the format; no wish was marked provided or declined without the person's words; a material added for a wish carries `fulfils:`.
+- [ ] `scan`: examples follow the `X` format with evidence from `feeds: scan` materials (a link has a snapshot; an attached file needs none); borrow and pitfall findings are `inferred` with `reasoning:` and each is an understanding item with `from:`; public web sources were used only with the person's agreement: `scan: yes` for the scan, or `web: yes` in `topic.md`.
 - [ ] Each file written follows the template returned by `akka_sdd_get_template` for its step, records the topic and its code in its header, and every *required, or none* section has content or a `none: <what was checked>` line.
 - [ ] Every finding added is one line `- [F-<CODE>-<n>] <claim> | evidence: <source> | status: observed|inferred|confirmed`, numbered after the highest number in the topic, with evidence a reader can open; behaviour and structure findings carry a `rung:`.
 - [ ] Questions were asked one at a time, no more than five in the step; every "don't know" became an Unknowns line.
-- [ ] `system`: probe availability was shown with reasons, declared probes ran only after the person approved their exact command, `.akka/discovery/run.json` was written by `akka specify probes run`, a database material was passed by its variable's name with `--database-var`, exercising and database queries ran as declared probes through `akka specify probes run` so that `.akka/discovery/<probe>.json` exists for every probe a finding's `rung:` names, and no finding cites a probe that was not declared, was withheld or failed.
+- [ ] `system`: in a console run, the report says probes were not run; otherwise probe availability was shown with reasons, only the built-in probes listed in `topic.md` `probes:` ran (a missing `probes:` was asked once and recorded first), declared probes ran only after the person approved their exact command, `.akka/discovery/run.json` was written by `akka specify probes run`, a database material was passed by its variable's name with `--database-var`, exercising and database queries ran as declared probes through `akka specify probes run` so that `.akka/discovery/<probe>.json` exists for every probe a finding's `rung:` names, and no finding cites a probe that was not declared, was withheld or failed.
 - [ ] `concepts`: every concept is defined once, in its topic; a promoted concept has one `- see: <CODE>/C-<CODE>-<n> | shared` line in `discovery/concepts.md` and was promoted on the person's yes; every concept name defined differently by two topics has a conflict item in each topic's `understanding.md`.
 - [ ] `confirm`: items were presented one at a time, each showing the three default parts in plain language, readable on its own, with the example and the consequence behind "More"; every item is one `[U-<CODE>-<n>]` line with impact, covers, response and version, and its versions, comments and answer lines as indented thread lines; a response given after a comment without a new version has an `answer` line; every response, reason, comment, name and date came from the person; agreed and amended findings are `confirmed` with `understanding.md U-<CODE>-<n>` in their evidence.
 - [ ] `mock`: every entry is one `[M-<CODE>-<n>]` line; every approval or change request came from the reviewer and is in Review History.
 - [ ] `--prework`: the pack has how to use, the request list first, the strongest-model note, Prompt 0, numbered prompts each naming its output file, the kickoff brief last, and a specification seed, with no customer, product or person named.
+- [ ] `research`, `landscape`, `scan`, `concepts` and `system` split their work into threads; where the harness could start sub-agents, two or more independent threads ran together, at most eight at a time, in sub-agents numbered `agent-<n>` whose prompts began `[akka-agent: agent-<n>]`, and otherwise the threads ran one after another and the report said so; probes ran in this session; sub-agents ran no command, asked the person nothing and wrote only snapshots; this session numbered and merged their results, marked each material, recorded conflicts between threads as understanding items, and the report named each thread and its agent.
 - [ ] The report gave the files written, the findings added by status, and one recommended next step.
+- [ ] Apart from the topic list, the run was opened with `akka_run_start` before any other step and closed with `akka_run_close` naming the files written, or the CLI was reported as predating the idea record.
+- [ ] With a run, the command carried on into `next.command` only when `akka specify idea next` answered `go: true`; otherwise it stopped, printed the reason and named the next command.
 """
